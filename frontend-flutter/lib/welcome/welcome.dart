@@ -1,9 +1,44 @@
+import 'package:cardpay/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: AuthService().userStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            body: Center(
+              child: const Text('loading'),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: const Text('error'),
+            ),
+          );
+        } else if (snapshot.hasData) {
+          // There is data if the user is logged in so goto dashboard
+          Navigator.pushNamed(context, '/login');
+          return Scaffold();
+        } else {
+          return WelcomeWidget();
+        }
+      },
+    );
+  }
+}
+
+class WelcomeWidget extends StatelessWidget {
+  const WelcomeWidget({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
