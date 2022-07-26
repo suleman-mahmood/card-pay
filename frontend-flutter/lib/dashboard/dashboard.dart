@@ -1,3 +1,4 @@
+import 'package:cardpay/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -221,6 +222,45 @@ class DashboardScreen extends StatelessWidget {
                     )
                   ],
                 ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(right: 20),
+            child: Column(
+              children: [
+                Container(
+                  width: 150,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
+                    ),
+                    border: Border.all(
+                      color: (Colors.orange[700])!,
+                    ),
+                  ),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.transparent),
+                    ),
+                    onPressed: () async {
+                      await AuthService().signOut();
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/',
+                        (route) => false,
+                      );
+                    },
+                    child: Icon(
+                      Icons.arrow_upward,
+                    ),
+                  ),
+                ),
+                Text(
+                  'Log Out',
+                  style: Theme.of(context).textTheme.bodyText2,
+                )
               ],
             ),
           ),
