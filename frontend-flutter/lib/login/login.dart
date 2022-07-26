@@ -1,9 +1,13 @@
+import 'package:cardpay/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  String email = '';
+  String password = '';
+
+  LoginScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +39,9 @@ class LoginScreen extends StatelessWidget {
                 color: Colors.orange[700],
               ),
               child: TextField(
+                onChanged: (String emailValue) {
+                  email = emailValue;
+                },
                 decoration: InputDecoration(
                   labelText: 'University Email',
                   border: InputBorder.none,
@@ -52,6 +59,9 @@ class LoginScreen extends StatelessWidget {
                 color: Colors.orange[700],
               ),
               child: TextField(
+                onChanged: (String passwordValue) {
+                  password = passwordValue;
+                },
                 decoration: InputDecoration(
                   labelText: 'Password',
                   border: InputBorder.none,
@@ -83,8 +93,10 @@ class LoginScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                onPressed: () =>
-                    Navigator.pushNamed(context, '/student-verification'),
+                onPressed: () async {
+                  await AuthService().signIn(email, password);
+                  Navigator.pushNamed(context, '/dashboard');
+                },
                 child: Text(
                   'Sign In',
                 ),
