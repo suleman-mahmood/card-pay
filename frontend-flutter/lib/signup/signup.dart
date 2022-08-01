@@ -114,8 +114,9 @@ class SignUpScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       onPressed: () async {
-                        await AuthService().signUp(email, password);
-                        Navigator.pushNamed(context, '/dashboard');
+                        if (await AuthService().signUp(email, password)) {
+                          Navigator.pushNamed(context, '/dashboard');
+                        }
                       },
                       child: Text(
                         'Sign Up',
