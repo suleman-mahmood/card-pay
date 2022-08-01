@@ -1,7 +1,7 @@
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+// import * as functions from "firebase-functions";
+// import * as admin from "firebase-admin";
 
-admin.initializeApp();
+// admin.initializeApp();
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -10,3 +10,5 @@ admin.initializeApp();
 //   functions.logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
+
+export {createUser} from "./auth";
