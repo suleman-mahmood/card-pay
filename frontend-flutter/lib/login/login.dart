@@ -94,8 +94,9 @@ class LoginScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 onPressed: () async {
-                  await AuthService().signIn(email, password);
-                  Navigator.pushNamed(context, '/dashboard');
+                  if (await AuthService().signIn(email, password)) {
+                    Navigator.pushNamed(context, '/dashboard');
+                  }
                 },
                 child: Text(
                   'Sign In',
