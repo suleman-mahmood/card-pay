@@ -4,34 +4,33 @@ import * as admin from "firebase-admin";
 admin.initializeApp();
 const db = admin.firestore();
 
-interface makeTransactionData {
+interface transferData {
   amount: string;
-  senderRollNumber: string;
+  recipientRollNumber: string;
 }
 
-export const makeTransaction = functions.https.onCall(async (
-    data: makeTransactionData,
+export const transfer = functions.https.onCall(async (
+    data: transferData,
     context
 ) => {
   /*
-    This function makes a new transaction which deducts the amount
-    from the sender's id passed in the argument and adds the amount to the
-    vendor calling this function.
+    This function transfers the amount from the caller's id
+    to the recipient's roll number in the argument
 
     param: data = {
       amount: string;
-      senderRollNumber: string;
+      recipientRollNumber: string;
     }
    */
 
   if (!context.auth) {
     throw new functions.https.HttpsError(
-        "unauthenticated", "The vendor is not authenticated"
+        "unauthenticated", "The user is not authenticated"
     );
   }
 
   const amount = parseInt(data.amount);
-  const senderRollNumber = data.senderRollNumber;
+  const recipientRollNumber = data.recipientRollNumber;
 
   if (amount < 1) {
     throw new functions.https.HttpsError(
@@ -39,61 +38,54 @@ export const makeTransaction = functions.https.onCall(async (
     );
   }
 
-  // TODO: add more validation for senderRollNumber
-  if (senderRollNumber.length !== 8) {
+  // TODO: add more validation for recipientRollNumber
+  if (recipientRollNumber.length !== 8) {
     throw new functions.https.HttpsError(
         "invalid-argument", "Sender roll number must be 8 digits long"
     );
   }
-  if (/^[0-9]+$/.test(senderRollNumber) === false) {
+  if (/^[0-9]+$/.test(recipientRollNumber) === false) {
     throw new functions.https.HttpsError(
         "invalid-argument", "Sender roll number must contain digits only"
     );
   }
 
-  const vendorUid: string = context.auth.uid;
-
-  // Get the vendor details from Firestore
-  const vendorsRef = db.collection("users").doc(vendorUid);
-  const vendorSnapshot = await vendorsRef.get();
-
-  if (!vendorSnapshot.exists) {
-    throw new functions.https.HttpsError(
-        "not-found", "Vendor does not exist in Firestore"
-    );
-  }
-
-  // Check if the caller is a vendor
-  if (vendorSnapshot.data()!.role !== "vendor") {
-    throw new functions.https.HttpsError(
-        "permission-denied", "Only vendors can call this function"
-    );
-  }
+  const sendersUid: string = context.auth.uid;
 
   // Get the sender details from Firestore
-  const sendersQueryRef = db.collection("users")
-      .where("rollNumber", "==", senderRollNumber);
-  const senderSnapshot = await sendersQueryRef.get();
-  if (senderSnapshot.empty) {
+  const sendersRef = db.collection("users").doc(sendersUid);
+  const senderSnapshot = await sendersRef.get();
+
+  if (!senderSnapshot.exists) {
     throw new functions.https.HttpsError(
         "not-found", "Sender does not exist in Firestore"
     );
   }
-  if (senderSnapshot.docs.length > 1) {
-    throw new functions.https.HttpsError(
-        "internal",
-        "Multiple senders with the same roll number exists in Firestore"
-    );
-  }
-  const senderDoc = senderSnapshot.docs[0].data();
-  const senderUid = senderSnapshot.docs[0].id;
 
   // Check if the sender has the sufficient balance
-  if (senderDoc.balance < amount) {
+  if (senderSnapshot.data()!.balance < amount) {
     throw new functions.https.HttpsError(
         "failed-precondition", "Sender does not have sufficient balance"
     );
   }
+
+  // Get the recipient details from Firestore
+  const recipientsQueryRef = db.collection("users")
+      .where("rollNumber", "==", recipientRollNumber);
+  const recipientSnapshot = await recipientsQueryRef.get();
+  if (recipientSnapshot.empty) {
+    throw new functions.https.HttpsError(
+        "not-found", "Recipient does not exist in Firestore"
+    );
+  }
+  if (recipientSnapshot.docs.length > 1) {
+    throw new functions.https.HttpsError(
+        "internal",
+        "Multiple recipients with the same roll number exists in Firestore"
+    );
+  }
+  const recipientDoc = recipientSnapshot.docs[0].data();
+  const recipientUid = recipientSnapshot.docs[0].id;
 
   /*
   Handle transaction success!
@@ -104,10 +96,10 @@ export const makeTransaction = functions.https.onCall(async (
   const transaction = {
     id: transactionsRef.id,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    senderId: senderUid,
-    senderName: senderDoc.fullName,
-    recipientId: vendorUid,
-    recipientName: vendorSnapshot.data()!.fullName,
+    senderId: sendersUid,
+    senderName: senderSnapshot.data()!.fullName,
+    recipientId: recipientUid,
+    recipientName: recipientDoc.fullName,
     amount: amount,
     status: "successful",
   };
@@ -124,7 +116,7 @@ export const makeTransaction = functions.https.onCall(async (
 
   // Add the transaction to the sender's transaction history
   // Decrement the balance by the amount for the sender
-  const sendersDocRef = db.collection("users").doc(senderUid);
+  const sendersDocRef = db.collection("users").doc(sendersUid);
   await sendersDocRef.update({
     transactions: admin.firestore.FieldValue.arrayUnion(userTransaction),
     balance: admin.firestore.FieldValue.increment(-1 * amount),
@@ -132,7 +124,7 @@ export const makeTransaction = functions.https.onCall(async (
 
   // Add the transaction to the recipient's transaction history
   // Increment the balance by the amount for the recipient
-  const recipientsDocRef = db.collection("users").doc(vendorUid);
+  const recipientsDocRef = db.collection("users").doc(recipientUid);
   await recipientsDocRef.update({
     transactions: admin.firestore.FieldValue.arrayUnion(userTransaction),
     balance: admin.firestore.FieldValue.increment(amount),
