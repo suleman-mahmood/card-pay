@@ -44,7 +44,7 @@ export const deposit = functions.https.onCall(async (
 
   if (!userSnapshot.exists) {
     throw new functions.https.HttpsError(
-        "permission-denied", "User does not exist in Firestore"
+        "not-found", "User does not exist in Firestore"
     );
   }
 
@@ -62,7 +62,7 @@ export const deposit = functions.https.onCall(async (
     senderId: "PayPro",
     senderName: "PayPro Payment Gateway",
     recipientId: uid,
-    recipientName: userSnapshot.data()?.fullName,
+    recipientName: userSnapshot.data()!.fullName,
     amount: amount,
     status: "successful",
   };
