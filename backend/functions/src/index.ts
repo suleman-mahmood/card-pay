@@ -13,3 +13,4 @@
 
 export {createUser} from "./auth";
 export {deposit} from "./deposit";
+export {makeTransaction} from "./makeTransaction";
