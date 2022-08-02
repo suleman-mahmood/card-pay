@@ -63,6 +63,13 @@ export const makeTransaction = functions.https.onCall(async (
     );
   }
 
+  // Check if the caller is a vendor
+  if (vendorSnapshot.data()!.role !== "vendor") {
+    throw new functions.https.HttpsError(
+        "permission-denied", "Only vendors can call this function"
+    );
+  }
+
   // Get the sender details from Firestore
   const sendersQueryRef = db.collection("users")
       .where("rollNumber", "==", senderRollNumber);
