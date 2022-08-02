@@ -64,7 +64,7 @@ class SignUpScreen extends StatelessWidget {
                         email = emailValue;
                       },
                       decoration: InputDecoration(
-                        labelText: 'University Email',
+                        labelText: 'LUMS ID',
                         border: InputBorder.none,
                       ),
                     ),
