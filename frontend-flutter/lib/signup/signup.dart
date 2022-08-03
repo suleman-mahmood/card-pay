@@ -1,4 +1,5 @@
 import 'package:cardpay/services/auth.dart';
+import 'package:cardpay/services/validation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -6,8 +7,17 @@ import 'package:flutter/src/widgets/framework.dart';
 class SignUpScreen extends StatelessWidget {
   String email = '';
   String password = '';
+  final _signupformkey = GlobalKey<FormState>();
 
   SignUpScreen({Key? key}) : super(key: key);
+
+  void _submit(context, email, password) async {
+    if (_signupformkey.currentState!.validate()) {
+      if (await AuthService().signUp(email, password)) {
+        Navigator.pushNamed(context, '/dashboard');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,20 +39,21 @@ class SignUpScreen extends StatelessWidget {
               ),
             ),
             Form(
+              key: _signupformkey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     width: 250,
-                    margin: EdgeInsets.only(top: 15),
-                    padding: EdgeInsets.only(left: 20),
+                    margin: const EdgeInsets.only(top: 15),
+                    padding: const EdgeInsets.only(left: 20),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
+                      borderRadius: const BorderRadius.all(
                         Radius.circular(10),
                       ),
                       color: Colors.orange[700],
                     ),
-                    child: TextField(
+                    child: const TextField(
                       decoration: InputDecoration(
                         labelText: 'Full Name',
                         border: InputBorder.none,
@@ -51,42 +62,63 @@ class SignUpScreen extends StatelessWidget {
                   ),
                   Container(
                     width: 250,
-                    margin: EdgeInsets.only(top: 15),
-                    padding: EdgeInsets.only(left: 20),
+                    margin: const EdgeInsets.only(top: 15),
+                    padding: const EdgeInsets.only(left: 20),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
+                      borderRadius: const BorderRadius.all(
                         Radius.circular(10),
                       ),
                       color: Colors.orange[700],
                     ),
-                    child: TextField(
-                      onChanged: (String emailValue) {
-                        email = emailValue;
-                      },
-                      decoration: InputDecoration(
+                    child: TextFormField(
+                      // ignore: non_constant_identifier_names
+                      onChanged: (IDValue) => email = IDValue,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: const InputDecoration(
                         labelText: 'LUMS ID',
                         border: InputBorder.none,
                       ),
+                      validator: (IDValue) {
+                        if (IDValue != null) {
+                          print("ID is$IDValue");
+                          if (!IDValue.isValidID) {
+                            printWarning("Invalid LUMS ID - Out of range");
+                          } else {
+                            printInGreen("Valid ID");
+                          }
+                        } else {
+                          printError("LUMS ID input field is Empty");
+                        }
+                      },
                     ),
                   ),
                   Container(
                     width: 250,
-                    margin: EdgeInsets.only(top: 15),
-                    padding: EdgeInsets.only(left: 20),
+                    margin: const EdgeInsets.only(top: 15),
+                    padding: const EdgeInsets.only(left: 20),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
+                      borderRadius: const BorderRadius.all(
                         Radius.circular(10),
                       ),
                       color: Colors.orange[700],
                     ),
-                    child: TextField(
-                      onChanged: (String passwordValue) {
-                        password = passwordValue;
-                      },
+                    child: TextFormField(
+                      onChanged: (passwordValue) => password = passwordValue,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         border: InputBorder.none,
                       ),
+                      validator: (passwordValue) {
+                        if (passwordValue != null) {
+                          print("Password is$passwordValue");
+                          if (!passwordValue.isValidID) {
+                            printWarning("Password not following regex");
+                          } else {
+                            printInGreen("Valid Password");
+                          }
+                        }
+                      },
                     ),
                   ),
                   Container(
@@ -107,18 +139,16 @@ class SignUpScreen extends StatelessWidget {
                   ),
                   Container(
                     width: 250,
-                    margin: EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10),
                     child: MaterialButton(
                       color: Colors.orange[800],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: () async {
-                        if (await AuthService().signUp(email, password)) {
-                          Navigator.pushNamed(context, '/dashboard');
-                        }
-                      },
-                      child: Text(
+                      onPressed: () => (email.isValidID && password.isValidID)
+                          ? _submit(context, email, password)
+                          : printError("Incorrect Input - Cannot Sign up"),
+                      child: const Text(
                         'Sign Up',
                       ),
                     ),
@@ -131,4 +161,17 @@ class SignUpScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+// helps in debugging- will be deleted later
+void printError(String text) {
+  print('\x1B[31m$text\x1B[0m');
+}
+
+void printWarning(String text) {
+  print('\x1B[33m$text\x1B[0m');
+}
+
+void printInGreen(String text) {
+  print('\x1B[32m$text\x1B[0m');
 }
