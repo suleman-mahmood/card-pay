@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 class SignUpScreen extends StatelessWidget {
   String email = '';
   String password = '';
+  String confirmpassword = '';
   final _signupformkey = GlobalKey<FormState>();
 
   SignUpScreen({Key? key}) : super(key: key);
@@ -122,6 +123,38 @@ class SignUpScreen extends StatelessWidget {
                     ),
                   ),
                   Container(
+                    width: 250,
+                    margin: const EdgeInsets.only(top: 15),
+                    padding: const EdgeInsets.only(left: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                      color: Colors.orange[700],
+                    ),
+                    child: TextFormField(
+                      // ignore: non_constant_identifier_names
+                      onChanged: (ConfirmpasswordValue) =>
+                          confirmpassword = ConfirmpasswordValue,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: const InputDecoration(
+                        labelText: 'Confirm Password',
+                        border: InputBorder.none,
+                      ),
+                      // ignore: non_constant_identifier_names
+                      validator: (ConfirmpasswordValue) {
+                        if (ConfirmpasswordValue != null) {
+                          print("Password is $ConfirmpasswordValue");
+                          if (confirmpassword != password) {
+                            printError("The Password does not Match");
+                          } else {
+                            printInGreen("Password Matched");
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                  Container(
                     margin: EdgeInsets.only(top: 15),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -145,9 +178,11 @@ class SignUpScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: () => (email.isValidID && password.isValidID)
-                          ? _submit(context, email, password)
-                          : printError("Incorrect Input - Cannot Sign up"),
+                      onPressed: () =>
+                          (email.isValidID && password.isValidID) &&
+                                  (password == confirmpassword)
+                              ? _submit(context, email, password)
+                              : printError("Incorrect Input - Cannot Sign up"),
                       child: const Text(
                         'Sign Up',
                       ),
