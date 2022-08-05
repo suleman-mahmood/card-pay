@@ -1,9 +1,16 @@
+import 'package:cardpay/services/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:cardpay/services/functions.dart';
 
 class DepositScreen extends StatelessWidget {
-  const DepositScreen({Key? key}) : super(key: key);
+  int amount = 0;
+  String cardNumber = '';
+  String cvv = '';
+  String expiryDate = '';
+
+  DepositScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +240,9 @@ class DepositScreen extends StatelessWidget {
                   color: Colors.orange[700],
                 ),
                 child: TextField(
+                  onChanged: (String cardNumberValue) {
+                    cardNumber = cardNumberValue;
+                  },
                   decoration: InputDecoration(
                     labelText: 'Card Number',
                     border: InputBorder.none,
@@ -255,6 +265,9 @@ class DepositScreen extends StatelessWidget {
                           color: Colors.orange[700],
                         ),
                         child: TextField(
+                          onChanged: (String expiryDateValue) {
+                            expiryDate = expiryDateValue;
+                          },
                           decoration: InputDecoration(
                             labelText: 'Expiry date',
                             border: InputBorder.none,
@@ -278,6 +291,9 @@ class DepositScreen extends StatelessWidget {
                           color: Colors.orange[700],
                         ),
                         child: TextField(
+                          onChanged: (String cvvValue) {
+                            cvv = cvvValue;
+                          },
                           decoration: InputDecoration(
                             labelText: 'CVV',
                             border: InputBorder.none,
@@ -313,7 +329,16 @@ class DepositScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () => {},
+                  onPressed: () => {
+                    FunctionsSevice().makeDeposit(
+                      DepositArguments(
+                        amount: amount,
+                        cardNumber: cardNumber,
+                        cvv: cvv,
+                        expiryDate: expiryDate,
+                      ),
+                    )
+                  },
                   child: Text(
                     'Deposit Now!',
                   ),
