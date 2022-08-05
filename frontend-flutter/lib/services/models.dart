@@ -59,3 +59,22 @@ class Transaction {
       _$TransactionFromJson(json);
   Map<String, dynamic> toJson() => _$TransactionToJson(this);
 }
+
+@JsonSerializable()
+class DepositArguments {
+  final int amount;
+  final String cardNumber;
+  final String cvv;
+  final String expiryDate;
+
+  DepositArguments({
+    this.amount = 0,
+    this.cardNumber = '',
+    this.cvv = '',
+    this.expiryDate = '',
+  });
+
+  factory DepositArguments.fromJson(Map<String, dynamic> json) =>
+      _$DepositArgumentsFromJson(json);
+  Map<String, dynamic> toJson() => _$DepositArgumentsToJson(this);
+}

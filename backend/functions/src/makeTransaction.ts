@@ -1,8 +1,5 @@
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
-
-admin.initializeApp();
-const db = admin.firestore();
+import {admin, db} from "./initialize";
 
 interface makeTransactionData {
   amount: string;
@@ -137,4 +134,9 @@ export const makeTransaction = functions.https.onCall(async (
     transactions: admin.firestore.FieldValue.arrayUnion(userTransaction),
     balance: admin.firestore.FieldValue.increment(amount),
   });
+
+  return {
+    status: "success",
+    message: "Transaction was successful",
+  };
 });

@@ -1,5 +1,6 @@
 import 'package:cardpay/routes.dart';
 import 'package:cardpay/theme.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -35,6 +36,9 @@ class _AppState extends State<App> {
       // Initialize FlutterFire:
       future: _initialization,
       builder: (context, snapshot) {
+        // Connects with firebase emulator instead of firebase cloud
+        FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
+
         // Check for errors
         if (snapshot.hasError) {
           return Text(
