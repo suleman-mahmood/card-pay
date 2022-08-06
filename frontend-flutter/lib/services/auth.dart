@@ -24,17 +24,16 @@ class AuthService {
       )) return false;
       return true;
     } on FirebaseAuthException catch (e) {
-      // Handle error
-
+      // TODO: handle error
       switch (e.code) {
         case "email-already-in-use":
           printError("Roll number is already registered");
           break;
-        // case "weak-password":
-        //   printError("Weak Password");
-        //   break;
+        case "weak-password":
+          printError("Weak Password");
+          break;
         default:
-          print("Exception thrown:${e.code}");
+          printError("Unknown exception thrown:${e.code}");
       }
       return false;
     }

@@ -1,5 +1,5 @@
 extension stringAddOns on String {
-  bool get isValidID {
+  bool get isValidRollNumber {
     final emailRegExp = RegExp(r"^[0-9]{8}$");
     return emailRegExp.hasMatch(this);
   }
@@ -11,8 +11,9 @@ extension stringAddOns on String {
   }
 
   bool get isValidPassword {
-    final passwordRegExp = RegExp(r"^[0-9]{8}$");
-    // RegExp(r' (?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})');
-    return passwordRegExp.hasMatch(this);
+    final rollNumberRegExp = RegExp(r"^[0-9]{8}$");
+    final passwordRegExp =
+        RegExp(r"(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})");
+    return rollNumberRegExp.hasMatch(this);
   }
 }

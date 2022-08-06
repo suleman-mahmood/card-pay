@@ -17,23 +17,20 @@ class SignUpScreen extends StatelessWidget {
   final signupformkey = GlobalKey<FormState>();
 
   void _submit(context) async {
-    // if (!signupformkey.currentState!.validate()) {
-    //   // TODO: throw proper error: No Need, each textfield will take care of its validation error
-    //   return;
-    // }
+    if (!signupformkey.currentState!.validate()) {
+      // No need to throw any error as each textfield will take care
+      // of its own validation error
+      return;
+    }
 
     // TODO: correct dependency issue on email and rollNumber
-    // if (!await AuthService().signUp(fullName, rollNumber, password)) {
-    //   // TODO: throw proper error: No Need here, we are already checking for errors in signup function in auth.dart
-    //   return;
-    // }
-
-    if (signupformkey.currentState!.validate()) {
-      printWarning(
-          "$fullName has rollnumber: $rollNumber with pass: $password");
-      await AuthService().signUp(fullName, rollNumber, password);
-      Navigator.pushNamed(context, '/dashboard');
+    if (!await AuthService().signUp(fullName, rollNumber, password)) {
+      // TODO: throw proper error and update UI accordingly
+      return;
     }
+
+    printWarning("$fullName has rollnumber: $rollNumber with pass: $password");
+    Navigator.pushNamed(context, '/dashboard');
   }
 
   @override
@@ -79,10 +76,10 @@ class SignUpScreen extends StatelessWidget {
                       ),
                       validator: (nameValue) {
                         if (nameValue == null) {
-                          return "Please enter your fullname";
+                          return "Please enter your name";
                         }
                         if (!nameValue.isValidName) {
-                          return "Invalid Name";
+                          return "Please enter your first name and last name";
                         }
                         return null;
                       },
@@ -100,17 +97,17 @@ class SignUpScreen extends StatelessWidget {
                     ),
                     child: TextFormField(
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (rollnumberValue) =>
-                          rollNumber = rollnumberValue,
+                      onChanged: (rollNumberValue) =>
+                          rollNumber = rollNumberValue,
                       decoration: const InputDecoration(
-                        labelText: 'LUMS ID',
+                        labelText: 'LUMS Roll number',
                         border: InputBorder.none,
                       ),
-                      validator: (rollnumberValue) {
-                        if (rollnumberValue == null) {
-                          return "Please enter Rollnumber";
+                      validator: (rollNumberValue) {
+                        if (rollNumberValue == null) {
+                          return "Please enter Roll Number";
                         }
-                        if (!rollnumberValue.isValidID) {
+                        if (!rollNumberValue.isValidRollNumber) {
                           return "Invalid ID";
                         }
                         return null;
@@ -128,9 +125,7 @@ class SignUpScreen extends StatelessWidget {
                       color: Colors.orange[700],
                     ),
                     child: TextFormField(
-                      obscureText: false,
-                      autocorrect: false,
-                      enableSuggestions: false,
+                      obscureText: true,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       onChanged: (passwordValue) => password = passwordValue,
                       decoration: const InputDecoration(
@@ -159,9 +154,7 @@ class SignUpScreen extends StatelessWidget {
                       color: Colors.orange[700],
                     ),
                     child: TextFormField(
-                      obscureText: false,
-                      autocorrect: false,
-                      enableSuggestions: false,
+                      obscureText: true,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       onChanged: (ConfirmpasswordValue) =>
                           confirmpassword = ConfirmpasswordValue,
@@ -171,10 +164,10 @@ class SignUpScreen extends StatelessWidget {
                       ),
                       validator: (ConfirmpasswordValue) {
                         if (ConfirmpasswordValue == null) {
-                          return "Please enter Password";
+                          return "Please re-enter Password";
                         }
                         if (ConfirmpasswordValue != password) {
-                          return "The password confirmation does not match";
+                          return "The passwords don't match";
                         }
                         return null;
                       },
@@ -204,9 +197,7 @@ class SignUpScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: () async {
-                        _submit(context);
-                      },
+                      onPressed: () => _submit(context),
                       child: const Text(
                         'Sign Up',
                       ),
