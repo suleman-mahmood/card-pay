@@ -90,3 +90,17 @@ Map<String, dynamic> _$CreateUserArgumentsToJson(
       'rollNumber': instance.rollNumber,
       'role': _$StudentRoleEnumMap[instance.role]!,
     };
+
+MakeTransferArguments _$MakeTransferArgumentsFromJson(
+        Map<String, dynamic> json) =>
+    MakeTransferArguments(
+      amount: json['amount'] as int? ?? 0,
+      recipientRollNumber: json['recipientRollNumber'] as String? ?? '',
+    );
+
+Map<String, dynamic> _$MakeTransferArgumentsToJson(
+        MakeTransferArguments instance) =>
+    <String, dynamic>{
+      'amount': instance.amount,
+      'recipientRollNumber': instance.recipientRollNumber,
+    };

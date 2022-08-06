@@ -1,9 +1,14 @@
+import 'package:cardpay/services/functions.dart';
+import 'package:cardpay/services/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class TransferScreen extends StatelessWidget {
-  const TransferScreen({Key? key}) : super(key: key);
+  String rollNumber = '';
+  int amount = 0;
+
+  TransferScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +41,31 @@ class TransferScreen extends StatelessWidget {
                   color: Colors.orange[700],
                 ),
                 child: TextField(
+                  onChanged: (String rollNumberValue) {
+                    rollNumber = rollNumberValue;
+                  },
                   decoration: InputDecoration(
                     labelText: 'Roll Number',
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              Container(
+                width: 250,
+                margin: EdgeInsets.only(top: 15),
+                padding: EdgeInsets.only(left: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                  color: Colors.orange[700],
+                ),
+                child: TextField(
+                  onChanged: (String amountValue) {
+                    amount = int.parse(amountValue);
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Amount',
                     border: InputBorder.none,
                   ),
                 ),
@@ -50,7 +78,14 @@ class TransferScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () => {},
+                  onPressed: () => {
+                    FunctionsSevice().makeTransfer(
+                      MakeTransferArguments(
+                        amount: amount,
+                        recipientRollNumber: rollNumber,
+                      ),
+                    )
+                  },
                   child: Text(
                     'Transfer Now!',
                   ),

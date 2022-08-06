@@ -35,4 +35,20 @@ class FunctionsSevice {
       return false;
     }
   }
+
+  // TODO: change the return type of function and handle the result
+  Future<bool> makeTransfer(mdl.MakeTransferArguments args) async {
+    try {
+      final result = await _functions.httpsCallable("transfer").call(
+            args.toJson(),
+          );
+      print(result);
+      return true;
+    } on FirebaseFunctionsException catch (e) {
+      // Handle error
+      print(e.code);
+      print(e.message);
+      return false;
+    }
+  }
 }

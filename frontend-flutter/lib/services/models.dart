@@ -95,3 +95,18 @@ class CreateUserArguments {
       _$CreateUserArgumentsFromJson(json);
   Map<String, dynamic> toJson() => _$CreateUserArgumentsToJson(this);
 }
+
+@JsonSerializable()
+class MakeTransferArguments {
+  final int amount;
+  final String recipientRollNumber;
+
+  MakeTransferArguments({
+    this.amount = 0,
+    this.recipientRollNumber = '',
+  });
+
+  factory MakeTransferArguments.fromJson(Map<String, dynamic> json) =>
+      _$MakeTransferArgumentsFromJson(json);
+  Map<String, dynamic> toJson() => _$MakeTransferArgumentsToJson(this);
+}
