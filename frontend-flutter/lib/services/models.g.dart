@@ -11,10 +11,16 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       fullName: json['fullName'] as String? ?? '',
       email: json['email'] as String? ?? '',
       rollNumber: json['rollNumber'] as String? ?? '',
+      personalEmail: json['personalEmail'] as String? ?? '',
+      phoneNumber: json['phoneNumber'] as String? ?? '',
       verified: json['verified'] as bool? ?? false,
+      balance: json['balance'] as int? ?? 0,
       role: $enumDecodeNullable(_$StudentRoleEnumMap, json['role']) ??
           StudentRole.student,
-      balance: json['balance'] as int? ?? 0,
+      transactions: (json['transactions'] as List<dynamic>?)
+              ?.map((e) => UserTransaction.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -22,9 +28,12 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'fullName': instance.fullName,
       'email': instance.email,
       'rollNumber': instance.rollNumber,
+      'personalEmail': instance.personalEmail,
+      'phoneNumber': instance.phoneNumber,
       'verified': instance.verified,
-      'role': _$StudentRoleEnumMap[instance.role]!,
       'balance': instance.balance,
+      'role': _$StudentRoleEnumMap[instance.role]!,
+      'transactions': instance.transactions,
     };
 
 const _$StudentRoleEnumMap = {
@@ -33,22 +42,23 @@ const _$StudentRoleEnumMap = {
   StudentRole.admin: 'admin',
 };
 
-Transaction _$TransactionFromJson(Map<String, dynamic> json) => Transaction(
+UserTransaction _$UserTransactionFromJson(Map<String, dynamic> json) =>
+    UserTransaction(
       id: json['id'] as String? ?? '',
       timestamp: json['timestamp'] as String? ?? '',
-      senderId: json['senderId'] as String? ?? '',
-      recipientId: json['recipientId'] as String? ?? '',
+      senderName: json['senderName'] as String? ?? '',
+      recipientName: json['recipientName'] as String? ?? '',
       amount: json['amount'] as int? ?? 0,
       status: $enumDecodeNullable(_$TransactionStatusEnumMap, json['status']) ??
           TransactionStatus.pending,
     );
 
-Map<String, dynamic> _$TransactionToJson(Transaction instance) =>
+Map<String, dynamic> _$UserTransactionToJson(UserTransaction instance) =>
     <String, dynamic>{
       'id': instance.id,
       'timestamp': instance.timestamp,
-      'senderId': instance.senderId,
-      'recipientId': instance.recipientId,
+      'senderName': instance.senderName,
+      'recipientName': instance.recipientName,
       'amount': instance.amount,
       'status': _$TransactionStatusEnumMap[instance.status]!,
     };
