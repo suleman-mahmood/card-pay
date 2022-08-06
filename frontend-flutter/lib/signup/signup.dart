@@ -6,6 +6,8 @@ import 'package:flutter/src/widgets/framework.dart';
 class SignUpScreen extends StatelessWidget {
   String email = '';
   String password = '';
+  String fullName = '';
+  String rollNumber = '';
 
   SignUpScreen({Key? key}) : super(key: key);
 
@@ -43,6 +45,9 @@ class SignUpScreen extends StatelessWidget {
                       color: Colors.orange[700],
                     ),
                     child: TextField(
+                      onChanged: (String fullNameValue) {
+                        fullName = fullNameValue;
+                      },
                       decoration: InputDecoration(
                         labelText: 'Full Name',
                         border: InputBorder.none,
@@ -114,7 +119,9 @@ class SignUpScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       onPressed: () async {
-                        if (await AuthService().signUp(email, password)) {
+                        // TODO: correct dependency issue on email and rollNumber
+                        if (await AuthService()
+                            .signUp(email, password, fullName, rollNumber)) {
                           Navigator.pushNamed(context, '/dashboard');
                         }
                       },

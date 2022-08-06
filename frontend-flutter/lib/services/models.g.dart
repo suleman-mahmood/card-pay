@@ -74,3 +74,19 @@ Map<String, dynamic> _$DepositArgumentsToJson(DepositArguments instance) =>
       'cvv': instance.cvv,
       'expiryDate': instance.expiryDate,
     };
+
+CreateUserArguments _$CreateUserArgumentsFromJson(Map<String, dynamic> json) =>
+    CreateUserArguments(
+      fullName: json['fullName'] as String? ?? '',
+      rollNumber: json['rollNumber'] as String? ?? '',
+      role: $enumDecodeNullable(_$StudentRoleEnumMap, json['role']) ??
+          StudentRole.student,
+    );
+
+Map<String, dynamic> _$CreateUserArgumentsToJson(
+        CreateUserArguments instance) =>
+    <String, dynamic>{
+      'fullName': instance.fullName,
+      'rollNumber': instance.rollNumber,
+      'role': _$StudentRoleEnumMap[instance.role]!,
+    };
