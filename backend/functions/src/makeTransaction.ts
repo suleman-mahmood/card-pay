@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import {admin, db} from "./initialize";
+import { getTimestamp } from "./utils";
 
 interface makeTransactionData {
   amount: string;
@@ -100,7 +101,7 @@ export const makeTransaction = functions.https.onCall(async (
   const transactionsRef = db.collection("transactions").doc();
   const transaction = {
     id: transactionsRef.id,
-    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    timestamp: getTimestamp(),
     senderId: senderUid,
     senderName: senderDoc.fullName,
     recipientId: vendorUid,
