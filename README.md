@@ -3,6 +3,7 @@
 ## Setup instructions
 ## Frontend
 - To create json serializable models for your dart classes run `flutter pub run build_runner build` in frontend-flutter directory
+- To add a package in flutter run `flutter pub add <package-name>`
 
 ## Backend
 - To deploy your cloud functions run `firebase deploy --only functions` in the backend directory

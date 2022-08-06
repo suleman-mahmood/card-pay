@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'models.g.dart';
 
@@ -14,14 +15,14 @@ enum TransactionStatus {
 }
 
 @JsonSerializable()
-class User {
-  final String id;
-  final String fullName;
-  final String email;
-  final String rollNumber;
-  final bool verified;
-  final StudentRole role;
-  final int balance;
+class User extends ChangeNotifier {
+  String id;
+  String fullName;
+  String email;
+  String rollNumber;
+  bool verified;
+  StudentRole role;
+  int balance;
 
   User({
     this.id = '',
@@ -32,6 +33,18 @@ class User {
     this.role = StudentRole.student,
     this.balance = 0,
   });
+
+  void updateUser(User u) {
+    id = u.id;
+    fullName = u.fullName;
+    email = u.email;
+    rollNumber = u.rollNumber;
+    verified = u.verified;
+    role = u.role;
+    balance = u.balance;
+
+    notifyListeners();
+  }
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);
