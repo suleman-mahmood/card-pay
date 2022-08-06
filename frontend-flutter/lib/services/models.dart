@@ -20,18 +20,24 @@ class User extends ChangeNotifier {
   String fullName;
   String email;
   String rollNumber;
+  String personalEmail;
+  String phoneNumber;
   bool verified;
-  StudentRole role;
   int balance;
+  StudentRole role;
+  List<UserTransaction> transactions;
 
   User({
     this.id = '',
     this.fullName = '',
     this.email = '',
     this.rollNumber = '',
+    this.personalEmail = '',
+    this.phoneNumber = '',
     this.verified = false,
-    this.role = StudentRole.student,
     this.balance = 0,
+    this.role = StudentRole.student,
+    this.transactions = const [],
   });
 
   void updateUser(User u) {
@@ -39,9 +45,12 @@ class User extends ChangeNotifier {
     fullName = u.fullName;
     email = u.email;
     rollNumber = u.rollNumber;
+    personalEmail = u.personalEmail;
+    phoneNumber = u.phoneNumber;
     verified = u.verified;
-    role = u.role;
     balance = u.balance;
+    role = u.role;
+    transactions = u.transactions;
 
     notifyListeners();
   }
@@ -51,26 +60,26 @@ class User extends ChangeNotifier {
 }
 
 @JsonSerializable()
-class Transaction {
+class UserTransaction {
   final String id;
   final String timestamp;
-  final String senderId;
-  final String recipientId;
+  final String senderName;
+  final String recipientName;
   final int amount;
   final TransactionStatus status;
 
-  Transaction({
+  UserTransaction({
     this.id = '',
     this.timestamp = '',
-    this.senderId = '',
-    this.recipientId = '',
+    this.senderName = '',
+    this.recipientName = '',
     this.amount = 0,
     this.status = TransactionStatus.pending,
   });
 
-  factory Transaction.fromJson(Map<String, dynamic> json) =>
-      _$TransactionFromJson(json);
-  Map<String, dynamic> toJson() => _$TransactionToJson(this);
+  factory UserTransaction.fromJson(Map<String, dynamic> json) =>
+      _$UserTransactionFromJson(json);
+  Map<String, dynamic> toJson() => _$UserTransactionToJson(this);
 }
 
 @JsonSerializable()
