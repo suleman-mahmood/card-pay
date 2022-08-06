@@ -1,9 +1,11 @@
 import 'package:cardpay/routes.dart';
+import 'package:cardpay/services/models.dart' as model;
 import 'package:cardpay/theme.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 void main() {
@@ -49,9 +51,14 @@ class _AppState extends State<App> {
 
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
-          return MaterialApp(
-            routes: appRoutes,
-            theme: appTheme,
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider<model.User>(create: (_) => model.User()),
+            ],
+            child: MaterialApp(
+              routes: appRoutes,
+              theme: appTheme,
+            ),
           );
         }
 
