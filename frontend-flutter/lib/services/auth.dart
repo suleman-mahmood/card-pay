@@ -8,10 +8,10 @@ class AuthService {
   final user = FirebaseAuth.instance.currentUser;
 
   Future<bool> signUp(
-      String email, String password, String fullName, String rollNumber) async {
+      String fullName, String rollNumber, String password) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: "$email@lums.edu.pk",
+        email: "$rollNumber@lums.edu.pk",
         password: password,
       );
       // TODO: handle exception properly
@@ -25,20 +25,17 @@ class AuthService {
       return true;
     } on FirebaseAuthException catch (e) {
       // Handle error
-      print('Found error');
-      // print(e.code);
 
       switch (e.code) {
         case "email-already-in-use":
-          printError("LUMS ID is Already in Use");
+          printError("Roll number is already registered");
           break;
-        case "weak-password":
-          printError("Weak Password");
-          break;
+        // case "weak-password":
+        //   printError("Weak Password");
+        //   break;
         default:
-          print(e.code);
+          print("Exception thrown:${e.code}");
       }
-
       return false;
     }
   }

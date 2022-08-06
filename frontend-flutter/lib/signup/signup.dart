@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:cardpay/services/auth.dart';
 import 'package:cardpay/services/utils.dart';
 import 'package:cardpay/services/validation.dart';
@@ -6,34 +8,32 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class SignUpScreen extends StatelessWidget {
-  String email = '';
+  String rollNumber = '';
   String password = '';
   String confirmpassword = '';
-  final _signupformkey = GlobalKey<FormState>();
   String fullName = '';
-  String rollNumber = '';
 
   SignUpScreen({Key? key}) : super(key: key);
+  final signupformkey = GlobalKey<FormState>();
 
   void _submit(context) async {
-    if (!(email.isValidID &&
-        password.isValidID &&
-        (password == confirmpassword))) {
-      printError("Incorrect Input - Cannot Sign up");
-    }
-
-    if (!_signupformkey.currentState!.validate()) {
-      // TODO: throw proper error
-      return;
-    }
+    // if (!signupformkey.currentState!.validate()) {
+    //   // TODO: throw proper error: No Need, each textfield will take care of its validation error
+    //   return;
+    // }
 
     // TODO: correct dependency issue on email and rollNumber
-    if (!await AuthService().signUp(email, password, fullName, rollNumber)) {
-      // TODO: throw proper error
-      return;
-    }
+    // if (!await AuthService().signUp(fullName, rollNumber, password)) {
+    //   // TODO: throw proper error: No Need here, we are already checking for errors in signup function in auth.dart
+    //   return;
+    // }
 
-    Navigator.pushNamed(context, '/dashboard');
+    if (signupformkey.currentState!.validate()) {
+      printWarning(
+          "$fullName has rollnumber: $rollNumber with pass: $password");
+      await AuthService().signUp(fullName, rollNumber, password);
+      Navigator.pushNamed(context, '/dashboard');
+    }
   }
 
   @override
@@ -56,7 +56,7 @@ class SignUpScreen extends StatelessWidget {
               ),
             ),
             Form(
-              key: _signupformkey,
+              key: signupformkey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -70,14 +70,22 @@ class SignUpScreen extends StatelessWidget {
                       ),
                       color: Colors.orange[700],
                     ),
-                    child: TextField(
-                      onChanged: (String fullNameValue) {
-                        fullName = fullNameValue;
-                      },
-                      decoration: InputDecoration(
+                    child: TextFormField(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      onChanged: (nameValue) => fullName = nameValue,
+                      decoration: const InputDecoration(
                         labelText: 'Full Name',
                         border: InputBorder.none,
                       ),
+                      validator: (nameValue) {
+                        if (nameValue == null) {
+                          return "Please enter your fullname";
+                        }
+                        if (!nameValue.isValidName) {
+                          return "Invalid Name";
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   Container(
@@ -91,24 +99,21 @@ class SignUpScreen extends StatelessWidget {
                       color: Colors.orange[700],
                     ),
                     child: TextFormField(
-                      // ignore: non_constant_identifier_names
-                      onChanged: (IDValue) => email = IDValue,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
+                      onChanged: (rollnumberValue) =>
+                          rollNumber = rollnumberValue,
                       decoration: const InputDecoration(
                         labelText: 'LUMS ID',
                         border: InputBorder.none,
                       ),
-                      validator: (IDValue) {
-                        if (IDValue != null) {
-                          print("ID is$IDValue");
-                          if (!IDValue.isValidID) {
-                            printWarning("Invalid LUMS ID - Out of range");
-                          } else {
-                            printInGreen("Valid ID");
-                          }
-                        } else {
-                          printError("LUMS ID input field is Empty");
+                      validator: (rollnumberValue) {
+                        if (rollnumberValue == null) {
+                          return "Please enter Rollnumber";
                         }
+                        if (!rollnumberValue.isValidID) {
+                          return "Invalid ID";
+                        }
+                        return null;
                       },
                     ),
                   ),
@@ -123,21 +128,23 @@ class SignUpScreen extends StatelessWidget {
                       color: Colors.orange[700],
                     ),
                     child: TextFormField(
-                      onChanged: (passwordValue) => password = passwordValue,
+                      obscureText: false,
+                      autocorrect: false,
+                      enableSuggestions: false,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(
+                      onChanged: (passwordValue) => password = passwordValue,
+                      decoration: const InputDecoration(
                         labelText: 'Password',
                         border: InputBorder.none,
                       ),
                       validator: (passwordValue) {
-                        if (passwordValue != null) {
-                          print("Password is$passwordValue");
-                          if (!passwordValue.isValidID) {
-                            printWarning("Password not following regex");
-                          } else {
-                            printInGreen("Valid Password");
-                          }
+                        if (passwordValue == null) {
+                          return "Please enter Password";
                         }
+                        if (!passwordValue.isValidPassword) {
+                          return "Weak Password";
+                        }
+                        return null;
                       },
                     ),
                   ),
@@ -152,24 +159,24 @@ class SignUpScreen extends StatelessWidget {
                       color: Colors.orange[700],
                     ),
                     child: TextFormField(
-                      // ignore: non_constant_identifier_names
+                      obscureText: false,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       onChanged: (ConfirmpasswordValue) =>
                           confirmpassword = ConfirmpasswordValue,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: const InputDecoration(
                         labelText: 'Confirm Password',
                         border: InputBorder.none,
                       ),
-                      // ignore: non_constant_identifier_names
                       validator: (ConfirmpasswordValue) {
-                        if (ConfirmpasswordValue != null) {
-                          print("Password is $ConfirmpasswordValue");
-                          if (confirmpassword != password) {
-                            printError("The Password does not Match");
-                          } else {
-                            printInGreen("Password Matched");
-                          }
+                        if (ConfirmpasswordValue == null) {
+                          return "Please enter Password";
                         }
+                        if (ConfirmpasswordValue != password) {
+                          return "The password confirmation does not match";
+                        }
+                        return null;
                       },
                     ),
                   ),
