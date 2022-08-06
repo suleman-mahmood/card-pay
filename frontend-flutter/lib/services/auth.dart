@@ -1,5 +1,6 @@
 import 'package:cardpay/services/functions.dart';
 import 'package:cardpay/services/models.dart';
+import 'package:cardpay/services/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -7,10 +8,10 @@ class AuthService {
   final user = FirebaseAuth.instance.currentUser;
 
   Future<bool> signUp(
-      String email, String password, String fullName, String rollNumber) async {
+      String fullName, String rollNumber, String password) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
+        email: "$rollNumber@lums.edu.pk",
         password: password,
       );
       // TODO: handle exception properly
@@ -23,9 +24,17 @@ class AuthService {
       )) return false;
       return true;
     } on FirebaseAuthException catch (e) {
-      // Handle error
-      print('Found error');
-      print(e);
+      // TODO: handle error
+      switch (e.code) {
+        case "email-already-in-use":
+          printError("Roll number is already registered");
+          break;
+        case "weak-password":
+          printError("Weak Password");
+          break;
+        default:
+          printError("Unknown exception thrown:${e.code}");
+      }
       return false;
     }
   }
