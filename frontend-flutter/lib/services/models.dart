@@ -78,3 +78,20 @@ class DepositArguments {
       _$DepositArgumentsFromJson(json);
   Map<String, dynamic> toJson() => _$DepositArgumentsToJson(this);
 }
+
+@JsonSerializable()
+class CreateUserArguments {
+  final String fullName;
+  final String rollNumber;
+  final StudentRole role;
+
+  CreateUserArguments({
+    this.fullName = '',
+    this.rollNumber = '',
+    this.role = StudentRole.student,
+  });
+
+  factory CreateUserArguments.fromJson(Map<String, dynamic> json) =>
+      _$CreateUserArgumentsFromJson(json);
+  Map<String, dynamic> toJson() => _$CreateUserArgumentsToJson(this);
+}
