@@ -1,4 +1,5 @@
 import 'package:cardpay/services/auth.dart';
+import 'package:cardpay/services/utils.dart';
 import 'package:cardpay/services/validation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -9,15 +10,30 @@ class SignUpScreen extends StatelessWidget {
   String password = '';
   String confirmpassword = '';
   final _signupformkey = GlobalKey<FormState>();
+  String fullName = '';
+  String rollNumber = '';
 
   SignUpScreen({Key? key}) : super(key: key);
 
-  void _submit(context, email, password) async {
-    if (_signupformkey.currentState!.validate()) {
-      if (await AuthService().signUp(email, password)) {
-        Navigator.pushNamed(context, '/dashboard');
-      }
+  void _submit(context) async {
+    if (!(email.isValidID &&
+        password.isValidID &&
+        (password == confirmpassword))) {
+      printError("Incorrect Input - Cannot Sign up");
     }
+
+    if (!_signupformkey.currentState!.validate()) {
+      // TODO: throw proper error
+      return;
+    }
+
+    // TODO: correct dependency issue on email and rollNumber
+    if (!await AuthService().signUp(email, password, fullName, rollNumber)) {
+      // TODO: throw proper error
+      return;
+    }
+
+    Navigator.pushNamed(context, '/dashboard');
   }
 
   @override
@@ -54,7 +70,10 @@ class SignUpScreen extends StatelessWidget {
                       ),
                       color: Colors.orange[700],
                     ),
-                    child: const TextField(
+                    child: TextField(
+                      onChanged: (String fullNameValue) {
+                        fullName = fullNameValue;
+                      },
                       decoration: InputDecoration(
                         labelText: 'Full Name',
                         border: InputBorder.none,
@@ -178,11 +197,9 @@ class SignUpScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: () =>
-                          (email.isValidID && password.isValidID) &&
-                                  (password == confirmpassword)
-                              ? _submit(context, email, password)
-                              : printError("Incorrect Input - Cannot Sign up"),
+                      onPressed: () async {
+                        _submit(context);
+                      },
                       child: const Text(
                         'Sign Up',
                       ),
@@ -196,17 +213,4 @@ class SignUpScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-// helps in debugging- will be deleted later
-void printError(String text) {
-  print('\x1B[31m$text\x1B[0m');
-}
-
-void printWarning(String text) {
-  print('\x1B[33m$text\x1B[0m');
-}
-
-void printInGreen(String text) {
-  print('\x1B[32m$text\x1B[0m');
 }

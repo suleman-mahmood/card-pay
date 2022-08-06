@@ -58,3 +58,35 @@ const _$TransactionStatusEnumMap = {
   TransactionStatus.successful: 'successful',
   TransactionStatus.failed: 'failed',
 };
+
+DepositArguments _$DepositArgumentsFromJson(Map<String, dynamic> json) =>
+    DepositArguments(
+      amount: json['amount'] as int? ?? 0,
+      cardNumber: json['cardNumber'] as String? ?? '',
+      cvv: json['cvv'] as String? ?? '',
+      expiryDate: json['expiryDate'] as String? ?? '',
+    );
+
+Map<String, dynamic> _$DepositArgumentsToJson(DepositArguments instance) =>
+    <String, dynamic>{
+      'amount': instance.amount,
+      'cardNumber': instance.cardNumber,
+      'cvv': instance.cvv,
+      'expiryDate': instance.expiryDate,
+    };
+
+CreateUserArguments _$CreateUserArgumentsFromJson(Map<String, dynamic> json) =>
+    CreateUserArguments(
+      fullName: json['fullName'] as String? ?? '',
+      rollNumber: json['rollNumber'] as String? ?? '',
+      role: $enumDecodeNullable(_$StudentRoleEnumMap, json['role']) ??
+          StudentRole.student,
+    );
+
+Map<String, dynamic> _$CreateUserArgumentsToJson(
+        CreateUserArguments instance) =>
+    <String, dynamic>{
+      'fullName': instance.fullName,
+      'rollNumber': instance.rollNumber,
+      'role': _$StudentRoleEnumMap[instance.role]!,
+    };
