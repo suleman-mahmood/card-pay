@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import {admin, db} from "./initialize";
-import { getTimestamp } from "./utils";
+import {getTimestamp} from "./utils";
 
 interface transferData {
   amount: string;
