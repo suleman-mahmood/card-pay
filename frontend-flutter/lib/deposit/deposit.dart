@@ -305,6 +305,26 @@ class DepositScreen extends StatelessWidget {
                 ),
               ),
               Container(
+                width: 250,
+                margin: EdgeInsets.only(top: 15),
+                padding: EdgeInsets.only(left: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                  color: Colors.orange[700],
+                ),
+                child: TextField(
+                  onChanged: (String amountValue) {
+                    amount = int.parse(amountValue);
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Amount',
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              Container(
                 margin: EdgeInsets.only(top: 10),
                 width: 250,
                 child: Row(

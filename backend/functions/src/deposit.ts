@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import {admin, db} from "./initialize";
+import { getTimestamp } from "./utils";
 
 interface DepositData {
   amount: string;
@@ -33,6 +34,12 @@ export const deposit = functions.https.onCall(async (
     );
   }
 
+  if (amount < 1) {
+    throw new functions.https.HttpsError(
+        "invalid-argument", "Amount must be greater than 0"
+    );
+  }
+
   const uid: string = context.auth.uid;
 
   // Get the user details from Firestore
@@ -55,7 +62,7 @@ export const deposit = functions.https.onCall(async (
   const transactionsRef = db.collection("transactions").doc();
   const transaction = {
     id: transactionsRef.id,
-    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    timestamp: getTimestamp(),
     senderId: "PayPro",
     senderName: "PayPro Payment Gateway",
     recipientId: uid,
