@@ -70,17 +70,4 @@ class _AppState extends State<App> {
       },
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return FutureBuilder<int>(
-  //     future: Future.value(23),
-  //     builder: (context, snapshot) {
-  //       return MaterialApp(
-  //         routes: appRoutes,
-  //         theme: appTheme,
-  //       );
-  //     },
-  //   );
-  // }
 }

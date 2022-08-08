@@ -8,17 +8,17 @@ class AuthService {
   final user = FirebaseAuth.instance.currentUser;
 
   Future<bool> signUp(
-      String fullName, String rollNumber, String password) async {
+      String fullName, RollNumber rollNumber, String password) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: "$rollNumber@lums.edu.pk",
+        email: rollNumber.getEmail,
         password: password,
       );
       // TODO: handle exception properly
       if (!await FunctionsSevice().createUser(
         CreateUserArguments(
           fullName: fullName,
-          rollNumber: rollNumber,
+          rollNumber: rollNumber.getRollNumber,
           role: StudentRole.student,
         ),
       )) return false;
@@ -39,10 +39,10 @@ class AuthService {
     }
   }
 
-  Future<bool> signIn(String email, String password) async {
+  Future<bool> signIn(RollNumber rollNumber, String password) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
+        email: rollNumber.getEmail,
         password: password,
       );
       return true;
