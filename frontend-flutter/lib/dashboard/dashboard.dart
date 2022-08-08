@@ -20,7 +20,9 @@ class DashboardScreen extends StatelessWidget {
               "https://assets8.lottiefiles.com/packages/lf20_g3ki3g0v.json");
         } else if (snapshot.hasData) {
           // Update the User model to reflect changes in the the entire app
-          context.read<model.User>().updateUser(snapshot.data!);
+          final userData = snapshot.data!;
+          context.read<model.User>().updateUser(userData);
+
           return Scaffold(
             body: Column(
               children: [
@@ -37,7 +39,7 @@ class DashboardScreen extends StatelessWidget {
                             style: Theme.of(context).textTheme.bodyText2,
                           ),
                           Text(
-                            'Rs. 15,000',
+                            userData.balance.toString(),
                             style: Theme.of(context).textTheme.headline5,
                           ),
                           Container(
@@ -86,7 +88,7 @@ class DashboardScreen extends StatelessWidget {
                             Container(
                               margin: EdgeInsets.only(top: 20),
                               child: Text(
-                                '23000000',
+                                userData.rollNumber,
                                 style: Theme.of(context).textTheme.bodyText2,
                               ),
                             )
@@ -97,185 +99,35 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
                 // Dashboard Buttons
-                Container(
-                  margin: EdgeInsets.only(top: 50),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(right: 20),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 150,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                border: Border.all(
-                                  color: (Colors.orange[700])!,
-                                ),
-                              ),
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.transparent),
-                                ),
-                                onPressed: () =>
-                                    Navigator.pushNamed(context, '/deposit'),
-                                child: Icon(
-                                  Icons.arrow_upward,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              'Deposit',
-                              style: Theme.of(context).textTheme.bodyText2,
-                            )
-                          ],
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Container(
-                            width: 150,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                              border: Border.all(
-                                color: (Colors.orange[700])!,
-                              ),
-                            ),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.transparent),
-                              ),
-                              onPressed: () => {},
-                              child: Icon(
-                                Icons.arrow_upward,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Withdraw',
-                            style: Theme.of(context).textTheme.bodyText2,
-                          )
-                        ],
-                      ),
-                    ],
+                GridView(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 0,
+                    mainAxisExtent: 100,
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(right: 20),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 150,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                border: Border.all(
-                                  color: (Colors.orange[700])!,
-                                ),
-                              ),
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.transparent),
-                                ),
-                                onPressed: () =>
-                                    Navigator.pushNamed(context, '/transfer'),
-                                child: Icon(
-                                  Icons.arrow_upward,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              'Transfer',
-                              style: Theme.of(context).textTheme.bodyText2,
-                            )
-                          ],
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Container(
-                            width: 150,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                              border: Border.all(
-                                color: (Colors.orange[700])!,
-                              ),
-                            ),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.transparent),
-                              ),
-                              onPressed: () =>
-                                  Navigator.pushNamed(context, '/transactions'),
-                              child: Icon(
-                                Icons.arrow_upward,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Transactions',
-                            style: Theme.of(context).textTheme.bodyText2,
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          border: Border.all(
-                            color: (Colors.orange[700])!,
-                          ),
-                        ),
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.transparent),
-                          ),
-                          onPressed: () async {
-                            await AuthService().signOut();
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/',
-                              (route) => false,
-                            );
-                          },
-                          child: Icon(
-                            Icons.arrow_upward,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        'Log Out',
-                        style: Theme.of(context).textTheme.bodyText2,
-                      )
-                    ],
-                  ),
+                  children: [
+                    const DashboardButton(
+                      routeName: 'deposit',
+                      bottomText: 'Deposit',
+                      isLogout: false,
+                    ),
+                    const DashboardButton(
+                      routeName: 'transfer',
+                      bottomText: 'Transfer',
+                      isLogout: false,
+                    ),
+                    const DashboardButton(
+                      routeName: 'transactions',
+                      bottomText: 'Transactions',
+                      isLogout: false,
+                    ),
+                    const DashboardButton(
+                      routeName: 'deposit',
+                      bottomText: 'Log Out',
+                      isLogout: true,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -284,6 +136,61 @@ class DashboardScreen extends StatelessWidget {
           return const Text('Error!');
         }
       }),
+    );
+  }
+}
+
+class DashboardButton extends StatelessWidget {
+  final String routeName;
+  final String bottomText;
+  final bool isLogout;
+
+  const DashboardButton({
+    required this.routeName,
+    required this.bottomText,
+    required this.isLogout,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Container(
+          width: 150,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(
+              Radius.circular(10),
+            ),
+            border: Border.all(
+              color: (Colors.orange[700])!,
+            ),
+          ),
+          child: ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.transparent),
+            ),
+            onPressed: () async {
+              if (isLogout) {
+                await AuthService().signOut();
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/',
+                  (route) => false,
+                );
+              } else {
+                Navigator.pushNamed(context, '/$routeName');
+              }
+            },
+            child: Icon(
+              Icons.arrow_upward,
+            ),
+          ),
+        ),
+        Text(
+          bottomText,
+          style: Theme.of(context).textTheme.bodyText2,
+        ),
+      ],
     );
   }
 }

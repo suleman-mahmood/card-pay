@@ -1,10 +1,11 @@
 import 'package:cardpay/services/auth.dart';
+import 'package:cardpay/services/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class LoginScreen extends StatelessWidget {
-  String email = '';
+  RollNumber rollNumber = RollNumber();
   String password = '';
 
   LoginScreen({Key? key}) : super(key: key);
@@ -39,11 +40,11 @@ class LoginScreen extends StatelessWidget {
                 color: Colors.orange[700],
               ),
               child: TextField(
-                onChanged: (String emailValue) {
-                  email = emailValue;
+                onChanged: (String rollNumberValue) {
+                  rollNumber.setRollNumber = rollNumberValue;
                 },
                 decoration: InputDecoration(
-                  labelText: 'University Email',
+                  labelText: 'Lums roll number',
                   border: InputBorder.none,
                 ),
               ),
@@ -94,7 +95,7 @@ class LoginScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 onPressed: () async {
-                  if (await AuthService().signIn(email, password)) {
+                  if (await AuthService().signIn(rollNumber, password)) {
                     Navigator.pushNamed(context, '/dashboard');
                   }
                 },

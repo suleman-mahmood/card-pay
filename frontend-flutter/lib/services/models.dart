@@ -14,6 +14,19 @@ enum TransactionStatus {
   failed,
 }
 
+class RollNumber {
+  String rollNumber;
+
+  RollNumber({this.rollNumber = ''});
+
+  String get getRollNumber => rollNumber;
+  String get getEmail => '$rollNumber@lums.edu,pk';
+
+  set setRollNumber(String rn) {
+    rollNumber = rn;
+  }
+}
+
 @JsonSerializable()
 class User extends ChangeNotifier {
   String id;

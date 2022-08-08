@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:cardpay/services/auth.dart';
+import 'package:cardpay/services/models.dart';
 import 'package:cardpay/services/utils.dart';
 import 'package:cardpay/services/validation.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class SignUpScreen extends StatelessWidget {
-  String rollNumber = '';
+  RollNumber rollNumber = RollNumber();
   String password = '';
   String confirmpassword = '';
   String fullName = '';
@@ -29,7 +30,9 @@ class SignUpScreen extends StatelessWidget {
       return;
     }
 
-    printWarning("$fullName has rollnumber: $rollNumber with pass: $password");
+    printWarning(
+      "$fullName has rollnumber: ${rollNumber.getRollNumber} with pass: $password",
+    );
     Navigator.pushNamed(context, '/dashboard');
   }
 
@@ -98,7 +101,7 @@ class SignUpScreen extends StatelessWidget {
                     child: TextFormField(
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       onChanged: (rollNumberValue) =>
-                          rollNumber = rollNumberValue,
+                          rollNumber.setRollNumber = rollNumberValue,
                       decoration: const InputDecoration(
                         labelText: 'LUMS Roll number',
                         border: InputBorder.none,
