@@ -54,6 +54,9 @@ class _AppState extends State<App> {
           return MultiProvider(
             providers: [
               ChangeNotifierProvider<model.User>(create: (_) => model.User()),
+              ChangeNotifierProvider<model.ErrorModel>(
+                create: (_) => model.ErrorModel(),
+              ),
             ],
             child: MaterialApp(
               routes: appRoutes,

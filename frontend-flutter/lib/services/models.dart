@@ -20,10 +20,34 @@ class RollNumber {
   RollNumber({this.rollNumber = ''});
 
   String get getRollNumber => rollNumber;
-  String get getEmail => '$rollNumber@lums.edu,pk';
+  String get getEmail => '$rollNumber@lums.edu.pk';
 
   set setRollNumber(String rn) {
     rollNumber = rn;
+  }
+}
+
+class ErrorModel extends ChangeNotifier {
+  bool hasError;
+  String code;
+  String message;
+
+  ErrorModel({this.hasError = false, this.message = "", this.code = ""});
+
+  void errorOcurred(String code, String message) {
+    this.hasError = true;
+    this.code = code;
+    this.message = message;
+
+    notifyListeners();
+  }
+
+  void errorResolved() {
+    this.hasError = false;
+    this.code = "";
+    this.message = "";
+
+    notifyListeners();
   }
 }
 

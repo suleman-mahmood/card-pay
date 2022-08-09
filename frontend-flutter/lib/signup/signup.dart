@@ -1,32 +1,64 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:cardpay/services/auth.dart';
-import 'package:cardpay/services/models.dart';
+import 'package:cardpay/services/models.dart' as model;
 import 'package:cardpay/services/utils.dart';
 import 'package:cardpay/services/validation.dart';
+import 'package:cardpay/shared/error.dart' as err;
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/src/provider.dart';
 
 class SignUpScreen extends StatelessWidget {
-  RollNumber rollNumber = RollNumber();
+  model.RollNumber rollNumber = model.RollNumber();
   String password = '';
-  String confirmpassword = '';
+  String confirmPassword = '';
   String fullName = '';
 
   SignUpScreen({Key? key}) : super(key: key);
-  final signupformkey = GlobalKey<FormState>();
+  final _signInFormKey = GlobalKey<FormState>();
 
-  void _submit(context) async {
-    if (!signupformkey.currentState!.validate()) {
+  void _submit(BuildContext context) async {
+    context.read<model.ErrorModel>().errorResolved();
+
+    if (!_signInFormKey.currentState!.validate()) {
       // No need to throw any error as each textfield will take care
       // of its own validation error
       return;
     }
 
-    // TODO: correct dependency issue on email and rollNumber
-    if (!await AuthService().signUp(fullName, rollNumber, password)) {
-      // TODO: throw proper error and update UI accordingly
+    try {
+      await AuthService().signUp(fullName, rollNumber, password);
+    } on FirebaseAuthException catch (eAuth) {
+      if (codeToMessage.containsKey(eAuth.code)) {
+        context
+            .read<model.ErrorModel>()
+            .errorOcurred(eAuth.code, codeToMessage[eAuth.code]);
+        printError(codeToMessage[eAuth.code]);
+      } else {
+        context.read<model.ErrorModel>().errorOcurred(
+              eAuth.code,
+              "Unknown exception thrown: ${eAuth.code}",
+            );
+        printError("Unknown exception thrown: ${eAuth.code}");
+      }
+      return;
+    } on FirebaseFunctionsException catch (eFunc) {
+      if (codeToMessage.containsKey(eFunc.code)) {
+        context
+            .read<model.ErrorModel>()
+            .errorOcurred(eFunc.code, codeToMessage[eFunc.code]);
+        printError(codeToMessage[eFunc.code]);
+      } else {
+        context.read<model.ErrorModel>().errorOcurred(
+              eFunc.code,
+              "Unknown exception thrown: ${eFunc.code}",
+            );
+        printError("Unknown exception thrown: ${eFunc.code}");
+      }
       return;
     }
 
@@ -56,7 +88,7 @@ class SignUpScreen extends StatelessWidget {
               ),
             ),
             Form(
-              key: signupformkey,
+              key: _signInFormKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -159,23 +191,24 @@ class SignUpScreen extends StatelessWidget {
                     child: TextFormField(
                       obscureText: true,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (ConfirmpasswordValue) =>
-                          confirmpassword = ConfirmpasswordValue,
+                      onChanged: (confirmPasswordValue) =>
+                          confirmPassword = confirmPasswordValue,
                       decoration: const InputDecoration(
                         labelText: 'Confirm Password',
                         border: InputBorder.none,
                       ),
-                      validator: (ConfirmpasswordValue) {
-                        if (ConfirmpasswordValue == null) {
+                      validator: (confirmPasswordValue) {
+                        if (confirmPasswordValue == null) {
                           return "Please re-enter Password";
                         }
-                        if (ConfirmpasswordValue != password) {
+                        if (confirmPasswordValue != password) {
                           return "The passwords don't match";
                         }
                         return null;
                       },
                     ),
                   ),
+                  const err.ErrorWidget(),
                   Container(
                     margin: EdgeInsets.only(top: 15),
                     child: Row(
