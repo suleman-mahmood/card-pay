@@ -13,6 +13,19 @@ class FirestoreService {
     var snapshot = await ref.get();
     var data = snapshot.data();
     var user = model.User.fromJson(data ?? {});
+
     return user;
+  }
+
+  // Listens to current user's document in Firestore
+  Stream<model.User> streamUser() {
+    return AuthService().userStream.switchMap((user) {
+      if (user != null) {
+        var ref = _db.collection('users').doc(user.uid);
+        return ref.snapshots().map((doc) => model.User.fromJson(doc.data()!));
+      } else {
+        return Stream.fromIterable([model.User()]);
+      }
+    });
   }
 }

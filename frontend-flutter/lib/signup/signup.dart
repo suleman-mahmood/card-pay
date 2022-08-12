@@ -5,12 +5,11 @@ import 'package:cardpay/services/models.dart' as model;
 import 'package:cardpay/services/utils.dart';
 import 'package:cardpay/services/validation.dart';
 import 'package:cardpay/shared/error.dart' as err;
+import 'package:cardpay/shared/loading.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatelessWidget {
   model.RollNumber rollNumber = model.RollNumber();
@@ -22,46 +21,53 @@ class SignUpScreen extends StatelessWidget {
   final _signInFormKey = GlobalKey<FormState>();
 
   void _submit(BuildContext context) async {
-    context.read<model.ErrorModel>().errorResolved();
-
     if (!_signInFormKey.currentState!.validate()) {
       // No need to throw any error as each textfield will take care
       // of its own validation error
       return;
     }
 
+    context.read<model.Loading>().showLoading();
+
     try {
       await AuthService().signUp(fullName, rollNumber, password);
-    } on FirebaseAuthException catch (eAuth) {
-      if (codeToMessage.containsKey(eAuth.code)) {
-        context
-            .read<model.ErrorModel>()
-            .errorOcurred(eAuth.code, codeToMessage[eAuth.code]);
-        printError(codeToMessage[eAuth.code]);
+    } on FirebaseAuthException catch (e) {
+      final String errorMessage;
+
+      if (codeToMessage.containsKey(e.code)) {
+        errorMessage = codeToMessage[e.code];
       } else {
-        context.read<model.ErrorModel>().errorOcurred(
-              eAuth.code,
-              "Unknown exception thrown: ${eAuth.code}",
-            );
-        printError("Unknown exception thrown: ${eAuth.code}");
+        errorMessage = "Unknown exception thrown: ${e.code}";
       }
+
+      context.read<model.ErrorModel>().errorOcurred(
+            e.code,
+            errorMessage,
+          );
+      printError(errorMessage);
+      context.read<model.Loading>().hideLoading();
       return;
-    } on FirebaseFunctionsException catch (eFunc) {
-      if (codeToMessage.containsKey(eFunc.code)) {
-        context
-            .read<model.ErrorModel>()
-            .errorOcurred(eFunc.code, codeToMessage[eFunc.code]);
-        printError(codeToMessage[eFunc.code]);
+    } on FirebaseFunctionsException catch (e) {
+      final String errorMessage;
+
+      if (codeToMessage.containsKey(e.code)) {
+        errorMessage = codeToMessage[e.code];
       } else {
-        context.read<model.ErrorModel>().errorOcurred(
-              eFunc.code,
-              "Unknown exception thrown: ${eFunc.code}",
-            );
-        printError("Unknown exception thrown: ${eFunc.code}");
+        errorMessage = "Unknown exception thrown: ${e.code}";
       }
+
+      printError(errorMessage);
+      context.read<model.ErrorModel>().errorOcurred(
+            e.code,
+            errorMessage,
+          );
+      context.read<model.Loading>().hideLoading();
       return;
     }
 
+    // Handle success
+    context.read<model.ErrorModel>().errorResolved();
+    context.read<model.Loading>().hideLoading();
     printWarning(
       "$fullName has rollnumber: ${rollNumber.getRollNumber} with pass: $password",
     );
@@ -70,6 +76,10 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (context.watch<model.Loading>().getLoading) {
+      return const LoadingWidget();
+    }
+
     return Scaffold(
       body: Center(
         child: Column(

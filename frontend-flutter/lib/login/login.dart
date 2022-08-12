@@ -3,11 +3,10 @@ import 'package:cardpay/services/models.dart' as model;
 import 'package:cardpay/services/utils.dart';
 import 'package:cardpay/services/validation.dart';
 import 'package:cardpay/shared/error.dart' as err;
+import 'package:cardpay/shared/loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import "package:provider/src/provider.dart";
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   model.RollNumber rollNumber = model.RollNumber();
@@ -17,34 +16,44 @@ class LoginScreen extends StatelessWidget {
   final _signInFormKey = GlobalKey<FormState>();
 
   void _submit(BuildContext context) async {
-    context.read<model.ErrorModel>().errorResolved();
-
     if (!_signInFormKey.currentState!.validate()) {
       return;
     }
 
+    context.read<model.Loading>().showLoading();
+
     try {
       await AuthService().signIn(rollNumber, password);
     } on FirebaseAuthException catch (e) {
+      final String errorMessage;
+
       if (codeToMessage.containsKey(e.code)) {
-        context
-            .read<model.ErrorModel>()
-            .errorOcurred(e.code, codeToMessage[e.code]);
-        printError(codeToMessage[e.code]);
+        errorMessage = codeToMessage[e.code];
       } else {
-        context.read<model.ErrorModel>().errorOcurred(
-              e.code,
-              "Unknown exception thrown: ${e.code}",
-            );
-        printError("Unknown exception thrown: ${e.code}");
+        errorMessage = "Unknown exception thrown: ${e.code}";
       }
+
+      printError(errorMessage);
+      context.read<model.ErrorModel>().errorOcurred(
+            e.code,
+            errorMessage,
+          );
+      context.read<model.Loading>().hideLoading();
       return;
     }
+
+    // Handle success
+    context.read<model.ErrorModel>().errorResolved();
+    context.read<model.Loading>().hideLoading();
     Navigator.pushNamed(context, '/dashboard');
   }
 
   @override
   Widget build(BuildContext context) {
+    if (context.watch<model.Loading>().getLoading) {
+      return const LoadingWidget();
+    }
+
     return Scaffold(
       body: Center(
         child: Form(

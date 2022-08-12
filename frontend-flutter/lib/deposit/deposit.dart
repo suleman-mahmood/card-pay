@@ -1,8 +1,10 @@
-import 'package:cardpay/services/models.dart';
+import 'package:cardpay/services/models.dart' as model;
+import 'package:cardpay/services/utils.dart';
+import 'package:cardpay/shared/loading.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:cardpay/services/functions.dart';
+import 'package:provider/provider.dart';
 
 class DepositScreen extends StatelessWidget {
   int amount = 0;
@@ -12,8 +14,48 @@ class DepositScreen extends StatelessWidget {
 
   DepositScreen({Key? key}) : super(key: key);
 
+  void _submit(BuildContext context) async {
+    context.read<model.Loading>().showLoading();
+
+    try {
+      await FunctionsSevice().makeDeposit(
+        model.DepositArguments(
+          amount: amount,
+          cardNumber: cardNumber,
+          cvv: cvv,
+          expiryDate: expiryDate,
+        ),
+      );
+    } on FirebaseFunctionsException catch (e) {
+      final String errorMessage;
+
+      if (codeToMessage.containsKey(e.code)) {
+        errorMessage = codeToMessage[e.code];
+      } else {
+        errorMessage = "Unknown exception thrown: ${e.code}";
+      }
+
+      printError(errorMessage);
+      context.read<model.ErrorModel>().errorOcurred(
+            e.code,
+            errorMessage,
+          );
+      context.read<model.Loading>().hideLoading();
+      return;
+    }
+
+    // Handle success
+    context.read<model.ErrorModel>().errorResolved();
+    context.read<model.Loading>().hideLoading();
+    Navigator.of(context).pushNamed('/dashboard');
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (context.watch<model.Loading>().getLoading) {
+      return LoadingWidget();
+    }
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -349,16 +391,7 @@ class DepositScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () => {
-                    FunctionsSevice().makeDeposit(
-                      DepositArguments(
-                        amount: amount,
-                        cardNumber: cardNumber,
-                        cvv: cvv,
-                        expiryDate: expiryDate,
-                      ),
-                    )
-                  },
+                  onPressed: () => _submit(context),
                   child: Text(
                     'Deposit Now!',
                   ),

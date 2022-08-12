@@ -1,8 +1,6 @@
+import 'package:cardpay/shared/empty.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/widgets.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:cardpay/services/models.dart' as model;
 
 class ErrorWidget extends StatelessWidget {
@@ -23,6 +21,6 @@ class ErrorWidget extends StatelessWidget {
         ),
       );
     }
-    return const SizedBox.shrink();
+    return const EmptyWidget();
   }
 }

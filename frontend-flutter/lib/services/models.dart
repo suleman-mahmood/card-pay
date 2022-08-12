@@ -27,6 +27,22 @@ class RollNumber {
   }
 }
 
+class Loading extends ChangeNotifier {
+  bool loading = false;
+
+  get getLoading => loading;
+
+  void showLoading() {
+    loading = true;
+    notifyListeners();
+  }
+
+  void hideLoading() {
+    loading = false;
+    notifyListeners();
+  }
+}
+
 class ErrorModel extends ChangeNotifier {
   bool hasError;
   String code;

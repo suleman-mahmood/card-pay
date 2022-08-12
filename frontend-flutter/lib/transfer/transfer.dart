@@ -1,8 +1,10 @@
 import 'package:cardpay/services/functions.dart';
-import 'package:cardpay/services/models.dart';
+import 'package:cardpay/services/models.dart' as model;
+import 'package:cardpay/services/utils.dart';
+import 'package:cardpay/shared/loading.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/provider.dart';
 
 class TransferScreen extends StatelessWidget {
   String rollNumber = '';
@@ -10,8 +12,46 @@ class TransferScreen extends StatelessWidget {
 
   TransferScreen({Key? key}) : super(key: key);
 
+  void _submit(BuildContext context) async {
+    context.read<model.Loading>().showLoading();
+
+    try {
+      await FunctionsSevice().makeTransfer(
+        model.MakeTransferArguments(
+          amount: amount,
+          recipientRollNumber: rollNumber,
+        ),
+      );
+    } on FirebaseFunctionsException catch (e) {
+      final String errorMessage;
+
+      if (codeToMessage.containsKey(e.code)) {
+        errorMessage = codeToMessage[e.code];
+      } else {
+        errorMessage = "Unknown exception thrown: ${e.code}";
+      }
+
+      printError(errorMessage);
+      context.read<model.ErrorModel>().errorOcurred(
+            e.code,
+            errorMessage,
+          );
+      context.read<model.Loading>().hideLoading();
+      return;
+    }
+
+    // Handle success
+    context.read<model.ErrorModel>().errorResolved();
+    context.read<model.Loading>().hideLoading();
+    printInGreen("Transfer Success!");
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (context.watch<model.Loading>().getLoading) {
+      return const LoadingWidget();
+    }
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -78,14 +118,7 @@ class TransferScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () => {
-                    FunctionsSevice().makeTransfer(
-                      MakeTransferArguments(
-                        amount: amount,
-                        recipientRollNumber: rollNumber,
-                      ),
-                    )
-                  },
+                  onPressed: () => _submit(context),
                   child: Text(
                     'Transfer Now!',
                   ),

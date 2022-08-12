@@ -9,33 +9,37 @@ class TransactionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var user = context.read<model.User>();
-    var transactions = user.transactions;
+    final user = context.watch<model.User>();
+    final transactions = user.transactions;
 
     Widget getTransactions() {
       return Column(
-        children: transactions.map((t) {
-          return TransactionWidget(transactionData: t);
-        }).toList(),
+        children: transactions
+            .map((t) {
+              return TransactionWidget(transactionData: t);
+            })
+            .toList()
+            .reversed
+            .toList(),
       );
     }
 
     return Scaffold(
-      body: Center(
-        child: Container(
-          margin: EdgeInsets.only(top: 50),
-          child: Column(
-            children: [
-              Text(
+      body: Container(
+        margin: EdgeInsets.only(top: 50),
+        child: ListView(
+          children: [
+            Center(
+              child: Text(
                 'Transactions',
                 style: Theme.of(context).textTheme.headline5,
               ),
-              SizedBox(
-                height: 20,
-              ),
-              getTransactions(),
-            ],
-          ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            getTransactions(),
+          ],
         ),
       ),
     );
