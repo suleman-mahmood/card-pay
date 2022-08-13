@@ -52,6 +52,7 @@ export const deposit = functions.https.onCall(async (
     );
   }
 
+  // TODO: Add checks on other parameters
   // TODO: Handle transaction gateway to PayPro API
 
   /*
