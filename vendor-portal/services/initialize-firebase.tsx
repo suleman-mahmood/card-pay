@@ -23,5 +23,5 @@ export const auth = getAuth(app);
 
 // Initialize functions with emulator
 const _functions = getFunctions(app);
-connectFunctionsEmulator(_functions, "localhost", 5001);
+// connectFunctionsEmulator(_functions, "localhost", 5001);
 export const functions = _functions;
