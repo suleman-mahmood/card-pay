@@ -12,10 +12,11 @@ class AuthService {
     RollNumber rollNumber,
     String password,
   ) async {
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    final newUser = await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: rollNumber.getEmail,
       password: password,
     );
+    await newUser.user?.sendEmailVerification();
     await FunctionsSevice().createUser(
       CreateUserArguments(
         fullName: fullName,
@@ -25,9 +26,9 @@ class AuthService {
     );
   }
 
-  Future<void> signIn(RollNumber rollNumber, String password) async {
+  Future<UserCredential> signIn(RollNumber rollNumber, String password) async {
     printWarning(rollNumber.getEmail);
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
+    return await FirebaseAuth.instance.signInWithEmailAndPassword(
       email: rollNumber.getEmail,
       password: password,
     );

@@ -5,8 +5,6 @@ import 'package:cardpay/services/validation.dart';
 import 'package:cardpay/shared/error.dart' as err;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import "package:provider/src/provider.dart";
 
 class LoginScreen extends StatelessWidget {
@@ -24,7 +22,14 @@ class LoginScreen extends StatelessWidget {
     }
 
     try {
-      await AuthService().signIn(rollNumber, password);
+      final userDetails = await AuthService().signIn(rollNumber, password);
+      // print(userDetails);
+      if (!userDetails.user!.emailVerified) {
+        // printError("User not Verified hence going to Std Verification");
+        Navigator.pushNamed(context, '/student-verification');
+      } else {
+        Navigator.pushNamed(context, '/dashboard');
+      }
     } on FirebaseAuthException catch (e) {
       if (codeToMessage.containsKey(e.code)) {
         context
@@ -40,7 +45,6 @@ class LoginScreen extends StatelessWidget {
       }
       return;
     }
-    Navigator.pushNamed(context, '/dashboard');
   }
 
   @override
