@@ -27,8 +27,7 @@ class LoginScreen extends StatelessWidget {
       if (!userDetails.user!.emailVerified) {
         // printError("User not Verified hence going to Std Verification");
         Navigator.pushNamed(context, '/student-verification');
-      } else {
-        Navigator.pushNamed(context, '/dashboard');
+        return;
       }
     } on FirebaseAuthException catch (e) {
       if (codeToMessage.containsKey(e.code)) {
@@ -45,6 +44,8 @@ class LoginScreen extends StatelessWidget {
       }
       return;
     }
+    // ignore: use_build_context_synchronously
+    Navigator.pushNamed(context, '/dashboard');
   }
 
   @override

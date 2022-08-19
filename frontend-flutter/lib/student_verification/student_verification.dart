@@ -6,13 +6,11 @@ class StudentVerificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: Center(
-          child: Text(
-            "An email has just been sent to your LUMS email Address, Click the link provided to complete registration and then Sign-In",
-            style: TextStyle(color: Colors.white, fontSize: 16),
-          ),
+    return const Scaffold(
+      body: Center(
+        child: Text(
+          "An email has just been sent to your LUMS email Address, Click the link provided to complete registration and then Sign-In",
+          style: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
     );
