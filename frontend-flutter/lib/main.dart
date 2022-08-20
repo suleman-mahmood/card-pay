@@ -1,7 +1,7 @@
 import 'package:cardpay/routes.dart';
 import 'package:cardpay/services/firestore.dart';
 import 'package:cardpay/services/models.dart' as model;
-import 'package:cardpay/theme.dart';
+import 'package:cardpay/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';

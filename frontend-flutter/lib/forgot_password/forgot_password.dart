@@ -1,18 +1,18 @@
+import 'package:cardpay/shared/layouts/auth.dart';
+import 'package:cardpay/shared/typography/main_heading.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          "Forgot Password",
+    return const AuthLayoutWidget(
+      children: [
+        MainHeadingWidget(
+          content: "Forgot password feature coming soon.\n Stay tuned!!!",
         ),
-      ),
+      ],
     );
   }
 }

@@ -7,8 +7,6 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Lottie.network(
-      "https://assets8.lottiefiles.com/packages/lf20_g3ki3g0v.json",
-    );
+    return Lottie.asset('assets/loading-payment.json');
   }
 }
