@@ -17,5 +17,6 @@ final Map codeToMessage = {
   "user-disabled": "Cannot login, Please contact helpline",
   "too-many-requests": "Too many requests. Try again later.",
   "email-already-in-use": "Roll number is already registered",
-  "weak-password": "Weak Password",
+  "weak-password":
+      "Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character:",
 };

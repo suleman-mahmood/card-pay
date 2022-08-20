@@ -439,7 +439,7 @@ class SignUpScreenOld extends StatelessWidget {
                               return "Please enter Password";
                             }
                             if (!passwordValue.isValidPassword) {
-                              return "Weak Password";
+                              return "Minimum eight characters, at least\none uppercase letter,\none lowercase letter,\none number and one special character";
                             }
                             return null;
                           },

@@ -11,9 +11,10 @@ extension stringAddOns on String {
   }
 
   bool get isValidPassword {
-    final rollNumberRegExp = RegExp(r"^[0-9]{8}$");
-    final passwordRegExp =
-        RegExp(r"(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})");
-    return rollNumberRegExp.hasMatch(this);
+    // Minimum eight characters, at least one uppercase letter,
+    // one lowercase letter, one number and one special character:
+    final passwordRegExp = RegExp(
+        r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$");
+    return passwordRegExp.hasMatch(this);
   }
 }
