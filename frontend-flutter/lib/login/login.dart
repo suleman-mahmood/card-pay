@@ -5,7 +5,7 @@ import 'package:cardpay/services/validation.dart';
 import 'package:cardpay/shared/error.dart' as err;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import "package:provider/src/provider.dart";
+import "package:provider/provider.dart";
 
 class LoginScreen extends StatelessWidget {
   model.RollNumber rollNumber = model.RollNumber();
@@ -44,7 +44,6 @@ class LoginScreen extends StatelessWidget {
       }
       return;
     }
-    // ignore: use_build_context_synchronously
     Navigator.pushNamed(context, '/dashboard');
   }
 
