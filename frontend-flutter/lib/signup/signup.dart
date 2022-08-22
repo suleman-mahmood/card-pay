@@ -79,7 +79,7 @@ class SignUpScreen extends StatelessWidget {
     printWarning(
       "$fullName has rollnumber: ${rollNumber.getRollNumber} with pass: $password",
     );
-    Navigator.pushNamed(context, '/dashboard');
+    Navigator.pushNamed(context, '/student-verification');
   }
 
   @override

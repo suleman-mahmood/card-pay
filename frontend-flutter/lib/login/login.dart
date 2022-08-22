@@ -30,7 +30,13 @@ class LoginScreen extends StatelessWidget {
     context.read<model.Loading>().showLoading();
 
     try {
-      await AuthService().signIn(rollNumber, password);
+      final userDetails = await AuthService().signIn(rollNumber, password);
+      // print(userDetails);
+      if (!userDetails.user!.emailVerified) {
+        // printError("User not Verified hence going to Std Verification");
+        Navigator.pushNamed(context, '/student-verification');
+        return;
+      }
     } on FirebaseAuthException catch (e) {
       final String errorMessage;
 
