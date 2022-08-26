@@ -1,10 +1,7 @@
-import 'package:cardpay/shared/typography/main_heading.dart';
 import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
-class TextButtonWidget extends StatelessWidget {
+class TextButtonCustomWidget extends StatelessWidget {
   // Configurations
   final double buttonBorderRadius = 20;
   final double paddingText = 10;
@@ -14,7 +11,7 @@ class TextButtonWidget extends StatelessWidget {
   final bool invertColors;
   final VoidCallback onPressed;
 
-  const TextButtonWidget({
+  const TextButtonCustomWidget({
     Key? key,
     required this.content,
     required this.onPressed,
@@ -22,11 +19,11 @@ class TextButtonWidget extends StatelessWidget {
   }) : super(key: key);
 
   Color showPrimaryColorDisplay() {
-    return invertColors ? AppColors().PrimaryColor : AppColors().SecondaryColor;
+    return invertColors ? AppColors().primaryColor : AppColors().secondaryColor;
   }
 
   Color showSecondaryColorDisplay() {
-    return invertColors ? AppColors().SecondaryColor : AppColors().PrimaryColor;
+    return invertColors ? AppColors().secondaryColor : AppColors().primaryColor;
   }
 
   @override

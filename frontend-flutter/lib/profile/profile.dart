@@ -1,15 +1,15 @@
 import 'package:cardpay/shared/shared.dart';
 import 'package:flutter/material.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({Key? key}) : super(key: key);
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const AuthLayoutCustomWidget(
+    return const WalletLayoutCustomWidget(
       children: [
         MainHeadingTypographyCustomWidget(
-          content: "Forgot password feature coming soon.\n Stay tuned!!!",
+          content: "Profile feature coming soon.\n Stay tuned!!!",
         ),
       ],
     );

@@ -1,8 +1,9 @@
+import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
 
-class BigIconTextButtonWidget extends StatelessWidget {
+class BigIconTextButtonCustomWidget extends StatelessWidget {
   // Configurations
-  final double width = 75;
+  final double width = 50;
   final double cardElevation = 5;
   final double marginBetween = 5;
   final double paddingCardIcon = 10;
@@ -10,18 +11,26 @@ class BigIconTextButtonWidget extends StatelessWidget {
   final Color iconColor = Colors.blue;
 
   final String content;
+  final bool invertColors;
   final IconData icon;
   final VoidCallback onPressed;
 
-  const BigIconTextButtonWidget({
+  const BigIconTextButtonCustomWidget({
     Key? key,
     required this.content,
     required this.icon,
     required this.onPressed,
+    this.invertColors = false,
   }) : super(key: key);
+
+  Color primaryColorDisplay() {
+    return invertColors ? AppColors().secondaryColor : AppColors().primaryColor;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       children: <Widget>[
         // Card
@@ -53,7 +62,17 @@ class BigIconTextButtonWidget extends StatelessWidget {
           child: Text(
             content,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
+            // style: Theme.of(context).textTheme.titleMedium,
+            style: theme
+                .copyWith(
+                  textTheme: theme.textTheme.copyWith(
+                    titleMedium: theme.textTheme.titleMedium!.copyWith(
+                      color: primaryColorDisplay(),
+                    ),
+                  ),
+                )
+                .textTheme
+                .titleMedium,
           ),
         ),
       ],

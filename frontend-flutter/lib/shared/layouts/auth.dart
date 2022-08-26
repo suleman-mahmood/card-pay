@@ -1,21 +1,18 @@
 import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/widgets.dart';
 
-class AuthLayoutWidget extends StatelessWidget {
+class AuthLayoutCustomWidget extends StatelessWidget {
   final bool invertColors;
   final List<Widget> children;
 
-  const AuthLayoutWidget({
+  const AuthLayoutCustomWidget({
     Key? key,
     required this.children,
     this.invertColors = false,
   }) : super(key: key);
 
   Color showPrimaryColor() {
-    return invertColors ? AppColors().PrimaryColor : AppColors().SecondaryColor;
+    return invertColors ? AppColors().primaryColor : AppColors().secondaryColor;
   }
 
   @override

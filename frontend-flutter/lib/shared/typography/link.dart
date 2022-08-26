@@ -1,15 +1,12 @@
 import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/widgets.dart';
 
-class LinkWidget extends StatelessWidget {
+class LinkTypographyCustomWidget extends StatelessWidget {
   final String content;
   final String redirectTo;
   final bool invertColors;
 
-  const LinkWidget({
+  const LinkTypographyCustomWidget({
     Key? key,
     required this.content,
     required this.redirectTo,
@@ -17,7 +14,7 @@ class LinkWidget extends StatelessWidget {
   }) : super(key: key);
 
   Color primaryColorDisplay() {
-    return invertColors ? AppColors().OrangeColor : AppColors().PrimaryColor;
+    return invertColors ? AppColors().orangeColor : AppColors().primaryColor;
   }
 
   @override

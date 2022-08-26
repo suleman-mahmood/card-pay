@@ -3,7 +3,6 @@ import 'package:cardpay/services/firestore.dart';
 import 'package:cardpay/services/models.dart' as model;
 import 'package:cardpay/theme/theme.dart';
 import 'package:flutter/material.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';

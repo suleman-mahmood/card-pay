@@ -1,21 +1,18 @@
 import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/widgets.dart';
 
-class CaptionWidget extends StatelessWidget {
+class CaptionTypographyCustomWidget extends StatelessWidget {
   final String content;
   final bool invertColors;
 
-  const CaptionWidget({
+  const CaptionTypographyCustomWidget({
     Key? key,
     required this.content,
     this.invertColors = false,
   }) : super(key: key);
 
   Color primaryColorDisplay() {
-    return invertColors ? AppColors().SecondaryColor : AppColors().BlackColor;
+    return invertColors ? AppColors().secondaryColor : AppColors().blackColor;
   }
 
   @override
@@ -24,7 +21,6 @@ class CaptionWidget extends StatelessWidget {
 
     return Text(
       content,
-      textAlign: TextAlign.center,
       style: theme
           .copyWith(
             textTheme: theme.textTheme.copyWith(

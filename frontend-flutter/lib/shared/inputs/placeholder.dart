@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class PlaceholderInputWidget extends StatelessWidget {
+class PlaceholderInputCustomWidget extends StatelessWidget {
   // Configurations
   final Color primaryColor = Colors.blue;
   final Color secondaryColor = Colors.white;
@@ -13,7 +13,7 @@ class PlaceholderInputWidget extends StatelessWidget {
   final void Function(String) onChanged;
   final String? Function(String?)? validator;
 
-  const PlaceholderInputWidget({
+  const PlaceholderInputCustomWidget({
     Key? key,
     required this.labelText,
     required this.hintText,
@@ -38,6 +38,10 @@ class PlaceholderInputWidget extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: onChanged,
       validator: validator,
+      cursorColor: primaryColorDisplay(),
+      style: TextStyle(
+        color: primaryColorDisplay(),
+      ),
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
@@ -61,7 +65,6 @@ class PlaceholderInputWidget extends StatelessWidget {
         filled: true,
         fillColor: secondaryColorDisplay(),
       ),
-      cursorColor: primaryColorDisplay(),
     );
   }
 }

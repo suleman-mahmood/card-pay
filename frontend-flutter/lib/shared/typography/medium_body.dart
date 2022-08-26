@@ -1,11 +1,11 @@
 import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
 
-class MainHeadingTypographyCustomWidget extends StatelessWidget {
+class MediumBodyTypographyCustomWidget extends StatelessWidget {
   final String content;
   final bool invertColors;
 
-  const MainHeadingTypographyCustomWidget({
+  const MediumBodyTypographyCustomWidget({
     Key? key,
     required this.content,
     this.invertColors = false,
@@ -21,11 +21,10 @@ class MainHeadingTypographyCustomWidget extends StatelessWidget {
 
     return Text(
       content,
-      textAlign: TextAlign.center,
       style: theme
           .copyWith(
             textTheme: theme.textTheme.copyWith(
-              caption: theme.textTheme.headline4!.copyWith(
+              caption: theme.textTheme.bodyMedium!.copyWith(
                 color: primaryColorDisplay(),
               ),
             ),

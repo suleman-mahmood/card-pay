@@ -6,6 +6,7 @@ import 'package:cardpay/deposit/deposit.dart';
 import 'package:cardpay/feedback/feedback.dart';
 import 'package:cardpay/forgot_password/forgot_password.dart';
 import 'package:cardpay/login/login.dart';
+import 'package:cardpay/profile/profile.dart';
 import 'package:cardpay/signup/signup.dart';
 import 'package:cardpay/student_verification/student_verification.dart';
 import 'package:cardpay/transactions/transactions.dart';
@@ -27,5 +28,6 @@ var appRoutes = {
   '/conflict': (context) => ConflictScreen(),
   '/feedback': (context) => FeedbackScreen(),
   '/about': (context) => AboutScreen(),
+  '/profile': (context) => ProfileScreen(),
   '/student-verification': (context) => StudentVerificationScreen(),
 };

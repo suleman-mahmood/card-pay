@@ -1,16 +1,23 @@
 import 'package:cardpay/services/functions.dart';
 import 'package:cardpay/services/models.dart' as model;
 import 'package:cardpay/services/utils.dart';
-import 'package:cardpay/shared/loading.dart';
+import 'package:cardpay/shared/shared.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class TransferScreen extends StatelessWidget {
+class TransferScreen extends StatefulWidget {
+  TransferScreen({Key? key}) : super(key: key);
+
+  @override
+  State<TransferScreen> createState() => _TransferScreenState();
+}
+
+class _TransferScreenState extends State<TransferScreen> {
+  final List<int> denominations = [10, 50, 100, 500, 1000, 5000];
+
   String rollNumber = '';
   int amount = 0;
-
-  TransferScreen({Key? key}) : super(key: key);
 
   void _submit(BuildContext context) async {
     context.read<model.Loading>().showLoading();
@@ -48,86 +55,77 @@ class TransferScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.watch<model.Loading>().getLoading) {
-      return const LoadingWidget();
-    }
-
-    return Scaffold(
-      body: Center(
-        child: Container(
-          margin: EdgeInsets.only(top: 50),
-          child: Column(
-            children: [
-              Text(
-                'Instant Transfer',
-                style: Theme.of(context).textTheme.headline5,
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 20),
-                width: 250,
-                child: Text(
-                  'Enter details',
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-              ),
-              Container(
-                width: 250,
-                margin: EdgeInsets.only(top: 15),
-                padding: EdgeInsets.only(left: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                  color: Colors.orange[700],
-                ),
-                child: TextField(
-                  onChanged: (String rollNumberValue) {
-                    rollNumber = rollNumberValue;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Roll Number',
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-              Container(
-                width: 250,
-                margin: EdgeInsets.only(top: 15),
-                padding: EdgeInsets.only(left: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                  color: Colors.orange[700],
-                ),
-                child: TextField(
-                  onChanged: (String amountValue) {
-                    amount = int.parse(amountValue);
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Amount',
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-              Container(
-                width: 200,
-                margin: EdgeInsets.only(top: 30),
-                child: MaterialButton(
-                  color: Colors.orange[800],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  onPressed: () => _submit(context),
-                  child: Text(
-                    'Transfer Now!',
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<model.ErrorModel>(
+          create: (_) => model.ErrorModel(),
         ),
-      ),
+      ],
+      builder: (context, child) {
+        if (context.watch<model.Loading>().getLoading) {
+          return ScreenTransitionLoaderCustomWidget();
+        }
+
+        return WalletLayoutCustomWidget(
+          children: [
+            PlaceholderInputCustomWidget(
+              labelText: "Roll Number",
+              hintText: "23100011",
+              onChanged: (String rollNumberValue) {
+                rollNumber = rollNumberValue;
+              },
+              invertColors: true,
+            ),
+            SizedBox(height: 10),
+            GridView(
+              shrinkWrap: true,
+              padding: EdgeInsets.symmetric(vertical: 20),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 30,
+                childAspectRatio: 5 / 3,
+              ),
+              children: denominations.map<Widget>((d) {
+                return NumberButtonCustomWidget(
+                  number: d,
+                  onPressed: () {
+                    setState(() {
+                      amount += d;
+                    });
+                  },
+                  invertColors: true,
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 10),
+            TextPlaceholderInputCustomWidget(
+              onChanged: (v) {
+                setState(() {
+                  amount = int.parse(v);
+                });
+              },
+              prefixText: "Custom Amount: ",
+              hintText: "xxxxx",
+            ),
+            SizedBox(height: 50),
+            Row(
+              children: [
+                MediumBodyTypographyCustomWidget(
+                    content: "Total Amount\nPKR. $amount/-"),
+                SizedBox(width: 20),
+                Expanded(
+                  child: TextButtonCustomWidget(
+                    content: "Confirm Transfer",
+                    onPressed: () => _submit(context),
+                  ),
+                ),
+              ],
+            ),
+            const ErrorTypographyCustomWidget(),
+          ],
+        );
+      },
     );
   }
 }

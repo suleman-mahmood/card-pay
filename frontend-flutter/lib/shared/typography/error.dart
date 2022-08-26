@@ -1,10 +1,10 @@
-import 'package:cardpay/shared/empty.dart';
+import 'package:cardpay/shared/utils/empty.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cardpay/services/models.dart' as model;
 
-class ErrorWidget extends StatelessWidget {
-  const ErrorWidget({Key? key}) : super(key: key);
+class ErrorTypographyCustomWidget extends StatelessWidget {
+  const ErrorTypographyCustomWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +21,6 @@ class ErrorWidget extends StatelessWidget {
         ),
       );
     }
-    return const EmptyWidget();
+    return const EmptyCustomWidget();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class BigIconButtonWidget extends StatelessWidget {
+class BigIconButtonCustomWidget extends StatelessWidget {
   // Configurations
   final double borderWidth = 5;
   final double paddingHorizontal = 10;
@@ -12,7 +12,7 @@ class BigIconButtonWidget extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
 
-  BigIconButtonWidget({
+  BigIconButtonCustomWidget({
     Key? key,
     required this.icon,
     required this.onPressed,

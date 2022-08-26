@@ -1,21 +1,18 @@
 import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/widgets.dart';
 
-class SmallBodyTextWidget extends StatelessWidget {
+class SmallBodyTypographyCustomWidget extends StatelessWidget {
   final String content;
   final bool invertColors;
 
-  const SmallBodyTextWidget({
+  const SmallBodyTypographyCustomWidget({
     Key? key,
     required this.content,
     this.invertColors = false,
   }) : super(key: key);
 
   Color primaryColorDisplay() {
-    return invertColors ? AppColors().SecondaryColor : AppColors().BlackColor;
+    return invertColors ? AppColors().secondaryColor : AppColors().blackColor;
   }
 
   @override
