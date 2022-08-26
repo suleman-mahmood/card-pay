@@ -1,3 +1,4 @@
+import 'package:cardpay/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
@@ -6,13 +7,30 @@ class StudentVerificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          "An email has just been sent to your LUMS email Address, Click the link provided to complete registration and then Sign-In",
-          style: TextStyle(color: Colors.white, fontSize: 16),
+    return AuthLayoutCustomWidget(
+      children: [
+        MainHeadingTypographyCustomWidget(
+          content:
+              "A verification email has been sent to your outlook's junk folder",
         ),
-      ),
+        SizedBox(height: 20),
+        SubHeadingTypographyCustomWidget(
+          content:
+              "Click the link provided to complete registration and then Sign-In again",
+        ),
+        SizedBox(height: 20),
+        MediumBodyTypographyCustomWidget(
+          content: "Note: Check your junk folder for the email",
+        ),
+        SizedBox(height: 20),
+        TextButtonCustomWidget(
+          content: "Proceed to login",
+          invertColors: true,
+          onPressed: () {
+            Navigator.pushNamed(context, '/login');
+          },
+        ),
+      ],
     );
     // Scaffold(
     //   body: Center(
