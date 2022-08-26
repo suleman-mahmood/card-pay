@@ -168,7 +168,7 @@ class SignUpScreen extends StatelessWidget {
                     return "Please enter Password";
                   }
                   if (!passwordValue.isValidPassword) {
-                    return "Minimum eight characters,\nat least one uppercase letter,\none lowercase letter,\none number and one special character:";
+                    return "Minimum eight characters,\nat least one letter and one number";
                   }
                   return null;
                 },
