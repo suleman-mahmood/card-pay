@@ -1,7 +1,9 @@
 import 'package:cardpay/services/exceptions.dart';
 import 'package:cardpay/services/functions.dart';
 import 'package:cardpay/services/models.dart';
+import 'package:cardpay/services/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final userStream = FirebaseAuth.instance.authStateChanges();
@@ -24,6 +26,10 @@ class AuthService {
         role: StudentRole.student,
       ),
     );
+    // Persist email and password to local storage
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("rollNumber", rollNumber.getRollNumber);
+    await prefs.setString("password", password);
   }
 
   Future<void> signIn(RollNumber rollNumber, String password) async {
