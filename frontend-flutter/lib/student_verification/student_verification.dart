@@ -1,9 +1,42 @@
+import 'dart:async';
+import 'package:cardpay/services/auth.dart';
 import 'package:cardpay/shared/shared.dart';
 import 'package:flutter/material.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
 
-class StudentVerificationScreen extends StatelessWidget {
+class StudentVerificationScreen extends StatefulWidget {
   const StudentVerificationScreen({Key? key}) : super(key: key);
+
+  @override
+  State<StudentVerificationScreen> createState() =>
+      _StudentVerificationScreenState();
+}
+
+class _StudentVerificationScreenState extends State<StudentVerificationScreen> {
+  int secondsRemaining = 30;
+  bool enableResend = false;
+  late Timer timer;
+
+  @override
+  initState() {
+    super.initState();
+    timer = Timer.periodic(Duration(seconds: 1), (_) {
+      if (secondsRemaining != 0) {
+        setState(() {
+          secondsRemaining--;
+        });
+      } else {
+        setState(() {
+          enableResend = true;
+        });
+      }
+    });
+  }
+
+  @override
+  dispose() {
+    timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,86 +58,31 @@ class StudentVerificationScreen extends StatelessWidget {
         SizedBox(height: 20),
         TextButtonCustomWidget(
           content: "Proceed to login",
-          invertColors: true,
-          onPressed: () {
+          onPressed: () async {
+            await AuthService().signOut();
             Navigator.pushNamed(context, '/login');
           },
         ),
+        SizedBox(height: 20),
+        MediumBodyTypographyCustomWidget(
+          content: "Didn't get verification email?",
+        ),
+        SizedBox(height: 20),
+        TextButtonCustomWidget(
+          content: "Resend email verification",
+          onPressed: () async {
+            if (!enableResend) return;
+            await AuthService().sendEmailVerification();
+            setState(() {
+              secondsRemaining = 30;
+              enableResend = false;
+            });
+          },
+        ),
+        SmallBodyTypographyCustomWidget(
+          content: "after $secondsRemaining seconds",
+        ),
       ],
     );
-    // Scaffold(
-    //   body: Center(
-    //     child: Column(
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       children: [
-    //         Text(
-    //           'Verify Account',
-    //           style: Theme.of(context).textTheme.headline5,
-    //         ),
-    //         Container(
-    //           margin: EdgeInsets.only(top: 10),
-    //           child: Text(
-    //             'Enter 4-digit code we have sent to your email',
-    //             style: Theme.of(context).textTheme.bodyText2,
-    //           ),
-    //         ),
-    //         Text(
-    //           '23000000@lums.edu.pk',
-    //           style: Theme.of(context).textTheme.bodyText2,
-    //         ),
-    //         Container(
-    //           width: 250,
-    //           margin: EdgeInsets.symmetric(vertical: 40),
-    //           child: PinCodeTextField(
-    //             appContext: context,
-    //             length: 4,
-    //             animationType: AnimationType.fade,
-    //             pinTheme: PinTheme(
-    //               shape: PinCodeFieldShape.box,
-    //               borderRadius: BorderRadius.circular(5),
-    //               fieldHeight: 50,
-    //               fieldWidth: 40,
-    //               activeFillColor: Colors.white,
-    //             ),
-    //             cursorColor: Colors.black,
-    //             animationDuration: const Duration(milliseconds: 300),
-    //             enableActiveFill: true,
-    //             keyboardType: TextInputType.number,
-    //             boxShadows: const [
-    //               BoxShadow(
-    //                 offset: Offset(0, 1),
-    //                 color: Colors.black12,
-    //                 blurRadius: 10,
-    //               )
-    //             ],
-    //             onChanged: (value) {},
-    //           ),
-    //         ),
-    //         Text(
-    //           "Didn't receive the code?",
-    //           style: Theme.of(context).textTheme.bodyText2,
-    //         ),
-    //         Text(
-    //           "Resend Code",
-    //           style: Theme.of(context).textTheme.bodyText2,
-    //         ),
-    //         Container(
-    //           width: 250,
-    //           margin: EdgeInsets.only(top: 10),
-    //           child: MaterialButton(
-    //             shape: RoundedRectangleBorder(
-    //               borderRadius: BorderRadius.circular(10),
-    //             ),
-    //             color: Colors.orange[800],
-    //             onPressed: () => Navigator.pushNamed(context, '/dashboard'),
-    //             child: Text(
-    //               'Proceed',
-    //             ),
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 }

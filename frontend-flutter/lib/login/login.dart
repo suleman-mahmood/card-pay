@@ -1,4 +1,5 @@
 import 'package:cardpay/services/auth.dart';
+import 'package:cardpay/services/exceptions.dart';
 import 'package:cardpay/services/models.dart' as model;
 import 'package:cardpay/services/utils.dart';
 import 'package:cardpay/services/validation.dart';
@@ -22,13 +23,19 @@ class LoginScreen extends StatelessWidget {
     context.read<model.Loading>().showLoading();
 
     try {
-      final userDetails = await AuthService().signIn(rollNumber, password);
-      // print(userDetails);
-      if (!userDetails.user!.emailVerified) {
-        // printError("User not Verified hence going to Std Verification");
-        Navigator.pushNamed(context, '/student-verification');
-        return;
-      }
+      await AuthService().signIn(rollNumber, password);
+    } on EmailUnverified catch (e) {
+      // Handle navigation to student verification page
+      printWarning(e.cause);
+      context.read<model.ErrorModel>().errorResolved();
+      context.read<model.Loading>().hideLoading();
+      Navigator.pushNamed(context, '/student-verification');
+      return;
+    } on UserIsNull catch (e) {
+      printError(e.cause);
+      context.read<model.ErrorModel>().errorOcurred("User null", e.cause);
+      context.read<model.Loading>().hideLoading();
+      return;
     } on FirebaseAuthException catch (e) {
       final String errorMessage;
 

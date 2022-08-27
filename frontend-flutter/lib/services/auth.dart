@@ -1,6 +1,6 @@
+import 'package:cardpay/services/exceptions.dart';
 import 'package:cardpay/services/functions.dart';
 import 'package:cardpay/services/models.dart';
-import 'package:cardpay/services/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -12,11 +12,11 @@ class AuthService {
     RollNumber rollNumber,
     String password,
   ) async {
-    final newUser = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: rollNumber.getEmail,
       password: password,
     );
-    await newUser.user?.sendEmailVerification();
+    await sendEmailVerification();
     await FunctionsSevice().createUser(
       CreateUserArguments(
         fullName: fullName,
@@ -26,15 +26,26 @@ class AuthService {
     );
   }
 
-  Future<UserCredential> signIn(RollNumber rollNumber, String password) async {
-    printWarning(rollNumber.getEmail);
-    return await FirebaseAuth.instance.signInWithEmailAndPassword(
+  Future<void> signIn(RollNumber rollNumber, String password) async {
+    final userDetails = await FirebaseAuth.instance.signInWithEmailAndPassword(
       email: rollNumber.getEmail,
       password: password,
     );
+    if (userDetails.user == null) {
+      throw UserIsNull(
+        "Can't find logged in user using firebase's authentication service",
+      );
+    }
+    if (!userDetails.user!.emailVerified) {
+      throw EmailUnverified("User has not verified his email");
+    }
   }
 
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
+  }
+
+  Future<void> sendEmailVerification() async {
+    await user?.sendEmailVerification();
   }
 }

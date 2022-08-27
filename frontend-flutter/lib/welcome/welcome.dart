@@ -1,6 +1,8 @@
 import 'package:cardpay/dashboard/dashboard.dart';
 import 'package:cardpay/services/auth.dart';
 import 'package:cardpay/shared/shared.dart';
+import 'package:cardpay/student_verification/student_verification.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -8,7 +10,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return StreamBuilder<User?>(
       stream: AuthService().userStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -24,6 +26,10 @@ class WelcomeScreen extends StatelessWidget {
             ),
           );
         } else if (snapshot.hasData) {
+          // Check if the user has verified his email
+          if (!snapshot.data!.emailVerified) {
+            return const StudentVerificationScreen();
+          }
           // There is data if the user is logged in so goto dashboard
           return const DashboardScreen();
         } else {
