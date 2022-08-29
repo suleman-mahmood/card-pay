@@ -21,84 +21,90 @@ class DashboardCardCustomWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 5,
+      elevation: 10,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(20),
         ),
       ),
       color: primaryColorDisplay(),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 20,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors().dashboardCardGradient,
+          borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
-        child: Column(
-          children: [
-            // Upper content
-            Row(
-              children: [
-                SubHeadingTypographyCustomWidget(
-                  content: "Monthly",
-                  invertColors: true,
-                ),
-                Spacer(),
-                Column(
-                  children: [
-                    Text(
-                      "Spent",
-                      style: TextStyle(
-                        color: secondaryColorDisplay(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 15,
+            vertical: 20,
+          ),
+          child: Column(
+            children: [
+              // Upper content
+              Row(
+                children: [
+                  SubHeadingTypographyCustomWidget(
+                    content: "Monthly",
+                    invertColors: true,
+                  ),
+                  Spacer(),
+                  Column(
+                    children: [
+                      Text(
+                        "Spent",
+                        style: TextStyle(
+                          color: secondaryColorDisplay(),
+                        ),
                       ),
-                    ),
-                    Text(
-                      "300",
-                      style: TextStyle(
-                        color: secondaryColorDisplay(),
+                      Text(
+                        "300",
+                        style: TextStyle(
+                          color: secondaryColorDisplay(),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(width: 10),
-                Column(
-                  children: [
-                    Text(
-                      "Income",
-                      style: TextStyle(
-                        color: secondaryColorDisplay(),
+                    ],
+                  ),
+                  SizedBox(width: 10),
+                  Column(
+                    children: [
+                      Text(
+                        "Income",
+                        style: TextStyle(
+                          color: secondaryColorDisplay(),
+                        ),
                       ),
-                    ),
-                    Text(
-                      "300",
-                      style: TextStyle(
-                        color: secondaryColorDisplay(),
+                      Text(
+                        "300",
+                        style: TextStyle(
+                          color: secondaryColorDisplay(),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            SizedBox(height: 10),
-
-            // Slider
-            SliderTheme(
-              child: Slider(
-                thumbColor: secondaryColorDisplay(),
-                activeColor: AppColors().redColor,
-                inactiveColor: secondaryColorDisplay(),
-                value: 10,
-                max: 100,
-                label: "200",
-                onChanged: (_) {},
+                    ],
+                  ),
+                ],
               ),
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 5,
-                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0),
-                overlayShape: SliderComponentShape.noOverlay,
+
+              SizedBox(height: 10),
+
+              // Slider
+              SliderTheme(
+                child: Slider(
+                  thumbColor: secondaryColorDisplay(),
+                  activeColor: AppColors().redColor,
+                  inactiveColor: secondaryColorDisplay(),
+                  value: 10,
+                  max: 100,
+                  label: "200",
+                  onChanged: (_) {},
+                ),
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 5,
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0),
+                  overlayShape: SliderComponentShape.noOverlay,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

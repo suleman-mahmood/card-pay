@@ -89,7 +89,7 @@ class SignUpScreen extends StatelessWidget {
 
         return Form(
           key: _signInFormKey,
-          child: AuthLayoutCustomWidget(
+          child: AuthLayout2CustomWidget(
             invertColors: true,
             children: [
               // Main heading
@@ -142,7 +142,7 @@ class SignUpScreen extends StatelessWidget {
               // Roll number input
               PlaceholderInputCustomWidget(
                 labelText: "Roll Number",
-                hintText: "23100011",
+                hintText: "00000000",
                 onChanged: (v) => rollNumber.setRollNumber = v,
                 validator: (rollNumberValue) {
                   if (rollNumberValue == null) {

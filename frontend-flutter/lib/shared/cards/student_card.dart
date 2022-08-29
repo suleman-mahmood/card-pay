@@ -14,7 +14,7 @@ class StudentCardCustomWidget extends StatelessWidget {
     final userData = context.watch<model.User>();
 
     return Card(
-      elevation: 10,
+      elevation: 15,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(20),
@@ -23,7 +23,7 @@ class StudentCardCustomWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 0,
-          vertical: 20,
+          vertical: 15,
         ),
         child: Row(
           children: [
@@ -40,10 +40,13 @@ class StudentCardCustomWidget extends StatelessWidget {
                   height: 150,
                 ),
                 Positioned(
-                  top: -40,
+                  top: -50,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.asset("assets/images/student_card.png"),
+                    borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(20), right: Radius.circular(10)),
+                    child: Image.asset(
+                      "assets/images/student_card.png",
+                    ),
                   ),
                 ),
               ],
@@ -60,12 +63,20 @@ class StudentCardCustomWidget extends StatelessWidget {
                 children: [
                   Container(
                     padding: EdgeInsets.all(10),
-                    color: AppColors().primaryColor,
+                    decoration: BoxDecoration(
+                      gradient: AppColors().dashboardCardGradient,
+                      borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(10),
+                      ),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SubHeadingTypographyCustomWidget(
-                          content: userData.fullName,
+                          content: userData.fullName.split(' ')[0] +
+                              ' ' +
+                              userData.fullName.split(' ')[1][0] +
+                              '.',
                           invertColors: true,
                           textAlign: TextAlign.left,
                         ),

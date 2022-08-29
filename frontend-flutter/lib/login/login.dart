@@ -118,7 +118,7 @@ class LoginScreen extends StatelessWidget {
 
         return FutureBuilder<bool>(
           future: authenticateWithBiometrics(),
-          builder: (context, snapshot) {
+          builder: (_, snapshot) {
             if (snapshot.hasData && snapshot.data == true) {
               // The biometric was successful, fake a submit
               _submit(context, false);
@@ -152,7 +152,7 @@ class LoginScreen extends StatelessWidget {
                   // Roll number input
                   PlaceholderInputCustomWidget(
                     labelText: "Roll Number",
-                    hintText: "23100011",
+                    hintText: "00000000",
                     invertColors: true,
                     onChanged: (v) => rollNumber.setRollNumber = v,
                     validator: (rollNumberValue) {

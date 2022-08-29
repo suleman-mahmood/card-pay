@@ -26,15 +26,17 @@ class WalletLayoutCustomWidget extends StatelessWidget {
           child: Stack(
             children: [
               Container(
-                color: AppColors().primaryColor,
-                height: 160,
+                decoration: BoxDecoration(
+                  gradient: AppColors().dashboardCardGradient,
+                ),
+                height: 165,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                   children: [
                     // Top Margin
-                    SizedBox(height: 50),
+                    SizedBox(height: 60),
 
                     // Card area
                     StudentCardCustomWidget(),

@@ -1,13 +1,13 @@
 import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
 
-class SubHeadingTypographyCustomWidget extends StatelessWidget {
+class SubHeading2TypographyCustomWidget extends StatelessWidget {
   final String content;
   final bool invertColors;
   final TextAlign textAlign;
   final bool? isDebit;
 
-  const SubHeadingTypographyCustomWidget({
+  const SubHeading2TypographyCustomWidget({
     Key? key,
     required this.content,
     this.textAlign = TextAlign.center,
@@ -29,7 +29,7 @@ class SubHeadingTypographyCustomWidget extends StatelessWidget {
       style: theme
           .copyWith(
             textTheme: theme.textTheme.copyWith(
-              caption: theme.textTheme.headlineSmall!.copyWith(
+              caption: theme.textTheme.headline6!.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isDebit == null
                     ? primaryColorDisplay()

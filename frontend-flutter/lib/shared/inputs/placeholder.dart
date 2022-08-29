@@ -1,4 +1,6 @@
+import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_launcher_icons/main.dart';
 
 class PlaceholderInputCustomWidget extends StatelessWidget {
   // Configurations
@@ -60,7 +62,7 @@ class PlaceholderInputCustomWidget extends StatelessWidget {
         contentPadding: EdgeInsets.symmetric(horizontal: 20),
         labelText: labelText,
         labelStyle: TextStyle(color: primaryColorDisplay()),
-        hintStyle: TextStyle(color: primaryColorDisplay()),
+        hintStyle: TextStyle(color: AppColors().greyColor),
         hintText: hintText,
         filled: true,
         fillColor: secondaryColorDisplay(),

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 class BigIconTextButtonCustomWidget extends StatelessWidget {
   // Configurations
   final double width = 50;
-  final double cardElevation = 5;
+  final double cardElevation = 10;
   final double marginBetween = 5;
-  final double paddingCardIcon = 10;
+  final double paddingCardIcon = 15;
   final double cardBorderRadius = 15;
-  final Color iconColor = Colors.blue;
+  final Color iconColor = Colors.white;
 
   final String content;
   final bool invertColors;
@@ -34,23 +34,31 @@ class BigIconTextButtonCustomWidget extends StatelessWidget {
     return Column(
       children: <Widget>[
         // Card
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(cardBorderRadius),
-          ),
-          elevation: cardElevation,
-          child: Padding(
-            padding: EdgeInsets.all(paddingCardIcon),
-            child: SizedBox.square(
-              dimension: width,
-              child: IconButton(
-                padding: const EdgeInsets.all(0),
-                icon: Icon(
-                  color: iconColor,
-                  icon,
-                  size: width,
+        GestureDetector(
+          onTap: onPressed,
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(cardBorderRadius),
+            ),
+            elevation: cardElevation,
+            child: Container(
+              decoration: BoxDecoration(
+                  gradient: AppColors().dashboardButtonGradient,
+                  borderRadius: BorderRadius.all(Radius.circular(15))),
+              child: Padding(
+                padding: EdgeInsets.all(paddingCardIcon),
+                child: SizedBox.square(
+                  dimension: width,
+                  child: IconButton(
+                    padding: const EdgeInsets.all(0),
+                    icon: Icon(
+                      color: iconColor,
+                      icon,
+                      size: width,
+                    ),
+                    onPressed: () => {},
+                  ),
                 ),
-                onPressed: onPressed,
               ),
             ),
           ),
