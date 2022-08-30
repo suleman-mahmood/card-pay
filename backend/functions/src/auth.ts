@@ -23,6 +23,10 @@ export const createUser = functions.https.onCall(async (
     }
    */
 
+  /*
+  Checks
+  */
+
   if (!context.auth) {
     throw new functions.https.HttpsError(
         "unauthenticated", "User is not authenticated"
@@ -38,9 +42,24 @@ export const createUser = functions.https.onCall(async (
 
   if (docAlreadyExists) {
     throw new functions.https.HttpsError(
-        "already-exists", "User already exists in Firestore"
+        "already-exists", "User document already exists in Firestore"
     );
   }
+
+  // Get the sender details from Firestore
+  const userQueryRef = db.collection("users")
+      .where("rollNumber", "==", data.rollNumber);
+  const senderSnapshot = await userQueryRef.get();
+  if (!senderSnapshot.empty) {
+    throw new functions.https.HttpsError(
+        "already-exists",
+        "User with the roll number already exists in Firestore",
+    );
+  }
+
+  /*
+  Handle Success
+  */
 
   await admin.auth().updateUser(uid, {
     displayName: data.fullName,
