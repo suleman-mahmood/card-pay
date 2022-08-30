@@ -1,4 +1,5 @@
 import * as functions from "firebase-functions";
+import {checkUserAuthAndDoc} from "./helpers";
 import {admin, db} from "./initialize";
 import {getTimestamp} from "./utils";
 
@@ -22,11 +23,9 @@ export const makeTransaction = functions.https.onCall(async (
     }
    */
 
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-        "unauthenticated", "The vendor is not authenticated"
-    );
-  }
+  const {uid, userSnapshot} = await checkUserAuthAndDoc(context);
+  const vendorUid = uid;
+  const vendorSnapshot = userSnapshot;
 
   const amount = parseInt(data.amount);
   const senderRollNumber = data.senderRollNumber;
@@ -46,18 +45,6 @@ export const makeTransaction = functions.https.onCall(async (
   if (/^[0-9]+$/.test(senderRollNumber) === false) {
     throw new functions.https.HttpsError(
         "invalid-argument", "Sender roll number must contain digits only"
-    );
-  }
-
-  const vendorUid: string = context.auth.uid;
-
-  // Get the vendor details from Firestore
-  const vendorsRef = db.collection("users").doc(vendorUid);
-  const vendorSnapshot = await vendorsRef.get();
-
-  if (!vendorSnapshot.exists) {
-    throw new functions.https.HttpsError(
-        "not-found", "Vendor does not exist in Firestore"
     );
   }
 

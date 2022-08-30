@@ -15,4 +15,10 @@ extension stringAddOns on String {
     final passwordRegExp = RegExp(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$");
     return passwordRegExp.hasMatch(this);
   }
+
+  bool get isValidPin {
+    // 4-digit numeric pin:
+    final pinRegExp = RegExp(r"^\d{4}$");
+    return pinRegExp.hasMatch(this);
+  }
 }

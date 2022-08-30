@@ -11,6 +11,7 @@ class PlaceholderInputCustomWidget extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final bool invertColors;
+  final int? maxLength;
 
   final void Function(String) onChanged;
   final String? Function(String?)? validator;
@@ -23,6 +24,7 @@ class PlaceholderInputCustomWidget extends StatelessWidget {
     required this.onChanged,
     this.validator,
     this.invertColors = false,
+    this.maxLength,
   }) : super(key: key);
 
   Color primaryColorDisplay() {
@@ -40,6 +42,7 @@ class PlaceholderInputCustomWidget extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: onChanged,
       validator: validator,
+      maxLength: maxLength,
       cursorColor: primaryColorDisplay(),
       style: TextStyle(
         color: primaryColorDisplay(),
@@ -66,6 +69,7 @@ class PlaceholderInputCustomWidget extends StatelessWidget {
         hintText: hintText,
         filled: true,
         fillColor: secondaryColorDisplay(),
+        counterText: "",
       ),
     );
   }

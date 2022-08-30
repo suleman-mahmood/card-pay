@@ -76,6 +76,7 @@ class User extends ChangeNotifier {
   String personalEmail;
   String phoneNumber;
   bool verified;
+  bool pendingDeposits;
   int balance;
   StudentRole role;
   List<UserTransaction> transactions;
@@ -88,6 +89,7 @@ class User extends ChangeNotifier {
     this.personalEmail = '',
     this.phoneNumber = '',
     this.verified = false,
+    this.pendingDeposits = false,
     this.balance = 0,
     this.role = StudentRole.student,
     this.transactions = const [],
@@ -101,6 +103,7 @@ class User extends ChangeNotifier {
     personalEmail = u.personalEmail;
     phoneNumber = u.phoneNumber;
     verified = u.verified;
+    pendingDeposits = u.pendingDeposits;
     balance = u.balance;
     role = u.role;
     transactions = u.transactions;
@@ -138,15 +141,13 @@ class UserTransaction {
 @JsonSerializable()
 class DepositArguments {
   final int amount;
-  final String cardNumber;
-  final String cvv;
-  final String expiryDate;
+  final String fullName;
+  final String email;
 
   DepositArguments({
     this.amount = 0,
-    this.cardNumber = '',
-    this.cvv = '',
-    this.expiryDate = '',
+    this.fullName = "",
+    this.email = "",
   });
 
   factory DepositArguments.fromJson(Map<String, dynamic> json) =>
@@ -155,14 +156,37 @@ class DepositArguments {
 }
 
 @JsonSerializable()
+class DepositReturnObject {
+  final String status;
+  final String message;
+  final String paymentUrl;
+  final String orderNumber;
+  final String payProId;
+
+  DepositReturnObject({
+    this.status = "",
+    this.message = "",
+    this.paymentUrl = "",
+    this.orderNumber = "",
+    this.payProId = "",
+  });
+
+  factory DepositReturnObject.fromJson(Map<String, dynamic> json) =>
+      _$DepositReturnObjectFromJson(json);
+  Map<String, dynamic> toJson() => _$DepositReturnObjectToJson(this);
+}
+
+@JsonSerializable()
 class CreateUserArguments {
   final String fullName;
   final String rollNumber;
+  final String pin;
   final StudentRole role;
 
   CreateUserArguments({
     this.fullName = '',
     this.rollNumber = '',
+    this.pin = '',
     this.role = StudentRole.student,
   });
 

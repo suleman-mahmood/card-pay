@@ -12,6 +12,6 @@
 // });
 
 export {createUser} from "./auth";
-export {deposit} from "./deposit";
+export {addDepositRequest, handleDepositSuccess} from "./deposit";
 export {makeTransaction} from "./makeTransaction";
 export {transfer} from "./transfer";

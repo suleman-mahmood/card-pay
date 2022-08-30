@@ -211,20 +211,21 @@ class LoginScreen extends StatelessWidget {
                   // Spacer(),
                   SizedBox(height: 100),
 
-                  // Row fingerprint and face id
-                  Row(
-                    children: [
-                      BigIconButtonCustomWidget(
-                        icon: Icons.fingerprint,
-                        onPressed: () => {},
-                      ),
-                      Spacer(),
-                      BigIconButtonCustomWidget(
-                        icon: Icons.face_unlock_outlined,
-                        onPressed: () => {},
-                      ),
-                    ],
-                  )
+                  // TODO: Row fingerprint and face id
+                  //       Decide whether to keep it or not
+                  // Row(
+                  //   children: [
+                  //     BigIconButtonCustomWidget(
+                  //       icon: Icons.fingerprint,
+                  //       onPressed: () => {},
+                  //     ),
+                  //     Spacer(),
+                  //     BigIconButtonCustomWidget(
+                  //       icon: Icons.face_unlock_outlined,
+                  //       onPressed: () => {},
+                  //     ),
+                  //   ],
+                  // )
                 ],
               ),
             );

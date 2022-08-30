@@ -6,6 +6,7 @@ type Role = "student" | "unknown";
 interface CreateUserData {
   fullName: string;
   rollNumber: string;
+  pin: string;
   role: Role;
 }
 
@@ -21,6 +22,8 @@ export const createUser = functions.https.onCall(async (
       role: string,
     }
    */
+
+  const pin = parseInt(data.pin);
 
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -50,6 +53,8 @@ export const createUser = functions.https.onCall(async (
     fullName: data.fullName,
     personalEmail: "",
     email: data.rollNumber + "@lums.edu.pk",
+    pendingDeposits: false,
+    pin: pin,
     phoneNumber: "",
     rollNumber: data.rollNumber,
     verified: false,

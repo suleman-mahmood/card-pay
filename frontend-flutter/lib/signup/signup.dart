@@ -13,6 +13,8 @@ class SignUpScreen extends StatelessWidget {
   String password = '';
   String confirmPassword = '';
   String fullName = '';
+  String pin = '';
+  String confirmPin = '';
 
   final _signInFormKey = GlobalKey<FormState>();
 
@@ -28,7 +30,7 @@ class SignUpScreen extends StatelessWidget {
     context.read<model.Loading>().showLoading();
 
     try {
-      await AuthService().signUp(fullName, rollNumber, password);
+      await AuthService().signUp(fullName, rollNumber, password, pin);
     } on FirebaseAuthException catch (e) {
       final String errorMessage;
 
@@ -193,24 +195,64 @@ class SignUpScreen extends StatelessWidget {
                 },
               ),
 
+              SizedBox(height: 20),
+
+              // 4 digit pin input
+              PlaceholderInputCustomWidget(
+                labelText: "4-digit pin",
+                hintText: "****",
+                obscureText: true,
+                onChanged: (v) => pin = v,
+                maxLength: 4,
+                validator: (pinValue) {
+                  if (pinValue == null) {
+                    return "Please enter pin";
+                  }
+                  if (!pinValue.isValidPin) {
+                    return "Please enter a 4-digit numeric pin";
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 20),
+
+              // Confirm 4 digit pin input
+              PlaceholderInputCustomWidget(
+                labelText: "Confirm 4-digit pin",
+                hintText: "****",
+                obscureText: true,
+                onChanged: (v) => confirmPin = v,
+                maxLength: 4,
+                validator: (pinValue) {
+                  if (pinValue == null) {
+                    return "Please re-enter pin";
+                  }
+                  if (pinValue != pin) {
+                    return "The pins don't match";
+                  }
+                  return null;
+                },
+              ),
+
               const ErrorTypographyCustomWidget(),
 
               SizedBox(height: 20),
 
-              // Remember me
-              Row(
-                children: [
-                  // TODO: Add remember option here as well
-                  Opacity(
-                    opacity: 0,
-                    child: Placeholder(
-                      color: Colors.blue[800]!,
-                      fallbackWidth: 120,
-                      fallbackHeight: 20,
-                    ),
-                  ),
-                ],
-              ),
+              // TODO: Remember me
+              // Row(
+              //   children: [
+              //     // TODO: Add remember option here as well
+              //     Opacity(
+              //       opacity: 0,
+              //       child: Placeholder(
+              //         color: Colors.blue[800]!,
+              //         fallbackWidth: 120,
+              //         fallbackHeight: 20,
+              //       ),
+              //     ),
+              //   ],
+              // ),
 
               SizedBox(height: 20),
 
@@ -222,7 +264,7 @@ class SignUpScreen extends StatelessWidget {
               ),
 
               // Spacer(),
-              SizedBox(height: 100),
+              SizedBox(height: 50),
 
               // TOC checkbox
               Row(

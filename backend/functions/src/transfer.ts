@@ -1,4 +1,5 @@
 import * as functions from "firebase-functions";
+import {checkUserAuthAndDoc} from "./helpers";
 import {admin, db} from "./initialize";
 import {getTimestamp} from "./utils";
 
@@ -21,11 +22,9 @@ export const transfer = functions.https.onCall(async (
     }
    */
 
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-        "unauthenticated", "The user is not authenticated"
-    );
-  }
+  const {uid, userSnapshot} = await checkUserAuthAndDoc(context);
+  const sendersUid = uid;
+  const senderSnapshot = userSnapshot;
 
   const amount = parseInt(data.amount);
   const recipientRollNumber = data.recipientRollNumber;
@@ -45,18 +44,6 @@ export const transfer = functions.https.onCall(async (
   if (/^[0-9]+$/.test(recipientRollNumber) === false) {
     throw new functions.https.HttpsError(
         "invalid-argument", "Sender roll number must contain digits only"
-    );
-  }
-
-  const sendersUid: string = context.auth.uid;
-
-  // Get the sender details from Firestore
-  const sendersRef = db.collection("users").doc(sendersUid);
-  const senderSnapshot = await sendersRef.get();
-
-  if (!senderSnapshot.exists) {
-    throw new functions.https.HttpsError(
-        "not-found", "Sender does not exist in Firestore"
     );
   }
 

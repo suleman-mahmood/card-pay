@@ -14,6 +14,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       personalEmail: json['personalEmail'] as String? ?? '',
       phoneNumber: json['phoneNumber'] as String? ?? '',
       verified: json['verified'] as bool? ?? false,
+      pendingDeposits: json['pendingDeposits'] as bool? ?? false,
       balance: json['balance'] as int? ?? 0,
       role: $enumDecodeNullable(_$StudentRoleEnumMap, json['role']) ??
           StudentRole.student,
@@ -31,6 +32,7 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'personalEmail': instance.personalEmail,
       'phoneNumber': instance.phoneNumber,
       'verified': instance.verified,
+      'pendingDeposits': instance.pendingDeposits,
       'balance': instance.balance,
       'role': _$StudentRoleEnumMap[instance.role]!,
       'transactions': instance.transactions,
@@ -72,23 +74,41 @@ const _$TransactionStatusEnumMap = {
 DepositArguments _$DepositArgumentsFromJson(Map<String, dynamic> json) =>
     DepositArguments(
       amount: json['amount'] as int? ?? 0,
-      cardNumber: json['cardNumber'] as String? ?? '',
-      cvv: json['cvv'] as String? ?? '',
-      expiryDate: json['expiryDate'] as String? ?? '',
+      fullName: json['fullName'] as String? ?? "",
+      email: json['email'] as String? ?? "",
     );
 
 Map<String, dynamic> _$DepositArgumentsToJson(DepositArguments instance) =>
     <String, dynamic>{
       'amount': instance.amount,
-      'cardNumber': instance.cardNumber,
-      'cvv': instance.cvv,
-      'expiryDate': instance.expiryDate,
+      'fullName': instance.fullName,
+      'email': instance.email,
+    };
+
+DepositReturnObject _$DepositReturnObjectFromJson(Map<String, dynamic> json) =>
+    DepositReturnObject(
+      status: json['status'] as String? ?? "",
+      message: json['message'] as String? ?? "",
+      paymentUrl: json['paymentUrl'] as String? ?? "",
+      orderNumber: json['orderNumber'] as String? ?? "",
+      payProId: json['payProId'] as String? ?? "",
+    );
+
+Map<String, dynamic> _$DepositReturnObjectToJson(
+        DepositReturnObject instance) =>
+    <String, dynamic>{
+      'status': instance.status,
+      'message': instance.message,
+      'paymentUrl': instance.paymentUrl,
+      'orderNumber': instance.orderNumber,
+      'payProId': instance.payProId,
     };
 
 CreateUserArguments _$CreateUserArgumentsFromJson(Map<String, dynamic> json) =>
     CreateUserArguments(
       fullName: json['fullName'] as String? ?? '',
       rollNumber: json['rollNumber'] as String? ?? '',
+      pin: json['pin'] as String? ?? '',
       role: $enumDecodeNullable(_$StudentRoleEnumMap, json['role']) ??
           StudentRole.student,
     );
@@ -98,6 +118,7 @@ Map<String, dynamic> _$CreateUserArgumentsToJson(
     <String, dynamic>{
       'fullName': instance.fullName,
       'rollNumber': instance.rollNumber,
+      'pin': instance.pin,
       'role': _$StudentRoleEnumMap[instance.role]!,
     };
 

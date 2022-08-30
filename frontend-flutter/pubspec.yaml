@@ -51,6 +51,7 @@ dependencies:
     intl: ^0.17.0
     local_auth: ^2.1.2
     shared_preferences: ^2.0.15
+    url_launcher: ^6.1.5
 
 dev_dependencies:
     flutter_test:

@@ -6,6 +6,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:cardpay/services/functions.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DepositScreen extends StatefulWidget {
   DepositScreen({Key? key}) : super(key: key);
@@ -18,17 +19,19 @@ class _DepositScreenState extends State<DepositScreen> {
   final List<int> denominations = [10, 50, 100, 500, 1000, 5000];
 
   int amount = 0;
+  late model.DepositReturnObject result;
 
   void _submit(BuildContext context) async {
     context.read<model.Loading>().showLoading();
 
     try {
-      await FunctionsSevice().makeDeposit(
+      final user = context.read<model.User>();
+
+      result = await FunctionsService().makeDeposit(
         model.DepositArguments(
           amount: amount,
-          cardNumber: "",
-          cvv: "",
-          expiryDate: "",
+          fullName: user.fullName,
+          email: user.email,
         ),
       );
     } on FirebaseFunctionsException catch (e) {
@@ -52,7 +55,8 @@ class _DepositScreenState extends State<DepositScreen> {
     // Handle success
     context.read<model.ErrorModel>().errorResolved();
     context.read<model.Loading>().hideLoading();
-    Navigator.of(context).pushNamed('/dashboard');
+
+    await launchUrl(Uri.parse(result.paymentUrl));
   }
 
   @override

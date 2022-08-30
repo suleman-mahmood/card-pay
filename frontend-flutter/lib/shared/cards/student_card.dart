@@ -1,12 +1,50 @@
+import 'dart:async';
+
+import 'package:cardpay/services/functions.dart';
 import 'package:cardpay/shared/typography/caption.dart';
+import 'package:cardpay/shared/typography/small_body.dart';
 import 'package:cardpay/shared/typography/sub_heading.dart';
+import 'package:cardpay/shared/utils/utils.dart';
 import 'package:cardpay/theme/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:cardpay/services/models.dart' as model;
 
-class StudentCardCustomWidget extends StatelessWidget {
+class StudentCardCustomWidget extends StatefulWidget {
   const StudentCardCustomWidget({Key? key}) : super(key: key);
+
+  @override
+  State<StudentCardCustomWidget> createState() =>
+      _StudentCardCustomWidgetState();
+}
+
+class _StudentCardCustomWidgetState extends State<StudentCardCustomWidget> {
+  int secondsRemaining = 30;
+  bool enableResend = false;
+  late Timer timer;
+
+  @override
+  initState() {
+    super.initState();
+    timer = Timer.periodic(Duration(seconds: 1), (_) {
+      if (secondsRemaining != 0) {
+        setState(() {
+          secondsRemaining--;
+        });
+      } else {
+        setState(() {
+          enableResend = true;
+        });
+      }
+    });
+  }
+
+  @override
+  dispose() {
+    timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +97,7 @@ class StudentCardCustomWidget extends StatelessWidget {
             // Strip of name and roll number
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     padding: EdgeInsets.all(10),
@@ -80,7 +118,7 @@ class StudentCardCustomWidget extends StatelessWidget {
                           invertColors: true,
                           textAlign: TextAlign.left,
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         SubHeadingTypographyCustomWidget(
                           content: userData.rollNumber,
                           invertColors: true,
@@ -94,8 +132,44 @@ class StudentCardCustomWidget extends StatelessWidget {
                     content: "PKR. ${userData.balance.toString()}/-",
                     textAlign: TextAlign.left,
                   ),
+                  const SizedBox(height: 10),
                   const CaptionTypographyCustomWidget(
-                      content: "Available Balance"),
+                    content: "Available Balance",
+                  ),
+                  userData.pendingDeposits
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const SmallBodyTypographyCustomWidget(
+                                  content: "Refresh balance",
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    FontAwesomeIcons.arrowsRotate,
+                                    size: 20,
+                                    color: AppColors().primaryColor,
+                                  ),
+                                  onPressed: () async {
+                                    if (!enableResend) return;
+                                    await FunctionsService()
+                                        .checkDepositStatus();
+                                    setState(() {
+                                      secondsRemaining = 30;
+                                      enableResend = false;
+                                    });
+                                  },
+                                  tooltip: "Refresh balance",
+                                ),
+                              ],
+                            ),
+                            SmallBodyTypographyCustomWidget(
+                              content: "after $secondsRemaining seconds",
+                            ),
+                          ],
+                        )
+                      : const EmptyCustomWidget(),
                 ],
               ),
             ),

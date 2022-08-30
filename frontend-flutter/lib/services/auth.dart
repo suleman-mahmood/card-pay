@@ -13,17 +13,20 @@ class AuthService {
     String fullName,
     RollNumber rollNumber,
     String password,
+    String pin,
   ) async {
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    final userCredential =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: rollNumber.getEmail,
       password: password,
     );
-    await sendEmailVerification();
-    await FunctionsSevice().createUser(
+    userCredential.user?.sendEmailVerification();
+    await FunctionsService().createUser(
       CreateUserArguments(
         fullName: fullName,
         rollNumber: rollNumber.getRollNumber,
         role: StudentRole.student,
+        pin: pin,
       ),
     );
     // Persist email and password to local storage

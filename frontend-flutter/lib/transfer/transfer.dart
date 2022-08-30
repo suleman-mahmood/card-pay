@@ -23,7 +23,7 @@ class _TransferScreenState extends State<TransferScreen> {
     context.read<model.Loading>().showLoading();
 
     try {
-      await FunctionsSevice().makeTransfer(
+      await FunctionsService().makeTransfer(
         model.MakeTransferArguments(
           amount: amount,
           recipientRollNumber: rollNumber,
