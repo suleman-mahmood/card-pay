@@ -21,8 +21,13 @@ class FirestoreService {
   Stream<model.User> streamUser() {
     return AuthService().userStream.switchMap((user) {
       if (user != null) {
-        var ref = _db.collection('users').doc(user.uid);
-        return ref.snapshots().map((doc) => model.User.fromJson(doc.data()!));
+        final ref = _db.collection('users').doc(user.uid);
+        return ref.snapshots().map((doc) {
+          if (doc.exists) {
+            return model.User.fromJson(doc.data()!);
+          }
+          return model.User();
+        });
       } else {
         return Stream.fromIterable([model.User()]);
       }

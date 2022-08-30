@@ -56,7 +56,7 @@ class BigIconTextButtonCustomWidget extends StatelessWidget {
                       icon,
                       size: width,
                     ),
-                    onPressed: () => {},
+                    onPressed: onPressed,
                   ),
                 ),
               ),

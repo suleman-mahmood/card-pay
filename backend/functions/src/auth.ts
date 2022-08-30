@@ -23,8 +23,6 @@ export const createUser = functions.https.onCall(async (
     }
    */
 
-  const pin = parseInt(data.pin);
-
   if (!context.auth) {
     throw new functions.https.HttpsError(
         "unauthenticated", "User is not authenticated"
@@ -54,7 +52,7 @@ export const createUser = functions.https.onCall(async (
     personalEmail: "",
     email: data.rollNumber + "@lums.edu.pk",
     pendingDeposits: false,
-    pin: pin,
+    pin: data.pin,
     phoneNumber: "",
     rollNumber: data.rollNumber,
     verified: false,

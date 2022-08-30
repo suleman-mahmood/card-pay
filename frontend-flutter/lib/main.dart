@@ -39,7 +39,7 @@ class _AppState extends State<App> {
       future: _initialization,
       builder: (context, snapshot) {
         // Connects with firebase emulator instead of firebase cloud
-        FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
+        // FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
 
         // Check for errors
         if (snapshot.hasError) {

@@ -75,6 +75,7 @@ class User extends ChangeNotifier {
   String rollNumber;
   String personalEmail;
   String phoneNumber;
+  String pin;
   bool verified;
   bool pendingDeposits;
   int balance;
@@ -88,6 +89,7 @@ class User extends ChangeNotifier {
     this.rollNumber = '',
     this.personalEmail = '',
     this.phoneNumber = '',
+    this.pin = '',
     this.verified = false,
     this.pendingDeposits = false,
     this.balance = 0,
@@ -95,20 +97,16 @@ class User extends ChangeNotifier {
     this.transactions = const [],
   });
 
-  void updateUser(User u) {
-    id = u.id;
-    fullName = u.fullName;
-    email = u.email;
-    rollNumber = u.rollNumber;
-    personalEmail = u.personalEmail;
-    phoneNumber = u.phoneNumber;
-    verified = u.verified;
-    pendingDeposits = u.pendingDeposits;
-    balance = u.balance;
-    role = u.role;
-    transactions = u.transactions;
+  String get getCardFullName {
+    final words = fullName.split(" ");
 
-    notifyListeners();
+    if (words.length == 1) {
+      return "${words[0]}.";
+    } else if (words.length >= 2) {
+      return "${words[0]} ${words.last[0]}.";
+    } else {
+      return "";
+    }
   }
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

@@ -108,13 +108,10 @@ class _StudentCardCustomWidgetState extends State<StudentCardCustomWidget> {
                       ),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         SubHeadingTypographyCustomWidget(
-                          content: userData.fullName.split(' ')[0] +
-                              ' ' +
-                              userData.fullName.split(' ')[1][0] +
-                              '.',
+                          content: userData.getCardFullName,
                           invertColors: true,
                           textAlign: TextAlign.left,
                         ),
