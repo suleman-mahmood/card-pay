@@ -224,6 +224,13 @@ export const handleDepositSuccess = functions.https.onCall(async (
     }));
   });
 
+  if (totalAmount === 0) {
+    return {
+      status: "success",
+      message: "There are pending deposits",
+    };
+  }
+
   await Promise.all(orderRequestsPromises);
   await Promise.all(transactionsPromises);
 
