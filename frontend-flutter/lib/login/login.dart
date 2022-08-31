@@ -75,7 +75,7 @@ class LoginScreen extends StatelessWidget {
     } on PlatformException catch (e) {
       printError("Exception in biometric authentication");
       printError(e.code);
-      printError(e.details);
+      printError(e.details ?? "");
       printError(e.message ?? "");
       return false;
     }
