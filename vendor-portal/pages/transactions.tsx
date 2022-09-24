@@ -86,6 +86,13 @@ const Transactions: NextPage = () => {
         console.log(result);
         setShouldFocus(true);
         setLoading(false);
+
+        Swal.fire({
+          icon: "success",
+          title: "Transaction was successful",
+          showConfirmButton: false,
+          timer: 2000,
+        });
       })
       .catch((error) => {
         console.log(error.message);
@@ -147,6 +154,7 @@ const Transactions: NextPage = () => {
                   placeholder="xxxx"
                   currentVal={amount}
                   valueSetter={setAmount}
+                  readOnly={true}
                 />
 
                 <TextField
@@ -155,6 +163,7 @@ const Transactions: NextPage = () => {
                   labelText="Roll Number:"
                   placeholder="00000000"
                   valueSetter={setRollNumber}
+                  readOnly={true}
                 />
 
                 <button

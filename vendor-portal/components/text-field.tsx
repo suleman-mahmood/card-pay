@@ -7,6 +7,7 @@ interface TextFieldProps {
   inputType: string;
   valueSetter: React.Dispatch<React.SetStateAction<any>>;
   currentVal?: number;
+  readOnly?: boolean;
 }
 
 export default function TextField(props: TextFieldProps) {
@@ -23,6 +24,7 @@ export default function TextField(props: TextFieldProps) {
         placeholder={props.placeholder}
         className="input input-bordered w-full max-w-xs"
         value={props.currentVal}
+        readOnly={props.readOnly}
       />
     </div>
   );

@@ -8,6 +8,11 @@ type Status = "pending" | "successful" | "cancelled";
 const pendingStatus: Status = "pending";
 const successfulStatus: Status = "successful";
 
+const PAYPRO_BASE_URL = "https://api.PayPro.com.pk";
+const USERNAME = "Card_Pay"
+const CLIENT_ID = " pf5Cns3hQrJbvHh"
+const CLIENT_SECRET = "vHIXolKNjB4zNIa"
+
 interface depositRequestData {
   amount: string;
   fullName: string;
@@ -49,13 +54,13 @@ export const addDepositRequest = functions.https.onCall(async (
 
   const orderConfig = {
     method: "post",
-    url: "https://demoapi.paypro.com.pk/v2/ppro/co",
+    url: PAYPRO_BASE_URL + "/v2/ppro/co",
     headers: {
       "token": authToken,
     },
     data: [
       {
-        "MerchantId": "Card_Pay",
+        "MerchantId": USERNAME,
       },
       {
         "OrderNumber": transactionId,
@@ -153,13 +158,13 @@ export const handleDepositSuccess = functions.https.onCall(async (
   querySnapshot.forEach((doc) => {
     const config = {
       method: "get",
-      url: "https://demoapi.paypro.com.pk/v2/ppro/ggos",
+      url: PAYPRO_BASE_URL + "/v2/ppro/ggos",
       headers: {
         "token": authToken,
         "Content-Type": "application/json",
       },
       data: JSON.stringify({
-        "Username": "Card_Pay",
+        "Username": USERNAME,
         "cpayId": doc.data().payProId,
       }),
     };
@@ -249,11 +254,11 @@ export const handleDepositSuccess = functions.https.onCall(async (
 const getPayProAuthToken = async (): Promise<string> => {
   const authConfig = {
     method: "post",
-    url: "https://demoapi.paypro.com.pk/v2/ppro/auth",
+    url: PAYPRO_BASE_URL + "/v2/ppro/auth",
     headers: { },
     data: {
-      "clientid": "pf5Cns3hQrJbvHh",
-      "clientsecret": "t3yxHEQYGZJHY0m",
+      "clientid": CLIENT_ID,
+      "clientsecret": CLIENT_SECRET,
     },
   };
 
