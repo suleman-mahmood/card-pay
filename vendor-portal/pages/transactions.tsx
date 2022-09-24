@@ -47,8 +47,13 @@ const Transactions: NextPage = () => {
     }
 
     const intervalId = setInterval(() => {
-      document.getElementById("roll-number-input")?.focus();
-    }, 100);
+      const elem = document.getElementById(
+        "roll-number-input"
+      ) as HTMLInputElement;
+      elem.readOnly = true;
+      elem.focus();
+      elem.readOnly = false;
+    }, 500);
 
     return () => clearInterval(intervalId);
   }, [shouldFocus]);
@@ -163,7 +168,6 @@ const Transactions: NextPage = () => {
                   labelText="Roll Number:"
                   placeholder="00000000"
                   valueSetter={setRollNumber}
-                  readOnly={true}
                 />
 
                 <button
