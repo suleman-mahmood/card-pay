@@ -64,6 +64,8 @@ class LoginScreen extends StatelessWidget {
   }
 
   Future<bool> authenticateWithBiometrics() async {
+    if (AuthService().isUserLoggedIn) return Future.value(false);
+
     final LocalAuthentication auth = LocalAuthentication();
     bool didAuthenticate = false;
 
@@ -91,8 +93,8 @@ class LoginScreen extends StatelessWidget {
 
     // Get email and password from local storage
     final prefs = await SharedPreferences.getInstance();
-    final rollNumberLocal = await prefs.getString("rollNumber") ?? "";
-    final passwordLocal = await prefs.getString("password") ?? "";
+    final rollNumberLocal = prefs.getString("rollNumber") ?? "";
+    final passwordLocal = prefs.getString("password") ?? "";
 
     // Set variables to local storage values
     rollNumber.setRollNumber = rollNumberLocal;

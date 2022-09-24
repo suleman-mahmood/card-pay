@@ -33,4 +33,13 @@ class FirestoreService {
       }
     });
   }
+
+  Future<model.AppVersionInfo> getAppVersionInfo() async {
+    final ref = _db.collection('appInfo').doc("versionInfo");
+    var snapshot = await ref.get();
+    var data = snapshot.data();
+    var info = model.AppVersionInfo.fromJson(data ?? {});
+
+    return info;
+  }
 }

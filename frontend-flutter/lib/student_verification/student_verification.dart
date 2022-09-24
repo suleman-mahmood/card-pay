@@ -43,17 +43,17 @@ class _StudentVerificationScreenState extends State<StudentVerificationScreen> {
     return AuthLayoutCustomWidget(
       children: [
         MainHeadingTypographyCustomWidget(
-          content:
-              "A verification email has been sent to your outlook's junk folder",
+          content: "A verification email has been sent to your outlook",
         ),
         SizedBox(height: 20),
         SubHeadingTypographyCustomWidget(
           content:
-              "Click the link provided to complete registration and then Sign-In again",
+              "Click the link provided to complete registration and then Sign In again",
         ),
         SizedBox(height: 20),
         MediumBodyTypographyCustomWidget(
-          content: "Note: Check your junk folder for the email",
+          content:
+              "Note: Check your junk folder if you are having trouble finding the email",
         ),
         SizedBox(height: 20),
         TextButtonCustomWidget(
@@ -63,11 +63,10 @@ class _StudentVerificationScreenState extends State<StudentVerificationScreen> {
             Navigator.pushNamed(context, '/login');
           },
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 30),
         MediumBodyTypographyCustomWidget(
           content: "Didn't get verification email?",
         ),
-        SizedBox(height: 20),
         TextButtonCustomWidget(
           content: "Resend email verification",
           onPressed: () async {

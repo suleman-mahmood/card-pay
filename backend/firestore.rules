@@ -13,7 +13,11 @@ service cloud.firestore {
       allow read: if request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.recipientId;
     }
 
-    match/allUsers/{docId} {
+    match /allUsers/{docId} {
+      allow read;
+    }
+
+    match /appInfo/{document=**} {
       allow read;
     }
   }

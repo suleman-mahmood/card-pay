@@ -1,10 +1,12 @@
 import 'package:cardpay/routes.dart';
 import 'package:cardpay/services/firestore.dart';
 import 'package:cardpay/services/models.dart' as model;
+import 'package:cardpay/services/utils.dart';
+import 'package:cardpay/shared/shared.dart';
 import 'package:cardpay/theme/theme.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -32,6 +34,17 @@ class _AppState extends State<App> {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  Future<bool> checkAppVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final info = await FirestoreService().getAppVersionInfo();
+    final bool isAppVersionLatest = isVersionGreaterThan(
+      packageInfo.version,
+      info.versionNumber,
+    );
+
+    return Future.value(info.breakingChanges ? isAppVersionLatest : true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -51,23 +64,48 @@ class _AppState extends State<App> {
 
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
-          return MultiProvider(
-            providers: [
-              StreamProvider<model.User>(
-                create: (_) => FirestoreService().streamUser(),
-                initialData: model.User(),
-              ),
-              ChangeNotifierProvider<model.ErrorModel>(
-                create: (_) => model.ErrorModel(),
-              ),
-              ChangeNotifierProvider<model.Loading>(
-                create: (_) => model.Loading(),
-              ),
-            ],
-            child: MaterialApp(
-              routes: appRoutes,
-              theme: appTheme,
-            ),
+          return FutureBuilder<bool>(
+            future: checkAppVersion(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data!) {
+                return MultiProvider(
+                  providers: [
+                    StreamProvider<model.User>(
+                      create: (_) => FirestoreService().streamUser(),
+                      initialData: model.User(),
+                    ),
+                    ChangeNotifierProvider<model.ErrorModel>(
+                      create: (_) => model.ErrorModel(),
+                    ),
+                    ChangeNotifierProvider<model.Loading>(
+                      create: (_) => model.Loading(),
+                    ),
+                  ],
+                  child: MaterialApp(
+                    routes: appRoutes,
+                    theme: appTheme,
+                  ),
+                );
+              } else if (snapshot.hasData && !snapshot.data!) {
+                return MaterialApp(
+                  home: SafeArea(
+                    child: Scaffold(
+                      body: Center(
+                        child: MainHeadingTypographyCustomWidget(
+                          content:
+                              "Please update the app from Play/App store in order to continue using the application",
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                return const Text(
+                  'loading',
+                  textDirection: TextDirection.ltr,
+                );
+              }
+            },
           );
         }
 

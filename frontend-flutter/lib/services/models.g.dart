@@ -137,3 +137,15 @@ Map<String, dynamic> _$MakeTransferArgumentsToJson(
       'amount': instance.amount,
       'recipientRollNumber': instance.recipientRollNumber,
     };
+
+AppVersionInfo _$AppVersionInfoFromJson(Map<String, dynamic> json) =>
+    AppVersionInfo(
+      versionNumber: json['versionNumber'] as String? ?? "0.00",
+      breakingChanges: json['breakingChanges'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$AppVersionInfoToJson(AppVersionInfo instance) =>
+    <String, dynamic>{
+      'versionNumber': instance.versionNumber,
+      'breakingChanges': instance.breakingChanges,
+    };

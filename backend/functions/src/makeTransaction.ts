@@ -6,6 +6,7 @@ import {getTimestamp} from "./utils";
 interface makeTransactionData {
   amount: string;
   senderRollNumber: string;
+  pin: string;
 }
 
 export const makeTransaction = functions.https.onCall(async (
@@ -77,6 +78,13 @@ export const makeTransaction = functions.https.onCall(async (
   if (senderDoc.balance < amount) {
     throw new functions.https.HttpsError(
         "failed-precondition", "Sender does not have sufficient balance"
+    );
+  }
+
+  // Check if the pin was correct
+  if(senderDoc.pin !== data.pin) {
+    throw new functions.https.HttpsError(
+        "failed-precondition", "Sender pin is incorrect"
     );
   }
 

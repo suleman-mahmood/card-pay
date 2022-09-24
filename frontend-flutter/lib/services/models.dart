@@ -207,3 +207,18 @@ class MakeTransferArguments {
       _$MakeTransferArgumentsFromJson(json);
   Map<String, dynamic> toJson() => _$MakeTransferArgumentsToJson(this);
 }
+
+@JsonSerializable()
+class AppVersionInfo {
+  final String versionNumber;
+  final bool breakingChanges;
+
+  AppVersionInfo({
+    this.versionNumber = "0.00",
+    this.breakingChanges = false,
+  });
+
+  factory AppVersionInfo.fromJson(Map<String, dynamic> json) =>
+      _$AppVersionInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$AppVersionInfoToJson(this);
+}
