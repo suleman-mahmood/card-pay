@@ -82,7 +82,7 @@ export const makeTransaction = functions.https.onCall(async (
   }
 
   // Check if the pin was correct
-  if(senderDoc.pin !== data.pin) {
+  if (senderDoc.pin !== data.pin) {
     throw new functions.https.HttpsError(
         "failed-precondition", "Sender pin is incorrect"
     );
