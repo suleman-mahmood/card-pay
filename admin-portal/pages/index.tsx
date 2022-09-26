@@ -1,11 +1,13 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { auth } from '../services/initialize-firebase';
-import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import TextField from '../components/text-field';
 import Loader from '../components/loader';
+
+const ADMIN_UID = 'BiTFuz2mntexVphn69WfApeFoqq2';
 
 const Index: NextPage = () => {
 	const router = useRouter();
@@ -15,13 +17,35 @@ const Index: NextPage = () => {
 	const [errorMessage, setErrorMessage] = useState('');
 	const [loading, setLoading] = useState(false);
 
+	useEffect(() => {
+		onAuthStateChanged(auth, user => {
+			if (user) {
+				if (user.uid !== ADMIN_UID) {
+					setErrorMessage('Only admins are allowed to login');
+					setLoading(false);
+					return;
+				}
+
+				// Handle success
+				setLoading(false);
+				setErrorMessage('');
+				router.push('/dashboard');
+			}
+		});
+	}, []);
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		setErrorMessage('');
 		setLoading(true);
 
 		signInWithEmailAndPassword(auth, email, password)
-			.then(() => {
+			.then(cred => {
+				if (cred.user.uid !== ADMIN_UID) {
+					setErrorMessage('Only admins are allowed to login');
+					setLoading(false);
+					return;
+				}
 				router.push('/dashboard');
 				setLoading(false);
 			})
@@ -36,10 +60,10 @@ const Index: NextPage = () => {
 	) : (
 		<div>
 			<Head>
-				<title>Vendor Portal - CardPay</title>
+				<title>Admin Portal - CardPay</title>
 				<meta
 					name="description"
-					content="Vendor portal for CardPay app"
+					content="Admin portal for CardPay app"
 				/>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
@@ -48,10 +72,10 @@ const Index: NextPage = () => {
 				<div className="hero-content text-center">
 					<div className="max-w-5xl">
 						<h1 className="text-5xl font-bold">
-							Welcome to <b>Vendor Portal</b> for CardPay!
+							Welcome to <b>Admin Portal</b> for CardPay!
 						</h1>
 						<p className="py-6">
-							Get started by logging in to your CardPay Vendor
+							Get started by logging in to your CardPay Admin
 							account
 						</p>
 
