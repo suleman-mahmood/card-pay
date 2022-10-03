@@ -139,7 +139,7 @@ const Transactions: NextPage = () => {
 					<div className="max-w-md">
 						<h1 className="mb-4 text-5xl font-bold">Dashboard</h1>
 						<p>1. Enter the amount using the on-screen keypad</p>
-						<p className="mb-8">2. Scan the student's card</p>
+						<p className="mb-8">2. Scan the student&#39;s card</p>
 
 						<div className="w-full flex flex-col items-center">
 							{KEY_PAD_CONFIG.map((k, i) => {
