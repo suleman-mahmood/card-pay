@@ -3,114 +3,75 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import TextField from '../components/text-field';
-import { auth, functions } from '../services/initialize-firebase';
+import { auth, db, functions } from '../services/initialize-firebase';
 import { User as FirebaseUser } from 'firebase/auth';
 import Navbar from '../components/navbar';
 import { httpsCallable } from 'firebase/functions';
 import Swal from 'sweetalert2';
 import Loader from '../components/loader';
+import { doc, getDoc } from 'firebase/firestore';
 
-const KEY_PAD_CONFIG = [
-	[1, 5, 10],
-	[50, 100, 200],
-	[500, 1000, 1500],
-];
+interface userDataDoc {
+	balance: number;
+	email: string;
+	fullName: string;
+	id: string;
+	role: string;
+	rollNumber: string;
+	verified: boolean;
+	transactions: Array<{
+		amount: number;
+		id: string;
+		recipientName: string;
+		senderName: string;
+		status: string;
+		timestamp: string;
+	}>;
+}
 
 const Transactions: NextPage = () => {
 	const router = useRouter();
 
 	const [loading, setLoading] = useState(true);
 	const [user, setUser] = useState<FirebaseUser | null>(null);
-	const [amount, setAmount] = useState(0);
-	const [rollNumber, setRollNumber] = useState(0);
-	const [errorMessage, setErrorMessage] = useState('');
-	const [shouldFocus, setShouldFocus] = useState(true);
-
-	const getRandomInteger = (): number => {
-		return Math.floor(Math.random() * 1000);
-	};
+	const [userData, setUserData] = useState<userDataDoc | null>(null);
 
 	useEffect(() => {
 		return onAuthStateChanged(auth, user => {
 			if (user) {
 				setUser(user);
-				setLoading(false);
+				fetchUserData(user.uid);
 			} else {
 				router.push('/');
 			}
 		});
 	}, []);
 
-	useEffect(() => {
-		if (!shouldFocus) {
-			return;
+	const fetchUserData = async (uid: string) => {
+		const docRef = doc(db, 'users', uid);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			setUserData(docSnap.data() as userDataDoc);
+		} else {
+			console.log('Could not find user document');
 		}
 
-		const intervalId = setInterval(() => {
-			const elem = document.getElementById(
-				'roll-number-input'
-			) as HTMLInputElement;
-			elem.readOnly = true;
-			elem.focus();
-			elem.readOnly = false;
-		}, 500);
-
-		return () => clearInterval(intervalId);
-	}, [shouldFocus]);
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setErrorMessage('');
-		setShouldFocus(false);
-		setLoading(true);
-
-		const cleanedRollNumber = rollNumber.toString().substring(4);
-
-		console.log(amount, cleanedRollNumber, user!.uid);
-
-		const { value: userPin } = await Swal.fire({
-			title: 'Input your 4-digit pin',
-			input: 'text',
-			inputLabel: 'Your pin',
-			inputPlaceholder: 'Enter your pin',
-		});
-
-		if (!userPin) {
-			setErrorMessage('Please enter pin');
-			setShouldFocus(true);
-			setLoading(false);
-			return;
-		}
-
-		const makeTransaction = httpsCallable(functions, 'makeTransaction');
-
-		makeTransaction({
-			amount: amount,
-			senderRollNumber: cleanedRollNumber,
-			pin: userPin,
-		})
-			.then(result => {
-				console.log(result);
-				setShouldFocus(true);
-				setLoading(false);
-
-				Swal.fire({
-					icon: 'success',
-					title: 'Transaction was successful',
-					showConfirmButton: false,
-					timer: 2000,
-				});
-			})
-			.catch(error => {
-				console.log(error.message);
-				setErrorMessage(error.message);
-				setShouldFocus(true);
-				setLoading(false);
-			});
+		setLoading(false);
 	};
 
-	const handleAmountClick = (value: number) => {
-		setAmount(v => v + value);
+	const formatTimestamp = (timestamp: string): string => {
+		const date = new Date(timestamp);
+		const options = {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: 'numeric',
+			minute: 'numeric',
+		};
+
+		return date.toLocaleDateString('en-US', options);
 	};
 
 	return loading ? (
@@ -120,94 +81,40 @@ const Transactions: NextPage = () => {
 			<Navbar />
 			<div className="hero flex-grow">
 				<div className="hero-content text-center">
-					<div className="max-w-md">
-						<h1 className="text-5xl font-bold">Transactions</h1>
-						<p className="py-6">
-							Commulatively add the amount using the below keypad
-						</p>
+					<div className="w-full">
+						<h1 className="mb-4 text-5xl font-bold">
+							Transactions
+						</h1>
+						<p>{userData?.fullName}</p>
+						<p className="mb-8">Balance: {userData?.balance}</p>
 
-						<div className="w-full flex flex-col items-center">
-							{KEY_PAD_CONFIG.map((k, i) => {
-								return (
-									<div
-										key={getRandomInteger()}
-										className="flex flex-row mb-4"
-									>
-										{k.map((value, j) => {
-											return (
-												<button
-													key={getRandomInteger()}
-													className="btn mr-4"
-													onClick={() =>
-														handleAmountClick(value)
-													}
-												>
-													{value}
-												</button>
-											);
-										})}
-									</div>
-								);
-							})}
-						</div>
-
-						<button
-							className="btn btn-secondary"
-							onClick={() => setAmount(0)}
-						>
-							Clear amount
-						</button>
-
-						<div className="flex flex-col items-center">
-							<form
-								onSubmit={handleSubmit}
-								className="form-control w-full max-w-xs"
-							>
-								<TextField
-									inputType="number"
-									labelText="Amount:"
-									placeholder="xxxx"
-									currentVal={amount}
-									valueSetter={setAmount}
-									readOnly={true}
-								/>
-
-								<TextField
-									id="roll-number-input"
-									inputType="text"
-									labelText="Roll Number:"
-									placeholder="00000000"
-									valueSetter={setRollNumber}
-								/>
-
-								<button
-									type="submit"
-									className="mt-6 btn btn-outline btn-primary hidden"
-								>
-									Transact!
-								</button>
-
-								{errorMessage === '' ? null : (
-									<div className="mt-6 alert alert-error shadow-lg">
-										<div>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												className="stroke-current flex-shrink-0 h-6 w-6"
-												fill="none"
-												viewBox="0 0 24 24"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth="2"
-													d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-												/>
-											</svg>
-											<span>Error! {errorMessage}</span>
-										</div>
-									</div>
-								)}
-							</form>
+						<div className="overflow-x-auto">
+							<table className="table w-full">
+								<thead>
+									<tr>
+										<th>Tx ID</th>
+										<th>Amount</th>
+										<th>Sender Name</th>
+										<th>Recipient Name</th>
+										<th>Status</th>
+										<th>Timestamp</th>
+									</tr>
+								</thead>
+								<tbody>
+									{userData?.transactions.map((v, i) => (
+										<tr key={i}>
+											<th>{v.id}</th>
+											<th>{v.amount}</th>
+											<th>{v.senderName}</th>
+											<th>{v.recipientName}</th>
+											<th>{v.status}</th>
+											<th>
+												{formatTimestamp(v.timestamp)}
+											</th>
+										</tr>
+									))}
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>
