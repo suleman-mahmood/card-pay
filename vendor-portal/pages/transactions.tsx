@@ -62,7 +62,7 @@ const Transactions: NextPage = () => {
 
 	const formatTimestamp = (timestamp: string): string => {
 		const date = new Date(timestamp);
-		const options = {
+		const options: Intl.DateTimeFormatOptions = {
 			weekday: 'long',
 			year: 'numeric',
 			month: 'long',
