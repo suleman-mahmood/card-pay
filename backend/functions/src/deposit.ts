@@ -10,7 +10,7 @@ const successfulStatus: Status = "successful";
 
 const PAYPRO_BASE_URL = "https://api.PayPro.com.pk";
 const USERNAME = "Card_Pay";
-const CLIENT_ID = " pf5Cns3hQrJbvHh";
+const CLIENT_ID = "T5u0mKpCH4cV98J";
 const CLIENT_SECRET = "vHIXolKNjB4zNIa";
 
 interface depositRequestData {

@@ -14,7 +14,7 @@ const KEY_PAD_CONFIG = [
 	[1, 2, 3],
 	[4, 5, 6],
 	[7, 8, 9],
-	[0, 0, 0],
+	['.', 0, '.'],
 ];
 
 const FOCUS_DELAY = 500;
@@ -135,26 +135,30 @@ const Transactions: NextPage = () => {
 		<div className="min-h-screen flex flex-col">
 			<Navbar />
 			<div className="hero flex-grow">
-				<div className="hero-content text-center">
-					<div className="max-w-md">
+				<div className="w-full hero-content text-center">
+					<div className="w-full flex flex-col items-center">
 						<h1 className="mb-4 text-5xl font-bold">Dashboard</h1>
 						<p>1. Enter the amount using the on-screen keypad</p>
 						<p className="mb-8">2. Scan the student&#39;s card</p>
 
-						<div className="w-full flex flex-col items-center">
+						<div className="w-1/2 flex flex-col items-center">
 							{KEY_PAD_CONFIG.map((k, i) => {
 								return (
 									<div
 										key={getRandomInteger()}
-										className="flex flex-row mb-4"
+										className="w-full flex flex-row mb-4"
 									>
 										{k.map(value => {
 											return (
 												<button
 													key={getRandomInteger()}
-													className="btn mr-4"
+													className="w-1/3 btn mr-8"
 													onClick={() =>
-														handleAmountClick(value)
+														value != '.'
+															? handleAmountClick(
+																	value as number
+															  )
+															: null
 													}
 												>
 													{value}
@@ -166,19 +170,21 @@ const Transactions: NextPage = () => {
 							})}
 						</div>
 
-						<button
-							className="btn btn-primary mr-4"
-							onClick={handleBackspace}
-						>
-							Delete
-						</button>
+						<div className="my-4 flex flex-row justify-center">
+							<button
+								className="btn btn-primary mr-4"
+								onClick={handleBackspace}
+							>
+								Delete
+							</button>
 
-						<button
-							className="btn btn-secondary"
-							onClick={() => setAmount(0)}
-						>
-							Clear amount
-						</button>
+							<button
+								className="btn btn-secondary"
+								onClick={() => setAmount(0)}
+							>
+								Clear amount
+							</button>
+						</div>
 
 						<div className="flex flex-col items-center">
 							<form
