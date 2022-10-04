@@ -150,19 +150,23 @@ const Transactions: NextPage = () => {
 									>
 										{k.map(value => {
 											return (
-												<button
+												<div
 													key={getRandomInteger()}
-													className="w-1/3 btn mr-8"
-													onClick={() =>
-														value != '.'
-															? handleAmountClick(
-																	value as number
-															  )
-															: null
-													}
+													className="w-1/3 px-4"
 												>
-													{value}
-												</button>
+													<button
+														className="w-full btn text-xl"
+														onClick={() =>
+															value != '.'
+																? handleAmountClick(
+																		value as number
+																  )
+																: null
+														}
+													>
+														{value}
+													</button>
+												</div>
 											);
 										})}
 									</div>
