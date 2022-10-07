@@ -12,7 +12,9 @@ extension stringAddOns on String {
 
   bool get isValidPassword {
     // Minimum eight characters, at least one letter and one number:
-    final passwordRegExp = RegExp(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$");
+    // final passwordRegExp = RegExp(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$");
+    final passwordRegExp =
+        RegExp(r"^[A-Za-z0-9!@#$%^&*()_+=-`~{};':,./<>?]{8,}$");
     return passwordRegExp.hasMatch(this);
   }
 
