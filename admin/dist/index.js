@@ -305,7 +305,12 @@ const getUserDoc = () => __awaiter(void 0, void 0, void 0, function* () {
     querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
         const docData = doc.data();
         Object.keys(docData).map(k => {
-            console.log(k, ':', docData[k]);
+            if (k === 'transactions') {
+                console.log(k, ':', docData[k].length);
+            }
+            else {
+                console.log(k, ':', docData[k]);
+            }
         });
     }));
 });

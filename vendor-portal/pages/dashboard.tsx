@@ -77,12 +77,21 @@ const Transactions: NextPage = () => {
 			input: 'password',
 			inputLabel: 'Input your 4-digit pin',
 			inputPlaceholder: 'Enter your pin',
+			inputAttributes: {
+				maxLength: '4',
+				pattern: '^[0-9]{4}$',
+			},
 		});
 
 		if (!userPin) {
 			setErrorMessage('Please enter pin');
 			setShouldFocus(true);
 			setLoading(false);
+			Swal.fire({
+				icon: 'error',
+				title: `Transaction wasn't successful`,
+				text: 'Please enter pin',
+			});
 			return;
 		}
 
@@ -100,14 +109,18 @@ const Transactions: NextPage = () => {
 				Swal.fire({
 					icon: 'success',
 					title: 'Transaction was successful',
-					showConfirmButton: false,
-					timer: 2000,
 				});
 			})
 			.catch(error => {
 				setErrorMessage(error.message);
 				setShouldFocus(true);
 				setLoading(false);
+
+				Swal.fire({
+					icon: 'error',
+					title: `Transaction wasn't successful`,
+					text: error.message,
+				});
 			});
 	};
 
@@ -141,7 +154,7 @@ const Transactions: NextPage = () => {
 						<p>1. Enter the amount using the on-screen keypad</p>
 						<p className="mb-8">2. Scan the student&#39;s card</p>
 
-						<div className="w-1/2 flex flex-col items-center">
+						<div className="w-3/4 flex flex-col items-center">
 							{KEY_PAD_CONFIG.map((k, i) => {
 								return (
 									<div
@@ -152,10 +165,10 @@ const Transactions: NextPage = () => {
 											return (
 												<div
 													key={getRandomInteger()}
-													className="w-1/3 px-4"
+													className="w-1/3 px-2"
 												>
 													<button
-														className="w-full btn text-xl"
+														className="w-full text-4xl h-24 btn"
 														onClick={() =>
 															value != '.'
 																? handleAmountClick(

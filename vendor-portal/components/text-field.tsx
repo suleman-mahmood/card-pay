@@ -12,8 +12,10 @@ interface TextFieldProps {
 
 export default function TextField(props: TextFieldProps) {
 	return (
-		<div>
-			<label className="label label-text">{props.labelText}</label>
+		<div className="mb-4">
+			<label className="text-2xl label label-text">
+				{props.labelText}
+			</label>
 			<input
 				id={props.id}
 				onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,7 +24,7 @@ export default function TextField(props: TextFieldProps) {
 				required
 				type={props.inputType}
 				placeholder={props.placeholder}
-				className="input input-bordered w-full max-w-xs"
+				className="input input-bordered text-2xl"
 				value={props.currentVal}
 				readOnly={props.readOnly}
 			/>
