@@ -1,13 +1,13 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { auth } from '../services/initialize-firebase';
+import { auth, db } from '../services/initialize-firebase';
 import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import TextField from '../components/text-field';
 import Loader from '../components/loader';
 
-const ADMIN_UID = 'BiTFuz2mntexVphn69WfApeFoqq2';
+const ADMIN_UID = 'JoNhydNzAWXGilGS4fRsOK1ePTm2';
 
 const Index: NextPage = () => {
 	const router = useRouter();
@@ -17,42 +17,10 @@ const Index: NextPage = () => {
 	const [errorMessage, setErrorMessage] = useState('');
 	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		onAuthStateChanged(auth, user => {
-			if (user) {
-				if (user.uid !== ADMIN_UID) {
-					setErrorMessage('Only admins are allowed to login');
-					setLoading(false);
-					return;
-				}
-
-				// Handle success
-				setLoading(false);
-				setErrorMessage('');
-				router.push('/dashboard');
-			}
-		});
-	}, []);
-
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		setErrorMessage('');
 		setLoading(true);
-
-		signInWithEmailAndPassword(auth, email, password)
-			.then(cred => {
-				if (cred.user.uid !== ADMIN_UID) {
-					setErrorMessage('Only admins are allowed to login');
-					setLoading(false);
-					return;
-				}
-				router.push('/dashboard');
-				setLoading(false);
-			})
-			.catch(error => {
-				setErrorMessage(error.code);
-				setLoading(false);
-			});
 	};
 
 	return loading ? (
