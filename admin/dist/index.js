@@ -295,7 +295,7 @@ const topUp = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 const getUserDoc = () => __awaiter(void 0, void 0, void 0, function* () {
     // Configuration parameters
-    const rollNumber = '';
+    const rollNumber = '23100025';
     const ref = db.collection('users');
     const q = ref.where('rollNumber', '==', rollNumber);
     const querySnapshot = yield q.get();
@@ -305,12 +305,7 @@ const getUserDoc = () => __awaiter(void 0, void 0, void 0, function* () {
     querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
         const docData = doc.data();
         Object.keys(docData).map(k => {
-            if (k === 'transactions') {
-                console.log(k, ':', docData[k].length);
-            }
-            else {
-                console.log(k, ':', docData[k]);
-            }
+            console.log(k, ':', docData[k]);
         });
     }));
 });

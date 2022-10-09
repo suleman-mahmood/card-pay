@@ -67,7 +67,7 @@ export const createUser = functions.https.onCall(async (
 
   return ref.set({
     id: uid,
-    fullName: data.fullName,
+    fullName: data.fullName.trim(),
     personalEmail: "",
     email: data.rollNumber + "@lums.edu.pk",
     pendingDeposits: false,

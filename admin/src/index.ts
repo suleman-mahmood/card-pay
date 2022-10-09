@@ -266,7 +266,7 @@ const topUp = async () => {
 
 const getUserDoc = async () => {
 	// Configuration parameters
-	const rollNumber = '00000000';
+	const rollNumber = '23100025';
 
 	const ref = db.collection('users');
 	const q = ref.where('rollNumber', '==', rollNumber);
@@ -292,4 +292,4 @@ const getUserDoc = async () => {
 // deleteFirestore();
 // saveFirestoreState();
 // topUp();
-// getUserDoc();
+getUserDoc();
