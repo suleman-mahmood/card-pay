@@ -5,16 +5,14 @@ extension stringAddOns on String {
   }
 
   bool get isValidName {
-    final nameRegExp =
-        RegExp(r"^\s*([A-Za-z]{1,}([\.,] |[-']| ))+[A-Za-z]+\.?\s*$");
+    final nameRegExp = RegExp(r"^[a-zA-Z0-9]{8,}$");
     return nameRegExp.hasMatch(this);
   }
 
   bool get isValidPassword {
     // Minimum eight characters, at least one letter and one number:
-    // final passwordRegExp = RegExp(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$");
     final passwordRegExp =
-        RegExp(r"^[A-Za-z0-9!@#$%^&*()_+=-`~{};':,./<>?]{8,}$");
+        RegExp(r"^[A-Za-z0-9!@#$%\^&*()-=`~_+/\]\[\\|}{;:',.<>/?]{8,}$");
     return passwordRegExp.hasMatch(this);
   }
 

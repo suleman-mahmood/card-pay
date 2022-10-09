@@ -105,7 +105,7 @@ class SignUpScreen extends StatelessWidget {
               // Sub heading
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   CaptionTypographyCustomWidget(
                     content: "Do you already have an account?",
                     invertColors: true,

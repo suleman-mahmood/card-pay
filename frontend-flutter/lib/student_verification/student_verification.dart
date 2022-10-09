@@ -12,7 +12,7 @@ class StudentVerificationScreen extends StatefulWidget {
 }
 
 class _StudentVerificationScreenState extends State<StudentVerificationScreen> {
-  int secondsRemaining = 30;
+  int secondsRemaining = 300;
   bool enableResend = false;
   late Timer timer;
 
@@ -73,7 +73,7 @@ class _StudentVerificationScreenState extends State<StudentVerificationScreen> {
             if (!enableResend) return;
             await AuthService().sendEmailVerification();
             setState(() {
-              secondsRemaining = 30;
+              secondsRemaining = 300;
               enableResend = false;
             });
           },

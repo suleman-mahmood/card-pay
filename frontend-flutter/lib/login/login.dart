@@ -131,7 +131,8 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   // Main heading
                   MainHeadingTypographyCustomWidget(
-                      content: "Sign in your account"),
+                    content: "Sign in your account",
+                  ),
 
                   SizedBox(height: 10),
 
@@ -144,7 +145,10 @@ class LoginScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(left: 10),
                         child: LinkTypographyCustomWidget(
-                            content: "Sign Up Now", redirectTo: "/signup"),
+                          content: "Sign Up Now",
+                          redirectTo: "/signup",
+                          size: 20.0,
+                        ),
                       ),
                     ],
                   ),
@@ -185,7 +189,7 @@ class LoginScreen extends StatelessWidget {
 
                   // Remember me and forgot password row
                   Row(
-                    children: const [
+                    children: [
                       // TODO: Add Remeber me widget here
                       Opacity(
                         opacity: 0,

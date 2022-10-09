@@ -5,12 +5,14 @@ class LinkTypographyCustomWidget extends StatelessWidget {
   final String content;
   final String redirectTo;
   final bool invertColors;
+  double? size;
 
-  const LinkTypographyCustomWidget({
+  LinkTypographyCustomWidget({
     Key? key,
     required this.content,
     required this.redirectTo,
     this.invertColors = false,
+    this.size,
   }) : super(key: key);
 
   Color primaryColorDisplay() {
@@ -30,6 +32,7 @@ class LinkTypographyCustomWidget extends StatelessWidget {
               textTheme: theme.textTheme.copyWith(
                 caption: theme.textTheme.caption!.copyWith(
                   color: primaryColorDisplay(),
+                  fontSize: size,
                 ),
               ),
             )
