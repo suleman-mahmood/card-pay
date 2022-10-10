@@ -266,7 +266,7 @@ const topUp = async () => {
 
 const getUserDoc = async () => {
 	// Configuration parameters
-	const rollNumber = '23100025';
+	const rollNumber = '23110240';
 
 	const ref = db.collection('users');
 	const q = ref.where('rollNumber', '==', rollNumber);
@@ -282,7 +282,14 @@ const getUserDoc = async () => {
 		const docData = doc.data();
 
 		Object.keys(docData).map(k => {
-			console.log(k, ':', docData[k]);
+			if (k === 'transactions') {
+				console.log(k, ':', docData[k].length);
+				console.log('Last transaction:');
+				console.log(docData[k][docData[k].length - 1]);
+			}
+			else {
+				console.log(k, ':', docData[k]);
+			}
 		});
 	});
 };
@@ -300,7 +307,7 @@ const TrimSpacesInFullNameOfAllUsers = async () => {
 			console.log(data.fullName.trim(), data.fullName.trim().length);
 			console.log(data.fullName, data.fullName.length);
 			console.log('');
-			
+
 			const pr = db.collection('users').doc(id).update({
 				fullName: data.fullName.trim(),
 			});

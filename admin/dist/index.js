@@ -295,7 +295,7 @@ const topUp = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 const getUserDoc = () => __awaiter(void 0, void 0, void 0, function* () {
     // Configuration parameters
-    const rollNumber = '23100025';
+    const rollNumber = '23110240';
     const ref = db.collection('users');
     const q = ref.where('rollNumber', '==', rollNumber);
     const querySnapshot = yield q.get();
@@ -305,7 +305,14 @@ const getUserDoc = () => __awaiter(void 0, void 0, void 0, function* () {
     querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
         const docData = doc.data();
         Object.keys(docData).map(k => {
-            console.log(k, ':', docData[k]);
+            if (k === 'transactions') {
+                console.log(k, ':', docData[k].length);
+                console.log('Last transaction:');
+                console.log(docData[k][docData[k].length - 1]);
+            }
+            else {
+                console.log(k, ':', docData[k]);
+            }
         });
     }));
 });
@@ -332,5 +339,5 @@ const TrimSpacesInFullNameOfAllUsers = () => __awaiter(void 0, void 0, void 0, f
 // deleteFirestore();
 // saveFirestoreState();
 // topUp();
-// getUserDoc();
+getUserDoc();
 // TrimSpacesInFullNameOfAllUsers();
