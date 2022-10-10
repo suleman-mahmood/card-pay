@@ -334,10 +334,41 @@ const TrimSpacesInFullNameOfAllUsers = () => __awaiter(void 0, void 0, void 0, f
     });
     yield Promise.all(promiseList);
 });
+const getBalanceTillTime = () => __awaiter(void 0, void 0, void 0, function* () {
+    // Configuration parameters
+    const rollNumber = '';
+    const isoDate = new Date('2022-10-10T22:30:00.000Z'); // Enter time in PKT
+    isoDate.setHours(isoDate.getHours() - 5);
+    const ref = db.collection('users');
+    const q = ref.where('rollNumber', '==', rollNumber);
+    const querySnapshot = yield q.get();
+    if (querySnapshot.size !== 1) {
+        throw new Error(`Multiple people with the same roll number: ${querySnapshot.size}`);
+    }
+    querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
+        const docData = doc.data();
+        Object.keys(docData).map(k => {
+            if (k === 'transactions') {
+                const trans = docData[k];
+                let sum = 0;
+                trans.forEach(t => {
+                    const nowDate = new Date(t.timestamp);
+                    if (nowDate >= isoDate) {
+                        console.log(t.timestamp, t.amount);
+                        sum += t.amount;
+                    }
+                });
+                console.log('Transactions then to now:', sum);
+                console.log('Previous balance at the given timestamp', docData.balance - sum);
+            }
+        });
+    }));
+});
 // restoreDbFromFile();
 // reversingTransactions();
 // deleteFirestore();
 // saveFirestoreState();
 // topUp();
-getUserDoc();
+// getUserDoc();
 // TrimSpacesInFullNameOfAllUsers();
+getBalanceTillTime();
