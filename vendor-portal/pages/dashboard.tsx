@@ -151,24 +151,24 @@ const Transactions: NextPage = () => {
 				<div className="w-full hero-content text-center">
 					<div className="w-full flex flex-col items-center">
 						<h1 className="mb-4 text-5xl font-bold">Dashboard</h1>
-						<p>1. Enter the amount using the on-screen keypad</p>
-						<p className="mb-8">2. Scan the student&#39;s card</p>
+						{/* <p>1. Enter the amount using the on-screen keypad</p>
+						<p className="mb-8">2. Scan the student&#39;s card</p> */}
 
 						<div className="w-3/4 flex flex-col items-center">
 							{KEY_PAD_CONFIG.map((k, i) => {
 								return (
 									<div
 										key={getRandomInteger()}
-										className="w-full flex flex-row mb-4"
+										className="w-full flex flex-row justify-center mb-4"
 									>
 										{k.map(value => {
 											return (
 												<div
 													key={getRandomInteger()}
-													className="w-1/3 px-2"
+													className="w-1/4 px-2"
 												>
 													<button
-														className="w-full text-4xl h-24 btn"
+														className="w-full text-2xl h-12 btn"
 														onClick={() =>
 															value != '.'
 																? handleAmountClick(
