@@ -1,10 +1,11 @@
 import type { NextPage } from 'next';
+import AuthLayout from '../../components/layouts/AuthLayout';
 
 const Deposit: NextPage = () => {
 	return (
-		<div>
-			<h1>Hello people!!!</h1>
-		</div>
+		<AuthLayout>
+			<h1>Deposit</h1>
+		</AuthLayout>
 	);
 };
 
