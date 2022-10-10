@@ -1,6 +1,6 @@
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, WriteResult } from 'firebase-admin/firestore';
 import { getFunctions } from 'firebase-admin/functions';
 
 import fs from 'fs';
@@ -287,9 +287,34 @@ const getUserDoc = async () => {
 	});
 };
 
+const TrimSpacesInFullNameOfAllUsers = async () => {
+	const querySnapshot = await db.collection('users').get();
+
+	const promiseList: Array<Promise<WriteResult>> = [];
+
+	querySnapshot.forEach(doc => {
+		const id = doc.id;
+		const data = doc.data() as UserDoc;
+
+		if (data.fullName) {
+			console.log(data.fullName.trim(), data.fullName.trim().length);
+			console.log(data.fullName, data.fullName.length);
+			console.log('');
+			
+			const pr = db.collection('users').doc(id).update({
+				fullName: data.fullName.trim(),
+			});
+
+			promiseList.push(pr);
+		}
+	});
+	await Promise.all(promiseList);
+};
+
 // restoreDbFromFile();
 // reversingTransactions();
 // deleteFirestore();
 // saveFirestoreState();
 // topUp();
-getUserDoc();
+// getUserDoc();
+// TrimSpacesInFullNameOfAllUsers();

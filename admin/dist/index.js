@@ -309,9 +309,28 @@ const getUserDoc = () => __awaiter(void 0, void 0, void 0, function* () {
         });
     }));
 });
+const TrimSpacesInFullNameOfAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+    const querySnapshot = yield db.collection('users').get();
+    const promiseList = [];
+    querySnapshot.forEach(doc => {
+        const id = doc.id;
+        const data = doc.data();
+        if (data.fullName) {
+            console.log(data.fullName.trim(), data.fullName.trim().length);
+            console.log(data.fullName, data.fullName.length);
+            console.log('');
+            const pr = db.collection('users').doc(id).update({
+                fullName: data.fullName.trim(),
+            });
+            promiseList.push(pr);
+        }
+    });
+    yield Promise.all(promiseList);
+});
 // restoreDbFromFile();
 // reversingTransactions();
 // deleteFirestore();
 // saveFirestoreState();
 // topUp();
-getUserDoc();
+// getUserDoc();
+// TrimSpacesInFullNameOfAllUsers();
