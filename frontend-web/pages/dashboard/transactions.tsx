@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import TransactionCard from '../../components/cards/TransactionCard';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
@@ -8,14 +9,17 @@ import { auth } from '../../services/initialize-firebase';
 const Transactions: NextPage = () => {
 	const router = useRouter();
 
-	const redirectToDeposit = () => {
-		router.push('/dashboard/deposit');
-	};
-
-	const redirectToLogin = async () => {
-		await auth.signOut();
-		router.push('/auth/login');
-	};
+	useEffect(() => {
+		return auth.onAuthStateChanged(user => {
+			if (user) {
+				if (!user.emailVerified) {
+					router.push('/auth/student-verification');
+				}
+			} else {
+				router.push('/');
+			}
+		});
+	}, []);
 
 	return (
 		<DashboardLayout>

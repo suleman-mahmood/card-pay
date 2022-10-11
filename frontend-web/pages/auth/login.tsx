@@ -1,21 +1,62 @@
+import { FirebaseError } from 'firebase/app';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
+import ErrorAlert from '../../components/cards/ErrorAlert';
 import TextField from '../../components/inputs/TextField';
 import AuthLayout from '../../components/layouts/AuthLayout';
+import BoxLoading from '../../components/loaders/BoxLoading';
+import { auth } from '../../services/initialize-firebase';
 
 const Login: NextPage = () => {
 	const router = useRouter();
+
+	const [rollNumber, setRollNumber] = useState('');
+	const [password, setPassword] = useState('');
+
+	const [errorMessage, setErrorMessage] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+		return auth.onAuthStateChanged(user => {
+			if (user) {
+				if (user.emailVerified) {
+					router.push('/dashboard/');
+				} else {
+					router.push('/auth/student-verification');
+				}
+			}
+		});
+	}, []);
 
 	const redirectToSignup = () => {
 		router.push('/auth/signup');
 	};
 
-	const redirectToDashboard = () => {
-		router.push('/dashboard');
+	const loginUser = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsLoading(true);
+		setErrorMessage('');
+
+		const email = `${rollNumber}@lums.edu.pk`;
+
+		try {
+			await signInWithEmailAndPassword(auth, email, password);
+			setIsLoading(false);
+			setErrorMessage('');
+			router.push('/dashboard/');
+		} catch (error) {
+			setIsLoading(false);
+			setErrorMessage((error as FirebaseError).code);
+			console.log(error);
+		}
 	};
 
-	return (
+	return isLoading ? (
+		<BoxLoading />
+	) : (
 		<AuthLayout>
 			<h1 className="text-2xl">Sign in to your account</h1>
 			<h2 className="mb-4 text-xl">
@@ -28,10 +69,27 @@ const Login: NextPage = () => {
 				</a>
 			</h2>
 
-			<TextField placeholder="Roll Number" />
-			<TextField placeholder="Password" />
+			<form onSubmit={loginUser} className="form-control w-full">
+				<TextField
+					type="text"
+					valueSetter={setRollNumber}
+					placeholder="Roll Number"
+					maxLength={8}
+				/>
+				<TextField
+					type="password"
+					valueSetter={setPassword}
+					placeholder="Password"
+				/>
 
-			<ButtonPrimary onClick={redirectToDashboard} text="Log In" />
+				<ButtonPrimary
+					type={'submit'}
+					onClick={loginUser}
+					text="Log In"
+				/>
+			</form>
+
+			<ErrorAlert message={errorMessage} />
 		</AuthLayout>
 	);
 };

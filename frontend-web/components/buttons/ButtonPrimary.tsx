@@ -3,11 +3,16 @@ import { FC } from 'react';
 interface IButtonPrimary {
 	onClick: React.MouseEventHandler<HTMLButtonElement>;
 	text: string;
+	type?: 'button' | 'submit' | 'reset';
 }
 
 const ButtonPrimary: FC<IButtonPrimary> = props => {
 	return (
-		<button className="btn btn-primary text-lg" onClick={props.onClick}>
+		<button
+			className="btn btn-primary text-lg"
+			type={props.type}
+			onClick={props.onClick}
+		>
 			{props.text}
 		</button>
 	);
