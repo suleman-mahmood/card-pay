@@ -240,8 +240,8 @@ const restoreDbFromFile = async () => {
 
 const topUp = async () => {
 	// Configuration parameters
-	const rollNumber = '00000000';
-	const topUpAmount = 0;
+	const rollNumber = '23110240';
+	const topUpAmount = 50000;
 
 	const ref = db.collection('users');
 	const q = ref.where('rollNumber', '==', rollNumber);
@@ -253,15 +253,22 @@ const topUp = async () => {
 		);
 	}
 
-	querySnapshot.forEach(async doc => {
-		const id = doc.id;
-		const docData = doc.data() as UserDoc;
-		const newBalance = docData.balance + topUpAmount;
+	const doc = querySnapshot.docs[0];
+	const id = doc.id;
+	const docData = doc.data() as UserDoc;
+	const newBalance = docData.balance + topUpAmount;
 
-		await db.collection('users').doc(id).update({
-			balance: newBalance,
-		});
+	await db.collection('users').doc(id).update({
+		balance: newBalance,
 	});
+
+	console.log(
+		'Deposited',
+		topUpAmount,
+		'into',
+		docData.fullName,
+		docData.rollNumber
+	);
 };
 
 const getUserDoc = async () => {
@@ -339,19 +346,22 @@ const getBalanceTillTime = async () => {
 		Object.keys(docData).map(k => {
 			if (k === 'transactions') {
 				const trans: Array<Transaction> = docData[k];
-				
+
 				let sum = 0;
 
 				trans.forEach(t => {
 					const nowDate = new Date(t.timestamp);
-					
-					if(nowDate >= isoDate) {
+
+					if (nowDate >= isoDate) {
 						console.log(t.timestamp, t.amount);
 						sum += t.amount;
 					}
 				});
 				console.log('Transactions then to now:', sum);
-				console.log('Previous balance at the given timestamp', docData.balance - sum);
+				console.log(
+					'Previous balance at the given timestamp',
+					docData.balance - sum
+				);
 			}
 		});
 	});

@@ -276,22 +276,22 @@ const restoreDbFromFile = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 const topUp = () => __awaiter(void 0, void 0, void 0, function* () {
     // Configuration parameters
-    const rollNumber = '00000000';
-    const topUpAmount = 0;
+    const rollNumber = '23110240';
+    const topUpAmount = 50000;
     const ref = db.collection('users');
     const q = ref.where('rollNumber', '==', rollNumber);
     const querySnapshot = yield q.get();
     if (querySnapshot.size !== 1) {
         throw new Error(`Multiple people with the same roll number: ${querySnapshot.size}`);
     }
-    querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
-        const id = doc.id;
-        const docData = doc.data();
-        const newBalance = docData.balance + topUpAmount;
-        yield db.collection('users').doc(id).update({
-            balance: newBalance,
-        });
-    }));
+    const doc = querySnapshot.docs[0];
+    const id = doc.id;
+    const docData = doc.data();
+    const newBalance = docData.balance + topUpAmount;
+    yield db.collection('users').doc(id).update({
+        balance: newBalance,
+    });
+    console.log('Deposited', topUpAmount, 'into', docData.fullName, docData.rollNumber);
 });
 const getUserDoc = () => __awaiter(void 0, void 0, void 0, function* () {
     // Configuration parameters
@@ -369,6 +369,6 @@ const getBalanceTillTime = () => __awaiter(void 0, void 0, void 0, function* () 
 // deleteFirestore();
 // saveFirestoreState();
 // topUp();
-// getUserDoc();
+getUserDoc();
 // TrimSpacesInFullNameOfAllUsers();
-getBalanceTillTime();
+// getBalanceTillTime();
