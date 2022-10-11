@@ -1,11 +1,12 @@
 import type { NextPage } from 'next';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
+import TransactionCard from '../../components/cards/TransactionCard';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { auth } from '../../services/initialize-firebase';
 
 const Transactions: NextPage = () => {
-	const router = Router;
+	const router = useRouter();
 
 	const redirectToDeposit = () => {
 		router.push('/dashboard/deposit');
@@ -18,7 +19,9 @@ const Transactions: NextPage = () => {
 
 	return (
 		<DashboardLayout>
-			<h1>Transactions</h1>
+			<h1 className="text-2xl mb-4">Transactions</h1>
+
+			<TransactionCard />
 		</DashboardLayout>
 	);
 };

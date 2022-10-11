@@ -1,24 +1,25 @@
 import type { NextPage } from 'next';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
+import TextField from '../../components/inputs/TextField';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
-import { auth } from '../../services/initialize-firebase';
 
 const Transfer: NextPage = () => {
-	const router = Router;
+	const router = useRouter();
 
-	const redirectToDeposit = () => {
-		router.push('/dashboard/deposit');
-	};
-
-	const redirectToLogin = async () => {
-		await auth.signOut();
-		router.push('/auth/login');
+	const redirectToDashboard = () => {
+		router.push('/dashboard');
 	};
 
 	return (
 		<DashboardLayout>
-			<h1>Transfer</h1>
+			<h1 className="text-2xl">Transfer</h1>
+			<h2 className="mb-4 text-xl">Peer to Peer funds transfer</h2>
+
+			<TextField placeholder="Roll Number" />
+			<TextField placeholder="Amount" />
+
+			<ButtonPrimary onClick={redirectToDashboard} text="Transfer Now!" />
 		</DashboardLayout>
 	);
 };

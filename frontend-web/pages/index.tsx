@@ -1,10 +1,10 @@
 import type { NextPage } from 'next';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import ButtonPrimary from '../components/buttons/ButtonPrimary';
 import AuthLayout from '../components/layouts/AuthLayout';
 
 const Home: NextPage = () => {
-	const router = Router;
+	const router = useRouter();
 
 	const redirectToAuth = () => {
 		router.push('auth/login');

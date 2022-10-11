@@ -1,11 +1,11 @@
 import type { NextPage } from 'next';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import TextField from '../../components/inputs/TextField';
 import AuthLayout from '../../components/layouts/AuthLayout';
 
 const Login: NextPage = () => {
-	const router = Router;
+	const router = useRouter();
 
 	const redirectToSignup = () => {
 		router.push('/auth/signup');

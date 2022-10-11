@@ -1,10 +1,10 @@
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import { FC } from 'react';
 
 interface IBottomNav {}
 
 const BottomNav: FC<IBottomNav> = () => {
-	const router = Router;
+	const router = useRouter();
 
 	const redirectToDashboard = () => {
 		router.push('/dashboard');
