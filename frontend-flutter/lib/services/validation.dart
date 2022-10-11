@@ -5,7 +5,8 @@ extension stringAddOns on String {
   }
 
   bool get isValidName {
-    final nameRegExp = RegExp(r"^[a-zA-Z0-9]{8,}$");
+    final nameRegExp =
+        RegExp(r"^\s*([A-Za-z]{1,}([\.,] |[-']| ))+[A-Za-z]+\.?\s*$");
     return nameRegExp.hasMatch(this);
   }
 
