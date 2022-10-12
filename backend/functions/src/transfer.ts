@@ -54,6 +54,13 @@ export const transfer = functions.https.onCall(async (
     );
   }
 
+  // Self transfer is invalid
+  if (senderSnapshot.data()!.rollNumber === recipientRollNumber) {
+    throw new functions.https.HttpsError(
+        "failed-precondition", "You cannot send money to yourself"
+    );
+  }
+
   // Get the recipient details from Firestore
   const recipientsQueryRef = db.collection("users")
       .where("rollNumber", "==", recipientRollNumber);
