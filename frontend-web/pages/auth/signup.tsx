@@ -85,7 +85,6 @@ const Signup: NextPage = () => {
 			router.push('/auth/student-verification');
 		} catch (error) {
 			setIsLoading(false);
-			setErrorMessage('');
 			setErrorMessage((error as FirebaseError).code);
 			console.log(error);
 		}
