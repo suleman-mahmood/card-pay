@@ -1,72 +1,25 @@
 import { FirebaseError } from 'firebase/app';
-import { doc, getDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import TextField from '../../components/inputs/TextField';
-import AuthLayout from '../../components/layouts/AuthLayout';
+import DashboardLayout from '../../components/layouts/DashboardLayout';
 import BoxLoading from '../../components/loaders/BoxLoading';
-import { auth, db, functions } from '../../services/initialize-firebase';
-
-interface userDataDoc {
-	balance: number;
-	email: string;
-	fullName: string;
-	id: string;
-	role: string;
-	rollNumber: string;
-	verified: boolean;
-	transactions: Array<{
-		amount: number;
-		id: string;
-		recipientName: string;
-		senderName: string;
-		status: string;
-		timestamp: string;
-	}>;
-}
+import { functions } from '../../services/initialize-firebase';
+import { selectUser } from '../../store/store';
 
 const Deposit: NextPage = () => {
 	const router = useRouter();
 
 	const [amount, setAmount] = useState(0);
-	const [userData, setUserData] = useState<userDataDoc | null>(null);
+	const { userState } = useSelector(selectUser);
 
 	const [errorMessage, setErrorMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-
-	useEffect(() => {
-		return auth.onAuthStateChanged(user => {
-			if (user) {
-				if (!user.emailVerified) {
-					router.push('/auth/student-verification');
-				} else {
-					// User is logged in
-					fetchUserData(user.uid);
-				}
-			} else {
-				router.push('/');
-			}
-		});
-	}, []);
-
-	const fetchUserData = async (uid: string) => {
-		setIsLoading(true);
-
-		const docRef = doc(db, 'users', uid);
-		const docSnap = await getDoc(docRef);
-
-		if (docSnap.exists()) {
-			setUserData(docSnap.data() as userDataDoc);
-		} else {
-			console.log('Could not find user document');
-		}
-
-		setIsLoading(false);
-	};
 
 	const redirectToDashboard = () => {
 		router.push('/dashboard');
@@ -76,7 +29,7 @@ const Deposit: NextPage = () => {
 		if (amount <= 0) {
 			setErrorMessage('Please enter an amount greater than 0');
 			return;
-		} else if (userData === null) {
+		} else if (userState.id === '') {
 			setErrorMessage('Please refresh the page');
 			return;
 		}
@@ -88,8 +41,8 @@ const Deposit: NextPage = () => {
 		try {
 			const { data } = await addDepositRequest({
 				amount: amount,
-				fullName: userData?.fullName,
-				email: userData?.email,
+				fullName: userState.fullName,
+				email: userState.email,
 			});
 
 			setIsLoading(false);
@@ -102,7 +55,7 @@ const Deposit: NextPage = () => {
 			// window.open(url, '_blank');
 		} catch (error) {
 			setIsLoading(false);
-			setErrorMessage((error as FirebaseError).code);
+			setErrorMessage((error as FirebaseError).message);
 			console.log(error);
 		}
 	};
@@ -110,7 +63,7 @@ const Deposit: NextPage = () => {
 	return isLoading ? (
 		<BoxLoading />
 	) : (
-		<AuthLayout>
+		<DashboardLayout>
 			<h1 className="text-2xl">Deposit</h1>
 			<h2 className="mb-4 text-xl">Deposit funds in your student card</h2>
 
@@ -132,7 +85,7 @@ const Deposit: NextPage = () => {
 					Back
 				</button>
 			</div>
-		</AuthLayout>
+		</DashboardLayout>
 	);
 };
 

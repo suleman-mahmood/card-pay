@@ -2,7 +2,7 @@ import { FirebaseError } from 'firebase/app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import TextField from '../../components/inputs/TextField';
@@ -18,18 +18,6 @@ const Login: NextPage = () => {
 
 	const [errorMessage, setErrorMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-
-	useEffect(() => {
-		return auth.onAuthStateChanged(user => {
-			if (user) {
-				if (user.emailVerified) {
-					router.push('/dashboard/');
-				} else {
-					router.push('/auth/student-verification');
-				}
-			}
-		});
-	}, []);
 
 	const redirectToSignup = () => {
 		router.push('/auth/signup');
@@ -49,7 +37,7 @@ const Login: NextPage = () => {
 			router.push('/dashboard/');
 		} catch (error) {
 			setIsLoading(false);
-			setErrorMessage((error as FirebaseError).code);
+			setErrorMessage((error as FirebaseError).message);
 			console.log(error);
 		}
 	};

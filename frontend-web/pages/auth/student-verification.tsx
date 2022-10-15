@@ -13,18 +13,6 @@ const Login: NextPage = () => {
 		router.push('/auth/login');
 	};
 
-	useEffect(() => {
-		return auth.onAuthStateChanged(user => {
-			if (user) {
-				if (user.emailVerified) {
-					router.push('/dashboard/');
-				}
-			} else {
-				router.push('/');
-			}
-		});
-	}, []);
-
 	return (
 		<AuthLayout>
 			<h1 className="text-2xl">Verification link sent on email</h1>

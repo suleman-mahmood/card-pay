@@ -6,7 +6,7 @@ import {
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import TextField from '../../components/inputs/TextField';
@@ -25,18 +25,6 @@ const Signup: NextPage = () => {
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [pin, setPin] = useState('');
 	const [confirmPin, setConfirmPin] = useState('');
-
-	useEffect(() => {
-		return auth.onAuthStateChanged(user => {
-			if (user) {
-				if (user.emailVerified) {
-					router.push('/dashboard/');
-				} else {
-					router.push('/auth/student-verification');
-				}
-			}
-		});
-	}, []);
 
 	const redirectToLogin = () => {
 		router.push('/auth/login');
@@ -85,7 +73,7 @@ const Signup: NextPage = () => {
 			router.push('/auth/student-verification');
 		} catch (error) {
 			setIsLoading(false);
-			setErrorMessage((error as FirebaseError).code);
+			setErrorMessage((error as FirebaseError).message);
 			console.log(error);
 		}
 	};

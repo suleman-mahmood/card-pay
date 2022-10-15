@@ -1,9 +1,15 @@
 import { useRouter } from 'next/router';
 import { FC, ReactNode } from 'react';
-import { auth } from '../../services/initialize-firebase';
 import BottomNav from '../nav/BottomNav';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPowerOff } from '@fortawesome/free-solid-svg-icons';
+import { doc, getDoc } from 'firebase/firestore';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { auth, db } from '../../services/initialize-firebase';
+import { selectUser } from '../../store/store';
+import { setUserState, UserState } from '../../store/userSlice';
+import ContentLoader from 'react-content-loader';
 
 export interface IDashboardLayout {
 	children: ReactNode;
@@ -17,15 +23,76 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 		router.push('/auth/login');
 	};
 
+	const { userState } = useSelector(selectUser);
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		return auth.onAuthStateChanged(user => {
+			if (user) {
+				if (!user.emailVerified) {
+					router.push('/auth/student-verification');
+				} else {
+					// User is logged in
+					fetchUserData(user.uid);
+				}
+			} else {
+				router.push('/');
+			}
+		});
+	}, []);
+
+	const fetchUserData = async (uid: string) => {
+		const docRef = doc(db, 'users', uid);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			const data = docSnap.data() as UserState;
+			dispatch(setUserState(data));
+		} else {
+			console.log('Could not find user document');
+		}
+	};
+
 	return (
 		<div className="min-h-screen w-full px-8">
 			<div className="w-full mx-auto flex flex-col text-center">
 				<div className="h-8"></div>
 
-				<h1>Student Name</h1>
-				<h1>Roll Number</h1>
-				<h1>PKR. 000.00/-</h1>
-				<h1>Available balance</h1>
+				{userState.id === '' ? (
+					<ContentLoader viewBox="0 0 500 250">
+						<rect
+							x="148.568"
+							y="44.153"
+							width="193.914"
+							height="23.866"
+						/>
+						<rect
+							x="198.687"
+							y="78.162"
+							width="96.659"
+							height="23.27"
+						/>
+						<rect
+							x="191.527"
+							y="106.802"
+							width="113.962"
+							height="22.076"
+						/>
+						<rect
+							x="166.468"
+							y="139.021"
+							width="161.098"
+							height="21.48"
+						/>
+					</ContentLoader>
+				) : (
+					<div>
+						<h1>{userState.fullName}</h1>
+						<h1>{userState.rollNumber}</h1>
+						<h1>PKR. {userState.balance}/-</h1>
+						<h1>Available balance</h1>
+					</div>
+				)}
 
 				<div className="flex-grow"></div>
 				<div className="h-8"></div>
