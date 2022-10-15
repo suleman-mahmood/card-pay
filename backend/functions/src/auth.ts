@@ -24,7 +24,10 @@ export const createUser = functions.https.onCall(async (
    */
 
   /*
-  Checks
+  Pre-conditions:
+  1. User is authenticated
+  2. User does not already exist
+  3. Same roll number is not already registered
   */
 
   if (!context.auth) {
@@ -78,5 +81,69 @@ export const createUser = functions.https.onCall(async (
     role: role,
     balance: 0,
     transactions: [],
+  });
+});
+
+interface ChangeUserPinData {
+   pin: string;
+}
+
+export const changeUserPin = functions.https.onCall(async (
+    data: ChangeUserPinData,
+    context
+) => {
+  /*
+    This function changes the calling user's pin
+    param: data = {
+      pin: string
+    }
+  */
+
+  /*
+    Pre-conditions:
+    1. Can only change pin of an existent user and verified user
+  */
+
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+        "unauthenticated", "User is not authenticated"
+    );
+  }
+
+  const newPin = data.pin;
+
+  if (newPin.length !== 4) {
+    throw new functions.https.HttpsError(
+        "invalid-argument", "User pin must be exactly 4 digits long"
+    );
+  }
+
+  const regex = /^[0-9]{4}$/g; // Matches 4 digits only 0-9
+  const found = newPin.match(regex);
+
+  if (found === null) {
+    throw new functions.https.HttpsError(
+        "invalid-argument", "User pin must only contain 0-9 digits"
+    );
+  }
+
+  const uid: string = context.auth.uid;
+  const ref = db.collection("users").doc(uid);
+
+  const snapshot = await ref.get();
+  const docAlreadyExists: boolean = snapshot.exists;
+
+  if (!docAlreadyExists) {
+    throw new functions.https.HttpsError(
+        "not-found", "User document does not exist in Firestore"
+    );
+  }
+
+  /*
+    Handle Success
+  */
+
+  return ref.update({
+    pin: data.pin,
   });
 });
