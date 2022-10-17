@@ -11,7 +11,7 @@
 //   response.send("Hello from Firebase!");
 // });
 
-export {createUser} from "./auth";
+export {createUser, changeUserPin} from "./auth";
 export {addDepositRequest, handleDepositSuccess} from "./deposit";
 export {makeTransaction} from "./makeTransaction";
 export {transfer} from "./transfer";
