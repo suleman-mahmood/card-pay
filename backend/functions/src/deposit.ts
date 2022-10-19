@@ -156,6 +156,15 @@ export const handleDepositSuccess = functions.https.onCall(async (
   }
 
   querySnapshot.forEach((doc) => {
+    // // Get order's due date and check if the order has expired
+    // const orderDueDateIsoString = doc.data().orderDueDate;
+    // const orderDueDate = new Date(orderDueDateIsoString);
+    // const nowDate = new Date();
+
+    // if (nowDate >= orderDueDate) {
+    //   return;
+    // }
+
     const config = {
       method: "get",
       url: PAYPRO_BASE_URL + "/v2/ppro/ggos",

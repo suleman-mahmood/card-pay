@@ -364,11 +364,132 @@ const getBalanceTillTime = () => __awaiter(void 0, void 0, void 0, function* () 
         });
     }));
 });
+const createGenesisTransactions = () => __awaiter(void 0, void 0, void 0, function* () { });
+const makeVendorAccount = () => __awaiter(void 0, void 0, void 0, function* () {
+    const docId = '';
+    const userData = {
+        id: docId,
+        fullName: '',
+        personalEmail: '',
+        email: '',
+        pendingDeposits: false,
+        pin: '',
+        phoneNumber: '',
+        rollNumber: '',
+        verified: false,
+        role: 'vendor',
+        balance: 0,
+        transactions: [],
+    };
+    const ref = db.collection('users').doc(docId);
+    yield ref.create(userData);
+});
+const getTransactionsSum = () => __awaiter(void 0, void 0, void 0, function* () {
+    const ref = db.collection('users');
+    const querySnapshot = yield ref.get();
+    let totalSum = 0;
+    querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
+        const docData = doc.data();
+        let sum = 0;
+        docData.transactions.map(t => {
+            if (t.senderName !== t.recipientName) {
+                if (t.senderName === docData.fullName) {
+                    sum -= t.amount;
+                }
+                else {
+                    sum += t.amount;
+                }
+            }
+        });
+        if (sum !== 0) {
+            console.log(docData.fullName, docData.email, sum);
+        }
+        totalSum += sum;
+    }));
+    console.log("Total Sum:", totalSum);
+});
+const forceTransaction = () => __awaiter(void 0, void 0, void 0, function* () {
+    const amount = 0;
+    const senderRollNumber = '';
+    const recipientRollNumber = '';
+    // Get the recipient details from Firestore
+    const recipientsQueryRef = db.collection("users")
+        .where("rollNumber", "==", recipientRollNumber);
+    const recipientSnapshot = yield recipientsQueryRef.get();
+    const recipientDoc = recipientSnapshot.docs[0].data();
+    const recipientUid = recipientSnapshot.docs[0].id;
+    // Get the sender details from Firestore
+    const sendersQueryRef = db.collection("users")
+        .where("rollNumber", "==", senderRollNumber);
+    const senderSnapshot = yield sendersQueryRef.get();
+    const senderDoc = senderSnapshot.docs[0].data();
+    const senderUid = senderSnapshot.docs[0].id;
+    /*
+    Handle transaction success!
+    */
+    // Add the transaction to the transactions collection
+    const transactionsRef = db.collection("transactions").doc();
+    const transaction = {
+        id: transactionsRef.id,
+        timestamp: new Date().toISOString(),
+        senderId: senderUid,
+        senderName: senderDoc.fullName,
+        recipientId: recipientUid,
+        recipientName: recipientDoc.fullName,
+        amount: amount,
+        status: "successful",
+    };
+    yield transactionsRef.create(transaction);
+    const userTransaction = {
+        id: transaction.id,
+        timestamp: transaction.timestamp,
+        senderName: transaction.senderName,
+        recipientName: transaction.recipientName,
+        amount: transaction.amount,
+        status: transaction.status,
+    };
+    // Add the transaction to the sender's transaction history
+    // Decrement the balance by the amount for the sender
+    const sendersDocRef = db.collection("users").doc(senderUid);
+    const newSenderTrans = senderDoc.transactions;
+    newSenderTrans.push(userTransaction);
+    yield sendersDocRef.update({
+        transactions: newSenderTrans,
+        balance: senderDoc.balance - amount // admin.firestore.FieldValue.increment(-1 * amount),
+    });
+    // Add the transaction to the recipient's transaction history
+    // Increment the balance by the amount for the recipient
+    const recipientsDocRef = db.collection("users").doc(recipientUid);
+    const newRecipientTrans = recipientDoc.transactions;
+    newRecipientTrans.push(userTransaction);
+    yield recipientsDocRef.update({
+        transactions: newRecipientTrans,
+        balance: recipientDoc.balance + amount // admin.firestore.FieldValue.increment(amount),
+    });
+    console.log("Transaction was successfull");
+});
+const getAllBalances = () => __awaiter(void 0, void 0, void 0, function* () {
+    const ref = db.collection('users');
+    const querySnapshot = yield ref.get();
+    querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
+        const docData = doc.data();
+        if (docData.balance !== 0) {
+            console.log(docData.fullName, docData.rollNumber, docData.balance);
+        }
+    }));
+});
+/*
+    DB Backup and restore
+*/
 // restoreDbFromFile();
-// reversingTransactions();
 // deleteFirestore();
 // saveFirestoreState();
-// topUp();
-getUserDoc();
+// reversingTransactions();
+// topUp(); // Deprecated
 // TrimSpacesInFullNameOfAllUsers();
+// makeVendorAccount();
+// forceTransaction();
 // getBalanceTillTime();
+// getUserDoc();
+// getTransactionsSum();
+getAllBalances();
