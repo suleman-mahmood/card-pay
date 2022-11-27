@@ -21,7 +21,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.restoreDbFromFile = exports.deleteFirestore = exports.saveFirestoreState = void 0;
 const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
 const init_firebase_1 = require("./init_firebase");
 const utils_1 = require("./utils");
 const saveFirestoreState = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -92,8 +91,11 @@ const deleteFirestore = () => __awaiter(void 0, void 0, void 0, function* () {
     }));
 });
 exports.deleteFirestore = deleteFirestore;
-const restoreDbFromFile = () => __awaiter(void 0, void 0, void 0, function* () {
-    const filePath = path_1.default.join('/home/soul/Projects/card-pay/temp/', '2022-10-08 01:00:05_DBState.json');
+const restoreDbFromFile = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
+    // const filePath = path.join(
+    // 	'/home/soul/Projects/card-pay/temp/',
+    // 	'2022-10-08 01:00:05_DBState.json'
+    // );
     fs_1.default.readFile(filePath, { encoding: 'utf-8' }, (err, data) => __awaiter(void 0, void 0, void 0, function* () {
         var e_4, _f, e_5, _g;
         if (err)

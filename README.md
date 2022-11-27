@@ -19,4 +19,4 @@
 
 ## Admin
 
--   To run the script, run `GOOGLE_APPLICATION_CREDENTIALS="./var/credential_google.json" node src/index.js` in the admin directory
+-   To run the script, run `npm run start` in the admin directory

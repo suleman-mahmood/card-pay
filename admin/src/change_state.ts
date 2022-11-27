@@ -1,6 +1,6 @@
-import { WriteResult } from "firebase-admin/firestore";
-import { db } from "./init_firebase";
-import { Transaction, UserDoc } from "./types";
+import { WriteResult } from 'firebase-admin/firestore';
+import { db } from './init_firebase';
+import { Transaction, UserDoc } from './types';
 
 export const reversingTransactions = async () => {
 	const ref = db.collection('users');
@@ -168,82 +168,84 @@ export const TrimSpacesInFullNameOfAllUsers = async () => {
 	await Promise.all(promiseList);
 };
 
-export const forceTransaction =async () => {
+export const forceTransaction = async () => {
 	const amount = 0;
 	const senderRollNumber = '';
 	const recipientRollNumber = '';
-  
+
 	// Get the recipient details from Firestore
-	const recipientsQueryRef = db.collection("users")
-		.where("rollNumber", "==", recipientRollNumber);
+	const recipientsQueryRef = db
+		.collection('users')
+		.where('rollNumber', '==', recipientRollNumber);
 	const recipientSnapshot = await recipientsQueryRef.get();
 	const recipientDoc = recipientSnapshot.docs[0].data();
 	const recipientUid = recipientSnapshot.docs[0].id;
 
 	// Get the sender details from Firestore
-	const sendersQueryRef = db.collection("users")
-		.where("rollNumber", "==", senderRollNumber);
+	const sendersQueryRef = db
+		.collection('users')
+		.where('rollNumber', '==', senderRollNumber);
 	const senderSnapshot = await sendersQueryRef.get();
 	const senderDoc = senderSnapshot.docs[0].data();
 	const senderUid = senderSnapshot.docs[0].id;
-  
+
 	/*
 	Handle transaction success!
 	*/
-  
+
 	// Add the transaction to the transactions collection
-	const transactionsRef = db.collection("transactions").doc();
+	const transactionsRef = db.collection('transactions').doc();
 	const transaction = {
-	  id: transactionsRef.id,
-	  timestamp: new Date().toISOString(),
-	  senderId: senderUid,
-	  senderName: senderDoc.fullName,
-	  recipientId: recipientUid,
-	  recipientName: recipientDoc.fullName,
-	  amount: amount,
-	  status: "successful",
+		id: transactionsRef.id,
+		timestamp: new Date().toISOString(),
+		senderId: senderUid,
+		senderName: senderDoc.fullName,
+		recipientId: recipientUid,
+		recipientName: recipientDoc.fullName,
+		amount: amount,
+		status: 'successful',
 	};
 	await transactionsRef.create(transaction);
-  
+
 	const userTransaction = {
-	  id: transaction.id,
-	  timestamp: transaction.timestamp,
-	  senderName: transaction.senderName,
-	  recipientName: transaction.recipientName,
-	  amount: transaction.amount,
-	  status: transaction.status,
+		id: transaction.id,
+		timestamp: transaction.timestamp,
+		senderName: transaction.senderName,
+		recipientName: transaction.recipientName,
+		amount: transaction.amount,
+		status: transaction.status,
 	};
-  
+
 	// Add the transaction to the sender's transaction history
 	// Decrement the balance by the amount for the sender
-	const sendersDocRef = db.collection("users").doc(senderUid);
+	const sendersDocRef = db.collection('users').doc(senderUid);
 	const newSenderTrans = senderDoc.transactions;
-	newSenderTrans.push(userTransaction); 
+	newSenderTrans.push(userTransaction);
 	await sendersDocRef.update({
-	  transactions:  newSenderTrans, // admin.firestore.FieldValue.arrayUnion(userTransaction),
-	  balance: senderDoc.balance - amount // admin.firestore.FieldValue.increment(-1 * amount),
+		transactions: newSenderTrans, // admin.firestore.FieldValue.arrayUnion(userTransaction),
+		balance: senderDoc.balance - amount, // admin.firestore.FieldValue.increment(-1 * amount),
 	});
-  
+
 	// Add the transaction to the recipient's transaction history
 	// Increment the balance by the amount for the recipient
-	const recipientsDocRef = db.collection("users").doc(recipientUid);
+	const recipientsDocRef = db.collection('users').doc(recipientUid);
 	const newRecipientTrans = recipientDoc.transactions;
-	newRecipientTrans.push(userTransaction); 
+	newRecipientTrans.push(userTransaction);
 	await recipientsDocRef.update({
-	  transactions: newRecipientTrans, // admin.firestore.FieldValue.arrayUnion(userTransaction),
-	  balance: recipientDoc.balance + amount // admin.firestore.FieldValue.increment(amount),
+		transactions: newRecipientTrans, // admin.firestore.FieldValue.arrayUnion(userTransaction),
+		balance: recipientDoc.balance + amount, // admin.firestore.FieldValue.increment(amount),
 	});
 
-	console.log("Transaction was successfull");
-}
+	console.log('Transaction was successfull');
+};
 
 export const makeVendorAccount = async () => {
-	const docId = '';
+	const docId = 'j4lFpFk51rgQcipHvss8GucqzPV2';
 	const userData: UserDoc = {
 		id: docId,
-		fullName: '',
+		fullName: 'JJ Kitchen',
 		personalEmail: '',
-		email: '',
+		email: 'fkabli@gmail.com',
 		pendingDeposits: false,
 		pin: '',
 		phoneNumber: '',
@@ -252,7 +254,7 @@ export const makeVendorAccount = async () => {
 		role: 'vendor',
 		balance: 0,
 		transactions: [],
-	} 
+	};
 
 	const ref = db.collection('users').doc(docId);
 	await ref.create(userData);

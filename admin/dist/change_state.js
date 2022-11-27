@@ -191,14 +191,16 @@ const forceTransaction = () => __awaiter(void 0, void 0, void 0, function* () {
     const senderRollNumber = '';
     const recipientRollNumber = '';
     // Get the recipient details from Firestore
-    const recipientsQueryRef = init_firebase_1.db.collection("users")
-        .where("rollNumber", "==", recipientRollNumber);
+    const recipientsQueryRef = init_firebase_1.db
+        .collection('users')
+        .where('rollNumber', '==', recipientRollNumber);
     const recipientSnapshot = yield recipientsQueryRef.get();
     const recipientDoc = recipientSnapshot.docs[0].data();
     const recipientUid = recipientSnapshot.docs[0].id;
     // Get the sender details from Firestore
-    const sendersQueryRef = init_firebase_1.db.collection("users")
-        .where("rollNumber", "==", senderRollNumber);
+    const sendersQueryRef = init_firebase_1.db
+        .collection('users')
+        .where('rollNumber', '==', senderRollNumber);
     const senderSnapshot = yield sendersQueryRef.get();
     const senderDoc = senderSnapshot.docs[0].data();
     const senderUid = senderSnapshot.docs[0].id;
@@ -206,7 +208,7 @@ const forceTransaction = () => __awaiter(void 0, void 0, void 0, function* () {
     Handle transaction success!
     */
     // Add the transaction to the transactions collection
-    const transactionsRef = init_firebase_1.db.collection("transactions").doc();
+    const transactionsRef = init_firebase_1.db.collection('transactions').doc();
     const transaction = {
         id: transactionsRef.id,
         timestamp: new Date().toISOString(),
@@ -215,7 +217,7 @@ const forceTransaction = () => __awaiter(void 0, void 0, void 0, function* () {
         recipientId: recipientUid,
         recipientName: recipientDoc.fullName,
         amount: amount,
-        status: "successful",
+        status: 'successful',
     };
     yield transactionsRef.create(transaction);
     const userTransaction = {
@@ -228,32 +230,32 @@ const forceTransaction = () => __awaiter(void 0, void 0, void 0, function* () {
     };
     // Add the transaction to the sender's transaction history
     // Decrement the balance by the amount for the sender
-    const sendersDocRef = init_firebase_1.db.collection("users").doc(senderUid);
+    const sendersDocRef = init_firebase_1.db.collection('users').doc(senderUid);
     const newSenderTrans = senderDoc.transactions;
     newSenderTrans.push(userTransaction);
     yield sendersDocRef.update({
         transactions: newSenderTrans,
-        balance: senderDoc.balance - amount // admin.firestore.FieldValue.increment(-1 * amount),
+        balance: senderDoc.balance - amount, // admin.firestore.FieldValue.increment(-1 * amount),
     });
     // Add the transaction to the recipient's transaction history
     // Increment the balance by the amount for the recipient
-    const recipientsDocRef = init_firebase_1.db.collection("users").doc(recipientUid);
+    const recipientsDocRef = init_firebase_1.db.collection('users').doc(recipientUid);
     const newRecipientTrans = recipientDoc.transactions;
     newRecipientTrans.push(userTransaction);
     yield recipientsDocRef.update({
         transactions: newRecipientTrans,
-        balance: recipientDoc.balance + amount // admin.firestore.FieldValue.increment(amount),
+        balance: recipientDoc.balance + amount, // admin.firestore.FieldValue.increment(amount),
     });
-    console.log("Transaction was successfull");
+    console.log('Transaction was successfull');
 });
 exports.forceTransaction = forceTransaction;
 const makeVendorAccount = () => __awaiter(void 0, void 0, void 0, function* () {
-    const docId = '';
+    const docId = 'j4lFpFk51rgQcipHvss8GucqzPV2';
     const userData = {
         id: docId,
-        fullName: '',
+        fullName: 'JJ Kitchen',
         personalEmail: '',
-        email: '',
+        email: 'fkabli@gmail.com',
         pendingDeposits: false,
         pin: '',
         phoneNumber: '',

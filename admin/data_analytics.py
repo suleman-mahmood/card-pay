@@ -3,13 +3,13 @@ import numpy as np
 import json
 
 
-with open("2022-10-09 01:09:10_DBState.json") as f:
+with open("2022-11-07 17:45:03_DBState.json") as f:
     data = json.load(f)
 
 df = pd.DataFrame.from_dict(data["transactions"], "index")
 df.drop(["recipientId", "id", "senderId"], axis=1, inplace=True)
-# print(df.columns)
-# df.to_csv("data.csv")
+print(df.columns)
+df.to_csv("data.csv")
 
-sum = df[df["recipientName"] == "Bunkers"]["amount"].sum()
-print(sum)
+# sum = df[df["recipientName"] == "Bunkers"]["amount"].sum()
+# print(sum)
