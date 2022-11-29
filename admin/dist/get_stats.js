@@ -33,7 +33,7 @@ const getTransactionsSum = () => __awaiter(void 0, void 0, void 0, function* () 
         }
         totalSum += sum;
     }));
-    console.log("Total Sum:", totalSum);
+    console.log('Total Sum:', totalSum);
 });
 exports.getTransactionsSum = getTransactionsSum;
 const getBalanceTillTime = (rollNumber, isoDate) => __awaiter(void 0, void 0, void 0, function* () {

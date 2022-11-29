@@ -168,11 +168,11 @@ export const TrimSpacesInFullNameOfAllUsers = async () => {
 	await Promise.all(promiseList);
 };
 
-export const forceTransaction = async () => {
-	const amount = 0;
-	const senderRollNumber = '';
-	const recipientRollNumber = '';
-
+export const forceTransaction = async (
+	senderRollNumber: string,
+	recipientRollNumber: string,
+	amount: number
+) => {
 	// Get the recipient details from Firestore
 	const recipientsQueryRef = db
 		.collection('users')

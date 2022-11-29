@@ -186,10 +186,7 @@ const TrimSpacesInFullNameOfAllUsers = () => __awaiter(void 0, void 0, void 0, f
     yield Promise.all(promiseList);
 });
 exports.TrimSpacesInFullNameOfAllUsers = TrimSpacesInFullNameOfAllUsers;
-const forceTransaction = () => __awaiter(void 0, void 0, void 0, function* () {
-    const amount = 0;
-    const senderRollNumber = '';
-    const recipientRollNumber = '';
+const forceTransaction = (senderRollNumber, recipientRollNumber, amount) => __awaiter(void 0, void 0, void 0, function* () {
     // Get the recipient details from Firestore
     const recipientsQueryRef = init_firebase_1.db
         .collection('users')

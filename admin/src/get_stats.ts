@@ -1,10 +1,10 @@
-import { db } from "./init_firebase";
-import { Transaction, UserDoc } from "./types";
+import { db } from './init_firebase';
+import { Transaction, UserDoc } from './types';
 
-export const getTransactionsSum =async () => {
+export const getTransactionsSum = async () => {
 	const ref = db.collection('users');
 	const querySnapshot = await ref.get();
-	let totalSum = 0
+	let totalSum = 0;
 
 	querySnapshot.forEach(async doc => {
 		const docData = doc.data() as UserDoc;
@@ -12,29 +12,28 @@ export const getTransactionsSum =async () => {
 
 		docData.transactions.map(t => {
 			if (t.senderName !== t.recipientName) {
-				if(t.senderName === docData.fullName) {
+				if (t.senderName === docData.fullName) {
 					sum -= t.amount;
-				}
-				else {
+				} else {
 					sum += t.amount;
-				}	
+				}
 			}
 		});
 
-		if(sum !== 0) {
+		if (sum !== 0) {
 			console.log(docData.fullName, docData.email, sum);
 		}
 		totalSum += sum;
 	});
 
-	console.log("Total Sum:", totalSum);
-}
+	console.log('Total Sum:', totalSum);
+};
 
 export const getBalanceTillTime = async (rollNumber: string, isoDate: Date) => {
 	// Configuration parameters
 
 	// const isoDate = new Date('2022-10-10T22:30:00.000Z'); // Enter time in PKT
-	
+
 	// Go transactions from last five hours
 	isoDate.setHours(isoDate.getHours() - 5);
 
@@ -75,18 +74,18 @@ export const getBalanceTillTime = async (rollNumber: string, isoDate: Date) => {
 	});
 };
 
-export const getAllBalances =async () => {
+export const getAllBalances = async () => {
 	const ref = db.collection('users');
 	const querySnapshot = await ref.get();
 
 	querySnapshot.forEach(async doc => {
 		const docData = doc.data() as UserDoc;
-		
-		if(docData.balance !== 0) {			
+
+		if (docData.balance !== 0) {
 			console.log(docData.fullName, docData.rollNumber, docData.balance);
-		}		
+		}
 	});
-}
+};
 
 export const getUserDoc = async (rollNumber: string) => {
 	const ref = db.collection('users');
