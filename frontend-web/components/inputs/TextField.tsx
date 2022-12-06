@@ -4,6 +4,7 @@ interface ITextField {
 	placeholder: string;
 	type: string;
 	valueSetter: React.Dispatch<React.SetStateAction<any>>;
+	value?: number;
 	maxLength?: number;
 }
 
@@ -12,11 +13,12 @@ const TextField: FC<ITextField> = props => {
 		<input
 			type={props.type}
 			placeholder={props.placeholder}
-			className="input input-bordered w-full max-w-xs mb-4"
+			className='input bg-primary rounded-3xl text-white placeholder-white w-full max-w-xs mb-4'
 			onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 				props.valueSetter(e.target.value);
 			}}
 			maxLength={props.maxLength}
+			value={props.value}
 		/>
 	);
 };

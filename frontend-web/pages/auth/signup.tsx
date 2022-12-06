@@ -80,56 +80,58 @@ const Signup: NextPage = () => {
 
 	return (
 		<AuthLayout>
-			<h1 className="text-2xl">Create your account</h1>
-			<h2 className="mb-4 text-xl">
+			<h1 className='text-2xl'>Create your account</h1>
+			<h2 className='mb-4 text-sm'>
 				Do you already have an account?
 				<a
-					className="ml-2 text-blue-500 text-xl"
+					className='ml-2 text-blue-500 text-xl'
 					onClick={redirectToLogin}
 				>
 					Sign In Now
 				</a>
 			</h2>
 
-			<form onSubmit={signupUser} className="form-control w-full">
+			<form onSubmit={signupUser} className='form-control w-full'>
 				<TextField
-					type="text"
+					type='text'
 					valueSetter={setFullName}
-					placeholder="Full Name"
+					placeholder='Full Name'
 				/>
 				<TextField
-					type="text"
+					type='text'
 					valueSetter={setRollNumber}
 					maxLength={8}
-					placeholder="Roll Number"
+					placeholder='Roll Number'
 				/>
 				<TextField
-					type="password"
+					type='password'
 					valueSetter={setPassword}
-					placeholder="Password"
+					placeholder='Password'
 				/>
 				<TextField
-					type="password"
+					type='password'
 					valueSetter={setConfirmPassword}
-					placeholder="Confirm Password"
+					placeholder='Confirm Password'
 				/>
 				<TextField
 					type={'text'}
 					valueSetter={setPin}
 					maxLength={4}
-					placeholder="4-digit pin"
+					placeholder='4-digit pin'
 				/>
 				<TextField
 					type={'text'}
 					valueSetter={setConfirmPin}
 					maxLength={4}
-					placeholder="Confirm 4-digit pin"
+					placeholder='Confirm 4-digit pin'
 				/>
 
+				<div className='h-6'></div>
+
 				<ButtonPrimary
-					type="submit"
+					type='submit'
 					onClick={signupUser}
-					text="Sign Up"
+					text='Sign Up'
 				/>
 			</form>
 

@@ -46,34 +46,36 @@ const Login: NextPage = () => {
 		<BoxLoading />
 	) : (
 		<AuthLayout>
-			<h1 className="text-2xl">Sign in to your account</h1>
-			<h2 className="mb-4 text-xl">
+			<h1 className='text-2xl'>Sign in to your account</h1>
+			<h2 className='mb-4 text-sm'>
 				Don&apos;t have an account yet?
 				<a
-					className="ml-2 text-blue-500 text-xl"
+					className='ml-2 text-blue-500 text-xl'
 					onClick={redirectToSignup}
 				>
 					Sign Up Now
 				</a>
 			</h2>
 
-			<form onSubmit={loginUser} className="form-control w-full">
+			<form onSubmit={loginUser} className='form-control w-full'>
 				<TextField
-					type="text"
+					type='text'
 					valueSetter={setRollNumber}
-					placeholder="Roll Number"
+					placeholder='Roll Number'
 					maxLength={8}
 				/>
 				<TextField
-					type="password"
+					type='password'
 					valueSetter={setPassword}
-					placeholder="Password"
+					placeholder='Password'
 				/>
+
+				<div className='h-6'></div>
 
 				<ButtonPrimary
 					type={'submit'}
 					onClick={loginUser}
-					text="Log In"
+					text='Sign In'
 				/>
 			</form>
 

@@ -12,11 +12,11 @@ const Home: NextPage = () => {
 
 	return (
 		<AuthLayout>
-			<h1 className="mb-4 text-2xl text-primary">Welcome to CardPay</h1>
-			<h2 className="mb-4 text-xl text-primary font-semibold">
+			<h1 className='mb-4 text-2xl'>Welcome to CardPay</h1>
+			<h2 className='mb-4 text-xl font-semibold'>
 				Revolutionize your campus experience
 			</h2>
-			<ButtonPrimary onClick={redirectToAuth} text="Continue!" />
+			<ButtonPrimary onClick={redirectToAuth} text='Continue!' />
 		</AuthLayout>
 	);
 };

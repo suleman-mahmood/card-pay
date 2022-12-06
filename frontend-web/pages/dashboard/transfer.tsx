@@ -12,6 +12,11 @@ import BoxLoading from '../../components/loaders/BoxLoading';
 import { functions } from '../../services/initialize-firebase';
 import { selectUser } from '../../store/store';
 
+const DEPOSIT_AMOUNTS = [
+	[10, 50, 100],
+	[500, 1000, 5000],
+];
+
 const Transfer: NextPage = () => {
 	const router = useRouter();
 
@@ -59,22 +64,44 @@ const Transfer: NextPage = () => {
 		<BoxLoading />
 	) : (
 		<DashboardLayout>
-			<h1 className="text-2xl">Transfer</h1>
-			<h2 className="mb-4 text-xl">Peer to Peer funds transfer</h2>
+			<h1 className='text-2xl'>Transfer</h1>
+			<h2 className='mb-4 text-xl'>Peer to Peer funds transfer</h2>
 
 			<TextField
-				type="text"
+				type='text'
 				valueSetter={setRollNumber}
 				maxLength={8}
-				placeholder="Roll Number"
-			/>
-			<TextField
-				type="number"
-				valueSetter={setAmount}
-				placeholder="Amount"
+				placeholder='Roll Number'
 			/>
 
-			<ButtonPrimary onClick={handleTransfer} text="Transfer Now!" />
+			{DEPOSIT_AMOUNTS.map((row, i) => {
+				return (
+					<div key={i} className='flex flex-row justify-around mb-4'>
+						{row.map((n, j) => {
+							return (
+								<button
+									key={j + (i + 1) * 1000}
+									className='btn btn-outline btn-primary'
+									onClick={() => setAmount(n)}
+								>
+									{n}
+								</button>
+							);
+						})}
+					</div>
+				);
+			})}
+
+			<h2 className='text-lg'>Or enter a custom amount:</h2>
+
+			<TextField
+				type='number'
+				valueSetter={setAmount}
+				placeholder='Amount'
+				value={amount}
+			/>
+
+			<ButtonPrimary onClick={handleTransfer} text='Transfer Now!' />
 
 			<ErrorAlert message={errorMessage} />
 		</DashboardLayout>

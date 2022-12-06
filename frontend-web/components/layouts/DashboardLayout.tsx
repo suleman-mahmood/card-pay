@@ -12,8 +12,8 @@ import { setUserState, UserState } from '../../store/userSlice';
 import ContentLoader from 'react-content-loader';
 import { httpsCallable } from 'firebase/functions';
 import { FirebaseError } from 'firebase/app';
+import StudentCard from '../cards/StudentCard';
 
-const REFRESH_TIMEOUT = 30 * 1000;
 export interface IDashboardLayout {
 	children: ReactNode;
 }
@@ -23,8 +23,6 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 
 	const { userState } = useSelector(selectUser);
 	const dispatch = useDispatch();
-
-	const [refreshBalanceLoading, setRefreshBalanceLoading] = useState(false);
 
 	const redirectToLogin = async () => {
 		await auth.signOut();
@@ -58,27 +56,14 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 		}
 	};
 
-	const handleRefreshBalance = async () => {
-		setRefreshBalanceLoading(true);
-		setTimeout(() => {
-			setRefreshBalanceLoading(false);
-		}, REFRESH_TIMEOUT);
-
-		const handleDepositSuccess = httpsCallable(
-			functions,
-			'handleDepositSuccess'
-		);
-		try {
-			await handleDepositSuccess();
-		} catch (error) {
-			console.log((error as FirebaseError).message);
-		}
-	};
-
 	return (
 		<div className='min-h-screen w-full px-8'>
 			<div className='w-full mx-auto flex flex-col text-center'>
-				<div className='h-8'></div>
+				{/* Top margin */}
+				<div className='h-20'></div>
+
+				{/* Blue top */}
+				<div className='h-44 w-full bg-primary absolute top-0 left-0 -z-10'></div>
 
 				{userState.id === '' ? (
 					<ContentLoader viewBox='0 0 500 250'>
@@ -108,34 +93,7 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 						/>
 					</ContentLoader>
 				) : (
-					<div>
-						<h1>{userState.fullName}</h1>
-						<h1>{userState.rollNumber}</h1>
-						<h1>PKR. {userState.balance}/-</h1>
-						<h1>Available balance</h1>
-						{userState.pendingDeposits ? (
-							refreshBalanceLoading ? (
-								<ContentLoader viewBox='0 0 500 50'>
-									<rect
-										x='148.568'
-										y='10'
-										width='193.914'
-										height='23.866'
-									/>
-								</ContentLoader>
-							) : (
-								<h1>
-									Refresh balance:
-									<button onClick={handleRefreshBalance}>
-										<FontAwesomeIcon
-											className='ml-2'
-											icon={faRefresh}
-										/>
-									</button>
-								</h1>
-							)
-						) : null}
-					</div>
+					<StudentCard />
 				)}
 
 				<div className='flex-grow'></div>
@@ -145,7 +103,7 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 				<div className='h-24'></div>
 
 				<button
-					className='btn btn-outline absolute top-5 right-5'
+					className='btn btn-outline absolute top-4 right-8 text-white'
 					onClick={redirectToLogin}
 				>
 					<FontAwesomeIcon icon={faPowerOff} />

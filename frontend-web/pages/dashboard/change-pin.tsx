@@ -1,8 +1,8 @@
 import { FirebaseError } from 'firebase/app';
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
+import BackButton from '../../components/buttons/BackButton';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import SuccessAlert from '../../components/cards/SuccessAlert';
@@ -12,18 +12,12 @@ import BoxLoading from '../../components/loaders/BoxLoading';
 import { functions } from '../../services/initialize-firebase';
 
 const Deposit: NextPage = () => {
-	const router = useRouter();
-
 	const [pin, setPin] = useState('');
 	const [confirmPin, setConfirmPin] = useState('');
 
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-
-	const redirectToDashboard = () => {
-		router.push('/dashboard');
-	};
 
 	const handleChangePin = async () => {
 		const regex = /^[0-9]{4}$/g; // Matches 4 digits only 0-9
@@ -85,14 +79,7 @@ const Deposit: NextPage = () => {
 			<ErrorAlert message={errorMessage} />
 			<SuccessAlert message={successMessage} />
 
-			<div className='btn-group grid grid-cols-2 absolute top-6 left-6'>
-				<button
-					className='btn btn-outline'
-					onClick={redirectToDashboard}
-				>
-					Back
-				</button>
-			</div>
+			<BackButton />
 		</DashboardLayout>
 	);
 };

@@ -1,9 +1,9 @@
 import { FirebaseError } from 'firebase/app';
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import BackButton from '../../components/buttons/BackButton';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import TextField from '../../components/inputs/TextField';
@@ -12,18 +12,17 @@ import BoxLoading from '../../components/loaders/BoxLoading';
 import { functions } from '../../services/initialize-firebase';
 import { selectUser } from '../../store/store';
 
-const Deposit: NextPage = () => {
-	const router = useRouter();
+const DEPOSIT_AMOUNTS = [
+	[10, 50, 100],
+	[500, 1000, 5000],
+];
 
+const Deposit: NextPage = () => {
 	const [amount, setAmount] = useState(0);
 	const { userState } = useSelector(selectUser);
 
 	const [errorMessage, setErrorMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-
-	const redirectToDashboard = () => {
-		router.push('/dashboard');
-	};
 
 	const handleDeposit = async () => {
 		if (amount <= 0) {
@@ -64,27 +63,41 @@ const Deposit: NextPage = () => {
 		<BoxLoading />
 	) : (
 		<DashboardLayout>
-			<h1 className="text-2xl">Deposit</h1>
-			<h2 className="mb-4 text-xl">Deposit funds in your student card</h2>
+			<h1 className='text-2xl'>Deposit</h1>
+			<h2 className='mb-4 text-xl'>Deposit funds in your student card</h2>
+
+			{DEPOSIT_AMOUNTS.map((row, i) => {
+				return (
+					<div key={i} className='flex flex-row justify-around mb-4'>
+						{row.map((n, j) => {
+							return (
+								<button
+									key={j + (i + 1) * 1000}
+									className='btn btn-outline btn-primary'
+									onClick={() => setAmount(n)}
+								>
+									{n}
+								</button>
+							);
+						})}
+					</div>
+				);
+			})}
+
+			<h2 className='text-lg'>Or enter a custom amount:</h2>
 
 			<TextField
-				type="number"
+				type='number'
 				valueSetter={setAmount}
-				placeholder="Amount"
+				placeholder='Amount'
+				value={amount}
 			/>
 
-			<ButtonPrimary onClick={handleDeposit} text="Deposit Now!" />
+			<ButtonPrimary onClick={handleDeposit} text='Deposit Now!' />
 
 			<ErrorAlert message={errorMessage} />
 
-			<div className="btn-group grid grid-cols-2 absolute top-6 left-6">
-				<button
-					className="btn btn-outline"
-					onClick={redirectToDashboard}
-				>
-					Back
-				</button>
-			</div>
+			<BackButton />
 		</DashboardLayout>
 	);
 };

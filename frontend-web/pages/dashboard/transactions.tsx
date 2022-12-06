@@ -29,32 +29,45 @@ const Transactions: NextPage = () => {
 		setReversedTransactions(rt);
 	}, [userState]);
 
+	const beautifyTime = (t: string): string => {
+		const options = {
+			minute: 'numeric',
+			hour: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric',
+		} as const;
+		const today = new Date(t);
+
+		return today.toLocaleDateString('en-US', options);
+	};
+
 	return isLoading ? (
 		<BoxLoading />
 	) : (
 		<DashboardLayout>
-			<h1 className="text-2xl mb-4">Transactions</h1>
+			<h1 className='text-2xl mb-4'>Transactions</h1>
 
 			{reversedTransactions.map((t, i) =>
 				t.senderName === userState.fullName ? (
 					<TransactionCard
 						amount={t.amount}
-						fromOrTo="To"
+						fromOrTo='To'
 						name={t.recipientName}
-						plusOrMinus="-"
-						timestamp={t.timestamp}
+						plusOrMinus='-'
+						timestamp={beautifyTime(t.timestamp)}
 						key={i}
-						color="bg-red-100"
+						color='bg-red-100'
 					/>
 				) : (
 					<TransactionCard
 						amount={t.amount}
-						fromOrTo="From"
+						fromOrTo='From'
 						name={t.senderName}
-						plusOrMinus="+"
-						timestamp={t.timestamp}
+						plusOrMinus='+'
+						timestamp={beautifyTime(t.timestamp)}
 						key={i}
-						color="bg-green-100"
+						color='bg-green-100'
 					/>
 				)
 			)}
