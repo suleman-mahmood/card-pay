@@ -13,7 +13,7 @@ const TextField: FC<ITextField> = props => {
 		<input
 			type={props.type}
 			placeholder={props.placeholder}
-			className='input bg-primary rounded-3xl text-white placeholder-white w-full max-w-xs mb-4'
+			className='input bg-gradient-to-l from-primary to-primarydark rounded-3xl text-white placeholder-white w-full max-w-xs mb-4'
 			onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 				props.valueSetter(e.target.value);
 			}}

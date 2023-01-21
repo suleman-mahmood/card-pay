@@ -63,7 +63,7 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 				<div className='h-20'></div>
 
 				{/* Blue top */}
-				<div className='h-44 w-full bg-primary absolute top-0 left-0 -z-10'></div>
+				<div className='h-44 w-full bg-gradient-to-l from-primary to-primarydark absolute top-0 left-0 -z-10'></div>
 
 				{userState.id === '' ? (
 					<ContentLoader viewBox='0 0 500 250'>

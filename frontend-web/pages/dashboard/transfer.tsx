@@ -76,12 +76,12 @@ const Transfer: NextPage = () => {
 
 			{DEPOSIT_AMOUNTS.map((row, i) => {
 				return (
-					<div key={i} className='flex flex-row justify-around mb-4'>
+					<div key={i} className='flex flex-row justify-around mb-4 '>
 						{row.map((n, j) => {
 							return (
 								<button
 									key={j + (i + 1) * 1000}
-									className='btn btn-outline btn-primary'
+									className='btn btn-primary text-white text-lg bg-gradient-to-l from-primary to-primarydark flex-1 mx-3 rounded-full border-none'
 									onClick={() => setAmount(n)}
 								>
 									{n}
