@@ -57,7 +57,9 @@ const Transactions: NextPage = () => {
 						plusOrMinus='-'
 						timestamp={beautifyTime(t.timestamp)}
 						key={i}
-						color='bg-red-100'
+						color='bg-white'
+						textColor='text-primarydark'
+						amountTextColor='text-red-500'
 					/>
 				) : (
 					<TransactionCard
@@ -67,7 +69,9 @@ const Transactions: NextPage = () => {
 						plusOrMinus='+'
 						timestamp={beautifyTime(t.timestamp)}
 						key={i}
-						color='bg-green-100'
+						color='bg-gradient-to-l from-primary to-primarydark'
+						textColor='text-white'
+						amountTextColor='text-green-400'
 					/>
 				)
 			)}

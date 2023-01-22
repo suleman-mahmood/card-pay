@@ -9,7 +9,7 @@ interface IButtonPrimary {
 const ButtonPrimary: FC<IButtonPrimary> = props => {
 	return (
 		<button
-			className='btn btn-primary rounded-3xl text-lg'
+			className='btn btn-primary bg-gradient-to-l from-primary to-primarydark rounded-3xl text-lg text-white'
 			type={props.type}
 			onClick={props.onClick}
 		>

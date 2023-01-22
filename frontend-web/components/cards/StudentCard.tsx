@@ -38,28 +38,28 @@ const StudentCard: FC<IStudentCard> = () => {
 	};
 
 	return (
-		<div className='card flex flex-row bg-white text-left shadow-xl'>
+		<div className='card flex flex-row bg-white text-left shadow-xl relative h-48 overflow-visible'>
 			{/* Heart card image */}
-			<div className='ml-2 mt-2'>
-				<Image className='rounded-xl' src={StudentCardImage} alt='' />
+			<div className='absolute left-2 bottom-16 w-28'>
+				<Image className='shadow-md bg-white rounded-2xl' src={StudentCardImage} alt='' />
 			</div>
 
-			<div className='flex flex-col grow pl-2'>
-				<div className='w-full pl-4 rounded-l-xl flex flex-col bg-primary text-white font-bold'>
+			<div className='flex flex-col grow pl-2 absolute right-0 bottom-0 top-10'>
+				<div className='w-full pl-4  flex flex-col bg-gradient-to-l from-primary to-primarydark text-white font-bold pr-5 mb-4'>
 					<h1 className='text-xl'>{userState.fullName}</h1>
 					<h2 className='text-lg'>{userState.rollNumber}</h2>
 				</div>
-				<h2 className='text-lg font-bold'>
+				<h1 className='text-xl text-black font-bold'>
 					PKR. {userState.balance}/-
-				</h2>
-				<h2 className='text-lg'>Available balance</h2>
-
-				<h2 className='text-sm'>
-					Refresh balance:
+				</h1>
+				<div className='flex flex-row space-x-5'>
+					<h6 className='text-sm text-black'>Available balance</h6>
 					<button onClick={handleRefreshBalance}>
-						<FontAwesomeIcon className='ml-2' icon={faRefresh} />
+						<FontAwesomeIcon className='ml-2' icon={faRefresh} size="sm" />
 					</button>
-				</h2>
+				</div>
+
+
 
 				<div className='h-10'></div>
 			</div>
