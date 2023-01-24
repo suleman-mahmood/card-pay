@@ -10,6 +10,7 @@ interface CreateUserData {
 	rollNumber: string;
 	pin: string;
 	role: Role;
+	phoneNumber: string;
 }
 
 export const createUser = functions.https.onCall(
@@ -93,7 +94,7 @@ export const createUser = functions.https.onCall(
 			email: studentEmail,
 			pendingDeposits: false,
 			pin: data.pin,
-			phoneNumber: '',
+			phoneNumber: data.phoneNumber,
 			rollNumber: data.rollNumber,
 			verified: false,
 			role: role,

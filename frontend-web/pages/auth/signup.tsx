@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
+import PhoneField from '../../components/inputs/PhoneField';
 import TextField from '../../components/inputs/TextField';
 import AuthLayout from '../../components/layouts/AuthLayout';
 import { auth, functions } from '../../services/initialize-firebase';
@@ -25,6 +26,7 @@ const Signup: NextPage = () => {
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [pin, setPin] = useState('');
 	const [confirmPin, setConfirmPin] = useState('');
+	const [phoneNumber, setPhoneNumber] = useState('');
 
 	const redirectToLogin = () => {
 		router.push('/auth/login');
@@ -45,6 +47,10 @@ const Signup: NextPage = () => {
 			console.log('Roll number must be 8 digits');
 			setErrorMessage('Roll number must be 8 digits');
 			return;
+		} else if (phoneNumber.length !== 10) {
+			console.log('Phone number must be 10 digits');
+			setErrorMessage('Phone number must be 10 digits');
+			return;
 		}
 
 		setIsLoading(true);
@@ -58,7 +64,6 @@ const Signup: NextPage = () => {
 				email,
 				password
 			);
-			// await sendEmailVerification(user);
 
 			const createUser = httpsCallable(functions, 'createUser');
 			await createUser({
@@ -66,6 +71,7 @@ const Signup: NextPage = () => {
 				rollNumber: rollNumber,
 				pin: pin,
 				role: 'student',
+				phoneNumber: phoneNumber,
 			});
 
 			setIsLoading(false);
@@ -125,6 +131,7 @@ const Signup: NextPage = () => {
 					maxLength={4}
 					placeholder='Confirm 4-digit pin'
 				/>
+				<PhoneField valueSetter={setPhoneNumber} />
 
 				<div className='h-6'></div>
 
