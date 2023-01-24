@@ -13,7 +13,9 @@ const Login: NextPage = () => {
 
 	const [otp, setOtp] = useState('');
 
-	const verifyEmail = async () => {
+	const verifyEmail = async (e: React.FormEvent) => {
+		e.preventDefault();
+
 		try {
 			const verifyEmailOtp = httpsCallable(functions, 'verifyEmailOtp');
 			await verifyEmailOtp({

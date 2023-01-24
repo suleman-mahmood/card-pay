@@ -76,7 +76,7 @@ export const createUser = functions.https.onCall(
 
 		// save otp in firestore
 		await db.collection('otps').doc(uid).set({
-			pin: randomPin,
+			otp: randomPin,
 		});
 
 		// send email to the user
@@ -168,7 +168,7 @@ export const resendOtpEmail = functions.https.onCall(async (data, context) => {
 
 		// save otp in firestore
 		await db.collection('otps').doc(uid).set({
-			pin: randomPin,
+			otp: randomPin,
 		});
 		originalOtp = randomPin;
 	} else {
