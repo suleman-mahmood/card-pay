@@ -22,9 +22,9 @@ interface depositRequestData {
 export const addDepositRequest = functions.https.onCall(
 	async (data: depositRequestData, context) => {
 		/*
-    This function calls the PayPro API to create an order for the
-    amount provided for the invocation user
-   */
+			This function calls the PayPro API to create an order for the
+			amount provided for the invocation user
+		*/
 
 		const timestamp = getTimestamp();
 		const amount = parseInt(data.amount);
@@ -37,14 +37,16 @@ export const addDepositRequest = functions.https.onCall(
 			);
 		}
 
-		const { uid, usersRef } = await checkUserAuthAndDoc(context);
+		const { uid, usersRef, userSnapshot } = await checkUserAuthAndDoc(
+			context
+		);
 
 		const transactionsRef = db.collection('transactions').doc();
 		const transactionId = transactionsRef.id;
 
 		/*
-  Handle transaction gateway to PayPro API
-  */
+		Handle transaction gateway to PayPro API
+		*/
 		const authToken = await getPayProAuthToken();
 
 		const dateHourLater = new Date(timestamp);
@@ -68,7 +70,7 @@ export const addDepositRequest = functions.https.onCall(
 					IssueDate: timestamp,
 					OrderExpireAfterSeconds: 60 * 60, // Expiry of an hour
 					CustomerName: data.fullName,
-					CustomerMobile: '',
+					CustomerMobile: userSnapshot.data()!.phoneNumber,
 					CustomerEmail: data.email,
 					CustomerAddress: '',
 				},
