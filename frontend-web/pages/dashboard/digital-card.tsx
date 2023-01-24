@@ -16,7 +16,7 @@ const DigitalCard: NextPage = () => {
 	) : (
 		<DashboardLayout displayCard={false}>
 			<div className='flex flex-col'>
-				<div className='h-28'></div>
+				<div className='h-2'></div>
 				<StudentCardBarcode />
 
 				{/* <Barcode

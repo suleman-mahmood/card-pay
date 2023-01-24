@@ -37,8 +37,8 @@ const StudentCard: FC<IStudentCard> = () => {
 					/>
 				</div>
 
-				<div className='flex flex-col pl-4 pt-6'>
-					<div className='w-full px-2 text-left flex flex-col bg-gradient-to-l from-primary to-primarydark text-white font-bold rounded-tr-2xl'>
+				<div className='flex flex-col pl-6 pt-6'>
+					<div className='w-full  px-2 text-left flex flex-col bg-gradient-to-l from-primary to-primarydark text-white font-bold '>
 						<h1 className='text-xl'>{showName()}</h1>
 						<h2 className='text-lg'>{userState.rollNumber}</h2>
 					</div>

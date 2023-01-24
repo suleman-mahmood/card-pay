@@ -54,10 +54,8 @@ const Dashboard: NextPage = () => {
 				<div className='flex flex-row justify-around'>
 					<div className='flex flex-col'>
 						<button onClick={redirectToDigitalCard}>
-							<div className='w-28 shadow-md p-3 rounded-2xl'>
-								<FontAwesomeIcon
-									icon={faIdCard}
-									fontSize={75}
+							<div className='w-28 shadow-md p-4 rounded-2xl'>
+								<img src='https://i.ibb.co/5RYhN9P/Digi.png'
 								/>
 							</div>
 						</button>
