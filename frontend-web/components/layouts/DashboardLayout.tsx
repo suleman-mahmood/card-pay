@@ -16,9 +16,10 @@ import StudentCard from '../cards/StudentCard';
 
 export interface IDashboardLayout {
 	children: ReactNode;
+	displayCard?: boolean;
 }
 
-const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
+const DashboardLayout: FC<IDashboardLayout> = ({ children, displayCard }) => {
 	const router = useRouter();
 
 	const { userState } = useSelector(selectUser);
@@ -95,9 +96,11 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 							height='21.48'
 						/>
 					</ContentLoader>
-				) : (
+				) : displayCard === undefined ? (
 					<StudentCard />
-				)}
+				) : displayCard ? (
+					<StudentCard />
+				) : null}
 
 				<div className='flex-grow'></div>
 				<div className='h-8'></div>

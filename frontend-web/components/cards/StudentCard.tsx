@@ -41,7 +41,11 @@ const StudentCard: FC<IStudentCard> = () => {
 		<div className='card flex flex-row bg-white text-left shadow-xl relative h-48 overflow-visible'>
 			{/* Heart card image */}
 			<div className='absolute left-2 bottom-16 w-28'>
-				<Image className='shadow-md bg-white rounded-2xl' src={StudentCardImage} alt='' />
+				<Image
+					className='shadow-md bg-white rounded-2xl'
+					src={StudentCardImage}
+					alt=''
+				/>
 			</div>
 
 			<div className='flex flex-col grow pl-2 absolute right-0 bottom-0 top-10'>
@@ -55,11 +59,13 @@ const StudentCard: FC<IStudentCard> = () => {
 				<div className='flex flex-row space-x-5'>
 					<h6 className='text-sm text-black'>Available balance</h6>
 					<button onClick={handleRefreshBalance}>
-						<FontAwesomeIcon className='ml-2' icon={faRefresh} size="sm" />
+						<FontAwesomeIcon
+							className='ml-2'
+							icon={faRefresh}
+							size='sm'
+						/>
 					</button>
 				</div>
-
-
 
 				<div className='h-10'></div>
 			</div>
