@@ -13,7 +13,8 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"firebase-admin": "^11.1.0"
+		"firebase-admin": "^11.1.0",
+		"nodemailer": "^6.9.0"
 	},
 	"devDependencies": {
 		"@types/node": "^18.8.3",

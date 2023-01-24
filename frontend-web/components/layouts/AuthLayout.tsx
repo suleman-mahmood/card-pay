@@ -1,6 +1,8 @@
+import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import { FC, ReactNode, useEffect } from 'react';
-import { auth } from '../../services/initialize-firebase';
+import { auth, db } from '../../services/initialize-firebase';
+import { UserState } from '../../store/userSlice';
 
 export interface IAuthLayout {
 	children: ReactNode;
@@ -10,9 +12,17 @@ const AuthLayout: FC<IAuthLayout> = ({ children }) => {
 	const router = useRouter();
 
 	useEffect(() => {
-		return auth.onAuthStateChanged(user => {
+		return auth.onAuthStateChanged(async user => {
 			if (user) {
-				if (user.emailVerified) {
+				const docRef = doc(db, 'users', user.uid);
+				const docSnap = await getDoc(docRef);
+				if (!docSnap.exists()) {
+					console.log('No user document found');
+					return;
+				}
+				const data = docSnap.data()!;
+
+				if (data.verified) {
 					router.push('/dashboard/');
 				} else {
 					router.push('/auth/student-verification');

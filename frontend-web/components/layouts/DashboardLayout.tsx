@@ -30,13 +30,13 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 	};
 
 	useEffect(() => {
-		return auth.onAuthStateChanged(user => {
+		return auth.onAuthStateChanged(async user => {
 			if (user) {
-				if (!user.emailVerified) {
+				// User is logged in
+				const verified = await fetchUserData(user.uid);
+
+				if (!verified) {
 					router.push('/auth/student-verification');
-				} else {
-					// User is logged in
-					fetchUserData(user.uid);
 				}
 			} else {
 				router.push('/');
@@ -51,8 +51,11 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
 		if (docSnap.exists()) {
 			const data = docSnap.data() as UserState;
 			dispatch(setUserState(data));
+
+			return docSnap.data().verified;
 		} else {
 			console.log('Could not find user document');
+			return false;
 		}
 	};
 

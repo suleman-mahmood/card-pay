@@ -58,7 +58,7 @@ const Signup: NextPage = () => {
 				email,
 				password
 			);
-			await sendEmailVerification(user);
+			// await sendEmailVerification(user);
 
 			const createUser = httpsCallable(functions, 'createUser');
 			await createUser({

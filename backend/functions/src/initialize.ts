@@ -1,4 +1,4 @@
-import * as _admin from "firebase-admin";
+import * as _admin from 'firebase-admin';
 
 _admin.initializeApp();
 
