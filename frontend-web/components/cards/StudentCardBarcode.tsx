@@ -1,13 +1,7 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../store/store';
-import ContentLoader from 'react-content-loader';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRefresh } from '@fortawesome/free-solid-svg-icons';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../services/initialize-firebase';
-import { FirebaseError } from 'firebase/app';
 import Image from 'next/image';
 import StudentCardImage from '../../assets/student_card.png';
 import Barcode from 'react-barcode';
@@ -22,6 +16,9 @@ const StudentCard: FC<IStudentCard> = () => {
 	const showName = (): string => {
 		const name = userState.fullName;
 		const words = name.split(' ');
+		if (words.length < 2) {
+			return '';
+		}
 		return `${words[0]} ${words[1][0]}.`;
 	};
 
@@ -47,8 +44,8 @@ const StudentCard: FC<IStudentCard> = () => {
 			<div className='-translate-y-8'>
 				<Barcode
 					value={`11${userState.rollNumber}`}
-					width={0.007 * screen.width}
-					height={0.07 * screen.height}
+					width={2.5}
+					height={50}
 					displayValue={false}
 				/>
 			</div>
