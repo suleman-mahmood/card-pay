@@ -1,4 +1,5 @@
 import {
+	faIdCard,
 	faLock,
 	faMoneyBillTransfer,
 	faPowerOff,
@@ -23,6 +24,10 @@ const Dashboard: NextPage = () => {
 		router.push('/dashboard/change-pin');
 	};
 
+	const redirectToDigitalCard = () => {
+		router.push('/dashboard/digital-card');
+	};
+
 	return (
 		<DashboardLayout>
 			<div className='flex flex-col'>
@@ -43,6 +48,18 @@ const Dashboard: NextPage = () => {
 							</div>
 						</button>
 						<h3 className='text-lg'>Change Pin</h3>
+					</div>
+				</div>
+
+				<div className='flex flex-row justify-around'>
+					<div className='flex flex-col'>
+						<button onClick={redirectToDigitalCard}>
+							<div className='w-28 shadow-md p-4 rounded-2xl'>
+								<img src='https://i.ibb.co/5RYhN9P/Digi.png'
+								/>
+							</div>
+						</button>
+						<h3 className='text-lg mt-1'>Digital Card</h3>
 					</div>
 				</div>
 			</div>

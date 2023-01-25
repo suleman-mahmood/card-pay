@@ -19,7 +19,7 @@ const BottomNav: FC<IBottomNav> = () => {
 	};
 
 	return (
-		<div className='btm-nav rounded-t-3xl bg-primary text-white'>
+		<div className='btm-nav rounded-t-3xl bg-gradient-to-l from-primary to-primarydark text-white'>
 			<button
 				className={
 					router.pathname === '/dashboard' ? 'text-secondary' : ''
@@ -31,7 +31,7 @@ const BottomNav: FC<IBottomNav> = () => {
 					className='h-5 w-5'
 					fill='none'
 					viewBox='0 0 24 24'
-					stroke='currentColor'
+					stroke='white'
 				>
 					<path
 						strokeLinecap='round'
@@ -55,7 +55,7 @@ const BottomNav: FC<IBottomNav> = () => {
 					className='h-5 w-5'
 					fill='none'
 					viewBox='0 0 24 24'
-					stroke='currentColor'
+					stroke='white'
 				>
 					<path
 						strokeLinecap='round'
@@ -79,7 +79,7 @@ const BottomNav: FC<IBottomNav> = () => {
 					className='h-5 w-5'
 					fill='none'
 					viewBox='0 0 24 24'
-					stroke='currentColor'
+					stroke='white'
 				>
 					<path
 						strokeLinecap='round'
