@@ -1,7 +1,8 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import ButtonPrimary from '../components/buttons/ButtonPrimary';
-import AuthLayout from '../components/layouts/AuthLayout';
+import WelcomeLayout from '../components/layouts/WelcomeLayout';
+import Image from 'next/image';
+
 
 const Home: NextPage = () => {
 	const router = useRouter();
@@ -11,13 +12,22 @@ const Home: NextPage = () => {
 	};
 
 	return (
-		<AuthLayout>
-			<h1 className='mb-4 text-2xl'>Welcome to CardPay</h1>
-			<h2 className='mb-4 text-xl font-semibold'>
+		<WelcomeLayout>
+			<div className='flex flex-col'>
+				<div className='flex flex-row justify-around'>
+					<div className='flex flex-col'>
+							<div className='w-28'>
+								<img src="https://i.ibb.co/6yGMFSW/Whats-App-Image-2022-08-06-at-4-35-23-PM-removebg-preview.png" alt="logo" className='shadow-sm'></img>
+							</div>
+					</div>
+				</div>
+			</div>
+			<h1 className='mb-1 mt-2 text-4xl font-semibold'>Welcome to CardPay</h1>
+			<h2 className='mb-4 text-xl'>
 				Revolutionize your campus experience
 			</h2>
-			<ButtonPrimary onClick={redirectToAuth} text='Continue!' />
-		</AuthLayout>
+			<button className='bg-white rounded-full shadow-lg text-primarydark text-2xl font-bold py-2' onClick={redirectToAuth}>Continue</button>
+		</WelcomeLayout>
 	);
 };
 
