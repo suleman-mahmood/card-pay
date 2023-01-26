@@ -81,7 +81,7 @@ const Transfer: NextPage = () => {
 							return (
 								<button
 									key={j + (i + 1) * 1000}
-									className='btn btn-primary text-white text-lg bg-gradient-to-l from-primary to-primarydark flex-1 mx-3 rounded-full border-none'
+									className='btn btn-primary shadow-xl text-white text-lg bg-primarydark focus:text-white focus:bg-primary focus:shadow-inner flex-1 mx-3 rounded-full border-none '
 									onClick={() => setAmount(n)}
 								>
 									{n}

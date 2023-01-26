@@ -23,21 +23,23 @@ const StudentCard: FC<IStudentCard> = () => {
 	};
 
 	return (
-		<div className='card flex flex-col items-center bg-white shadow-xl my-4 mx-2 mt-16 overflow-visible'>
+		<div className='card flex flex-col items-center bg-white shadow-xl outline-black my-4 mx-2 mt-16 overflow-visible'>
 			<div className='flex flex-row'>
 				{/* Heart card image */}
 				<div className='ml-3 w-32 -translate-y-16'>
 					<Image
-						className='shadow-md bg-white rounded-2xl'
+						className='shadow-lg bg-white rounded-3xl'
 						src={StudentCardImage}
 						alt=''
 					/>
 				</div>
 
-				<div className='flex flex-col pl-6 pt-6'>
-					<div className='w-full  px-2 text-left flex flex-col bg-gradient-to-l from-primary to-primarydark text-white font-bold '>
+				<div className='flex flex-col pl-4 pt-6'>
+					<div className='container mr-16 bg-gradient-to-l from-primary to-primarydark '>
+					<div className='w-full pl-2 text-left flex flex-col  text-white font-bold '>
 						<h1 className='text-xl'>{showName()}</h1>
 						<h2 className='text-lg'>{userState.rollNumber}</h2>
+					</div>
 					</div>
 				</div>
 			</div>

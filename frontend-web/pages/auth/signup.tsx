@@ -10,8 +10,8 @@ import { useState } from 'react';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import PhoneField from '../../components/inputs/PhoneField';
-import TextField from '../../components/inputs/TextField';
-import AuthLayout from '../../components/layouts/AuthLayout';
+import TextField from '../../components/inputs/signup_text_field';
+import WelcomeLayout from '../../components/layouts/WelcomeLayout';
 import { auth, functions } from '../../services/initialize-firebase';
 
 const Signup: NextPage = () => {
@@ -85,12 +85,12 @@ const Signup: NextPage = () => {
 	};
 
 	return (
-		<AuthLayout>
+		<WelcomeLayout>
 			<h1 className='text-2xl'>Create your account</h1>
 			<h2 className='mb-4 text-sm'>
 				Do you already have an account?
 				<a
-					className='ml-2 text-blue-500 text-xl'
+					className='ml-2 text-blue-50 text-xl'
 					onClick={redirectToLogin}
 				>
 					Sign In Now
@@ -135,15 +135,11 @@ const Signup: NextPage = () => {
 
 				<div className='h-6'></div>
 
-				<ButtonPrimary
-					type='submit'
-					onClick={signupUser}
-					text='Sign Up'
-				/>
+				<button className='bg-white shadow-xl rounded-full text-primarydark py-2 text-xl font-semibold active:bg-primarydark active:text-white' onClick={signupUser} >Sign Up </button>
 			</form>
 
 			<ErrorAlert message={errorMessage} />
-		</AuthLayout>
+		</WelcomeLayout>
 	);
 };
 
