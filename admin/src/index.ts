@@ -24,3 +24,5 @@ const sendEmail = async () => {
 };
 
 // sendEmail();
+// getUserDoc('23110240');
+// getUserDoc('thebunker');
