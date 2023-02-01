@@ -19,8 +19,9 @@ interface depositRequestData {
 	email: string;
 }
 
-export const addDepositRequest = functions.https.onCall(
-	async (data: depositRequestData, context) => {
+export const addDepositRequest = functions
+	.region('asia-south1')
+	.https.onCall(async (data: depositRequestData, context) => {
 		/*
 			This function calls the PayPro API to create an order for the
 			amount provided for the invocation user
@@ -119,11 +120,11 @@ export const addDepositRequest = functions.https.onCall(
 			orderNumber: responseData['OrderNumber'],
 			payProId: responseData['PayProId'],
 		};
-	}
-);
+	});
 
-export const handleDepositSuccess = functions.https.onCall(
-	async (_, context) => {
+export const handleDepositSuccess = functions
+	.region('asia-south1')
+	.https.onCall(async (_, context) => {
 		/*
     This function verifies the order against the provided PayPro id
     and deposits the amount if payment was made.
@@ -264,8 +265,7 @@ export const handleDepositSuccess = functions.https.onCall(
 			status: 'success',
 			message: 'Deposit(s) successful',
 		};
-	}
-);
+	});
 
 const getPayProAuthToken = async (): Promise<string> => {
 	const authConfig = {

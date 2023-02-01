@@ -24,6 +24,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // Initialize functions with emulator
-const _functions = getFunctions(app);
+const _functions = getFunctions(app, 'asia-south1');
+
 // connectFunctionsEmulator(_functions, "localhost", 5001);
 export const functions = _functions;

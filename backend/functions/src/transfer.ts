@@ -8,8 +8,9 @@ interface transferData {
 	recipientRollNumber: string;
 }
 
-export const transfer = functions.https.onCall(
-	async (data: transferData, context) => {
+export const transfer = functions
+	.region('asia-south1')
+	.https.onCall(async (data: transferData, context) => {
 		/*
     This function transfers the amount from the caller's id
     to the recipient's roll number in the argument
@@ -133,5 +134,4 @@ export const transfer = functions.https.onCall(
 			status: 'success',
 			message: 'Transfer was successful',
 		};
-	}
-);
+	});

@@ -13,8 +13,9 @@ interface CreateUserData {
 	phoneNumber: string;
 }
 
-export const createUser = functions.https.onCall(
-	async (data: CreateUserData, context) => {
+export const createUser = functions
+	.region('asia-south1')
+	.https.onCall(async (data: CreateUserData, context) => {
 		/*
 			This function creates a new user in Firestore if it isn't already present.
 			param: data = {
@@ -101,15 +102,15 @@ export const createUser = functions.https.onCall(
 			balance: 0,
 			transactions: [],
 		});
-	}
-);
+	});
 
 interface VerifyEmailOtpData {
 	otp: string;
 }
 
-export const verifyEmailOtp = functions.https.onCall(
-	async (data: VerifyEmailOtpData, context) => {
+export const verifyEmailOtp = functions
+	.region('asia-south1')
+	.https.onCall(async (data: VerifyEmailOtpData, context) => {
 		/*
     This function verifies the calling user's email
     param: data = {
@@ -155,41 +156,43 @@ export const verifyEmailOtp = functions.https.onCall(
 		return ref.update({
 			verified: true,
 		});
-	}
-);
+	});
 
-export const resendOtpEmail = functions.https.onCall(async (data, context) => {
-	const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
+export const resendOtpEmail = functions
+	.region('asia-south1')
+	.https.onCall(async (data, context) => {
+		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
 
-	const doc = await db.collection('otps').doc(uid).get();
-	let originalOtp = '';
-	if (!doc.exists) {
-		// generate a string of 4 digits instead of a number
-		const randomPin = generateRandom4DigitPin();
+		const doc = await db.collection('otps').doc(uid).get();
+		let originalOtp = '';
+		if (!doc.exists) {
+			// generate a string of 4 digits instead of a number
+			const randomPin = generateRandom4DigitPin();
 
-		// save otp in firestore
-		await db.collection('otps').doc(uid).set({
-			otp: randomPin,
-		});
-		originalOtp = randomPin;
-	} else {
-		originalOtp = doc.data()!.otp;
-	}
+			// save otp in firestore
+			await db.collection('otps').doc(uid).set({
+				otp: randomPin,
+			});
+			originalOtp = randomPin;
+		} else {
+			originalOtp = doc.data()!.otp;
+		}
 
-	// send email to the user
-	const studentEmail = userSnapshot.data()!.rollNumber + '@lums.edu.pk';
-	const subject = 'CardPay | Email Verification';
-	const text = `Your 4-digit pin is: ${originalOtp}`;
-	const htmlBody = `Your 4-digit pin is: <b>${originalOtp}</b>`;
-	return sendEmail(studentEmail, subject, text, htmlBody);
-});
+		// send email to the user
+		const studentEmail = userSnapshot.data()!.rollNumber + '@lums.edu.pk';
+		const subject = 'CardPay | Email Verification';
+		const text = `Your 4-digit pin is: ${originalOtp}`;
+		const htmlBody = `Your 4-digit pin is: <b>${originalOtp}</b>`;
+		return sendEmail(studentEmail, subject, text, htmlBody);
+	});
 
 interface ChangeUserPinData {
 	pin: string;
 }
 
-export const changeUserPin = functions.https.onCall(
-	async (data: ChangeUserPinData, context) => {
+export const changeUserPin = functions
+	.region('asia-south1')
+	.https.onCall(async (data: ChangeUserPinData, context) => {
 		/*
 			This function changes the calling user's pin
 			param: data = {
@@ -248,5 +251,4 @@ export const changeUserPin = functions.https.onCall(
 		return ref.update({
 			pin: data.pin,
 		});
-	}
-);
+	});

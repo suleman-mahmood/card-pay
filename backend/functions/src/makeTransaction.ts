@@ -9,8 +9,9 @@ interface makeTransactionData {
 	pin: string;
 }
 
-export const makeTransaction = functions.https.onCall(
-	async (data: makeTransactionData, context) => {
+export const makeTransaction = functions
+	.region('asia-south1')
+	.https.onCall(async (data: makeTransactionData, context) => {
 		/*
     This function makes a new transaction which deducts the amount
     from the sender's id passed in the argument and adds the amount to the
@@ -143,5 +144,4 @@ export const makeTransaction = functions.https.onCall(
 			status: 'success',
 			message: 'Transaction was successful',
 		};
-	}
-);
+	});
