@@ -56,46 +56,36 @@ const StudentCard: FC<IStudentCard> = () => {
 				<h1 className='text-xl text-black font-bold'>
 					PKR. {userState.balance}/-
 				</h1>
-				<div className='flex flex-row space-x-5'>
+				<div className='flex flex-col'>
 					<h6 className='text-sm text-black'>Available balance</h6>
-					<button onClick={handleRefreshBalance}>
-						<FontAwesomeIcon
-							className='ml-2'
-							icon={faRefresh}
-							size='sm'
-						/>
-					</button>
+
+					{userState.pendingDeposits ? (
+						refreshBalanceLoading ? (
+							<ContentLoader viewBox='0 0 500 50'>
+								<rect
+									x='148.568'
+									y='10'
+									width='193.914'
+									height='23.866'
+								/>
+							</ContentLoader>
+						) : (
+							<h6 className='text-sm text-gray-500'>
+								Refresh balance:
+								<button onClick={handleRefreshBalance}>
+									<FontAwesomeIcon
+										className='ml-2'
+										icon={faRefresh}
+										size='sm'
+									/>
+								</button>
+							</h6>
+						)
+					) : null}
 				</div>
 
 				<div className='h-10'></div>
 			</div>
-
-			{/* <h1>{userState.fullName}</h1>
-			<h1>{userState.rollNumber}</h1>
-			<h1>PKR. {userState.balance}/-</h1>
-			<h1>Available balance</h1>
-			{userState.pendingDeposits ? (
-				refreshBalanceLoading ? (
-					<ContentLoader viewBox='0 0 500 50'>
-						<rect
-							x='148.568'
-							y='10'
-							width='193.914'
-							height='23.866'
-						/>
-					</ContentLoader>
-				) : (
-					<h1>
-						Refresh balance:
-						<button onClick={handleRefreshBalance}>
-							<FontAwesomeIcon
-								className='ml-2'
-								icon={faRefresh}
-							/>
-						</button>
-					</h1>
-				)
-			) : null} */}
 		</div>
 	);
 };
