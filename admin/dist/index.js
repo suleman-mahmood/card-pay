@@ -8,17 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const get_stats_1 = require("./get_stats");
 const nodemailer = require('nodemailer');
 const sendEmail = () => __awaiter(void 0, void 0, void 0, function* () {
     const transporter = nodemailer.createTransport({
-        host: 'email-smtp.ap-northeast-1.amazonaws.com',
+        host: 'email-smtp.ap-south-1.amazonaws.com',
         port: 465,
         secure: true,
         auth: {
-            user: 'AKIAWLUTTIWJKEYHBQYL',
-            pass: 'BBHsVss9Vg6PNPBREKXw1ikZcN3usOY3QnVSIpmdjQkp',
+            user: 'AKIAWLUTTIWJPJPQFIES',
+            pass: 'BIelL3t+5wt+4G7N4ZgQS6zS1jkg+HYZA+9qYAoe2En1',
         },
     });
     // send mail with defined transport object
@@ -31,7 +29,6 @@ const sendEmail = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     console.log('Message sent: %s', info.messageId);
 });
-// sendEmail();
-(0, get_stats_1.getUserDoc)('23110240');
-(0, get_stats_1.getUserDoc)('thebunker');
-// forceTransaction('thebunker', '23110240', 8800 - 130);
+sendEmail();
+// getUserDoc('23110240');
+// getUserDoc('thebunker');

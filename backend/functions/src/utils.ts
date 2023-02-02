@@ -16,12 +16,15 @@ export const sendEmail = async (
 	html: string
 ) => {
 	const transporter = createTransport({
-		host: 'email-smtp.ap-northeast-1.amazonaws.com',
+		// host: 'email-smtp.ap-northeast-1.amazonaws.com',
+		host: 'email-smtp.ap-south-1.amazonaws.com',
 		port: 465,
 		secure: true,
 		auth: {
-			user: 'AKIAWLUTTIWJKEYHBQYL',
-			pass: 'BBHsVss9Vg6PNPBREKXw1ikZcN3usOY3QnVSIpmdjQkp',
+			// user: 'AKIAWLUTTIWJKEYHBQYL',
+			// pass: 'BBHsVss9Vg6PNPBREKXw1ikZcN3usOY3QnVSIpmdjQkp',
+			user: 'AKIAWLUTTIWJPJPQFIES',
+			pass: 'BIelL3t+5wt+4G7N4ZgQS6zS1jkg+HYZA+9qYAoe2En1',
 		},
 	});
 
