@@ -148,6 +148,7 @@ const Signup: NextPage = () => {
 				<div className='h-6'></div>
 
 				<button
+					disabled={isLoading}
 					className='bg-white shadow-xl rounded-full text-primarydark py-2 text-xl font-semibold active:bg-primarydark active:text-white'
 					onClick={signupUser}
 				>
