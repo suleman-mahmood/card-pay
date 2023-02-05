@@ -16,6 +16,8 @@ export {
 	changeUserPin,
 	resendOtpEmail,
 	verifyEmailOtp,
+	sendForgotPasswordEmail,
+	verifyForgotPasswordOtp,
 } from './auth';
 export { addDepositRequest, handleDepositSuccess } from './deposit';
 export { makeTransaction } from './makeTransaction';

@@ -1,41 +1,46 @@
 import { FirebaseError } from 'firebase/app';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import BackButton from '../../components/buttons/BackButton';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import TextField from '../../components/inputs/TextField';
 import AuthLayout from '../../components/layouts/AuthLayout';
 import BoxLoading from '../../components/loaders/BoxLoading';
-import { auth } from '../../services/initialize-firebase';
+import { functions } from '../../services/initialize-firebase';
 
 const Login: NextPage = () => {
 	const router = useRouter();
 
 	const [rollNumber, setRollNumber] = useState('');
-	const [password, setPassword] = useState('');
 
 	const [errorMessage, setErrorMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 
-	const redirectToSignup = () => {
-		router.push('/auth/signup');
-	};
-
-	const loginUser = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
 		setErrorMessage('');
 
-		const email = `${rollNumber}@lums.edu.pk`;
-
 		try {
-			await signInWithEmailAndPassword(auth, email, password);
+			const sendForgotPasswordEmail = httpsCallable(
+				functions,
+				'sendForgotPasswordEmail'
+			);
+			await sendForgotPasswordEmail({
+				rollNumber: rollNumber,
+			});
+
 			setIsLoading(false);
 			setErrorMessage('');
-			router.push('/dashboard/');
+			router.push({
+				pathname: '/auth/change-password',
+				query: {
+					rollNumber: rollNumber,
+				},
+			});
 		} catch (error) {
 			setIsLoading(false);
 			setErrorMessage((error as FirebaseError).message);
@@ -47,42 +52,29 @@ const Login: NextPage = () => {
 		<BoxLoading />
 	) : (
 		<AuthLayout>
-			<h1 className='text-2xl'>Sign in to your account</h1>
-			<h2 className='mb-4 text-sm'>
-				Don&apos;t have an account yet?
-				<a
-					className='ml-2 text-blue-500 text-xl'
-					onClick={redirectToSignup}
-				>
-					Sign Up Now
-				</a>
-			</h2>
+			<h1 className='text-2xl'>Password Reset</h1>
+			<h1 className='text-xl my-4'>
+				A password reset email will be send to your outlook
+			</h1>
 
-			<form onSubmit={loginUser} className='w-full form-control'>
+			<form onSubmit={handleSubmit} className='w-full form-control'>
 				<TextField
 					type='text'
 					valueSetter={setRollNumber}
 					placeholder='Roll Number'
 					maxLength={8}
 				/>
-				<TextField
-					type='password'
-					valueSetter={setPassword}
-					placeholder='Password'
-				/>
-				<div className='label-text-alt link link-hover text-right text-blue-500 mr-2'>
-					<Link href='/auth/forgot-password'>Forgot password?</Link>
-				</div>
 
-				<div className='h-6'></div>
+				<div className='h-2'></div>
 
 				<ButtonPrimary
 					type={'submit'}
-					onClick={loginUser}
-					text='Sign In'
+					onClick={handleSubmit}
+					text='Send'
 				/>
 			</form>
 
+			<BackButton to='/auth/login' textColor='text-black' />
 			<ErrorAlert message={errorMessage} />
 		</AuthLayout>
 	);

@@ -252,3 +252,125 @@ export const changeUserPin = functions
 			pin: data.pin,
 		});
 	});
+
+interface SendForgotPasswordEmailData {
+	rollNumber: string;
+}
+
+export const sendForgotPasswordEmail = functions
+	.region('asia-south1')
+	.https.onCall(async (data: SendForgotPasswordEmailData, context) => {
+		/*
+			This function generates an otp and sends forgot password email to the user
+			param: data = {
+				rollNumber: string,
+			}
+		*/
+
+		if (data.rollNumber.length !== 8) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Roll number must be 8 digits'
+			);
+		}
+
+		/*
+			Success
+		*/
+
+		// generate a string of 4 digits instead of a number
+		const randomPin = generateRandom4DigitPin();
+
+		// save otp in firestore
+		await db.collection('forgot_password_otps').doc(data.rollNumber).set({
+			otp: randomPin,
+		});
+
+		// send email to the user
+		const studentEmail = data.rollNumber + '@lums.edu.pk';
+		const subject = 'CardPay | Forgot Password';
+		const text = `Your 4-digit pin is: ${randomPin}`;
+		const htmlBody = `Your 4-digit pin is: <b>${randomPin}</b>`;
+		return sendEmail(studentEmail, subject, text, htmlBody);
+	});
+
+interface verifyForgotPasswordOtpData {
+	rollNumber: string;
+	otp: string;
+	password: string;
+}
+
+export const verifyForgotPasswordOtp = functions
+	.region('asia-south1')
+	.https.onCall(async (data: verifyForgotPasswordOtpData, context) => {
+		/*
+			This function verifies the calling user's email
+			param: data = {
+				otp: string
+			}
+		*/
+
+		const userOtp = data.otp;
+
+		if (data.rollNumber.length !== 8) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Roll number must be 8 digits'
+			);
+		}
+
+		if (userOtp.length !== 4) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'User OTP must be exactly 4 digits long'
+			);
+		}
+
+		// Get the sender details from Firestore
+		const userQueryRef = db
+			.collection('users')
+			.where('rollNumber', '==', data.rollNumber);
+		const senderSnapshot = await userQueryRef.get();
+		if (senderSnapshot.empty) {
+			throw new functions.https.HttpsError(
+				'not-found',
+				'User does not exists in Firestore'
+			);
+		}
+		if (senderSnapshot.size != 1) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'User roll number with multiple documents exist in firestore!'
+			);
+		}
+
+		const doc = await db
+			.collection('forgot_password_otps')
+			.doc(data.rollNumber)
+			.get();
+
+		if (!doc.exists) {
+			throw new functions.https.HttpsError(
+				'not-found',
+				'Users forgot password OTP doesnt exist in db'
+			);
+		}
+		const originalOtp = doc.data()!.otp;
+
+		if (originalOtp !== userOtp) {
+			throw new functions.https.HttpsError(
+				'failed-precondition',
+				'Incorrect OTP'
+			);
+		}
+
+		const senderUid = senderSnapshot.docs[0].id;
+
+		/*
+			Success
+		*/
+
+		return admin.auth().updateUser(senderUid, {
+			password: data.password,
+		});
+	});
