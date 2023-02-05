@@ -11,6 +11,7 @@ interface CreateUserData {
 	pin: string;
 	role: Role;
 	phoneNumber: string;
+	referralRollNumber: string;
 }
 
 export const createUser = functions
@@ -36,6 +37,13 @@ export const createUser = functions
 			throw new functions.https.HttpsError(
 				'unauthenticated',
 				'User is not authenticated'
+			);
+		}
+
+		if (data.fullName.split(' ').length < 2) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Enter first and last name'
 			);
 		}
 
@@ -101,6 +109,7 @@ export const createUser = functions
 			role: role,
 			balance: 0,
 			transactions: [],
+			referralRollNumber: data.referralRollNumber,
 		});
 	});
 

@@ -34,7 +34,7 @@ const Dashboard: NextPage = () => {
 				<div className='flex flex-row justify-around'>
 					<div className='flex flex-col'>
 						<button onClick={redirectToDeposit}>
-							<div className='w-28 shadow-md p-3 rounded-2xl'>
+							<div className='w-24 shadow-md p-3 rounded-2xl'>
 								<Image src={DepositIcon} alt='' />
 							</div>
 						</button>
@@ -43,7 +43,7 @@ const Dashboard: NextPage = () => {
 
 					<div className='flex flex-col'>
 						<button onClick={redirectToChangePin}>
-							<div className='w-28 shadow-md p-4 rounded-2xl'>
+							<div className='w-24 shadow-md p-4 rounded-2xl'>
 								<Image src={ChangePinIcon} alt='' />
 							</div>
 						</button>
@@ -54,7 +54,7 @@ const Dashboard: NextPage = () => {
 				<div className='flex flex-row justify-around'>
 					<div className='flex flex-col'>
 						<button onClick={redirectToDigitalCard}>
-							<div className='w-28 shadow-md p-4 rounded-2xl'>
+							<div className='w-24 shadow-md p-4 rounded-2xl'>
 								<img src='https://i.ibb.co/5RYhN9P/Digi.png'
 								/>
 							</div>

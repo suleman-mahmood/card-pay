@@ -36,6 +36,14 @@ const StudentCard: FC<IStudentCard> = () => {
 			console.log((error as FirebaseError).message);
 		}
 	};
+	const showName = (): string => {
+		const name = userState.fullName;
+		const words = name.split(' ');
+		if (words.length < 2) {
+			return name;
+		}
+		return `${words[0]} ${words[1][0]}.`;
+	};
 
 	return (
 		<div className='card flex flex-row bg-white text-left shadow-xl relative h-48 overflow-visible'>
@@ -49,8 +57,8 @@ const StudentCard: FC<IStudentCard> = () => {
 			</div>
 
 			<div className='flex flex-col grow pl-2 absolute right-0 bottom-0 top-10'>
-				<div className='w-full pl-4  flex flex-col bg-gradient-to-l from-primary to-primarydark text-white font-bold pr-5 mb-4'>
-					<h1 className='text-xl'>{userState.fullName}</h1>
+				<div className='w-full pl-2 flex flex-col bg-gradient-to-l from-primary to-primarydark text-white font-bold pr-5 mb-4'>
+					<h1 className='text-xl'>{showName()}</h1>
 					<h2 className='text-lg'>{userState.rollNumber}</h2>
 				</div>
 				<h1 className='text-xl text-black font-bold'>

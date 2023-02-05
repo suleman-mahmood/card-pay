@@ -45,7 +45,7 @@ const StudentCard: FC<IStudentCard> = () => {
 			</div>
 			<div className='-translate-y-8'>
 				<Barcode
-					value={`11${userState.rollNumber}`}
+					value={`1120${userState.rollNumber}`}
 					width={2.5}
 					height={50}
 					displayValue={false}

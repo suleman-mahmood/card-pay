@@ -1,17 +1,14 @@
 import { FirebaseError } from 'firebase/app';
-import {
-	createUserWithEmailAndPassword,
-	sendEmailVerification,
-} from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import PhoneField from '../../components/inputs/PhoneField';
 import TextField from '../../components/inputs/signup_text_field';
 import WelcomeLayout from '../../components/layouts/WelcomeLayout';
+import BoxLoading from '../../components/loaders/BoxLoading';
 import { auth, functions } from '../../services/initialize-firebase';
 
 const Signup: NextPage = () => {
@@ -27,6 +24,7 @@ const Signup: NextPage = () => {
 	const [pin, setPin] = useState('');
 	const [confirmPin, setConfirmPin] = useState('');
 	const [phoneNumber, setPhoneNumber] = useState('');
+	const [referralRollNumber, setReferralRollNumber] = useState('');
 
 	const redirectToLogin = () => {
 		router.push('/auth/login');
@@ -34,6 +32,7 @@ const Signup: NextPage = () => {
 
 	const signupUser = async (e: React.FormEvent) => {
 		e.preventDefault();
+		const words = fullName.split(' ');
 
 		if (password !== confirmPassword) {
 			console.log("Passwords don't match");
@@ -50,6 +49,10 @@ const Signup: NextPage = () => {
 		} else if (phoneNumber.length !== 10) {
 			console.log('Phone number must be 10 digits');
 			setErrorMessage('Phone number must be 10 digits');
+			return;
+		} else if (words.length < 2) {
+			console.log('Enter first and last name');
+			setErrorMessage('Enter first and last name');
 			return;
 		}
 
@@ -72,6 +75,7 @@ const Signup: NextPage = () => {
 				pin: pin,
 				role: 'student',
 				phoneNumber: phoneNumber,
+				referralRollNumber: referralRollNumber,
 			});
 
 			setIsLoading(false);
@@ -107,7 +111,7 @@ const Signup: NextPage = () => {
 					type='text'
 					valueSetter={setRollNumber}
 					maxLength={8}
-					placeholder='Roll Number'
+					placeholder='Roll Number: 23xxxxxx'
 				/>
 				<TextField
 					type='password'
@@ -133,9 +137,22 @@ const Signup: NextPage = () => {
 				/>
 				<PhoneField valueSetter={setPhoneNumber} />
 
+				<h1 className='mt-4 pl-1 text-left text-gray-300'>Optional:</h1>
+				<TextField
+					type='text'
+					valueSetter={setReferralRollNumber}
+					maxLength={8}
+					placeholder='Referral Roll Number: 2xxxxxxx'
+				/>
+
 				<div className='h-6'></div>
 
-				<button className='bg-white shadow-xl rounded-full text-primarydark py-2 text-xl font-semibold active:bg-primarydark active:text-white' onClick={signupUser} >Sign Up </button>
+				<button
+					className='bg-white shadow-xl rounded-full text-primarydark py-2 text-xl font-semibold active:bg-primarydark active:text-white'
+					onClick={signupUser}
+				>
+					Sign Up{' '}
+				</button>
 			</form>
 
 			<ErrorAlert message={errorMessage} />
