@@ -82,7 +82,9 @@ export const getAllBalances = async () => {
 		const docData = doc.data() as UserDoc;
 
 		if (docData.balance !== 0) {
+			console.log('Transactions count: ', docData.transactions.length);
 			console.log(docData.fullName, docData.rollNumber, docData.balance);
+			console.log('');
 		}
 	});
 };

@@ -1,3 +1,5 @@
+import { getAllBalances } from './get_stats';
+
 const nodemailer = require('nodemailer');
 
 const sendEmail = async () => {
@@ -23,6 +25,7 @@ const sendEmail = async () => {
 	console.log('Message sent: %s', info.messageId);
 };
 
-sendEmail();
+// getAllBalances();
+// sendEmail();
 // getUserDoc('23110240');
 // getUserDoc('thebunker');

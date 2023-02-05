@@ -73,7 +73,9 @@ const getAllBalances = () => __awaiter(void 0, void 0, void 0, function* () {
     querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
         const docData = doc.data();
         if (docData.balance !== 0) {
+            console.log('Transactions count: ', docData.transactions.length);
             console.log(docData.fullName, docData.rollNumber, docData.balance);
+            console.log('');
         }
     }));
 });

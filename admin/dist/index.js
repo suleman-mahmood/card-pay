@@ -8,6 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+const get_stats_1 = require("./get_stats");
 const nodemailer = require('nodemailer');
 const sendEmail = () => __awaiter(void 0, void 0, void 0, function* () {
     const transporter = nodemailer.createTransport({
@@ -29,6 +31,7 @@ const sendEmail = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     console.log('Message sent: %s', info.messageId);
 });
-sendEmail();
+(0, get_stats_1.getAllBalances)();
+// sendEmail();
 // getUserDoc('23110240');
 // getUserDoc('thebunker');
