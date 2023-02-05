@@ -24,14 +24,14 @@ const sendEmail = () => __awaiter(void 0, void 0, void 0, function* () {
     // send mail with defined transport object
     let info = yield transporter.sendMail({
         from: 'cardpayteam@gmail.com',
-        to: '23100012@lums.edu.pk',
+        to: '23100011@lums.edu.pk',
         subject: 'Hello ✔',
         // text: "Hello world?", // plain text body
         html: '<b>Email from cardpay test server!</b>', // html body
     });
     console.log('Message sent: %s', info.messageId);
 });
-(0, get_stats_1.getAllBalances)();
+// getAllBalances();
 // sendEmail();
-// getUserDoc('23110240');
+(0, get_stats_1.getUserDoc)('23100011');
 // getUserDoc('thebunker');

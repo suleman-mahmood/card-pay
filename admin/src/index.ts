@@ -1,4 +1,4 @@
-import { getAllBalances } from './get_stats';
+import { getAllBalances, getUserDoc } from './get_stats';
 
 const nodemailer = require('nodemailer');
 
@@ -27,5 +27,5 @@ const sendEmail = async () => {
 
 // getAllBalances();
 // sendEmail();
-// getUserDoc('23110240');
+// getUserDoc('23100011');
 // getUserDoc('thebunker');

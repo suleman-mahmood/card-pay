@@ -6,6 +6,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "tsc ; GOOGLE_APPLICATION_CREDENTIALS=\"./var/credential_google.json\" node ./dist/index.js",
+		"start-dev": "tsc ; GOOGLE_APPLICATION_CREDENTIALS=\"./var/credential_google_dev.json\" node ./dist/index.js",
 		"tsc": "tsc",
 		"postinstall": "npm run tsc",
 		"dev": "ts-node-dev --respawn --pretty --transpile-only index.ts"
