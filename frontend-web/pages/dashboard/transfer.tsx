@@ -19,10 +19,11 @@ const DEPOSIT_AMOUNTS = [
 
 const Transfer: NextPage = () => {
 	const router = useRouter();
+	const { userState } = useSelector(selectUser);
 
 	const [rollNumber, setRollNumber] = useState('');
 	const [amount, setAmount] = useState(0);
-	const { userState } = useSelector(selectUser);
+	const [pin, setPin] = useState('');
 
 	const [errorMessage, setErrorMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +38,9 @@ const Transfer: NextPage = () => {
 		} else if (userState.id === '') {
 			setErrorMessage('Please refresh the page');
 			return;
+		} else if (pin.length !== 4) {
+			setErrorMessage('Please enter 4-digit pin');
+			return;
 		}
 
 		setIsLoading(true);
@@ -47,6 +51,7 @@ const Transfer: NextPage = () => {
 			await transfer({
 				amount: amount,
 				recipientRollNumber: rollNumber,
+				pin: pin,
 			});
 
 			setIsLoading(false);
@@ -66,6 +71,13 @@ const Transfer: NextPage = () => {
 		<DashboardLayout>
 			<h1 className='text-2xl'>Transfer</h1>
 			<h2 className='mb-4 text-xl'>Peer to Peer funds transfer</h2>
+
+			<TextField
+				type='password'
+				valueSetter={setPin}
+				placeholder='Enter your pin'
+				maxLength={4}
+			/>
 
 			<TextField
 				type='text'

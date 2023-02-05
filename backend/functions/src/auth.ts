@@ -197,6 +197,7 @@ export const resendOtpEmail = functions
 
 interface ChangeUserPinData {
 	pin: string;
+	oldPin: string;
 }
 
 export const changeUserPin = functions
@@ -222,11 +223,19 @@ export const changeUserPin = functions
 		}
 
 		const newPin = data.pin;
+		const oldPin = data.oldPin;
 
 		if (newPin.length !== 4) {
 			throw new functions.https.HttpsError(
 				'invalid-argument',
 				'User pin must be exactly 4 digits long'
+			);
+		}
+
+		if (oldPin.length !== 4) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Users old pin must be exactly 4 digits long'
 			);
 		}
 
@@ -250,6 +259,13 @@ export const changeUserPin = functions
 			throw new functions.https.HttpsError(
 				'not-found',
 				'User document does not exist in Firestore'
+			);
+		}
+
+		if (snapshot.data()!.pin !== oldPin) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Old pin doesnt match'
 			);
 		}
 

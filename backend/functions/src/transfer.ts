@@ -6,6 +6,7 @@ import { getTimestamp } from './utils';
 interface transferData {
 	amount: string;
 	recipientRollNumber: string;
+	pin: string;
 }
 
 export const transfer = functions
@@ -34,8 +35,19 @@ export const transfer = functions
 				'Amount must be greater than 0'
 			);
 		}
+		if (data.pin.length !== 4) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Pin must be 4-digits long'
+			);
+		}
+		if (userSnapshot.data()!.pin !== data.pin) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Incorrect pin! User pin does not match'
+			);
+		}
 
-		// TODO: add more validation for recipientRollNumber
 		if (recipientRollNumber.length !== 8) {
 			throw new functions.https.HttpsError(
 				'invalid-argument',
@@ -86,8 +98,8 @@ export const transfer = functions
 		const recipientUid = recipientSnapshot.docs[0].id;
 
 		/*
-  Handle transaction success!
-  */
+			Handle transaction success!
+		*/
 
 		// Add the transaction to the transactions collection
 		const transactionsRef = db.collection('transactions').doc();

@@ -30,7 +30,7 @@ export const sendEmail = async (
 
 	// send mail with defined transport object
 	await transporter.sendMail({
-		from: 'sulemanmahmood99@gmail.com', // sender address
+		from: 'cardpayteam@gmail.com', // sender address
 		to: to,
 		subject: subject,
 		text: text,

@@ -1,6 +1,7 @@
 import { FirebaseError } from 'firebase/app';
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
+import Link from 'next/link';
 import { useState } from 'react';
 import BackButton from '../../components/buttons/BackButton';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
@@ -12,6 +13,7 @@ import BoxLoading from '../../components/loaders/BoxLoading';
 import { functions } from '../../services/initialize-firebase';
 
 const Deposit: NextPage = () => {
+	const [oldPin, setOldPin] = useState('');
 	const [pin, setPin] = useState('');
 	const [confirmPin, setConfirmPin] = useState('');
 
@@ -41,6 +43,7 @@ const Deposit: NextPage = () => {
 		try {
 			await changeUserPin({
 				pin: pin,
+				oldPin: oldPin,
 			});
 
 			setIsLoading(false);
@@ -58,7 +61,18 @@ const Deposit: NextPage = () => {
 	) : (
 		<DashboardLayout>
 			<h1 className='text-2xl'>Change Pin</h1>
-			<h2 className='mb-4 text-xl'>Change your transaction pin</h2>
+			<h2 className='text-xl'>Change your transaction pin</h2>
+
+			<div className='my-2 mr-4 label-text-alt link link-hover text-right text-blue-500'>
+				<Link href='/dashboard/forgot-pin'>Forgot pin?</Link>
+			</div>
+
+			<TextField
+				type='text'
+				valueSetter={setOldPin}
+				placeholder='Old pin'
+				maxLength={4}
+			/>
 
 			<TextField
 				type='text'

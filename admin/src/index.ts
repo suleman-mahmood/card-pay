@@ -13,7 +13,7 @@ const sendEmail = async () => {
 
 	// send mail with defined transport object
 	let info = await transporter.sendMail({
-		from: 'sulemanmahmood99@gmail.com', // sender address
+		from: 'cardpayteam@gmail.com', // sender address
 		to: '23100011@lums.edu.pk', // list of receivers
 		subject: 'Hello ✔', // Subject line
 		// text: "Hello world?", // plain text body
@@ -23,6 +23,6 @@ const sendEmail = async () => {
 	console.log('Message sent: %s', info.messageId);
 };
 
-// sendEmail();
+sendEmail();
 // getUserDoc('23110240');
 // getUserDoc('thebunker');
