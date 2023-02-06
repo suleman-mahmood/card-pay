@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const get_stats_1 = require("./get_stats");
 const nodemailer = require('nodemailer');
 const sendEmail = () => __awaiter(void 0, void 0, void 0, function* () {
     const transporter = nodemailer.createTransport({
@@ -33,5 +32,5 @@ const sendEmail = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 // getAllBalances();
 // sendEmail();
-(0, get_stats_1.getUserDoc)('23100011');
+// getUserDoc('23100011');
 // getUserDoc('thebunker');

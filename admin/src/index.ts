@@ -1,3 +1,4 @@
+import { getAllVendors } from './admin/vendors';
 import { getAllBalances, getUserDoc } from './get_stats';
 
 const nodemailer = require('nodemailer');
