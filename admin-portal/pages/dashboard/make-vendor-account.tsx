@@ -47,7 +47,7 @@ const Deposit: NextPage = () => {
 
 			setIsLoading(false);
 			setErrorMessage('');
-			setSuccessMessage('Changed pin!');
+			setSuccessMessage('Vendor account added!');
 		} catch (error) {
 			setIsLoading(false);
 			setErrorMessage((error as FirebaseError).message);
@@ -65,21 +65,14 @@ const Deposit: NextPage = () => {
 				type='text'
 				valueSetter={setName}
 				placeholder='Full Name'
-				maxLength={4}
 			/>
 
-			<TextField
-				type='text'
-				valueSetter={setEmail}
-				placeholder='Email'
-				maxLength={4}
-			/>
+			<TextField type='text' valueSetter={setEmail} placeholder='Email' />
 
 			<TextField
 				type='text'
 				valueSetter={setPassword}
 				placeholder='Password'
-				maxLength={4}
 			/>
 
 			<ButtonPrimary onClick={handleSubmit} text='Make!' />
