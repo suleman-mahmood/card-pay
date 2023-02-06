@@ -5,28 +5,44 @@ export const getTransactionsSum = async () => {
 	const ref = db.collection('users');
 	const querySnapshot = await ref.get();
 	let totalSum = 0;
+	let ppSum = 0;
+	let balancesSum = 0;
 
 	querySnapshot.forEach(async doc => {
 		const docData = doc.data() as UserDoc;
 		let sum = 0;
+		let currPpSum = 0;
 
 		docData.transactions.map(t => {
 			if (t.senderName !== t.recipientName) {
 				if (t.senderName === docData.fullName) {
 					sum -= t.amount;
+				} else if (t.senderName === 'PayPro Payment Gateway') {
+					currPpSum += t.amount;
 				} else {
 					sum += t.amount;
 				}
 			}
 		});
 
-		if (sum !== 0) {
-			console.log(docData.fullName, docData.email, sum);
+		if (sum !== 0 || currPpSum !== 0) {
+			console.log(
+				docData.fullName,
+				docData.email,
+				sum,
+				currPpSum,
+				docData.balance
+			);
 		}
+		ppSum += currPpSum;
 		totalSum += sum;
+		balancesSum += docData.balance;
 	});
 
-	console.log('Total Sum:', totalSum);
+	console.log('');
+	console.log('Total Transactions Sum:', totalSum);
+	console.log('Total PayPro Sum:', ppSum);
+	console.log('Total Balance Sum:', balancesSum);
 };
 
 export const getBalanceTillTime = async (rollNumber: string, isoDate: Date) => {

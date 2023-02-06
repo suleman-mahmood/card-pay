@@ -15,25 +15,36 @@ const getTransactionsSum = () => __awaiter(void 0, void 0, void 0, function* () 
     const ref = init_firebase_1.db.collection('users');
     const querySnapshot = yield ref.get();
     let totalSum = 0;
+    let ppSum = 0;
+    let balancesSum = 0;
     querySnapshot.forEach((doc) => __awaiter(void 0, void 0, void 0, function* () {
         const docData = doc.data();
         let sum = 0;
+        let currPpSum = 0;
         docData.transactions.map(t => {
             if (t.senderName !== t.recipientName) {
                 if (t.senderName === docData.fullName) {
                     sum -= t.amount;
+                }
+                else if (t.senderName === 'PayPro Payment Gateway') {
+                    currPpSum += t.amount;
                 }
                 else {
                     sum += t.amount;
                 }
             }
         });
-        if (sum !== 0) {
-            console.log(docData.fullName, docData.email, sum);
+        if (sum !== 0 || currPpSum !== 0) {
+            console.log(docData.fullName, docData.email, sum, currPpSum, docData.balance);
         }
+        ppSum += currPpSum;
         totalSum += sum;
+        balancesSum += docData.balance;
     }));
-    console.log('Total Sum:', totalSum);
+    console.log('');
+    console.log('Total Transactions Sum:', totalSum);
+    console.log('Total PayPro Sum:', ppSum);
+    console.log('Total Balance Sum:', balancesSum);
 });
 exports.getTransactionsSum = getTransactionsSum;
 const getBalanceTillTime = (rollNumber, isoDate) => __awaiter(void 0, void 0, void 0, function* () {
