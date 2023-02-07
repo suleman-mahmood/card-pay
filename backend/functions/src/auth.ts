@@ -111,7 +111,7 @@ export const createUser = functions
 		const htmlBody = `Your 4-digit pin is: <b>${randomPin}</b>`;
 		await sendEmail(studentEmail, subject, text, htmlBody);
 
-		await ref.set({
+		return ref.set({
 			id: uid,
 			fullName: data.fullName.trim(),
 			personalEmail: '',
@@ -126,25 +126,6 @@ export const createUser = functions
 			transactions: [],
 			referralRollNumber: data.referralRollNumber,
 		});
-
-		await topUpUserVirtualCashHelper({
-			amount: INITIAL_BALANCE.toString(),
-			rollNumber: data.rollNumber,
-		});
-
-		// Send Rs.30 to referral roll number if exists
-		if (data.referralRollNumber && data.referralRollNumber.length !== 0) {
-			// Referrall roll number exists
-			return topUpUserVirtualCashHelper({
-				amount: REFERRAL_COMMISSION.toString(),
-				rollNumber: data.referralRollNumber,
-			});
-		} else {
-			return {
-				status: 'success',
-				message: 'Sign up for successful',
-			};
-		}
 	});
 
 interface VerifyEmailOtpData {
@@ -160,15 +141,9 @@ export const verifyEmailOtp = functions
       otp: string
     }
   */
-
-		if (!context.auth) {
-			throw new functions.https.HttpsError(
-				'unauthenticated',
-				'User is not authenticated'
-			);
-		}
-
-		const uid: string = context.auth.uid;
+		const { uid, usersRef, userSnapshot } = await checkUserAuthAndDoc(
+			context
+		);
 
 		const userOtp = data.otp;
 
@@ -195,10 +170,30 @@ export const verifyEmailOtp = functions
 			);
 		}
 
-		const ref = db.collection('users').doc(uid);
-		return ref.update({
+		await usersRef.update({
 			verified: true,
 		});
+
+		await topUpUserVirtualCashHelper({
+			amount: INITIAL_BALANCE.toString(),
+			rollNumber: userSnapshot.data()!.rollNumber,
+		});
+
+		const referralRollNumber = userSnapshot.data()!.referralRollNumber;
+
+		// Send Rs.30 to referral roll number if exists
+		if (referralRollNumber && referralRollNumber.length !== 0) {
+			// Referrall roll number exists
+			return topUpUserVirtualCashHelper({
+				amount: REFERRAL_COMMISSION.toString(),
+				rollNumber: referralRollNumber,
+			});
+		} else {
+			return {
+				status: 'success',
+				message: 'Sign up for successful',
+			};
+		}
 	});
 
 export const resendOtpEmail = functions
