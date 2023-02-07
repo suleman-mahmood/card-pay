@@ -22,3 +22,12 @@ export {
 export { addDepositRequest, handleDepositSuccess } from './deposit';
 export { makeTransaction } from './makeTransaction';
 export { transfer } from './transfer';
+
+// Admin functions
+export {
+	getAllVendors,
+	makeVendorAccount,
+	reconcileVendor,
+} from './admin/vendors';
+
+export { topUpUserVirtualCash } from './admin/transactions';

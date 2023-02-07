@@ -88,6 +88,11 @@ export const addDepositRequest = functions
 			.collection('deposit_requests')
 			.doc(transactionId);
 
+		functions.logger.info(
+			'PayPro Order creation API completed: ',
+			responseData
+		);
+
 		await depositRequestsRef.create({
 			depositerUid: uid,
 			status: pendingStatus,
@@ -281,6 +286,11 @@ const getPayProAuthToken = async (): Promise<string> => {
 	// Send auth request to PayPro
 	const ppAuthRes = await axios(authConfig);
 	const authToken = ppAuthRes.headers.token;
+
+	functions.logger.info('PayPro authentication API completed: ', {
+		token: authToken,
+		metadata: ppAuthRes.data,
+	});
 
 	return authToken;
 };

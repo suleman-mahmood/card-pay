@@ -8,9 +8,9 @@ import { useEffect, useState } from 'react';
 import TransactionCard from '../../components/cards/TransactionCard';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import BoxLoading from '../../components/loaders/BoxLoading';
-import { auth, db, functions } from '../../services/initialize-firebase';
-
-const ADMIN_UID = 'JoNhydNzAWXGilGS4fRsOK1ePTm2';
+import { functions } from '../../services/initialize-firebase';
+import Swal from 'sweetalert2';
+import ErrorAlert from '../../components/cards/ErrorAlert';
 
 type UserRole = 'student' | 'vendor' | 'admin';
 
@@ -76,26 +76,66 @@ const Dashboard: NextPage = () => {
 		return today.toLocaleDateString('en-US', options);
 	};
 
+	const handleReconcile = async () => {
+		setErrorMessage('');
+		setIsLoading(true);
+
+		const result = await Swal.fire({
+			title: `Do you want to reconcile ${currentVendor?.balance} for ${currentVendor?.fullName}?`,
+			showDenyButton: true,
+			confirmButtonText: 'Reconcile!',
+			denyButtonText: `Don't`,
+		});
+		if (result.isConfirmed) {
+			try {
+				const reconcileVendor = httpsCallable(
+					functions,
+					'reconcileVendor'
+				);
+				await reconcileVendor({
+					vendorUid: currentVendor?.id,
+					amount: currentVendor?.balance,
+				});
+
+				setErrorMessage('');
+				setIsLoading(false);
+
+				setTimeout(() => {
+					Swal.fire('Vendor reconcilation done!');
+				}, 500);
+			} catch (error) {
+				setErrorMessage((error as FirebaseError).message);
+				setIsLoading(false);
+			}
+		}
+	};
+
 	return isLoading ? (
 		<BoxLoading />
 	) : (
 		<DashboardLayout>
 			<h1 className='text-2xl'>Vendors</h1>
+			<ErrorAlert message={errorMessage} />
 
 			{vendors.map((v, i) => (
-				<div key={i} className='card bg-base-100 shadow-xl'>
+				<div key={i} className='my-4 card bg-base-200 shadow-xl'>
 					<div className='card-body'>
 						<h2 className='card-title'>{v.fullName}</h2>
 						<p>Balance: {v.balance}</p>
 						<p>Email: {v.email}</p>
-						<div className='card-actions justify-center'>
-							<label
-								onClick={() => setCurrentVendor(v)}
-								htmlFor='my-modal'
-								className='btn'
-							>
+						<div
+							onClick={() => setCurrentVendor(v)}
+							className='card-actions justify-center'
+						>
+							<label htmlFor='my-modal' className='btn'>
 								View transactions
 							</label>
+							<button
+								onClick={handleReconcile}
+								className='btn btn-secondary'
+							>
+								Reconcile
+							</button>
 						</div>
 					</div>
 

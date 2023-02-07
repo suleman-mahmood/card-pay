@@ -1,77 +1,15 @@
-import { auth } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { db } from '../initialize';
-import { UserDoc } from '../types';
 import { adminCheck, CARDPAY_ROLLNUMBER } from './utils';
 
-export const getAllVendors = functions
-	.region('asia-south1')
-	.https.onCall(async (_, context) => {
-		adminCheck(context);
-
-		/* Success */
-
-		const ref = db.collection('users').where('role', '==', 'vendor');
-		const querySnapshot = await ref.get();
-
-		const vendors: Array<UserDoc> = [];
-
-		querySnapshot.forEach(doc => {
-			const docData = doc.data() as UserDoc;
-			vendors.push(docData);
-		});
-
-		return vendors;
-	});
-
-interface MakeVendorAccountData {
-	email: string;
-	password: string;
-	name: string;
-}
-
-export const makeVendorAccount = functions
-	.region('asia-south1')
-	.https.onCall(async (data: MakeVendorAccountData, context) => {
-		adminCheck(context);
-
-		/* Success */
-
-		const userRecord = await auth().createUser({
-			email: data.email,
-			password: data.password,
-			emailVerified: true,
-			displayName: data.name,
-		});
-
-		const docId = userRecord.uid;
-		const userData: UserDoc = {
-			id: docId,
-			fullName: data.name,
-			personalEmail: '',
-			email: data.email,
-			pendingDeposits: false,
-			pin: '',
-			phoneNumber: '',
-			rollNumber: '',
-			verified: false,
-			role: 'vendor',
-			balance: 0,
-			transactions: [],
-		};
-
-		const ref = db.collection('users').doc(docId);
-		await ref.create(userData);
-	});
-
-interface reconcileVendorData {
-	vendorUid: string; // vendor's uid
+interface topUpUserVirtualCashData {
+	rollNumber: string; // vendor's roll number
 	amount: string; // the amount to reconcile
 }
 
-export const reconcileVendor = functions
+export const topUpUserVirtualCash = functions
 	.region('asia-south1')
-	.https.onCall(async (data: reconcileVendorData, context) => {
+	.https.onCall(async (data: topUpUserVirtualCashData, context) => {
 		adminCheck(context);
 
 		const amount = parseInt(data.amount);
@@ -82,7 +20,8 @@ export const reconcileVendor = functions
 			);
 		}
 
-		const recipientRollNumber = CARDPAY_ROLLNUMBER;
+		const recipientRollNumber = data.rollNumber;
+		const senderRollNumber = CARDPAY_ROLLNUMBER;
 
 		// Get the recipient details from Firestore
 		const recipientsQueryRef = db
@@ -93,23 +32,29 @@ export const reconcileVendor = functions
 		const recipientUid = recipientSnapshot.docs[0].id;
 
 		// Get the sender details from Firestore
-		const sendersQueryRef = db.collection('users').doc(data.vendorUid);
+		const sendersQueryRef = db
+			.collection('users')
+			.where('rollNumber', '==', senderRollNumber);
 		const senderSnapshot = await sendersQueryRef.get();
-		const senderDoc = senderSnapshot.data()!;
-		const senderUid = data.vendorUid;
+		const senderDoc = senderSnapshot.docs[0].data();
+		const senderUid = senderSnapshot.docs[0].id;
 
-		if (!senderSnapshot.exists) {
+		if (recipientRollNumber.length !== 8) {
 			throw new functions.https.HttpsError(
-				'not-found',
-				'Cannot find vendor document'
+				'invalid-argument',
+				'Recipient roll number must be 8 digits long'
 			);
 		}
-
-		// Check if the sender is a vendor
-		if (senderDoc.role !== 'vendor') {
+		if (/^[0-9]+$/.test(recipientRollNumber) === false) {
 			throw new functions.https.HttpsError(
-				'permission-denied',
-				'Can only reconcile from vendors'
+				'invalid-argument',
+				'Recipient roll number must contain digits only'
+			);
+		}
+		if (senderSnapshot.size !== 1) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Multiple or no documents exists for sender'
 			);
 		}
 		if (recipientSnapshot.size !== 1) {
@@ -166,10 +111,10 @@ export const reconcileVendor = functions
 			balance: recipientDoc.balance + amount, // admin.firestore.FieldValue.increment(amount),
 		});
 
-		functions.logger.info('Reconcilation was successfull');
+		functions.logger.info('Top Up was successfull');
 
 		return {
 			status: 'success',
-			message: 'Reconcilation was successfull',
+			message: 'Top Up was successfull',
 		};
 	});

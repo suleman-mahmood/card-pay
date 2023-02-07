@@ -20,8 +20,8 @@ const Dashboard: NextPage = () => {
 		router.push('/dashboard/make-vendor-account');
 	};
 
-	const redirectToMakeAmbassadorAccount = () => {
-		router.push('/dashboard/make-ambassador-account');
+	const redirectToTopUp = () => {
+		router.push('/dashboard/top-up');
 	};
 
 	return isLoading ? (
@@ -38,17 +38,17 @@ const Dashboard: NextPage = () => {
 								<img src='https://i.ibb.co/5RYhN9P/Digi.png' />
 							</div>
 						</button>
-						<h3 className='text-lg mt-1'>Make Vendor Account</h3>
+						<h3 className='text-lg mt-1'>Make Vendor</h3>
 					</div>
 
 					<div className='flex flex-col'>
-						<button onClick={redirectToMakeAmbassadorAccount}>
+						<button onClick={redirectToTopUp}>
 							<div className='w-24 shadow-md p-4 rounded-2xl'>
 								{/* <Image src={ChangePinIcon} alt='' /> */}
 								<img src='https://i.ibb.co/5RYhN9P/Digi.png' />
 							</div>
 						</button>
-						<h3 className='text-lg'>Make Ambassador Account</h3>
+						<h3 className='text-lg'>Top Up</h3>
 					</div>
 				</div>
 			</div>

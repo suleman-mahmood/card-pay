@@ -46,6 +46,18 @@ export const createUser = functions
 				'Enter first and last name'
 			);
 		}
+		if (data.phoneNumber.length !== 10) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Phone number must be 10 digits long'
+			);
+		}
+		if (/^[0-9]+$/.test(data.phoneNumber) === false) {
+			throw new functions.https.HttpsError(
+				'invalid-argument',
+				'Phone number must contain digits only'
+			);
+		}
 
 		const uid: string = context.auth.uid;
 		const role: Role = data.role === 'student' ? 'student' : 'unknown';
@@ -103,7 +115,7 @@ export const createUser = functions
 			email: studentEmail,
 			pendingDeposits: false,
 			pin: data.pin,
-			phoneNumber: data.phoneNumber,
+			phoneNumber: `0${data.phoneNumber}`,
 			rollNumber: data.rollNumber,
 			verified: false,
 			role: role,

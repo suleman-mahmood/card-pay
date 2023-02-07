@@ -16,19 +16,15 @@ const Deposit: NextPage = () => {
 	const [successMessage, setSuccessMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 
-	const [name, setName] = useState<string>('');
-	const [email, setEmail] = useState<string>('');
-	const [password, setPassword] = useState<string>('');
+	const [amount, setAmount] = useState(0);
+	const [rollNumber, setRollNumber] = useState('');
 
 	const handleSubmit = async () => {
-		if (name.length === 0) {
+		if (rollNumber.length === 0) {
 			setErrorMessage('Enter name please');
 			return;
-		} else if (email.length === 0) {
-			setErrorMessage('Enter email please');
-			return;
-		} else if (password.length === 0) {
-			setErrorMessage('Enter password please');
+		} else if (amount <= 0) {
+			setErrorMessage('Enter amount above 0');
 			return;
 		}
 
@@ -36,17 +32,19 @@ const Deposit: NextPage = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 
-		const makeVendorAccount = httpsCallable(functions, 'makeVendorAccount');
+		const topUpUserVirtualCash = httpsCallable(
+			functions,
+			'topUpUserVirtualCash'
+		);
 		try {
-			await makeVendorAccount({
-				email: email,
-				password: password,
-				name: name,
+			await topUpUserVirtualCash({
+				rollNumber: rollNumber,
+				amount: amount,
 			});
 
 			setIsLoading(false);
 			setErrorMessage('');
-			setSuccessMessage('Vendor account added!');
+			setSuccessMessage('Top up successful!');
 		} catch (error) {
 			setIsLoading(false);
 			setErrorMessage((error as FirebaseError).message);
@@ -58,23 +56,22 @@ const Deposit: NextPage = () => {
 		<BoxLoading />
 	) : (
 		<DashboardLayout>
-			<h1 className='mb-4 text-2xl'>Make Vendor Account</h1>
+			<h1 className='mb-4 text-2xl'>Top Up any account</h1>
 
 			<TextField
 				type='text'
-				valueSetter={setName}
-				placeholder='Full Name'
+				valueSetter={setRollNumber}
+				placeholder='Roll Number'
+				maxLength={8}
 			/>
-
-			<TextField type='text' valueSetter={setEmail} placeholder='Email' />
 
 			<TextField
-				type='text'
-				valueSetter={setPassword}
-				placeholder='Password'
+				type='number'
+				valueSetter={setAmount}
+				placeholder='Amount'
 			/>
 
-			<ButtonPrimary onClick={handleSubmit} text='Make!' />
+			<ButtonPrimary onClick={handleSubmit} text='Top Up!' />
 
 			<ErrorAlert message={errorMessage} />
 			<SuccessAlert message={successMessage} />
