@@ -1,5 +1,7 @@
 import { getAllVendors } from './admin/vendors';
+import { forceTransaction } from './change_state';
 import { getAllBalances, getTransactionsSum, getUserDoc } from './get_stats';
+import { saveFirestoreState } from './db_restore';
 
 const nodemailer = require('nodemailer');
 
@@ -26,8 +28,17 @@ const sendEmail = async () => {
 	console.log('Message sent: %s', info.messageId);
 };
 
-getTransactionsSum();
+// getTransactionsSum();
+// forceTransaction('sulemanmahmood', '23100011', 230);
+// saveFirestoreState();
 // getAllBalances();
 // sendEmail();
-// getUserDoc('23100011');
+// getUserDoc('sulemanmahmood');
 // getUserDoc('thebunker');
+
+/*
+qpL3Er4w7LZZfiUBz6Ie
+D1hM1H6qI1qEzlPjog3S
+YN83EwcsnEUz1Ivo93of
+
+*/

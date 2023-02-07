@@ -1,4 +1,3 @@
-
 export type UserRole = 'student' | 'vendor' | 'admin';
 
 export interface Transaction {

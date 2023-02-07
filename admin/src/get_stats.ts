@@ -25,13 +25,15 @@ export const getTransactionsSum = async () => {
 			}
 		});
 
-		if (sum !== 0 || currPpSum !== 0) {
+		const netSomething = sum * -1 + docData.balance - currPpSum;
+		if (sum !== 0 || currPpSum !== 0 || docData.balance !== 0) {
 			console.log(
 				docData.fullName,
 				docData.email,
 				sum,
 				currPpSum,
-				docData.balance
+				docData.balance,
+				netSomething
 			);
 		}
 		ppSum += currPpSum;
@@ -40,9 +42,9 @@ export const getTransactionsSum = async () => {
 	});
 
 	console.log('');
-	console.log('Total Transactions Sum:', totalSum);
-	console.log('Total PayPro Sum:', ppSum);
-	console.log('Total Balance Sum:', balancesSum);
+	console.log('Total transactions sum:', totalSum);
+	console.log('Total PayPro sum:', ppSum);
+	console.log('Total virtual cash sum:', balancesSum - ppSum);
 };
 
 export const getBalanceTillTime = async (rollNumber: string, isoDate: Date) => {

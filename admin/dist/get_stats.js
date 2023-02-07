@@ -34,17 +34,18 @@ const getTransactionsSum = () => __awaiter(void 0, void 0, void 0, function* () 
                 }
             }
         });
-        if (sum !== 0 || currPpSum !== 0) {
-            console.log(docData.fullName, docData.email, sum, currPpSum, docData.balance);
+        const netSomething = sum * -1 + docData.balance - currPpSum;
+        if (sum !== 0 || currPpSum !== 0 || docData.balance !== 0) {
+            console.log(docData.fullName, docData.email, sum, currPpSum, docData.balance, netSomething);
         }
         ppSum += currPpSum;
         totalSum += sum;
         balancesSum += docData.balance;
     }));
     console.log('');
-    console.log('Total Transactions Sum:', totalSum);
-    console.log('Total PayPro Sum:', ppSum);
-    console.log('Total Balance Sum:', balancesSum);
+    console.log('Total transactions sum:', totalSum);
+    console.log('Total PayPro sum:', ppSum);
+    console.log('Total virtual cash sum:', balancesSum - ppSum);
 });
 exports.getTransactionsSum = getTransactionsSum;
 const getBalanceTillTime = (rollNumber, isoDate) => __awaiter(void 0, void 0, void 0, function* () {

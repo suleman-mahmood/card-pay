@@ -32,7 +32,15 @@ const sendEmail = () => __awaiter(void 0, void 0, void 0, function* () {
     console.log('Message sent: %s', info.messageId);
 });
 (0, get_stats_1.getTransactionsSum)();
+// forceTransaction('sulemanmahmood', '23100011', 230);
+// saveFirestoreState();
 // getAllBalances();
 // sendEmail();
-// getUserDoc('23100011');
+// getUserDoc('sulemanmahmood');
 // getUserDoc('thebunker');
+/*
+qpL3Er4w7LZZfiUBz6Ie
+D1hM1H6qI1qEzlPjog3S
+YN83EwcsnEUz1Ivo93of
+
+*/
