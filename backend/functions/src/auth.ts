@@ -1,9 +1,12 @@
 import * as functions from 'firebase-functions';
+import { topUpUserVirtualCashHelper } from './admin/transactions';
 import { checkUserAuthAndDoc } from './helpers';
 import { admin, db } from './initialize';
 import { generateRandom4DigitPin, sendEmail } from './utils';
 
 type Role = 'student' | 'unknown';
+const INITIAL_BALANCE = 50;
+const REFERRAL_COMMISSION = 30;
 
 interface CreateUserData {
 	fullName: string;
@@ -20,9 +23,9 @@ export const createUser = functions
 		/*
 			This function creates a new user in Firestore if it isn't already present.
 			param: data = {
-			fullName: string,
-			rollNumber: string,
-			role: string,
+				fullName: string,
+				rollNumber: string,
+				role: string,
 			}
 		*/
 
@@ -108,7 +111,7 @@ export const createUser = functions
 		const htmlBody = `Your 4-digit pin is: <b>${randomPin}</b>`;
 		await sendEmail(studentEmail, subject, text, htmlBody);
 
-		return ref.set({
+		await ref.set({
 			id: uid,
 			fullName: data.fullName.trim(),
 			personalEmail: '',
@@ -123,6 +126,25 @@ export const createUser = functions
 			transactions: [],
 			referralRollNumber: data.referralRollNumber,
 		});
+
+		await topUpUserVirtualCashHelper({
+			amount: INITIAL_BALANCE.toString(),
+			rollNumber: data.rollNumber,
+		});
+
+		// Send Rs.30 to referral roll number if exists
+		if (data.referralRollNumber && data.referralRollNumber.length !== 0) {
+			// Referrall roll number exists
+			return topUpUserVirtualCashHelper({
+				amount: REFERRAL_COMMISSION.toString(),
+				rollNumber: data.referralRollNumber,
+			});
+		} else {
+			return {
+				status: 'success',
+				message: 'Sign up for successful',
+			};
+		}
 	});
 
 interface VerifyEmailOtpData {

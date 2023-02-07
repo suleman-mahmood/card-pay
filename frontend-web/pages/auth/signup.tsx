@@ -88,7 +88,9 @@ const Signup: NextPage = () => {
 		}
 	};
 
-	return (
+	return isLoading ? (
+		<BoxLoading />
+	) : (
 		<WelcomeLayout>
 			<h1 className='text-2xl'>Create your account</h1>
 			<h2 className='mb-4 text-sm'>
