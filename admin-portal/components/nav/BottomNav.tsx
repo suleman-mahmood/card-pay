@@ -14,8 +14,8 @@ const BottomNav: FC<IBottomNav> = () => {
 		router.push('/dashboard/vendors');
 	};
 
-	const redirectToTransactions = () => {
-		router.push('/dashboard/transactions');
+	const redirectToStudents = () => {
+		router.push('/dashboard/students');
 	};
 
 	// const redirectToProfile = () => {
@@ -72,11 +72,11 @@ const BottomNav: FC<IBottomNav> = () => {
 			</button>
 			<button
 				className={
-					router.pathname === '/dashboard/transactions'
+					router.pathname === '/dashboard/students'
 						? 'text-secondary'
 						: ''
 				}
-				// onClick={redirectToTransactions}
+				onClick={redirectToStudents}
 			>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'

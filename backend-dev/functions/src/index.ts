@@ -30,4 +30,5 @@ export {
 	reconcileVendor,
 } from './admin/vendors';
 
+export { getStudent } from './admin/students';
 export { topUpUserVirtualCash } from './admin/transactions';

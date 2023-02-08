@@ -4,7 +4,8 @@ export const ADMIN_UIDS: Array<string> = [
 	'xe2YEIpAr6XUbAu1SNfUY55Eutf1', // Suleman
 	'2PfhS8wU3EMnu0fVNTa2piqQIla2', // Tayyab
 	'CZi8ek4SxMORpuY92Rs2O0iRqmu2', // Shamsi
-	'eqi83L1oHNN7XQAHHLzra579kwl1', // Suleman-dev
+	'cbRuwoSNsogJt5sQnJnSsQouneP2', // Suleman-dev
+	'AgV1v1mCfLXx4D489HoEJFFefbu1', // Faraz-dev
 ];
 
 export const CARDPAY_ROLLNUMBER = '00000000';
