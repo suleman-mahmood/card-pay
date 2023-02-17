@@ -43,7 +43,9 @@ const Login: NextPage = () => {
 
 	const resendEmail = async () => {
 		const resendOtpEmail = httpsCallable(functions, 'resendOtpEmail');
-		await resendOtpEmail();
+		await resendOtpEmail({
+			uid: router.query.uid,
+		});
 	};
 
 	return isLoading ? (

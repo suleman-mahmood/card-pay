@@ -204,10 +204,24 @@ export const verifyEmailOtp = functions
 		}
 	});
 
+interface ResendOtpEmailData {
+	uid: string;
+}
+
 export const resendOtpEmail = functions
 	.region('asia-south1')
-	.https.onCall(async (data, context) => {
-		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
+	.https.onCall(async (data: ResendOtpEmailData, _) => {
+		const uid = data.uid;
+
+		const usersRef = db.collection('users').doc(uid);
+		const userSnapshot = await usersRef.get();
+
+		if (!userSnapshot.exists) {
+			throw new functions.https.HttpsError(
+				'not-found',
+				'User does not exist in Firestore'
+			);
+		}
 
 		const doc = await db.collection('otps').doc(uid).get();
 		let originalOtp = '';
