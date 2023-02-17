@@ -1,5 +1,4 @@
 import { FirebaseError } from 'firebase/app';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -59,28 +58,27 @@ const Signup: NextPage = () => {
 		setIsLoading(true);
 		setErrorMessage('');
 
-		const email = `${rollNumber}@lums.edu.pk`;
-
 		try {
-			const { user } = await createUserWithEmailAndPassword(
-				auth,
-				email,
-				password
-			);
-
 			const createUser = httpsCallable(functions, 'createUser');
-			await createUser({
+			const res = await createUser({
 				fullName: fullName.trim(),
 				rollNumber: rollNumber,
+				password: password,
 				pin: pin,
-				role: 'student',
 				phoneNumber: phoneNumber,
 				referralRollNumber: referralRollNumber,
 			});
+			const uid: string = res.data as string;
 
 			setIsLoading(false);
 			setErrorMessage('');
-			router.push('/auth/student-verification');
+
+			router.push({
+				pathname: '/auth/student-verification',
+				query: {
+					uid: uid,
+				},
+			});
 		} catch (error) {
 			setIsLoading(false);
 			setErrorMessage((error as FirebaseError).message);

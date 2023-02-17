@@ -26,6 +26,7 @@ const Login: NextPage = () => {
 			const verifyEmailOtp = httpsCallable(functions, 'verifyEmailOtp');
 			await verifyEmailOtp({
 				otp: otp.trim(),
+				uid: router.query.uid,
 			});
 
 			// on success

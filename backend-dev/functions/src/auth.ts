@@ -11,37 +11,25 @@ const REFERRAL_COMMISSION = 30;
 interface CreateUserData {
 	fullName: string;
 	rollNumber: string;
+	password: string;
 	pin: string;
-	role: Role;
 	phoneNumber: string;
 	referralRollNumber: string;
 }
 
 export const createUser = functions
 	.region('asia-south1')
-	.https.onCall(async (data: CreateUserData, context) => {
+	.https.onCall(async (data: CreateUserData, _) => {
 		/*
-			This function creates a new user in Firestore if it isn't already present.
-			param: data = {
-				fullName: string,
-				rollNumber: string,
-				role: string,
-			}
+			Invariants:
+			1. User does not already exist with the same roll number
 		*/
 
-		/*
-			Pre-conditions:
-			1. User is authenticated
-			2. User does not already exist
-			3. Same roll number is not already registered
-		*/
-
-		if (!context.auth) {
-			throw new functions.https.HttpsError(
-				'unauthenticated',
-				'User is not authenticated'
-			);
-		}
+		const role: Role = 'student';
+		const randomPin = generateRandom4DigitPin();
+		const phoneNumber = `0${data.phoneNumber}`;
+		const phoneNumberE164 = `+92${data.phoneNumber}`;
+		const email = `${data.rollNumber}@lums.edu.pk`;
 
 		if (data.fullName.split(' ').length < 2) {
 			throw new functions.https.HttpsError(
@@ -62,20 +50,6 @@ export const createUser = functions
 			);
 		}
 
-		const uid: string = context.auth.uid;
-		const role: Role = data.role === 'student' ? 'student' : 'unknown';
-		const ref = db.collection('users').doc(uid);
-
-		const snapshot = await ref.get();
-		const docAlreadyExists: boolean = snapshot.exists;
-
-		if (docAlreadyExists) {
-			throw new functions.https.HttpsError(
-				'already-exists',
-				'User document already exists in Firestore'
-			);
-		}
-
 		// Get the sender details from Firestore
 		const userQueryRef = db
 			.collection('users')
@@ -89,36 +63,59 @@ export const createUser = functions
 		}
 
 		/*
-			Handle Success
+			Handle Success:
+			1. Create user in authentication
+			2. Send otp to email
+			3. Add user doc
 		*/
 
-		await admin.auth().updateUser(uid, {
-			displayName: data.fullName,
-		});
+		// 1. Create user in authentication
+		let uid = '';
+		try {
+			const userRecord = await admin.auth().createUser({ email: email, password: data.password, displayName: data.fullName, emailVerified: false, phoneNumber: phoneNumberE164 });
+			uid = userRecord.uid;
+		} catch (e) {
+			throw new functions.https.HttpsError(
+				'unknown',
+				`Couldnt create user in authentication: ${e}`
+			);
+		}
 
-		// generate a string of 4 digits instead of a number
-		const randomPin = generateRandom4DigitPin();
-
-		// save otp in firestore
-		await db.collection('otps').doc(uid).set({
-			otp: randomPin,
-		});
+		// 2. Send otp to email
+		const ref = db.collection('users').doc(uid);
+		try {
+			await db.collection('otps').doc(uid).set({
+				otp: randomPin,
+			});
+		} catch (e) {
+			throw new functions.https.HttpsError(
+				'unknown',
+				`Couldnt add otp in collection: ${e}`
+			);
+		}
 
 		// send email to the user
-		const studentEmail = data.rollNumber + '@lums.edu.pk';
 		const subject = 'CardPay | Email Verification';
 		const text = `Your 4-digit pin is: ${randomPin}`;
 		const htmlBody = `Your 4-digit pin is: <b>${randomPin}</b>`;
-		await sendEmail(studentEmail, subject, text, htmlBody);
+		try {
+			await sendEmail(email, subject, text, htmlBody);
+		} catch (e) {
+			throw new functions.https.HttpsError(
+				'unknown',
+				`Couldnt send email: ${e}`
+			);
+		}
 
-		return ref.set({
+		// 3. Add user doc
+		await ref.set({
 			id: uid,
 			fullName: data.fullName.trim(),
 			personalEmail: '',
-			email: studentEmail,
+			email: email,
 			pendingDeposits: false,
 			pin: data.pin,
-			phoneNumber: `0${data.phoneNumber}`,
+			phoneNumber: phoneNumber,
 			rollNumber: data.rollNumber,
 			verified: false,
 			role: role,
@@ -126,26 +123,37 @@ export const createUser = functions
 			transactions: [],
 			referralRollNumber: data.referralRollNumber,
 		});
+
+		return uid;
 	});
 
 interface VerifyEmailOtpData {
 	otp: string;
+	uid: string;
 }
 
 export const verifyEmailOtp = functions
 	.region('asia-south1')
-	.https.onCall(async (data: VerifyEmailOtpData, context) => {
+	.https.onCall(async (data: VerifyEmailOtpData, _) => {
 		/*
-    This function verifies the calling user's email
-    param: data = {
-      otp: string
-    }
-  */
-		const { uid, usersRef, userSnapshot } = await checkUserAuthAndDoc(
-			context
-		);
+			This function verifies the calling user's email
+			param: data = {
+			otp: string
+			}
+		*/
 
+		const uid = data.uid;
 		const userOtp = data.otp;
+
+		const usersRef = db.collection('users').doc(uid);
+		const userSnapshot = await usersRef.get();
+
+		if (!userSnapshot.exists) {
+			throw new functions.https.HttpsError(
+				'not-found',
+				'User does not exist in Firestore'
+			);
+		}
 
 		if (userOtp.length !== 4) {
 			throw new functions.https.HttpsError(
