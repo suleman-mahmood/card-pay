@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserDoc = exports.getAllBalances = exports.getBalanceTillTime = exports.getTransactionsSum = void 0;
+exports.getTransactions = exports.getUserDoc = exports.getAllBalances = exports.getBalanceTillTime = exports.getTransactionsSum = void 0;
 const init_firebase_1 = require("./init_firebase");
 const getTransactionsSum = () => __awaiter(void 0, void 0, void 0, function* () {
     const ref = init_firebase_1.db.collection('users');
@@ -114,3 +114,26 @@ const getUserDoc = (rollNumber) => __awaiter(void 0, void 0, void 0, function* (
     }));
 });
 exports.getUserDoc = getUserDoc;
+const getTransactions = () => __awaiter(void 0, void 0, void 0, function* () {
+    const ref = init_firebase_1.db.collection('transactions').where('amount', '==', 50);
+    const snapshot = yield ref.get();
+    let count = 0;
+    snapshot.forEach(r => {
+        const d = r.data();
+        const timestamp = d.timestamp;
+        const date = new Date(timestamp);
+        const today = new Date();
+        // Get entries for yesterday
+        if (date.getDay() == (today.getDay() - 1) && date.getMonth() == today.getMonth()) {
+            if (d.senderName !== "CardPay") {
+                console.log("Not a cardpay transaction");
+            }
+            else {
+                console.log(d.recipientName, date.getHours(), date.getMinutes());
+                count++;
+            }
+        }
+    });
+    console.log("Total signups:", count);
+});
+exports.getTransactions = getTransactions;

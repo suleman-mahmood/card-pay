@@ -132,3 +132,30 @@ export const getUserDoc = async (rollNumber: string) => {
 		});
 	});
 };
+
+export const getTransactions = async () => {
+	const ref = db.collection('transactions').where('amount', '==', 50);
+	const snapshot = await ref.get();
+	let count = 0;
+
+	snapshot.forEach(r => {
+		const d = r.data()
+		const timestamp = d.timestamp
+		const date = new Date(timestamp);
+		const today = new Date();
+
+		
+		// Get entries for yesterday
+		if(date.getDay() == (today.getDay() - 1) && date.getMonth() == today.getMonth()) {
+			if(d.senderName !== "CardPay") {
+				console.log("Not a cardpay transaction");
+			}
+			else {
+				console.log(d.recipientName, date.getHours(), date.getMinutes())
+				count++;
+			}
+		}
+	});
+	console.log("Total signups:", count);
+	
+}
