@@ -24,7 +24,7 @@ export const passwordValidated = (password: string) => {
 };
 
 export const emailValidated = (email: string) => {
-	if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email) === false) {
+	if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(.\w{2,3})+$/.test(email) === false) {
 		throwError('invalid-argument', 'Email format is incorrect');
 	}
 };

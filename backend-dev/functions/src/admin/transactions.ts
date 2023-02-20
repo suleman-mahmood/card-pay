@@ -24,6 +24,9 @@ export const topUpUserVirtualCash = functions
 export const topUpUserVirtualCashHelper = async (
 	data: topUpUserVirtualCashData
 ) => {
+	amountValidated(data.amount);
+	rollNumberValidated(data.rollNumber);
+
 	const amount = parseInt(data.amount);
 
 	const recipientRollNumber = data.rollNumber;
@@ -34,6 +37,11 @@ export const topUpUserVirtualCashHelper = async (
 		.collection('users')
 		.where('rollNumber', '==', recipientRollNumber);
 	const recipientSnapshot = await recipientsQueryRef.get();
+
+	if (recipientSnapshot.size !== 1) {
+		throwError('invalid-argument', 'Referral roll number does not exist');
+	}
+
 	const recipientDoc = recipientSnapshot.docs[0].data();
 	const recipientUid = recipientSnapshot.docs[0].id;
 

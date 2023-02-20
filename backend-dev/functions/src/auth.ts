@@ -29,7 +29,7 @@ export const createUser = functions
 	.https.onCall(async (data: CreateUserData, _) => {
 		/*
 			This functions signups a new user
-			
+
 			Invariants:
 			1. User doesn't need to be authenticated
 			2. User does not already exist with the same roll number
@@ -158,6 +158,14 @@ export const verifyEmailOtp = functions
 			throwError('failed-precondition', 'Incorrect OTP');
 		}
 
+		if (userSnapshot.data()!.verified === true) {
+			throwError('failed-precondition', 'Already verified');
+		}
+
+		/*
+			Success
+		*/
+
 		await usersRef.update({
 			verified: true,
 		});
@@ -172,16 +180,23 @@ export const verifyEmailOtp = functions
 		// Send Rs.30 to referral roll number if exists
 		if (referralRollNumber && referralRollNumber.length !== 0) {
 			// Referrall roll number exists
-			return topUpUserVirtualCashHelper({
-				amount: REFERRAL_COMMISSION.toString(),
-				rollNumber: referralRollNumber,
-			});
-		} else {
-			return {
-				status: 'success',
-				message: 'Sign up for successful',
-			};
+			try {
+				await topUpUserVirtualCashHelper({
+					amount: REFERRAL_COMMISSION.toString(),
+					rollNumber: referralRollNumber,
+				});
+			} catch (e) {
+				return {
+					status: 'success',
+					message:
+						'Sign up was successful but referral roll number doesnt exist',
+				};
+			}
 		}
+		return {
+			status: 'success',
+			message: 'Sign up for successful',
+		};
 	});
 
 interface ResendOtpEmailData {

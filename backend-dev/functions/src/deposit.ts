@@ -31,7 +31,7 @@ export const addDepositRequest = functions
 		amountValidated(data.amount);
 
 		const timestamp = getTimestamp();
-		let amount = parseInt(data.amount);
+		const amount = parseInt(data.amount);
 
 		const { uid, usersRef, userSnapshot } = await checkUserAuthAndDoc(
 			context
