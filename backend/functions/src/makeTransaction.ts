@@ -8,6 +8,8 @@ import {
 	rollNumberValidated,
 } from './validations';
 
+const MAX_TRANSACTIONS_IN_ONE_DOC = 2000;
+
 interface makeTransactionData {
 	amount: string;
 	senderRollNumber: string;
@@ -22,8 +24,8 @@ export const makeTransaction = functions
 			from the sender's id passed in the argument and adds the amount to the
 			vendor calling this function.
 		*/
-
-		functions.logger.info('Args:', data);
+    
+    functions.logger.info('Args:', data);
 
 		fourDigitPinValidated(data.pin);
 		amountValidated(data.amount);
@@ -35,9 +37,10 @@ export const makeTransaction = functions
 		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
 		const vendorUid = uid;
 		const vendorSnapshot = userSnapshot;
+    const vendorDoc = vendorSnapshot.data()!;
 
 		// Check if the caller is a vendor
-		if (vendorSnapshot.data()!.role !== 'vendor') {
+		if (vendorDoc.role !== 'vendor') {
 			throwError(
 				'permission-denied',
 				'Only vendors can call this function'
@@ -78,6 +81,27 @@ export const makeTransaction = functions
 			Handle transaction success!
 		*/
 
+		const sendersDocRef = db.collection('users').doc(senderUid);
+		const recipientsDocRef = db.collection('users').doc(vendorUid);
+
+		// Remove extra transactions if it exceeds the size of document
+		if (senderDoc.transactions.length >= MAX_TRANSACTIONS_IN_ONE_DOC) {
+			await sendersDocRef.update({
+				transactions: senderDoc.transactions.slice(
+					MAX_TRANSACTIONS_IN_ONE_DOC / 2
+				),
+			});
+		}
+
+		// Remove extra transactions if it exceeds the size of document
+		if (vendorDoc.transactions.length >= MAX_TRANSACTIONS_IN_ONE_DOC) {
+			await recipientsDocRef.update({
+				transactions: vendorDoc.transactions.slice(
+					MAX_TRANSACTIONS_IN_ONE_DOC / 2
+				),
+			});
+		}
+
 		// Add the transaction to the transactions collection
 		const transactionsRef = db.collection('transactions').doc();
 		const transaction = {
@@ -103,7 +127,6 @@ export const makeTransaction = functions
 
 		// Add the transaction to the sender's transaction history
 		// Decrement the balance by the amount for the sender
-		const sendersDocRef = db.collection('users').doc(senderUid);
 		await sendersDocRef.update({
 			transactions:
 				admin.firestore.FieldValue.arrayUnion(userTransaction),
@@ -112,7 +135,6 @@ export const makeTransaction = functions
 
 		// Add the transaction to the recipient's transaction history
 		// Increment the balance by the amount for the recipient
-		const recipientsDocRef = db.collection('users').doc(vendorUid);
 		await recipientsDocRef.update({
 			transactions:
 				admin.firestore.FieldValue.arrayUnion(userTransaction),
