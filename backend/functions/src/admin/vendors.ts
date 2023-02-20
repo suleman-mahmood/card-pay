@@ -1,7 +1,14 @@
 import { auth } from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import { db } from '../initialize';
+import { admin, db } from '../initialize';
 import { UserDoc } from '../types';
+import { throwError } from '../utils';
+import {
+	amountValidated,
+	emailValidated,
+	passwordValidated,
+	uidValidated,
+} from '../validations';
 import { adminCheck, CARDPAY_ROLLNUMBER } from './utils';
 
 export const getAllVendors = functions
@@ -16,7 +23,7 @@ export const getAllVendors = functions
 
 		const vendors: Array<UserDoc> = [];
 
-		querySnapshot.forEach(doc => {
+		querySnapshot.forEach((doc) => {
 			const docData = doc.data() as UserDoc;
 			vendors.push(docData);
 		});
@@ -33,7 +40,11 @@ interface MakeVendorAccountData {
 export const makeVendorAccount = functions
 	.region('asia-south1')
 	.https.onCall(async (data: MakeVendorAccountData, context) => {
+		functions.logger.info('Args:', data);
+
 		adminCheck(context);
+		passwordValidated(data.password);
+		emailValidated(data.email);
 
 		/* Success */
 
@@ -54,6 +65,7 @@ export const makeVendorAccount = functions
 			pin: '',
 			phoneNumber: '',
 			rollNumber: '',
+			referralRollNumber: '',
 			verified: false,
 			role: 'vendor',
 			balance: 0,
@@ -72,16 +84,13 @@ interface reconcileVendorData {
 export const reconcileVendor = functions
 	.region('asia-south1')
 	.https.onCall(async (data: reconcileVendorData, context) => {
+		functions.logger.info('Args:', data);
+
 		adminCheck(context);
+		amountValidated(data.amount);
+		uidValidated(data.vendorUid);
 
 		const amount = parseInt(data.amount);
-		if (amount < 1) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Amount must be greater than 0'
-			);
-		}
-
 		const recipientRollNumber = CARDPAY_ROLLNUMBER;
 
 		// Get the recipient details from Firestore
@@ -99,28 +108,22 @@ export const reconcileVendor = functions
 		const senderUid = data.vendorUid;
 
 		if (!senderSnapshot.exists) {
-			throw new functions.https.HttpsError(
-				'not-found',
-				'Cannot find vendor document'
-			);
+			throwError('not-found', 'Cannot find vendor document');
 		}
 
 		// Check if the sender is a vendor
 		if (senderDoc.role !== 'vendor') {
-			throw new functions.https.HttpsError(
-				'permission-denied',
-				'Can only reconcile from vendors'
-			);
+			throwError('permission-denied', 'Can only reconcile from vendors');
 		}
 		if (recipientSnapshot.size !== 1) {
-			throw new functions.https.HttpsError(
+			throwError(
 				'invalid-argument',
 				'Multiple or no documents exists for recipient'
 			);
 		}
 
 		/*
-		Handle transaction success!
+			Handle transaction success!
 		*/
 
 		// Add the transaction to the transactions collection
@@ -149,24 +152,20 @@ export const reconcileVendor = functions
 		// Add the transaction to the sender's transaction history
 		// Decrement the balance by the amount for the sender
 		const sendersDocRef = db.collection('users').doc(senderUid);
-		const newSenderTrans = senderDoc.transactions;
-		newSenderTrans.push(userTransaction);
 		await sendersDocRef.update({
-			transactions: newSenderTrans, // admin.firestore.FieldValue.arrayUnion(userTransaction),
-			balance: senderDoc.balance - amount, // admin.firestore.FieldValue.increment(-1 * amount),
+			transactions:
+				admin.firestore.FieldValue.arrayUnion(userTransaction),
+			balance: admin.firestore.FieldValue.increment(-1 * amount),
 		});
 
 		// Add the transaction to the recipient's transaction history
 		// Increment the balance by the amount for the recipient
 		const recipientsDocRef = db.collection('users').doc(recipientUid);
-		const newRecipientTrans = recipientDoc.transactions;
-		newRecipientTrans.push(userTransaction);
 		await recipientsDocRef.update({
-			transactions: newRecipientTrans, // admin.firestore.FieldValue.arrayUnion(userTransaction),
-			balance: recipientDoc.balance + amount, // admin.firestore.FieldValue.increment(amount),
+			transactions:
+				admin.firestore.FieldValue.arrayUnion(userTransaction),
+			balance: admin.firestore.FieldValue.increment(amount),
 		});
-
-		functions.logger.info('Reconcilation was successfull');
 
 		return {
 			status: 'success',

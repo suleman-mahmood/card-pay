@@ -1,4 +1,6 @@
 import * as functions from 'firebase-functions';
+import { throwError } from '../utils';
+import { userAuthenticated } from '../validations';
 
 export const ADMIN_UIDS: Array<string> = [
 	'xe2YEIpAr6XUbAu1SNfUY55Eutf1', // Suleman
@@ -11,19 +13,13 @@ export const ADMIN_UIDS: Array<string> = [
 export const CARDPAY_ROLLNUMBER = '00000000';
 
 export const adminCheck = (context: functions.https.CallableContext) => {
-	// Check is user is authenticated
-	if (!context.auth) {
-		throw new functions.https.HttpsError(
-			'unauthenticated',
-			'User is not authenticated'
-		);
-	}
+	userAuthenticated(context);
 
 	// Get the user's uid
-	const uid: string = context.auth.uid;
+	const uid: string = context.auth!.uid;
 
 	if (!ADMIN_UIDS.includes(uid)) {
-		throw new functions.https.HttpsError(
+		throwError(
 			'unauthenticated',
 			'Only authorized admins can call this request'
 		);

@@ -1,7 +1,12 @@
 import * as functions from 'firebase-functions';
 import { checkUserAuthAndDoc } from './helpers';
 import { admin, db } from './initialize';
-import { getTimestamp } from './utils';
+import { getTimestamp, throwError } from './utils';
+import {
+	amountValidated,
+	fourDigitPinValidated,
+	rollNumberValidated,
+} from './validations';
 
 interface transferData {
 	amount: string;
@@ -13,14 +18,15 @@ export const transfer = functions
 	.region('asia-south1')
 	.https.onCall(async (data: transferData, context) => {
 		/*
-    This function transfers the amount from the caller's id
-    to the recipient's roll number in the argument
+			This function transfers the amount from the caller's id
+			to the recipient's roll number in the argument
+		*/
 
-    param: data = {
-      amount: string;
-      recipientRollNumber: string;
-    }
-   */
+		functions.logger.info('Args:', data);
+
+		amountValidated(data.amount);
+		rollNumberValidated(data.recipientRollNumber);
+		fourDigitPinValidated(data.pin);
 
 		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
 		const sendersUid = uid;
@@ -29,41 +35,16 @@ export const transfer = functions
 		const amount = parseInt(data.amount);
 		const recipientRollNumber = data.recipientRollNumber;
 
-		if (amount < 1) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Amount must be greater than 0'
-			);
-		}
-		if (data.pin.length !== 4) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Pin must be 4-digits long'
-			);
-		}
 		if (userSnapshot.data()!.pin !== data.pin) {
-			throw new functions.https.HttpsError(
+			throwError(
 				'invalid-argument',
 				'Incorrect pin! User pin does not match'
 			);
 		}
 
-		if (recipientRollNumber.length !== 8) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Sender roll number must be 8 digits long'
-			);
-		}
-		if (/^[0-9]+$/.test(recipientRollNumber) === false) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Sender roll number must contain digits only'
-			);
-		}
-
 		// Check if the sender has the sufficient balance
 		if (senderSnapshot.data()!.balance < amount) {
-			throw new functions.https.HttpsError(
+			throwError(
 				'failed-precondition',
 				'Sender does not have sufficient balance'
 			);
@@ -71,7 +52,7 @@ export const transfer = functions
 
 		// Self transfer is invalid
 		if (senderSnapshot.data()!.rollNumber === recipientRollNumber) {
-			throw new functions.https.HttpsError(
+			throwError(
 				'failed-precondition',
 				'You cannot send money to yourself'
 			);
@@ -83,13 +64,10 @@ export const transfer = functions
 			.where('rollNumber', '==', recipientRollNumber);
 		const recipientSnapshot = await recipientsQueryRef.get();
 		if (recipientSnapshot.empty) {
-			throw new functions.https.HttpsError(
-				'not-found',
-				'Recipient does not exist in Firestore'
-			);
+			throwError('not-found', 'Recipient does not exist in Firestore');
 		}
 		if (recipientSnapshot.docs.length > 1) {
-			throw new functions.https.HttpsError(
+			throwError(
 				'internal',
 				'Multiple recipients with the same roll number exists in Firestore'
 			);

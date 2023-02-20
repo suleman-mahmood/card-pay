@@ -1,10 +1,17 @@
 import * as functions from 'firebase-functions';
 import { topUpUserVirtualCashHelper } from './admin/transactions';
-import { checkUserAuthAndDoc } from './helpers';
+import { checkUserAuthAndDoc, noDocumentWithRollNumber } from './helpers';
 import { admin, db } from './initialize';
-import { generateRandom4DigitPin, sendEmail } from './utils';
+import { generateRandom4DigitPin, sendEmail, throwError } from './utils';
+import {
+	fourDigitPinValidated,
+	fullNameWithTwoOrMoreWords,
+	passwordValidated,
+	phoneNumberValidated,
+	rollNumberValidated,
+	uidValidated,
+} from './validations';
 
-type Role = 'student' | 'unknown';
 const INITIAL_BALANCE = 50;
 const REFERRAL_COMMISSION = 30;
 
@@ -21,46 +28,33 @@ export const createUser = functions
 	.region('asia-south1')
 	.https.onCall(async (data: CreateUserData, _) => {
 		/*
+			This functions signups a new user
+
 			Invariants:
-			1. User does not already exist with the same roll number
+			1. User doesn't need to be authenticated
+			2. User does not already exist with the same roll number
 		*/
 
-		const role: Role = 'student';
+		functions.logger.info('Args:', data);
+
+		fullNameWithTwoOrMoreWords(data.fullName);
+		rollNumberValidated(data.rollNumber);
+		fourDigitPinValidated(data.pin);
+		phoneNumberValidated(data.phoneNumber);
+		passwordValidated(data.password);
+
+		// Check if user has entered a referral roll number and validate it
+		if (data.referralRollNumber && data.referralRollNumber.length !== 0) {
+			rollNumberValidated(data.referralRollNumber);
+		}
+
 		const randomPin = generateRandom4DigitPin();
 		const phoneNumber = `0${data.phoneNumber}`;
 		const phoneNumberE164 = `+92${data.phoneNumber}`;
 		const email = `${data.rollNumber}@lums.edu.pk`;
 
-		if (data.fullName.split(' ').length < 2) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Enter first and last name'
-			);
-		}
-		if (data.phoneNumber.length !== 10) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Phone number must be 10 digits long'
-			);
-		}
-		if (/^[0-9]+$/.test(data.phoneNumber) === false) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Phone number must contain digits only'
-			);
-		}
-
-		// Get the sender details from Firestore
-		const userQueryRef = db
-			.collection('users')
-			.where('rollNumber', '==', data.rollNumber);
-		const senderSnapshot = await userQueryRef.get();
-		if (!senderSnapshot.empty) {
-			throw new functions.https.HttpsError(
-				'already-exists',
-				'User with the roll number already exists in Firestore'
-			);
-		}
+		// 2. User does not already exist with the same roll number
+		noDocumentWithRollNumber(data.rollNumber);
 
 		/*
 			Handle Success:
@@ -72,12 +66,19 @@ export const createUser = functions
 		// 1. Create user in authentication
 		let uid = '';
 		try {
-			const userRecord = await admin.auth().createUser({ email: email, password: data.password, displayName: data.fullName, emailVerified: false, phoneNumber: phoneNumberE164 });
+			const userRecord = await admin.auth().createUser({
+				email: email,
+				password: data.password,
+				displayName: data.fullName,
+				emailVerified: false,
+				phoneNumber: phoneNumberE164,
+			});
 			uid = userRecord.uid;
 		} catch (e) {
-			throw new functions.https.HttpsError(
+			throwError(
 				'unknown',
-				`Couldnt create user in authentication: ${e}`
+				`Couldnt create user in authentication: ${e}`,
+				e
 			);
 		}
 
@@ -88,23 +89,17 @@ export const createUser = functions
 				otp: randomPin,
 			});
 		} catch (e) {
-			throw new functions.https.HttpsError(
-				'unknown',
-				`Couldnt add otp in collection: ${e}`
-			);
+			throwError('unknown', `Couldnt add otp in collection: ${e}`, e);
 		}
 
-		// send email to the user
+		// Send email to the user
 		const subject = 'CardPay | Email Verification';
 		const text = `Your 4-digit pin is: ${randomPin}`;
 		const htmlBody = `Your 4-digit pin is: <b>${randomPin}</b>`;
 		try {
 			await sendEmail(email, subject, text, htmlBody);
 		} catch (e) {
-			throw new functions.https.HttpsError(
-				'unknown',
-				`Couldnt send email: ${e}`
-			);
+			throwError('unknown', `Couldnt send email: ${e}`, e);
 		}
 
 		// 3. Add user doc
@@ -118,7 +113,7 @@ export const createUser = functions
 			phoneNumber: phoneNumber,
 			rollNumber: data.rollNumber,
 			verified: false,
-			role: role,
+			role: 'student',
 			balance: 0,
 			transactions: [],
 			referralRollNumber: data.referralRollNumber,
@@ -137,45 +132,30 @@ export const verifyEmailOtp = functions
 	.https.onCall(async (data: VerifyEmailOtpData, _) => {
 		/*
 			This function verifies the calling user's email
-			param: data = {
-			otp: string
-			}
+
+			Invariants:
+			1. User doesn't need to be authenticated
 		*/
 
-		const uid = data.uid;
-		const userOtp = data.otp;
+		functions.logger.info('Args:', data);
 
-		const usersRef = db.collection('users').doc(uid);
+		fourDigitPinValidated(data.otp);
+		await uidValidated(data.uid);
+
+		const usersRef = db.collection('users').doc(data.uid);
 		const userSnapshot = await usersRef.get();
-
 		if (!userSnapshot.exists) {
-			throw new functions.https.HttpsError(
-				'not-found',
-				'User does not exist in Firestore'
-			);
+			throwError('not-found', 'User does not exist in Firestore');
 		}
 
-		if (userOtp.length !== 4) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'User OTP must be exactly 4 digits long'
-			);
-		}
-
-		const doc = await db.collection('otps').doc(uid).get();
+		const doc = await db.collection('otps').doc(data.uid).get();
 		if (!doc.exists) {
-			throw new functions.https.HttpsError(
-				'not-found',
-				'Users OTP doesnt exist in db'
-			);
+			throwError('not-found', 'Users OTP doesnt exist in db');
 		}
 		const originalOtp = doc.data()!.otp;
 
-		if (originalOtp !== userOtp) {
-			throw new functions.https.HttpsError(
-				'failed-precondition',
-				'Incorrect OTP'
-			);
+		if (originalOtp !== data.otp) {
+			throwError('failed-precondition', 'Incorrect OTP');
 		}
 
 		await usersRef.update({
@@ -211,16 +191,22 @@ interface ResendOtpEmailData {
 export const resendOtpEmail = functions
 	.region('asia-south1')
 	.https.onCall(async (data: ResendOtpEmailData, _) => {
-		const uid = data.uid;
+		/*
+			This functions resends the otp email to the user
 
+			Invariants:
+			1. User doesn't need to be authenticated
+		*/
+
+		functions.logger.info('Args:', data);
+
+		await uidValidated(data.uid);
+
+		const uid = data.uid;
 		const usersRef = db.collection('users').doc(uid);
 		const userSnapshot = await usersRef.get();
-
 		if (!userSnapshot.exists) {
-			throw new functions.https.HttpsError(
-				'not-found',
-				'User does not exist in Firestore'
-			);
+			throwError('not-found', 'User does not exist in Firestore');
 		}
 
 		const doc = await db.collection('otps').doc(uid).get();
@@ -256,76 +242,31 @@ export const changeUserPin = functions
 	.https.onCall(async (data: ChangeUserPinData, context) => {
 		/*
 			This function changes the calling user's pin
-			param: data = {
-			pin: string
-			}
+
+			Invariants:
+			1. User should be authenticated
+			2. Old pin must match with the one in db
 		*/
 
-		/*
-			Pre-conditions:
-			1. Can only change pin of an existent user and verified user
-		*/
+		functions.logger.info('Args:', data);
 
-		if (!context.auth) {
-			throw new functions.https.HttpsError(
-				'unauthenticated',
-				'User is not authenticated'
-			);
-		}
+		fourDigitPinValidated(data.pin);
+		fourDigitPinValidated(data.oldPin);
+		const { usersRef, userSnapshot } = await checkUserAuthAndDoc(context);
 
 		const newPin = data.pin;
 		const oldPin = data.oldPin;
 
-		if (newPin.length !== 4) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'User pin must be exactly 4 digits long'
-			);
-		}
-
-		if (oldPin.length !== 4) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Users old pin must be exactly 4 digits long'
-			);
-		}
-
-		const regex = /^[0-9]{4}$/g; // Matches 4 digits only 0-9
-		const found = newPin.match(regex);
-
-		if (found === null) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'User pin must only contain 0-9 digits'
-			);
-		}
-
-		const uid: string = context.auth.uid;
-		const ref = db.collection('users').doc(uid);
-
-		const snapshot = await ref.get();
-		const docAlreadyExists: boolean = snapshot.exists;
-
-		if (!docAlreadyExists) {
-			throw new functions.https.HttpsError(
-				'not-found',
-				'User document does not exist in Firestore'
-			);
-		}
-
-		if (snapshot.data()!.pin !== oldPin) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Old pin doesnt match'
-			);
+		if (userSnapshot.data()!.pin !== oldPin) {
+			throwError('invalid-argument', 'Old pin doesnt match');
 		}
 
 		/*
 			Handle Success
 		*/
 
-		return ref.update({
-			pin: data.pin,
+		return usersRef.update({
+			pin: newPin,
 		});
 	});
 
@@ -337,32 +278,24 @@ export const sendForgotPasswordEmail = functions
 	.region('asia-south1')
 	.https.onCall(async (data: SendForgotPasswordEmailData, context) => {
 		/*
-			This function generates an otp and sends forgot password email to the user
-			param: data = {
-				rollNumber: string,
-			}
+			This function generates an otp and sends forgot password email to the users
 		*/
 
-		if (data.rollNumber.length !== 8) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Roll number must be 8 digits'
-			);
-		}
+		functions.logger.info('Args:', data);
+
+		rollNumberValidated(data.rollNumber);
+		const randomPin = generateRandom4DigitPin();
 
 		/*
 			Success
 		*/
 
-		// generate a string of 4 digits instead of a number
-		const randomPin = generateRandom4DigitPin();
-
-		// save otp in firestore
+		// Save otp in firestore
 		await db.collection('forgot_password_otps').doc(data.rollNumber).set({
 			otp: randomPin,
 		});
 
-		// send email to the user
+		// Send email to the user
 		const studentEmail = data.rollNumber + '@lums.edu.pk';
 		const subject = 'CardPay | Forgot Password';
 		const text = `Your 4-digit pin is: ${randomPin}`;
@@ -378,29 +311,21 @@ interface verifyForgotPasswordOtpData {
 
 export const verifyForgotPasswordOtp = functions
 	.region('asia-south1')
-	.https.onCall(async (data: verifyForgotPasswordOtpData, context) => {
+	.https.onCall(async (data: verifyForgotPasswordOtpData, _) => {
 		/*
 			This function verifies the calling user's email
-			param: data = {
-				otp: string
-			}
+
+			Invariants:
+			1. User doesn't need to be authenticated
 		*/
 
+		functions.logger.info('Args:', data);
+
+		rollNumberValidated(data.rollNumber);
+		fourDigitPinValidated(data.otp);
+		passwordValidated(data.password);
+
 		const userOtp = data.otp;
-
-		if (data.rollNumber.length !== 8) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Roll number must be 8 digits'
-			);
-		}
-
-		if (userOtp.length !== 4) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'User OTP must be exactly 4 digits long'
-			);
-		}
 
 		// Get the sender details from Firestore
 		const userQueryRef = db
@@ -408,13 +333,10 @@ export const verifyForgotPasswordOtp = functions
 			.where('rollNumber', '==', data.rollNumber);
 		const senderSnapshot = await userQueryRef.get();
 		if (senderSnapshot.empty) {
-			throw new functions.https.HttpsError(
-				'not-found',
-				'User does not exists in Firestore'
-			);
+			throwError('not-found', 'User does not exists in Firestore');
 		}
 		if (senderSnapshot.size != 1) {
-			throw new functions.https.HttpsError(
+			throwError(
 				'invalid-argument',
 				'User roll number with multiple documents exist in firestore!'
 			);
@@ -426,7 +348,7 @@ export const verifyForgotPasswordOtp = functions
 			.get();
 
 		if (!doc.exists) {
-			throw new functions.https.HttpsError(
+			throwError(
 				'not-found',
 				'Users forgot password OTP doesnt exist in db'
 			);
@@ -434,10 +356,7 @@ export const verifyForgotPasswordOtp = functions
 		const originalOtp = doc.data()!.otp;
 
 		if (originalOtp !== userOtp) {
-			throw new functions.https.HttpsError(
-				'failed-precondition',
-				'Incorrect OTP'
-			);
+			throwError('failed-precondition', 'Incorrect OTP');
 		}
 
 		const senderUid = senderSnapshot.docs[0].id;

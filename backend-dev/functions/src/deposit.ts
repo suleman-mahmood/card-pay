@@ -2,7 +2,8 @@ import axios from 'axios';
 import * as functions from 'firebase-functions';
 import { checkUserAuthAndDoc } from './helpers';
 import { admin, db } from './initialize';
-import { getTimestamp, oneHourInMs } from './utils';
+import { getTimestamp, oneHourInMs, throwError } from './utils';
+import { amountValidated } from './validations';
 
 type Status = 'pending' | 'successful' | 'cancelled';
 const pendingStatus: Status = 'pending';
@@ -15,8 +16,6 @@ const CLIENT_SECRET = 'vHIXolKNjB4zNIa';
 
 interface depositRequestData {
 	amount: string;
-	fullName: string;
-	email: string;
 }
 
 export const addDepositRequest = functions
@@ -27,16 +26,12 @@ export const addDepositRequest = functions
 			amount provided for the invocation user
 		*/
 
-		const timestamp = getTimestamp();
-		const amount = parseInt(data.amount);
+		functions.logger.info('Args:', data);
 
-		// TODO: Add checks on other parameters
-		if (amount < 1) {
-			throw new functions.https.HttpsError(
-				'invalid-argument',
-				'Amount must be greater than 0'
-			);
-		}
+		amountValidated(data.amount);
+
+		const timestamp = getTimestamp();
+		let amount = parseInt(data.amount);
 
 		const { uid, usersRef, userSnapshot } = await checkUserAuthAndDoc(
 			context
@@ -46,7 +41,7 @@ export const addDepositRequest = functions
 		const transactionId = transactionsRef.id;
 
 		/*
-		Handle transaction gateway to PayPro API
+			Handle transaction gateway to PayPro API
 		*/
 		const authToken = await getPayProAuthToken();
 
@@ -70,16 +65,25 @@ export const addDepositRequest = functions
 					OrderType: 'Service',
 					IssueDate: timestamp,
 					OrderExpireAfterSeconds: 60 * 60, // Expiry of an hour
-					CustomerName: data.fullName,
+					CustomerName: userSnapshot.data()!.fullName,
 					CustomerMobile: userSnapshot.data()!.phoneNumber,
-					CustomerEmail: data.email,
+					CustomerEmail: userSnapshot.data()!.email,
 					CustomerAddress: '',
 				},
 			],
 		};
 
 		// Send order request to PayPro
-		const ppOrderRes = await axios(orderConfig);
+		let ppOrderRes: any;
+		try {
+			ppOrderRes = await axios(orderConfig);
+		} catch (e) {
+			throwError(
+				'invalid-argument',
+				'Couldnt create order request in PayPro. Retry again!'
+			);
+		}
+
 		const responseData = ppOrderRes.data[1];
 		const paymentUrl: string = responseData['Click2Pay'];
 
@@ -131,10 +135,12 @@ export const handleDepositSuccess = functions
 	.region('asia-south1')
 	.https.onCall(async (_, context) => {
 		/*
-    This function verifies the order against the provided PayPro id
-    and deposits the amount if payment was made.
-    Should be idempotent: Doesn't matter how many times it is called
-  */
+			This function verifies the order against the provided PayPro id
+			and deposits the amount if payment was made.
+			Should be idempotent: Doesn't matter how many times it is called
+		*/
+
+		functions.logger.info('Args:');
 
 		const { uid, usersRef, userSnapshot } = await checkUserAuthAndDoc(
 			context
@@ -142,8 +148,8 @@ export const handleDepositSuccess = functions
 		const authToken = await getPayProAuthToken();
 
 		/*
-  Get all pending deposit requests for this user
-  */
+		Get all pending deposit requests for this user
+		*/
 		const ppPromises: Promise<any>[] = [];
 
 		const orderRequestsRef = db
@@ -161,7 +167,7 @@ export const handleDepositSuccess = functions
 			return;
 		}
 
-		querySnapshot.forEach(doc => {
+		querySnapshot.forEach((doc) => {
 			// // Get order's due date and check if the order has expired
 			// const orderDueDateIsoString = doc.data().orderDueDate;
 			// const orderDueDate = new Date(orderDueDateIsoString);
@@ -194,8 +200,13 @@ export const handleDepositSuccess = functions
 		let totalAmount = 0;
 
 		// Query the PayPro API and check the status of each order
-		const ppResponses = await Promise.all(ppPromises);
-		ppResponses.forEach(res => {
+		let ppResponses: any;
+		try {
+			ppResponses = await Promise.all(ppPromises);
+		} catch (e) {
+			throwError('internal', 'Couldnt verify orders from PayPro API', e);
+		}
+		ppResponses.forEach((res: any) => {
 			const isPaid = res.data[1]['OrderStatus'] === 'PAID';
 			const amount: number = res.data[1]['AmountPayable'];
 			const orderNumber: string = res.data[1]['OrderNumber'];
@@ -207,8 +218,8 @@ export const handleDepositSuccess = functions
 			}
 
 			/*
-    Handle transaction success!
-    */
+				Handle transaction success!
+			*/
 			totalAmount += amount;
 
 			// Add the transaction to the transactions collection
@@ -284,7 +295,12 @@ const getPayProAuthToken = async (): Promise<string> => {
 	};
 
 	// Send auth request to PayPro
-	const ppAuthRes = await axios(authConfig);
+	let ppAuthRes: any;
+	try {
+		ppAuthRes = await axios(authConfig);
+	} catch (e) {
+		throwError('internal', 'Couldnt get paypro auth token', e);
+	}
 	const authToken = ppAuthRes.headers.token;
 
 	functions.logger.info('PayPro authentication API completed: ', {

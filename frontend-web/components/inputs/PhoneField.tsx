@@ -2,9 +2,10 @@ import { FC } from 'react';
 
 interface IPhoneField {
 	valueSetter: React.Dispatch<React.SetStateAction<any>>;
+	value?: string;
 }
 
-const PhoneField: FC<IPhoneField> = props => {
+const PhoneField: FC<IPhoneField> = (props) => {
 	return (
 		<div className='form-control'>
 			<label className='label'>
@@ -22,6 +23,7 @@ const PhoneField: FC<IPhoneField> = props => {
 					onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 						props.valueSetter(e.target.value);
 					}}
+					value={props.value}
 				/>
 			</label>
 		</div>

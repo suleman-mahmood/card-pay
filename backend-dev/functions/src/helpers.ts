@@ -1,5 +1,7 @@
 import * as functions from 'firebase-functions';
 import { db } from './initialize';
+import { throwError } from './utils';
+import { userAuthenticated } from './validations';
 
 interface checkUserAuthAndDocReturnInterface {
 	uid: string;
@@ -11,25 +13,17 @@ interface checkUserAuthAndDocReturnInterface {
 export const checkUserAuthAndDoc = async (
 	context: functions.https.CallableContext
 ): Promise<checkUserAuthAndDocReturnInterface> => {
-	if (!context.auth) {
-		throw new functions.https.HttpsError(
-			'unauthenticated',
-			'User is not authenticated'
-		);
-	}
+	userAuthenticated(context);
 
 	// Get the user's uid
-	const uid: string = context.auth.uid;
+	const uid: string = context.auth!.uid;
 
 	// Get the user details from Firestore
 	const usersRef = db.collection('users').doc(uid);
 	const userSnapshot = await usersRef.get();
 
 	if (!userSnapshot.exists) {
-		throw new functions.https.HttpsError(
-			'not-found',
-			'User does not exist in Firestore'
-		);
+		throwError('not-found', 'User does not exist in Firestore');
 	}
 
 	return {
@@ -37,4 +31,17 @@ export const checkUserAuthAndDoc = async (
 		usersRef,
 		userSnapshot,
 	};
+};
+
+export const noDocumentWithRollNumber = async (rollNumber: string) => {
+	const userQueryRef = db
+		.collection('users')
+		.where('rollNumber', '==', rollNumber);
+	const senderSnapshot = await userQueryRef.get();
+	if (!senderSnapshot.empty) {
+		throwError(
+			'already-exists',
+			'User with the roll number already exists in Firestore'
+		);
+	}
 };

@@ -106,36 +106,42 @@ const Signup: NextPage = () => {
 					type='text'
 					valueSetter={setFullName}
 					placeholder='Full Name'
+					value={fullName}
 				/>
 				<TextField
 					type='text'
 					valueSetter={setRollNumber}
 					maxLength={8}
 					placeholder='Roll Number: 23xxxxxx'
+					value={rollNumber}
 				/>
 				<TextField
 					type='password'
 					valueSetter={setPassword}
 					placeholder='Password'
+					value={password}
 				/>
 				<TextField
 					type='password'
 					valueSetter={setConfirmPassword}
 					placeholder='Confirm Password'
+					value={confirmPassword}
 				/>
 				<TextField
 					type={'text'}
 					valueSetter={setPin}
 					maxLength={4}
 					placeholder='4-digit pin'
+					value={pin}
 				/>
 				<TextField
 					type={'text'}
 					valueSetter={setConfirmPin}
 					maxLength={4}
 					placeholder='Confirm 4-digit pin'
+					value={confirmPin}
 				/>
-				<PhoneField valueSetter={setPhoneNumber} />
+				<PhoneField valueSetter={setPhoneNumber} value={phoneNumber} />
 
 				<h1 className='mt-4 pl-1 text-left text-gray-300'>Optional:</h1>
 				<TextField
@@ -143,6 +149,7 @@ const Signup: NextPage = () => {
 					valueSetter={setReferralRollNumber}
 					maxLength={8}
 					placeholder='Referral Roll Number: 2xxxxxxx'
+					value={referralRollNumber}
 				/>
 
 				<div className='h-6'></div>

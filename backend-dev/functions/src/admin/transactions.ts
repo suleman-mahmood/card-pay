@@ -1,5 +1,7 @@
 import * as functions from 'firebase-functions';
-import { db } from '../initialize';
+import { admin, db } from '../initialize';
+import { throwError } from '../utils';
+import { amountValidated, rollNumberValidated } from '../validations';
 import { adminCheck, CARDPAY_ROLLNUMBER } from './utils';
 
 interface topUpUserVirtualCashData {
@@ -10,7 +12,11 @@ interface topUpUserVirtualCashData {
 export const topUpUserVirtualCash = functions
 	.region('asia-south1')
 	.https.onCall(async (data: topUpUserVirtualCashData, context) => {
+		functions.logger.info('Args:', data);
+
 		adminCheck(context);
+		rollNumberValidated(data.rollNumber);
+		amountValidated(data.amount);
 
 		return topUpUserVirtualCashHelper(data);
 	});
@@ -19,12 +25,6 @@ export const topUpUserVirtualCashHelper = async (
 	data: topUpUserVirtualCashData
 ) => {
 	const amount = parseInt(data.amount);
-	if (amount < 1) {
-		throw new functions.https.HttpsError(
-			'invalid-argument',
-			'Amount must be greater than 0'
-		);
-	}
 
 	const recipientRollNumber = data.rollNumber;
 	const senderRollNumber = CARDPAY_ROLLNUMBER;
@@ -46,25 +46,25 @@ export const topUpUserVirtualCashHelper = async (
 	const senderUid = senderSnapshot.docs[0].id;
 
 	if (recipientRollNumber.length !== 8) {
-		throw new functions.https.HttpsError(
+		throwError(
 			'invalid-argument',
 			'Recipient roll number must be 8 digits long'
 		);
 	}
 	if (/^[0-9]+$/.test(recipientRollNumber) === false) {
-		throw new functions.https.HttpsError(
+		throwError(
 			'invalid-argument',
 			'Recipient roll number must contain digits only'
 		);
 	}
 	if (senderSnapshot.size !== 1) {
-		throw new functions.https.HttpsError(
+		throwError(
 			'invalid-argument',
 			'Multiple or no documents exists for sender'
 		);
 	}
 	if (recipientSnapshot.size !== 1) {
-		throw new functions.https.HttpsError(
+		throwError(
 			'invalid-argument',
 			'Multiple or no documents exists for recipient'
 		);
@@ -100,24 +100,18 @@ export const topUpUserVirtualCashHelper = async (
 	// Add the transaction to the sender's transaction history
 	// Decrement the balance by the amount for the sender
 	const sendersDocRef = db.collection('users').doc(senderUid);
-	const newSenderTrans = senderDoc.transactions;
-	newSenderTrans.push(userTransaction);
 	await sendersDocRef.update({
-		transactions: newSenderTrans, // admin.firestore.FieldValue.arrayUnion(userTransaction),
-		balance: senderDoc.balance - amount, // admin.firestore.FieldValue.increment(-1 * amount),
+		transactions: admin.firestore.FieldValue.arrayUnion(userTransaction),
+		balance: admin.firestore.FieldValue.increment(-1 * amount),
 	});
 
 	// Add the transaction to the recipient's transaction history
 	// Increment the balance by the amount for the recipient
 	const recipientsDocRef = db.collection('users').doc(recipientUid);
-	const newRecipientTrans = recipientDoc.transactions;
-	newRecipientTrans.push(userTransaction);
 	await recipientsDocRef.update({
-		transactions: newRecipientTrans, // admin.firestore.FieldValue.arrayUnion(userTransaction),
-		balance: recipientDoc.balance + amount, // admin.firestore.FieldValue.increment(amount),
+		transactions: admin.firestore.FieldValue.arrayUnion(userTransaction),
+		balance: admin.firestore.FieldValue.increment(amount),
 	});
-
-	functions.logger.info('Top Up was successfull');
 
 	return {
 		status: 'success',

@@ -22,6 +22,10 @@
 -   To deploy your cloud functions run `firebase deploy --only functions` in the backend directory
 -   To run functions locally run `npm run serve` in the backend/functions directory
 -   Run this command to sync backend with backend-dev `rsync -av --delete "backend/functions/src/" "backend-dev/functions/src"`
+-   Functions structure:
+    -   Log to display the arguments passed to the function
+    -   Arguments check including authentication
+    -   Log on all types of error occured
 
 ## Admin
 

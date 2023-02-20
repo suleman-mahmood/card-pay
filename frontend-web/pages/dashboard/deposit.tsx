@@ -39,9 +39,7 @@ const Deposit: NextPage = () => {
 		const addDepositRequest = httpsCallable(functions, 'addDepositRequest');
 		try {
 			const { data } = await addDepositRequest({
-				amount: amount,
-				fullName: userState.fullName,
-				email: userState.email,
+				amount: amount
 			});
 
 			setIsLoading(false);
@@ -61,7 +59,7 @@ const Deposit: NextPage = () => {
 
 	// const handleamountclick=(n:number)=>{
 	// 	setAmount(n);
-		
+
 	// }
 
 	return isLoading ? (

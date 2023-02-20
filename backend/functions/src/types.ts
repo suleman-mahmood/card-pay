@@ -1,4 +1,3 @@
-
 export type UserRole = 'student' | 'vendor' | 'admin';
 
 export interface Transaction {
@@ -19,6 +18,7 @@ export interface UserDoc {
 	pin: string;
 	phoneNumber: string;
 	rollNumber: string;
+	referralRollNumber: string;
 	verified: boolean;
 	role: UserRole;
 	balance: number;
