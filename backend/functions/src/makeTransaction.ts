@@ -24,8 +24,8 @@ export const makeTransaction = functions
 			from the sender's id passed in the argument and adds the amount to the
 			vendor calling this function.
 		*/
-    
-    functions.logger.info('Args:', data);
+
+		functions.logger.info('Args:', data);
 
 		fourDigitPinValidated(data.pin);
 		amountValidated(data.amount);
@@ -37,7 +37,7 @@ export const makeTransaction = functions
 		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
 		const vendorUid = uid;
 		const vendorSnapshot = userSnapshot;
-    const vendorDoc = vendorSnapshot.data()!;
+		const vendorDoc = vendorSnapshot.data()!;
 
 		// Check if the caller is a vendor
 		if (vendorDoc.role !== 'vendor') {
