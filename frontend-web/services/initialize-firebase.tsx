@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
+import { getAnalytics } from 'firebase/analytics';
 
 const RUN_DEV = false;
 const RUN_IN_EMULATOR = false;
@@ -15,6 +16,7 @@ const firebaseConfig = {
 	storageBucket: 'card-pay-55c1b.appspot.com',
 	messagingSenderId: '501478058153',
 	appId: '1:501478058153:web:09130f4d54dc445e8721b8',
+	measurementId: 'G-1EEHS75RVC',
 };
 
 const DevfirebaseConfig = {
@@ -43,3 +45,5 @@ if (RUN_IN_EMULATOR) {
 	connectFunctionsEmulator(_functions, 'localhost', 5001);
 }
 export const functions = _functions;
+
+export const analytics = getAnalytics(app);
