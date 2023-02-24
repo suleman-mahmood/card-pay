@@ -52,6 +52,21 @@ export const amountValidated = (amount: string) => {
 	}
 };
 
+export const amountAbove500 = (amount: string) => {
+	let amountNumber = 0;
+	try {
+		amountNumber = parseInt(amount);
+	} catch (e) {
+		throwError(
+			'invalid-argument',
+			'Amount cannot be converted to a number'
+		);
+	}
+	if (amountNumber < 500) {
+		throwError('invalid-argument', 'Amount must be greater than 500');
+	}
+};
+
 export const phoneNumberValidated = (phoneNumber: string) => {
 	if (phoneNumber.length !== 10) {
 		throwError('invalid-argument', 'Phone number must be 10 digits long');

@@ -13,8 +13,8 @@ import { functions } from '../../services/initialize-firebase';
 import { selectUser } from '../../store/store';
 
 const DEPOSIT_AMOUNTS = [
-	[10, 50, 100],
-	[500, 1000, 5000],
+	[500, 1000, 2500],
+	[3000, 5000, 10000],
 ];
 
 const Deposit: NextPage = () => {
@@ -28,6 +28,9 @@ const Deposit: NextPage = () => {
 		if (amount <= 0) {
 			setErrorMessage('Please enter an amount greater than 0');
 			return;
+		} else if (amount < 500) {
+			setErrorMessage('Please enter an amount greater than 500');
+			return;
 		} else if (userState.id === '') {
 			setErrorMessage('Please refresh the page');
 			return;
@@ -39,7 +42,7 @@ const Deposit: NextPage = () => {
 		const addDepositRequest = httpsCallable(functions, 'addDepositRequest');
 		try {
 			const { data } = await addDepositRequest({
-				amount: amount
+				amount: amount,
 			});
 
 			setIsLoading(false);
