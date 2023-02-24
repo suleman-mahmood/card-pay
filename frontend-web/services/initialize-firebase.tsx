@@ -46,4 +46,8 @@ if (RUN_IN_EMULATOR) {
 }
 export const functions = _functions;
 
-export const analytics = getAnalytics(app);
+let analytics;
+if (app.name && typeof window !== 'undefined') {
+	analytics = getAnalytics(app);
+}
+export { analytics };
