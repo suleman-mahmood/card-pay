@@ -1,11 +1,13 @@
 import * as functions from 'firebase-functions';
 import { checkUserAuthAndDoc } from './helpers';
 import { admin, db } from './initialize';
+import { UserDoc } from './types';
 import { getTimestamp, throwError } from './utils';
 import {
 	amountValidated,
 	fourDigitPinValidated,
 	rollNumberValidated,
+	uidValidated,
 } from './validations';
 
 const MAX_TRANSACTIONS_IN_ONE_DOC = 2000;
@@ -31,16 +33,13 @@ export const makeTransaction = functions
 		amountValidated(data.amount);
 		rollNumberValidated(data.senderRollNumber);
 
-		const amount = parseInt(data.amount);
-		const senderRollNumber = data.senderRollNumber;
-
 		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
 		const vendorUid = uid;
 		const vendorSnapshot = userSnapshot;
-		const vendorDoc = vendorSnapshot.data()!;
+		const vendorModel = vendorSnapshot.data() as UserDoc;
 
 		// Check if the caller is a vendor
-		if (vendorDoc.role !== 'vendor') {
+		if (vendorModel.role !== 'vendor') {
 			throwError(
 				'permission-denied',
 				'Only vendors can call this function'
@@ -50,7 +49,7 @@ export const makeTransaction = functions
 		// Get the sender details from Firestore
 		const sendersQueryRef = db
 			.collection('users')
-			.where('rollNumber', '==', senderRollNumber);
+			.where('rollNumber', '==', data.senderRollNumber);
 		const senderSnapshot = await sendersQueryRef.get();
 		if (senderSnapshot.empty) {
 			throwError('not-found', 'Sender does not exist in Firestore');
@@ -61,19 +60,11 @@ export const makeTransaction = functions
 				'Multiple senders with the same roll number exists in Firestore'
 			);
 		}
-		const senderDoc = senderSnapshot.docs[0].data();
+		const senderModel = senderSnapshot.docs[0].data() as UserDoc;
 		const senderUid = senderSnapshot.docs[0].id;
 
-		// Check if the sender has the sufficient balance
-		if (senderDoc.balance < amount) {
-			throwError(
-				'failed-precondition',
-				'Sender does not have sufficient balance'
-			);
-		}
-
 		// Check if the pin was correct
-		if (senderDoc.pin !== data.pin) {
+		if (senderModel.pin !== data.pin) {
 			throwError('failed-precondition', 'Sender pin is incorrect');
 		}
 
@@ -81,22 +72,67 @@ export const makeTransaction = functions
 			Handle transaction success!
 		*/
 
-		const sendersDocRef = db.collection('users').doc(senderUid);
-		const recipientsDocRef = db.collection('users').doc(vendorUid);
+		return transactionMain(senderUid, vendorUid, data.amount);
+	});
+
+export const transactionMain = async (
+	senderUid: string,
+	recipientUid: string,
+	amountStr: string
+) => {
+	/*
+		This function makes a new transaction which deducts the amount
+		from the sender's id passed in the argument and adds the amount to the
+		vendor calling this function.
+	*/
+
+	amountValidated(amountStr);
+	uidValidated(recipientUid);
+	uidValidated(senderUid);
+
+	const amount = parseInt(amountStr);
+
+	return db.runTransaction(async (transaction) => {
+		const senderDocRef = db.collection('users').doc(senderUid);
+		const recipientDocRef = db.collection('users').doc(recipientUid);
+
+		const senderDoc = await transaction.get(senderDocRef);
+		const recipientDoc = await transaction.get(recipientDocRef);
+
+		if (!senderDoc.exists || !recipientDoc.exists) {
+			throwError(
+				'failed-precondition',
+				'Either recipient or sender doc doesnt exist'
+			);
+		}
+
+		const senderModel = senderDoc.data() as UserDoc;
+		const recipientModel = recipientDoc.data() as UserDoc;
+
+		if (senderModel.balance < amount || senderModel.balance <= 0) {
+			throwError(
+				'failed-precondition',
+				'Sender does not have sufficient balance'
+			);
+		}
+
+		/*
+			Handle transaction success!
+		*/
 
 		// Remove extra transactions if it exceeds the size of document
-		if (senderDoc.transactions.length >= MAX_TRANSACTIONS_IN_ONE_DOC) {
-			await sendersDocRef.update({
-				transactions: senderDoc.transactions.slice(
+		if (senderModel.transactions.length >= MAX_TRANSACTIONS_IN_ONE_DOC) {
+			await transaction.update(senderDocRef, {
+				transactions: senderModel.transactions.slice(
 					MAX_TRANSACTIONS_IN_ONE_DOC / 2
 				),
 			});
 		}
 
 		// Remove extra transactions if it exceeds the size of document
-		if (vendorDoc.transactions.length >= MAX_TRANSACTIONS_IN_ONE_DOC) {
-			await recipientsDocRef.update({
-				transactions: vendorDoc.transactions.slice(
+		if (recipientModel.transactions.length >= MAX_TRANSACTIONS_IN_ONE_DOC) {
+			await transaction.update(recipientDocRef, {
+				transactions: recipientModel.transactions.slice(
 					MAX_TRANSACTIONS_IN_ONE_DOC / 2
 				),
 			});
@@ -104,30 +140,30 @@ export const makeTransaction = functions
 
 		// Add the transaction to the transactions collection
 		const transactionsRef = db.collection('transactions').doc();
-		const transaction = {
+		const transactionData = {
 			id: transactionsRef.id,
 			timestamp: getTimestamp(),
 			senderId: senderUid,
-			senderName: senderDoc.fullName,
-			recipientId: vendorUid,
-			recipientName: vendorSnapshot.data()!.fullName,
+			senderName: senderModel.fullName,
+			recipientId: recipientUid,
+			recipientName: recipientModel.fullName,
 			amount: amount,
 			status: 'successful',
 		};
-		await transactionsRef.create(transaction);
+		await transaction.create(transactionsRef, transactionData);
 
 		const userTransaction = {
-			id: transaction.id,
-			timestamp: transaction.timestamp,
-			senderName: transaction.senderName,
-			recipientName: transaction.recipientName,
-			amount: transaction.amount,
-			status: transaction.status,
+			id: transactionData.id,
+			timestamp: transactionData.timestamp,
+			senderName: transactionData.senderName,
+			recipientName: transactionData.recipientName,
+			amount: transactionData.amount,
+			status: transactionData.status,
 		};
 
 		// Add the transaction to the sender's transaction history
 		// Decrement the balance by the amount for the sender
-		await sendersDocRef.update({
+		await transaction.update(senderDocRef, {
 			transactions:
 				admin.firestore.FieldValue.arrayUnion(userTransaction),
 			balance: admin.firestore.FieldValue.increment(-1 * amount),
@@ -135,7 +171,7 @@ export const makeTransaction = functions
 
 		// Add the transaction to the recipient's transaction history
 		// Increment the balance by the amount for the recipient
-		await recipientsDocRef.update({
+		await transaction.update(recipientDocRef, {
 			transactions:
 				admin.firestore.FieldValue.arrayUnion(userTransaction),
 			balance: admin.firestore.FieldValue.increment(amount),
@@ -146,130 +182,4 @@ export const makeTransaction = functions
 			message: 'Transaction was successful',
 		};
 	});
-
-const transactionMain = async (
-	pin: string,
-	amountStr: string,
-	senderRollNumber: string,
-	recipientRollNumber: string
-) => {
-	/*
-			This function makes a new transaction which deducts the amount
-			from the sender's id passed in the argument and adds the amount to the
-			vendor calling this function.
-		*/
-
-	fourDigitPinValidated(pin);
-	amountValidated(amountStr);
-	rollNumberValidated(senderRollNumber);
-	rollNumberValidated(recipientRollNumber);
-
-	const amount = parseInt(amountStr);
-
-	const { userSnapshot } = await checkUserAuthAndDoc(context);
-	const vendorUid = uid;
-	const vendorSnapshot = userSnapshot;
-	const vendorDoc = vendorSnapshot.data()!;
-
-	// Check if the caller is a vendor
-	if (vendorDoc.role !== 'vendor') {
-		throwError('permission-denied', 'Only vendors can call this function');
-	}
-
-	// Get the sender details from Firestore
-	const sendersQueryRef = db
-		.collection('users')
-		.where('rollNumber', '==', senderRollNumber);
-	const senderSnapshot = await sendersQueryRef.get();
-	if (senderSnapshot.empty) {
-		throwError('not-found', 'Sender does not exist in Firestore');
-	}
-	if (senderSnapshot.docs.length > 1) {
-		throwError(
-			'internal',
-			'Multiple senders with the same roll number exists in Firestore'
-		);
-	}
-	const senderDoc = senderSnapshot.docs[0].data();
-	const senderUid = senderSnapshot.docs[0].id;
-
-	// Check if the sender has the sufficient balance
-	if (senderDoc.balance < amount) {
-		throwError(
-			'failed-precondition',
-			'Sender does not have sufficient balance'
-		);
-	}
-
-	// Check if the pin was correct
-	if (senderDoc.pin !== data.pin) {
-		throwError('failed-precondition', 'Sender pin is incorrect');
-	}
-
-	/*
-			Handle transaction success!
-		*/
-
-	const sendersDocRef = db.collection('users').doc(senderUid);
-	const recipientsDocRef = db.collection('users').doc(vendorUid);
-
-	// Remove extra transactions if it exceeds the size of document
-	if (senderDoc.transactions.length >= MAX_TRANSACTIONS_IN_ONE_DOC) {
-		await sendersDocRef.update({
-			transactions: senderDoc.transactions.slice(
-				MAX_TRANSACTIONS_IN_ONE_DOC / 2
-			),
-		});
-	}
-
-	// Remove extra transactions if it exceeds the size of document
-	if (vendorDoc.transactions.length >= MAX_TRANSACTIONS_IN_ONE_DOC) {
-		await recipientsDocRef.update({
-			transactions: vendorDoc.transactions.slice(
-				MAX_TRANSACTIONS_IN_ONE_DOC / 2
-			),
-		});
-	}
-
-	// Add the transaction to the transactions collection
-	const transactionsRef = db.collection('transactions').doc();
-	const transaction = {
-		id: transactionsRef.id,
-		timestamp: getTimestamp(),
-		senderId: senderUid,
-		senderName: senderDoc.fullName,
-		recipientId: vendorUid,
-		recipientName: vendorSnapshot.data()!.fullName,
-		amount: amount,
-		status: 'successful',
-	};
-	await transactionsRef.create(transaction);
-
-	const userTransaction = {
-		id: transaction.id,
-		timestamp: transaction.timestamp,
-		senderName: transaction.senderName,
-		recipientName: transaction.recipientName,
-		amount: transaction.amount,
-		status: transaction.status,
-	};
-
-	// Add the transaction to the sender's transaction history
-	// Decrement the balance by the amount for the sender
-	await sendersDocRef.update({
-		transactions: admin.firestore.FieldValue.arrayUnion(userTransaction),
-		balance: admin.firestore.FieldValue.increment(-1 * amount),
-	});
-
-	// Add the transaction to the recipient's transaction history
-	// Increment the balance by the amount for the recipient
-	await recipientsDocRef.update({
-		transactions: admin.firestore.FieldValue.arrayUnion(userTransaction),
-		balance: admin.firestore.FieldValue.increment(amount),
-	});
-
-	return {
-		status: 'success',
-		message: 'Transaction was successful',
-	};
 };

@@ -1,7 +1,9 @@
 import * as functions from 'firebase-functions';
 import { checkUserAuthAndDoc } from './helpers';
-import { admin, db } from './initialize';
-import { getTimestamp, throwError } from './utils';
+import { db } from './initialize';
+import { transactionMain } from './makeTransaction';
+import { UserDoc } from './types';
+import { throwError } from './utils';
 import {
 	amountValidated,
 	fourDigitPinValidated,
@@ -31,27 +33,19 @@ export const transfer = functions
 		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
 		const sendersUid = uid;
 		const senderSnapshot = userSnapshot;
+		const senderModel = senderSnapshot.data() as UserDoc;
 
-		const amount = parseInt(data.amount);
 		const recipientRollNumber = data.recipientRollNumber;
 
-		if (userSnapshot.data()!.pin !== data.pin) {
+		if (senderModel.pin !== data.pin) {
 			throwError(
 				'invalid-argument',
 				'Incorrect pin! User pin does not match'
 			);
 		}
 
-		// Check if the sender has the sufficient balance
-		if (senderSnapshot.data()!.balance < amount) {
-			throwError(
-				'failed-precondition',
-				'Sender does not have sufficient balance'
-			);
-		}
-
 		// Self transfer is invalid
-		if (senderSnapshot.data()!.rollNumber === recipientRollNumber) {
+		if (senderModel.rollNumber === recipientRollNumber) {
 			throwError(
 				'failed-precondition',
 				'You cannot send money to yourself'
@@ -72,56 +66,11 @@ export const transfer = functions
 				'Multiple recipients with the same roll number exists in Firestore'
 			);
 		}
-		const recipientDoc = recipientSnapshot.docs[0].data();
 		const recipientUid = recipientSnapshot.docs[0].id;
 
 		/*
 			Handle transaction success!
 		*/
 
-		// Add the transaction to the transactions collection
-		const transactionsRef = db.collection('transactions').doc();
-		const transaction = {
-			id: transactionsRef.id,
-			timestamp: getTimestamp(),
-			senderId: sendersUid,
-			senderName: senderSnapshot.data()!.fullName,
-			recipientId: recipientUid,
-			recipientName: recipientDoc.fullName,
-			amount: amount,
-			status: 'successful',
-		};
-		await transactionsRef.create(transaction);
-
-		const userTransaction = {
-			id: transaction.id,
-			timestamp: transaction.timestamp,
-			senderName: transaction.senderName,
-			recipientName: transaction.recipientName,
-			amount: transaction.amount,
-			status: transaction.status,
-		};
-
-		// Add the transaction to the sender's transaction history
-		// Decrement the balance by the amount for the sender
-		const sendersDocRef = db.collection('users').doc(sendersUid);
-		await sendersDocRef.update({
-			transactions:
-				admin.firestore.FieldValue.arrayUnion(userTransaction),
-			balance: admin.firestore.FieldValue.increment(-1 * amount),
-		});
-
-		// Add the transaction to the recipient's transaction history
-		// Increment the balance by the amount for the recipient
-		const recipientsDocRef = db.collection('users').doc(recipientUid);
-		await recipientsDocRef.update({
-			transactions:
-				admin.firestore.FieldValue.arrayUnion(userTransaction),
-			balance: admin.firestore.FieldValue.increment(amount),
-		});
-
-		return {
-			status: 'success',
-			message: 'Transfer was successful',
-		};
+		return transactionMain(sendersUid, recipientUid, data.amount);
 	});

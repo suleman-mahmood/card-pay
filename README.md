@@ -31,3 +31,14 @@
 
 -   To run the script, run `npm run start` in the admin directory
 -   To run the script on dev db, run `npm run start-dev` in the admin directory
+
+### Steps to backup the database:
+
+-   1. Open the file `admin/src/index.ts`
+-   2. Uncomment the line `saveFirestoreState();`
+-   3. Open the terminal in `admin` directory
+-   4. Run the following command, `npm run start` to run the script
+-   5. A new file will be created with the name as the timestamp
+-   6. In the file `admin/data_analytics.py`, uncomment the line `saveTransactionsToCsv()` at the end of file
+-   7. Run `python data_analytics.py` in the admin directory
+-   8. Viola! The `transactions.csv` will contain the updated transactions fresh from the database

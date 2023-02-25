@@ -148,7 +148,7 @@ export const handleDepositSuccess = functions
 		const authToken = await getPayProAuthToken();
 
 		/*
-		Get all pending deposit requests for this user
+			Get all pending deposit requests for this user
 		*/
 		const ppPromises: Promise<any>[] = [];
 
