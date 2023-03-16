@@ -301,10 +301,11 @@ const Transactions: NextPage = () => {
 										onClick={() =>
 											handleOpenOrderRequest(uid)
 										}
+										key={uid}
 									>
 										<div className='card-body'>
 											{order[uid].cart.map((item, i) => (
-												<p>
+												<p key={i}>
 													{item.name}: {item.quantity}
 												</p>
 											))}
