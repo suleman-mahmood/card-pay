@@ -50,7 +50,7 @@ const DigitalCard: NextPage = () => {
 
 				{restaurantList?.restaurant_list.map(
 					({ name, id, description }) => (
-						<div className='mb-4'>
+						<div className='mb-4' key={id}>
 							<RestaurantCard
 								key={id}
 								id={id}

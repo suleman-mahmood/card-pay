@@ -188,7 +188,10 @@ const DigitalCard: NextPage = () => {
 				<h2 className='mb-2 text-xl'>{cart?.at(0)?.restaurant_id}</h2>
 
 				{cart?.map((cartItem, index) => (
-					<div className='mb-4 card bg-base-100 shadow-xl'>
+					<div
+						className='mb-4 card bg-base-100 shadow-xl'
+						key={index}
+					>
 						<div className='card-body'>
 							<div className='card-title'>
 								<p>{cartItem.name}</p>

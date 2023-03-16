@@ -93,10 +93,10 @@ const DigitalCard: NextPage = () => {
 		});
 
 		return Object.keys(newMenu).map((key) => (
-			<div>
+			<div key={key}>
 				<p className='text-2xl mt-4'>{key}</p>
-				{newMenu[key].map((item) => (
-					<div className='mb-4 card bg-base-100 shadow-xl'>
+				{newMenu[key].map((item, i) => (
+					<div key={i} className='mb-4 card bg-base-100 shadow-xl'>
 						<div className='card-body'>
 							<div className='flex flex-row card-title'>
 								<p>{item.name}</p>
