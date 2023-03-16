@@ -26,9 +26,9 @@ enum ORDER_STATUS_ENUM {
 interface NewOrderRequests {
 	orders: {
 		[uid: string]: {
-			order_id: string;
+			orderId: string;
 			cart: Array<{
-				restaurant_id: string;
+				restaurantId: string;
 				name: string;
 				price: number;
 				quantity: number;
@@ -44,16 +44,16 @@ interface NewOrderRequests {
 }
 
 interface PreOrders {
-	user_uid: string;
-	order_id: string;
+	userUid: string;
+	orderId: string;
 	cart: Array<{
-		restaurant_id: string;
+		restaurantId: string;
 		name: string;
 		price: number;
 		quantity: number;
 	}>;
 	status: ORDER_STATUS_ENUM;
-	restaurant_id: string;
+	restaurantId: string;
 	specialInstructions: string;
 	isDelivery: boolean;
 	customerName: string;
@@ -66,7 +66,7 @@ interface CreatePickupOrderData {
 	cart: Array<{
 		name: string;
 		price: number;
-		restaurant_id: string;
+		restaurantId: string;
 		quantity: number;
 	}>;
 	specialInstructions: string;
@@ -109,27 +109,26 @@ export const createPickupOrder = functions
 			throwError('invalid-argument', 'No items in cart');
 		}
 
-		const restaurant_id = data.cart[0].restaurant_id;
-		let different_restaurants = false;
+		const restaurantId = data.cart[0].restaurantId;
+		let differentRestaurants = false;
 		data.cart.forEach((c) => {
-			if (c.restaurant_id !== restaurant_id) {
-				different_restaurants = true;
+			if (c.restaurantId !== restaurantId) {
+				differentRestaurants = true;
 			}
 		});
 
-		if (different_restaurants) {
+		if (differentRestaurants) {
 			throwError(
 				'invalid-argument',
 				'Can only order from the same restaurant'
 			);
 		}
 
-		let order_id = '';
+		const preOrderRef = db.collection('pre-orders').doc();
+		const orderId = preOrderRef.id;
 
 		await db.runTransaction(async (transaction) => {
-			const ref = db.collection('new_order_requests').doc(restaurant_id);
-			const pre_order_ref = db.collection('pre-orders').doc();
-			order_id = pre_order_ref.id;
+			const ref = db.collection('new_order_requests').doc(restaurantId);
 
 			const doc = await transaction.get(ref);
 			const docData = doc.data() as NewOrderRequests;
@@ -140,7 +139,7 @@ export const createPickupOrder = functions
 
 			docData.orders[uid] = {
 				cart: data.cart,
-				order_id: order_id,
+				orderId: orderId,
 				specialInstructions: data.specialInstructions,
 				isDelivery: data.isDelivery,
 				customerName: data.customerName,
@@ -151,10 +150,10 @@ export const createPickupOrder = functions
 
 			transaction.update(ref, { orders: docData.orders });
 
-			transaction.create(pre_order_ref, {
-				user_uid: uid,
-				order_id: order_id,
-				restaurant_id: restaurant_id,
+			transaction.create(preOrderRef, {
+				userUid: uid,
+				orderId: orderId,
+				restaurantId: restaurantId,
 				cart: docData.orders[uid].cart,
 				status: ORDER_STATUS_ENUM.pending,
 				specialInstructions: data.specialInstructions,
@@ -166,19 +165,19 @@ export const createPickupOrder = functions
 			});
 		});
 
-		return { order_id: order_id };
+		return { orderId: orderId };
 	});
 
 interface ConfirmPickupOrderData {
 	cart: Array<{
 		name: string;
 		price: number;
-		restaurant_id: string;
+		restaurantId: string;
 		quantity: number;
 	}>;
-	order_id: string;
-	restaurant_id: string;
-	customer_uid: string;
+	orderId: string;
+	restaurantId: string;
+	customerUid: string;
 }
 
 export const confirmPickupOrder = functions
@@ -203,28 +202,26 @@ export const confirmPickupOrder = functions
 			customerName: '',
 			customerRollNumber: '',
 			isDelivery: false,
-			order_id: '',
-			restaurant_id: '',
+			orderId: '',
+			restaurantId: '',
 			specialInstructions: '',
 			status: ORDER_STATUS_ENUM.pending,
-			user_uid: '',
+			userUid: '',
 			contactNumber: '',
 			deliveryAddress: '',
 		};
 
 		await db.runTransaction(async (transaction) => {
-			const new_order_requests_ref = db
+			const newOrderRequestsRef = db
 				.collection('new_order_requests')
-				.doc(data.restaurant_id);
-			const pre_order_ref = db
-				.collection('pre-orders')
-				.doc(data.order_id);
+				.doc(data.restaurantId);
+			const preOrderRef = db.collection('pre-orders').doc(data.orderId);
 
-			const docPreOrder = await transaction.get(pre_order_ref);
+			const docPreOrder = await transaction.get(preOrderRef);
 			docDataPreOrder = docPreOrder.data() as PreOrders;
 
 			const docNewOrderRequest = await transaction.get(
-				new_order_requests_ref
+				newOrderRequestsRef
 			);
 			const docDataNewOrderRequest =
 				docNewOrderRequest.data() as NewOrderRequests;
@@ -236,18 +233,18 @@ export const confirmPickupOrder = functions
 				);
 			}
 
-			if (!(data.customer_uid in docDataNewOrderRequest.orders)) {
+			if (!(data.customerUid in docDataNewOrderRequest.orders)) {
 				throwError('failed-precondition', 'Order doesnt exist');
 			}
 
 			// Remove this from the order map
-			delete docDataNewOrderRequest.orders[data.customer_uid];
+			delete docDataNewOrderRequest.orders[data.customerUid];
 
-			transaction.update(new_order_requests_ref, {
+			transaction.update(newOrderRequestsRef, {
 				orders: docDataNewOrderRequest.orders,
 			});
 
-			transaction.update(pre_order_ref, {
+			transaction.update(preOrderRef, {
 				status: ORDER_STATUS_ENUM.confirmed,
 			});
 		});
@@ -259,15 +256,15 @@ export const confirmPickupOrder = functions
 
 		try {
 			await transactionMain(
-				data.customer_uid,
-				data.restaurant_id,
+				data.customerUid,
+				data.restaurantId,
 				orderAmount.toString(),
 				docDataPreOrder.isDelivery
 					? TRANSACTION_TYPE.pre_order_delivery
 					: TRANSACTION_TYPE.pre_order_pickup
 			);
 		} catch (error) {
-			db.collection('pre-orders').doc(data.order_id).update({
+			db.collection('pre-orders').doc(data.orderId).update({
 				status: ORDER_STATUS_ENUM.insufficient_funds,
 			});
 			throw error;
@@ -286,11 +283,11 @@ export const confirmPickupOrder = functions
 		const n = docDataPreOrder.customerName;
 		const r = docDataPreOrder.customerRollNumber;
 
-		let textData = `<p>Your order was accepted by the restaurant</p>`;
+		let textData = '<p>Your order was accepted by the restaurant</p>';
 		textData += `<p>${n} ${r}</p>`;
 		textData += docDataPreOrder.cart
 			.map((i) => `${i.name}: ${i.quantity}`)
-			.join(`</p><p>`);
+			.join('</p><p>');
 		textData = `<p>${textData}</p>`;
 		textData += `<p>Total: ${amount}</p><p>Order type: ${orderType}</p>`;
 		return sendEmail(studentEmail, subject, textData, textData);
@@ -300,12 +297,12 @@ interface DenyPickupOrderData {
 	cart: Array<{
 		name: string;
 		price: number;
-		restaurant_id: string;
+		restaurantId: string;
 		quantity: number;
 	}>;
-	order_id: string;
-	restaurant_id: string;
-	customer_uid: string;
+	orderId: string;
+	restaurantId: string;
+	customerUid: string;
 }
 
 export const denyPickupOrder = functions
@@ -330,28 +327,26 @@ export const denyPickupOrder = functions
 			customerName: '',
 			customerRollNumber: '',
 			isDelivery: false,
-			order_id: '',
-			restaurant_id: '',
+			orderId: '',
+			restaurantId: '',
 			specialInstructions: '',
 			status: ORDER_STATUS_ENUM.pending,
-			user_uid: '',
+			userUid: '',
 			contactNumber: '',
 			deliveryAddress: '',
 		};
 
 		await db.runTransaction(async (transaction) => {
-			const new_order_requests_ref = db
+			const newOrderRequestsRef = db
 				.collection('new_order_requests')
-				.doc(data.restaurant_id);
-			const pre_order_ref = db
-				.collection('pre-orders')
-				.doc(data.order_id);
+				.doc(data.restaurantId);
+			const preOrderRef = db.collection('pre-orders').doc(data.orderId);
 
-			const docPreOrder = await transaction.get(pre_order_ref);
+			const docPreOrder = await transaction.get(preOrderRef);
 			docDataPreOrder = docPreOrder.data() as PreOrders;
 
 			const docNewOrderRequest = await transaction.get(
-				new_order_requests_ref
+				newOrderRequestsRef
 			);
 			const docDataNewOrderRequest =
 				docNewOrderRequest.data() as NewOrderRequests;
@@ -363,18 +358,18 @@ export const denyPickupOrder = functions
 				);
 			}
 
-			if (!(data.customer_uid in docDataNewOrderRequest.orders)) {
+			if (!(data.customerUid in docDataNewOrderRequest.orders)) {
 				throwError('failed-precondition', 'Order doesnt exist');
 			}
 
 			// Remove this from the order map
-			delete docDataNewOrderRequest.orders[data.customer_uid];
+			delete docDataNewOrderRequest.orders[data.customerUid];
 
-			transaction.update(new_order_requests_ref, {
+			transaction.update(newOrderRequestsRef, {
 				orders: docDataNewOrderRequest.orders,
 			});
 
-			transaction.update(pre_order_ref, {
+			transaction.update(preOrderRef, {
 				status: ORDER_STATUS_ENUM.denied,
 			});
 		});
@@ -392,11 +387,11 @@ export const denyPickupOrder = functions
 		const n = docDataPreOrder.customerName;
 		const r = docDataPreOrder.customerRollNumber;
 
-		let textData = `<p>Your order was denied by the restaurant</p>`;
+		let textData = '<p>Your order was denied by the restaurant</p>';
 		textData += `<p>${n} ${r}</p>`;
 		textData += docDataPreOrder.cart
 			.map((i) => `${i.name}: ${i.quantity}`)
-			.join(`</p><p>`);
+			.join('</p><p>');
 		textData = `<p>${textData}</p>`;
 		textData += `<p>Total: ${amount}</p><p>Order type: ${orderType}</p>`;
 		return sendEmail(studentEmail, subject, textData, textData);

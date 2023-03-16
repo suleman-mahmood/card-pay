@@ -31,7 +31,7 @@ const DigitalCard: NextPage = () => {
 		Array<{
 			name: string;
 			price: number;
-			restaurant_id: string;
+			restaurantId: string;
 			quantity: number;
 		}>
 	>();
@@ -43,7 +43,7 @@ const DigitalCard: NextPage = () => {
 			const cart = JSON.parse(cartString) as Array<{
 				name: string;
 				price: number;
-				restaurant_id: string;
+				restaurantId: string;
 				quantity: number;
 			}>;
 
@@ -57,7 +57,7 @@ const DigitalCard: NextPage = () => {
 		const cart = JSON.parse(cartString!) as Array<{
 			name: string;
 			price: number;
-			restaurant_id: string;
+			restaurantId: string;
 			quantity: number;
 		}>;
 
@@ -77,7 +77,7 @@ const DigitalCard: NextPage = () => {
 		const cart = JSON.parse(cartString!) as Array<{
 			name: string;
 			price: number;
-			restaurant_id: string;
+			restaurantId: string;
 			quantity: number;
 		}>;
 
@@ -126,7 +126,7 @@ const DigitalCard: NextPage = () => {
 			console.log(res.data);
 
 			waitingForOrderConfirmation(
-				(res.data as { order_id: string }).order_id
+				(res.data as { orderId: string }).orderId
 			);
 		} catch (error) {
 			setHideModal(true);
@@ -135,9 +135,8 @@ const DigitalCard: NextPage = () => {
 		}
 	};
 
-	const waitingForOrderConfirmation = (order_id: string) => {
-		console.log(order_id);
-		return onSnapshot(doc(db, 'pre-orders', order_id), (d) => {
+	const waitingForOrderConfirmation = (orderId: string) => {
+		return onSnapshot(doc(db, 'pre-orders', orderId), (d) => {
 			if (!d.exists) {
 				return;
 			}
@@ -185,7 +184,7 @@ const DigitalCard: NextPage = () => {
 
 				<div className='h-12'></div>
 
-				<h2 className='mb-2 text-xl'>{cart?.at(0)?.restaurant_id}</h2>
+				<h2 className='mb-2 text-xl'>{cart?.at(0)?.restaurantId}</h2>
 
 				{cart?.map((cartItem, index) => (
 					<div

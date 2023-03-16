@@ -124,12 +124,11 @@ export const createPickupOrder = functions
 			);
 		}
 
-		let orderId = '';
+		const preOrderRef = db.collection('pre-orders').doc();
+		const orderId = preOrderRef.id;
 
 		await db.runTransaction(async (transaction) => {
 			const ref = db.collection('new_order_requests').doc(restaurantId);
-			const preOrderRef = db.collection('pre-orders').doc();
-			orderId = preOrderRef.id;
 
 			const doc = await transaction.get(ref);
 			const docData = doc.data() as NewOrderRequests;

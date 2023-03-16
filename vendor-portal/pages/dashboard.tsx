@@ -38,9 +38,9 @@ const Transactions: NextPage = () => {
 
 	const [order, setOrder] = useState<{
 		[uid: string]: {
-			order_id: string;
+			orderId: string;
 			cart: Array<{
-				restaurant_id: string;
+				restaurantId: string;
 				name: string;
 				price: number;
 				quantity: number;
@@ -92,8 +92,8 @@ const Transactions: NextPage = () => {
 		if (user === null) {
 			return;
 		}
-		const restaurant_id = user.uid;
-		return onSnapshot(doc(db, 'new_order_requests', restaurant_id), (d) => {
+		const restaurantId = user.uid;
+		return onSnapshot(doc(db, 'new_order_requests', restaurantId), (d) => {
 			// Play audio
 			var audio = new Audio(
 				'https://assets.mixkit.co/active_storage/sfx/940/940-preview.mp3'
@@ -192,7 +192,7 @@ const Transactions: NextPage = () => {
 		if (order === undefined || user == null) {
 			return;
 		}
-		const restaurant_id = user.uid;
+		const restaurantId = user.uid;
 		const orderType = order[uid].isDelivery ? 'Delivery' : 'Pick-up';
 		const amount = getBalance(order[uid].cart);
 		const n = order[uid].customerName;
@@ -233,9 +233,9 @@ const Transactions: NextPage = () => {
 				);
 				await confirmPickupOrder({
 					cart: order[uid].cart,
-					order_id: order[uid].order_id,
-					restaurant_id: restaurant_id,
-					customer_uid: uid,
+					orderId: order[uid].orderId,
+					restaurantId: restaurantId,
+					customerUid: uid,
 				});
 				Swal.fire({
 					icon: 'success',
@@ -260,9 +260,9 @@ const Transactions: NextPage = () => {
 				);
 				await denyPickupOrder({
 					cart: order[uid].cart,
-					order_id: order[uid].order_id,
-					restaurant_id: restaurant_id,
-					customer_uid: uid,
+					orderId: order[uid].orderId,
+					restaurantId: restaurantId,
+					customerUid: uid,
 				});
 			} catch (error) {
 				setErrorMessage((error as FirebaseError).message);
