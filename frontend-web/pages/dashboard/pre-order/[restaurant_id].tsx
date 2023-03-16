@@ -46,7 +46,7 @@ const DigitalCard: NextPage = () => {
 		const cartString = localStorage.getItem('cart');
 		const newCartItem = {
 			...item,
-			restaurant_id: restaurant_id as string,
+			restaurantId: restaurant_id as string,
 			quantity: 1,
 		};
 
@@ -54,7 +54,7 @@ const DigitalCard: NextPage = () => {
 			const cart = JSON.parse(cartString) as Array<{
 				name: string;
 				price: number;
-				restaurant_id: string;
+				restaurantId: string;
 				quantity: number;
 			}>;
 
