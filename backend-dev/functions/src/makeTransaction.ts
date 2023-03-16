@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
 import { checkUserAuthAndDoc } from './helpers';
 import { admin, db } from './initialize';
+import { TRANSACTION_TYPE } from './pre-order/order';
 import { UserDoc } from './types';
 import { getTimestamp, throwError } from './utils';
 import {
@@ -78,7 +79,8 @@ export const makeTransaction = functions
 export const transactionMain = async (
 	senderUid: string,
 	recipientUid: string,
-	amountStr: string
+	amountStr: string,
+	type?: TRANSACTION_TYPE
 ) => {
 	/*
 		This function makes a new transaction which deducts the amount
@@ -149,6 +151,7 @@ export const transactionMain = async (
 			recipientName: recipientModel.fullName,
 			amount: amount,
 			status: 'successful',
+			type: type === undefined ? '' : type,
 		};
 		await transaction.create(transactionsRef, transactionData);
 
@@ -159,6 +162,7 @@ export const transactionMain = async (
 			recipientName: transactionData.recipientName,
 			amount: transactionData.amount,
 			status: transactionData.status,
+			type: transactionData.type,
 		};
 
 		// Add the transaction to the sender's transaction history

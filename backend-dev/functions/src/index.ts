@@ -19,3 +19,9 @@ export {
 
 export { getStudent } from './admin/students';
 export { topUpUserVirtualCash } from './admin/transactions';
+
+export {
+	createPickupOrder,
+	confirmPickupOrder,
+	denyPickupOrder,
+} from './pre-order/order';

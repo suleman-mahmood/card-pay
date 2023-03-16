@@ -28,6 +28,10 @@ const Dashboard: NextPage = () => {
 		router.push('/dashboard/digital-card');
 	};
 
+	const redirectToPreOrder = () => {
+		router.push('/dashboard/pre-order');
+	};
+
 	return (
 		<DashboardLayout>
 			<div className='flex flex-col'>
@@ -55,11 +59,19 @@ const Dashboard: NextPage = () => {
 					<div className='flex flex-col'>
 						<button onClick={redirectToDigitalCard}>
 							<div className='w-24 shadow-md p-4 rounded-2xl'>
-								<img src='https://i.ibb.co/5RYhN9P/Digi.png'
-								/>
+								<img src='https://i.ibb.co/5RYhN9P/Digi.png' />
 							</div>
 						</button>
 						<h3 className='text-lg mt-1'>Digital Card</h3>
+					</div>
+
+					<div className='flex flex-col'>
+						<button onClick={redirectToPreOrder}>
+							<div className='w-24 shadow-md p-4 rounded-2xl'>
+								<img src='https://i.ibb.co/5RYhN9P/Digi.png' />
+							</div>
+						</button>
+						<h3 className='text-lg mt-1'>Pre Order</h3>
 					</div>
 				</div>
 			</div>

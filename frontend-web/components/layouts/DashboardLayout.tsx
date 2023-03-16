@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { FC, ReactNode, useState } from 'react';
 import BottomNav from '../nav/BottomNav';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPowerOff, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { faCartShopping, faPowerOff } from '@fortawesome/free-solid-svg-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,9 +17,16 @@ import StudentCard from '../cards/StudentCard';
 export interface IDashboardLayout {
 	children: ReactNode;
 	displayCard?: boolean;
+	displayBottomNav?: boolean;
+	displayCart?: boolean;
 }
 
-const DashboardLayout: FC<IDashboardLayout> = ({ children, displayCard }) => {
+const DashboardLayout: FC<IDashboardLayout> = ({
+	children,
+	displayCard,
+	displayBottomNav,
+	displayCart,
+}) => {
 	const router = useRouter();
 
 	const { userState } = useSelector(selectUser);
@@ -30,8 +37,12 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, displayCard }) => {
 		router.push('/auth/login');
 	};
 
+	const redirectToCart = async () => {
+		router.push('/dashboard/pre-order/cart');
+	};
+
 	useEffect(() => {
-		return auth.onAuthStateChanged(async user => {
+		return auth.onAuthStateChanged(async (user) => {
 			if (user) {
 				// User is logged in
 				const verified = await fetchUserData(user.uid);
@@ -101,13 +112,23 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, displayCard }) => {
 				) : displayCard ? (
 					<StudentCard />
 				) : null}
-
 				<div className='flex-grow'></div>
 				<div className='h-8'></div>
 				<div className='overflow-y-auto'>{children}</div>
 				<div className='flex-grow'></div>
 				<div className='h-24'></div>
 
+				{/* Cart icon */}
+				{displayCart === undefined ? null : !displayCart ? null : (
+					<button
+						className='btn btn-outline absolute top-4 right-24 text-white'
+						onClick={redirectToCart}
+					>
+						<FontAwesomeIcon icon={faCartShopping} />
+					</button>
+				)}
+
+				{/* Power off / logout button */}
 				<button
 					className='btn btn-outline absolute top-4 right-8 text-white'
 					onClick={redirectToLogin}
@@ -115,7 +136,9 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, displayCard }) => {
 					<FontAwesomeIcon icon={faPowerOff} />
 				</button>
 
-				<BottomNav />
+				{displayBottomNav === undefined || displayBottomNav ? (
+					<BottomNav />
+				) : null}
 			</div>
 		</div>
 	);

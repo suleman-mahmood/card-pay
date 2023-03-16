@@ -3,7 +3,7 @@ import * as functions from 'firebase-functions';
 import { checkUserAuthAndDoc } from './helpers';
 import { admin, db } from './initialize';
 import { getTimestamp, oneHourInMs, throwError } from './utils';
-import { amountValidated } from './validations';
+import { amountAbove500, amountValidated } from './validations';
 
 type Status = 'pending' | 'successful' | 'cancelled';
 const pendingStatus: Status = 'pending';
@@ -29,6 +29,7 @@ export const addDepositRequest = functions
 		functions.logger.info('Args:', data);
 
 		amountValidated(data.amount);
+		amountAbove500(data.amount);
 
 		const timestamp = getTimestamp();
 		const amount = parseInt(data.amount);
