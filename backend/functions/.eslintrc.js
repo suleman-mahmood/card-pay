@@ -31,5 +31,6 @@ module.exports = {
 		'arrow-parens': 0,
 		'max-len': 0,
 		'quote-props': 0,
+		'operator-linebreak': 0,
 	},
 };
