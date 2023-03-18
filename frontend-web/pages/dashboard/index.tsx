@@ -38,7 +38,7 @@ const Dashboard: NextPage = () => {
 				<div className='flex flex-row justify-around'>
 					<div className='flex flex-col'>
 						<button onClick={redirectToDeposit}>
-							<div className='w-24 shadow-md p-3 rounded-2xl'>
+							<div className='w-24 shadow-lg p-3 rounded-2xl'>
 								<Image src={DepositIcon} alt='' />
 							</div>
 						</button>
@@ -47,7 +47,7 @@ const Dashboard: NextPage = () => {
 
 					<div className='flex flex-col'>
 						<button onClick={redirectToChangePin}>
-							<div className='w-24 shadow-md p-4 rounded-2xl'>
+							<div className='w-24 shadow-lg p-4 rounded-2xl'>
 								<Image src={ChangePinIcon} alt='' />
 							</div>
 						</button>
@@ -58,7 +58,7 @@ const Dashboard: NextPage = () => {
 				<div className='flex flex-row justify-around'>
 					<div className='flex flex-col'>
 						<button onClick={redirectToDigitalCard}>
-							<div className='w-24 shadow-md p-4 rounded-2xl'>
+							<div className='w-24 shadow-lg p-4 rounded-2xl'>
 								<img src='https://i.ibb.co/5RYhN9P/Digi.png' />
 							</div>
 						</button>
@@ -67,8 +67,8 @@ const Dashboard: NextPage = () => {
 
 					<div className='flex flex-col'>
 						<button onClick={redirectToPreOrder}>
-							<div className='w-24 shadow-md p-4 rounded-2xl'>
-								<img src='https://i.ibb.co/5RYhN9P/Digi.png' />
+							<div className='w-24 shadow-lg p-4 rounded-2xl'>
+								<img src='https://i.ibb.co/19m9pJg/preorder.png' />
 							</div>
 						</button>
 						<h3 className='text-lg mt-1'>Pre Order</h3>

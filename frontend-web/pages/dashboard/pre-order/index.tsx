@@ -5,6 +5,7 @@ import ErrorAlert from '../../../components/cards/ErrorAlert';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import BoxLoading from '../../../components/loaders/BoxLoading';
 import JJKitchenImage from '../../../assets/jj-kitchen.jpg';
+import BunkersImage from '../../../assets/Bunkers.jpeg';
 import RestaurantCard from '../../../components/cards/RestaurantCard';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../services/initialize-firebase';
@@ -30,6 +31,10 @@ const DigitalCard: NextPage = () => {
 		fetchRestaurants();
 	}, []);
 
+	// const [counter,setcounter] = useState(0);
+	let counter=-1;
+	const images = [BunkersImage,JJKitchenImage];
+
 	return isLoading ? (
 		<BoxLoading />
 	) : (
@@ -47,18 +52,18 @@ const DigitalCard: NextPage = () => {
 				</h1>
 
 				<div className='h-12'></div>
-
 				{restaurantList?.restaurant_list.map(
 					({ name, id, description }) => (
 						<div className='mb-4' key={id}>
 							<RestaurantCard
 								key={id}
 								id={id}
-								bgImage={JJKitchenImage}
+								bgImage={images[counter+=1]}
 								title={name}
 								description={description}
 							/>
 						</div>
+
 					)
 				)}
 			</div>
