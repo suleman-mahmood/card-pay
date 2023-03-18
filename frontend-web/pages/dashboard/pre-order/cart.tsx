@@ -36,6 +36,15 @@ const DigitalCard: NextPage = () => {
 		}>
 	>();
 
+	// const restaurant_map:{restaurantId:string,restaurantName:string} = {
+
+	// }
+
+	const restaurant_map = new Map<string, string>([
+		["kJsH8JZUXWM8inVd4K3rl2BMzZ32", "The Bunkers"],["x9YRwWaAjEhGaqqFrK8UN5ulfWJ3","Delish"]
+	])
+
+
 	useEffect(() => {
 		const cartString = localStorage.getItem('cart');
 
@@ -184,14 +193,14 @@ const DigitalCard: NextPage = () => {
 
 				<div className='h-12'></div>
 
-				<h2 className='mb-2 text-xl'>{cart?.at(0)?.restaurantId}</h2>
+				<h2 className='mb-2 text-2xl font-medium'>{restaurant_map.get(cart?.at(0)?.restaurantId!)?restaurant_map.get(cart?.at(0)?.restaurantId!):"Noname"}</h2>
 
 				{cart?.map((cartItem, index) => (
 					<div
-						className='mb-4 card bg-base-100 shadow-xl'
+						className='mb-2 card bg-base-100 border-2 border-gray-200 shadow-md'
 						key={index}
 					>
-						<div className='card-body'>
+						<div className='card-body py-2'>
 							<div className='card-title'>
 								<p>{cartItem.name}</p>
 							</div>
@@ -201,18 +210,18 @@ const DigitalCard: NextPage = () => {
 							</div>
 						</div>
 
-						<div className='card-actions justify-center'>
+						<div className='flex flex-row card-actions justify-center mb-2 mt-1'	>
 							<button
-								className='btn btn-success'
+								className='btn btn-success text-3xl text-white w-14 bg-blue-600 focus:bg-blue-600 mr-2'
 								onClick={() => increaseQuantity(index)}
 							>
-								Increase quantity
+								+
 							</button>
 							<button
-								className='btn btn-error'
+								className='btn btn-error text-3xl text-white w-14 bg-red-400 focus:bg-red-400 ml-2'
 								onClick={() => decreaseQuantity(index)}
 							>
-								Decrease quantity
+								-
 							</button>
 						</div>
 					</div>
@@ -259,7 +268,7 @@ const DigitalCard: NextPage = () => {
 					cart.length !== 0 ? (
 						<label
 							htmlFor='my-modal-6'
-							className='w-full btn btn-primary'
+							className='w-full btn btn-primary bg-gradient-to-l from-primary to-primarydark border-none text-white text-2xl'
 							onClick={checkout}
 						>
 							Checkout

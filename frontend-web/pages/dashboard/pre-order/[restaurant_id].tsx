@@ -42,6 +42,11 @@ const DigitalCard: NextPage = () => {
 		fetchRestaurantMenu();
 	}, [restaurant_id]);
 
+
+	const redirectToCart = async () => {
+		router.push('/dashboard/pre-order/cart');
+	};
+
 	const addToCart = (item: { name: string; price: number }) => {
 		const cartString = localStorage.getItem('cart');
 		const newCartItem = {
@@ -77,6 +82,7 @@ const DigitalCard: NextPage = () => {
 		} else {
 			localStorage.setItem('cart', JSON.stringify([newCartItem]));
 		}
+
 	};
 
 	const displayMenu = () => {
@@ -94,24 +100,26 @@ const DigitalCard: NextPage = () => {
 
 		return Object.keys(newMenu).map((key) => (
 			<div key={key}>
-				<p className='text-2xl mt-4'>{key}</p>
+				<p className='text-2xl mt-4 font-bold text-left'>{key}</p>
+				<hr className='h-px bg-gray-200 border-2 dark:bg-gray-700'></hr>
 				{newMenu[key].map((item, i) => (
-					<div key={i} className='mb-4 card bg-base-100 shadow-xl'>
-						<div className='card-body'>
+					<div key={i} className='mt-2 card bg-base-100 border-2 outline-gray-400'>
+						<div className='card-body py-2'>
 							<div className='flex flex-row card-title'>
-								<p>{item.name}</p>
+								<p className='max-w-max font-medium text-left'>{item.name}</p>
 								<div className='grow'></div>
-								<p>{item.price}</p>
-							</div>
-							<div className='card-actions justify-end'>
 								<button
-									className='btn btn-primary'
-									onClick={() => addToCart(item)}
-								>
-									Add to cart
-								</button>
+										className='btn btn-primary bg-gradient-to-l from-primary to-primarydark border-none text-2xl mt-2 text-white rounded-full'
+										onClick={() => addToCart(item)}
+									>
+										+
+									</button>
+							</div>
+							<div className='justify-start'>
+								<p className='max-w-max -mt-2 text-lg'>Price: {item.price}</p>
 							</div>
 						</div>
+						<hr className='h-px bg-gray-200 border-2 dark:bg-gray-700'></hr>
 					</div>
 				))}
 			</div>
@@ -137,6 +145,11 @@ const DigitalCard: NextPage = () => {
 				<div className='h-12'></div>
 
 				{displayMenu()}
+			</div>
+			<div className='fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-700 dark:border-gray-600 px-2'>
+				<button className='btn btn-primary w-full mt-2 bg-gradient-to-l from-primary to-primarydark border-hidden shadow-sm text-white' onClick={redirectToCart}>
+					View your Cart
+				</button>
 			</div>
 		</DashboardLayout>
 	);
