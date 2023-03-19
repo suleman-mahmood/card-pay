@@ -41,7 +41,11 @@ const DigitalCard: NextPage = () => {
 	// }
 
 	const restaurant_map = new Map<string, string>([
-		["kJsH8JZUXWM8inVd4K3rl2BMzZ32", "The Bunkers"],["x9YRwWaAjEhGaqqFrK8UN5ulfWJ3","Delish"]
+		["kJsH8JZUXWM8inVd4K3rl2BMzZ32", "The Bunkers"],
+		["x9YRwWaAjEhGaqqFrK8UN5ulfWJ3","Delish"],
+		["g6lwpLs9e5PkLGksluN8GMk3GLg2","Chop Chop"],
+		["7h2Oo2aLVBgcYF9u4PIsGZZkLYB2","Juice Zone"],
+		["2V2NmkCJyMd9AtQYg6q4ES51q1o1","Frooti"]
 	])
 
 
