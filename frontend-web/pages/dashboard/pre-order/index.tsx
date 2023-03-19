@@ -4,8 +4,12 @@ import BackButton from '../../../components/buttons/BackButton';
 import ErrorAlert from '../../../components/cards/ErrorAlert';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import BoxLoading from '../../../components/loaders/BoxLoading';
-import JJKitchenImage from '../../../assets/jj-kitchen.jpg';
+// import JJKitchenImage from '../../../assets/jj-kitchen.jpg';
 import BunkersImage from '../../../assets/Bunkers.jpeg';
+import FrootiImage from '../../../assets/frooti.jpg';
+import DelishImage from '../../../assets/Delish.jpeg';
+import ChopChopImage from '../../../assets/ChopChop.jpeg';
+import JuiceZoneImage from '../../../assets/JuiceZone.jpeg';
 import RestaurantCard from '../../../components/cards/RestaurantCard';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../services/initialize-firebase';
@@ -33,7 +37,7 @@ const DigitalCard: NextPage = () => {
 
 	// const [counter,setcounter] = useState(0);
 	let counter=-1;
-	const images = [BunkersImage,JJKitchenImage];
+	const images = [BunkersImage,DelishImage,ChopChopImage,FrootiImage,JuiceZoneImage];
 
 	return isLoading ? (
 		<BoxLoading />
