@@ -9,6 +9,7 @@ import Navbar from '../components/navbar';
 import { httpsCallable } from 'firebase/functions';
 import Swal from 'sweetalert2';
 import Loader from '../components/loader';
+import DashboardLayout from '../components/layouts/DashboardLayout';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 
@@ -289,135 +290,122 @@ const Transactions: NextPage = () => {
 	return loading ? (
 		<Loader />
 	) : (
-		<div className='min-h-screen flex flex-col'>
-			<Navbar />
-			<div className='hero flex-grow'>
-				<div className='w-full hero-content text-center'>
-					<div className='w-full flex flex-col items-center'>
-						{order !== undefined
-							? Object.keys(order).map((uid) => (
-									<div
-										className='mb-4 card bg-white text-black shadow-xl'
-										onClick={() =>
-											handleOpenOrderRequest(uid)
-										}
-										key={uid}
-									>
-										<div className='card-body'>
-											{order[uid].cart.map((item, i) => (
-												<p key={i}>
-													{item.name}: {item.quantity}
-												</p>
-											))}
-										</div>
-									</div>
-							  ))
-							: null}
+		<DashboardLayout>
+			<div className='min-h-screen flex flex-col'>
+				<Navbar />
+				<div className='hero flex-grow'>
+					<div className='w-full hero-content text-center'>
+						<div className='w-full flex flex-col items-center'>
+							<h1 className='mb-4 text-5xl font-bold'>
+								Dashboard
+							</h1>
 
-						<div className='w-3/4 flex flex-col items-center'>
-							{KEY_PAD_CONFIG.map((k, i) => {
-								return (
-									<div
-										key={getRandomInteger()}
-										className='w-full flex flex-row justify-center mb-4'
-									>
-										{k.map((value) => {
-											return (
-												<div
-													key={getRandomInteger()}
-													className='w-1/4 px-2'
-												>
-													<button
-														className='w-full text-2xl h-12 btn'
-														onClick={() =>
-															value != '.'
-																? handleAmountClick(
-																		value as number
-																  )
-																: null
-														}
+							<div className='w-3/4 flex flex-col items-center'>
+								{KEY_PAD_CONFIG.map((k, i) => {
+									return (
+										<div
+											key={getRandomInteger()}
+											className='w-full flex flex-row justify-center mb-4'
+										>
+											{k.map((value) => {
+												return (
+													<div
+														key={getRandomInteger()}
+														className='w-1/4 px-2'
 													>
-														{value}
-													</button>
-												</div>
-											);
-										})}
-									</div>
-								);
-							})}
-						</div>
+														<button
+															className='w-full text-2xl h-12 btn'
+															onClick={() =>
+																value != '.'
+																	? handleAmountClick(
+																			value as number
+																	  )
+																	: null
+															}
+														>
+															{value}
+														</button>
+													</div>
+												);
+											})}
+										</div>
+									);
+								})}
+							</div>
 
-						<div className='my-4 flex flex-row justify-center'>
-							<button
-								className='btn btn-primary mr-4'
-								onClick={handleBackspace}
-							>
-								Delete
-							</button>
-
-							<button
-								className='btn btn-secondary'
-								onClick={() => setAmount(0)}
-							>
-								Clear amount
-							</button>
-						</div>
-
-						<div className='flex flex-col items-center'>
-							<form
-								onSubmit={handleSubmit}
-								className='form-control w-full max-w-xs'
-							>
-								<TextField
-									inputType='number'
-									labelText='Amount:'
-									placeholder='xxxx'
-									currentVal={amount}
-									valueSetter={setAmount}
-									readOnly={true}
-								/>
-
-								<TextField
-									id='roll-number-input'
-									inputType='password'
-									labelText='Roll Number:'
-									placeholder='00000000'
-									valueSetter={setRollNumber}
-								/>
-
+							<div className='my-4 flex flex-row justify-center'>
 								<button
-									type='submit'
-									className='mt-6 btn btn-outline btn-primary hidden'
+									className='btn btn-primary mr-4'
+									onClick={handleBackspace}
 								>
-									Transact!
+									Delete
 								</button>
 
-								{errorMessage === '' ? null : (
-									<div className='mt-6 alert alert-error shadow-lg'>
-										<div>
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												className='stroke-current flex-shrink-0 h-6 w-6'
-												fill='none'
-												viewBox='0 0 24 24'
-											>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth='2'
-													d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
-												/>
-											</svg>
-											<span>Error! {errorMessage}</span>
+								<button
+									className='btn btn-secondary'
+									onClick={() => setAmount(0)}
+								>
+									Clear amount
+								</button>
+							</div>
+
+							<div className='flex flex-col items-center'>
+								<form
+									onSubmit={handleSubmit}
+									className='form-control w-full max-w-xs'
+								>
+									<TextField
+										inputType='number'
+										labelText='Amount:'
+										placeholder='xxxx'
+										currentVal={amount}
+										valueSetter={setAmount}
+										readOnly={true}
+									/>
+									<TextField
+										id='roll-number-input'
+										inputType='password'
+										labelText='Roll Number:'
+										placeholder='00000000'
+										valueSetter={setRollNumber}
+									/>
+
+									<button
+										type='submit'
+										className='mt-6 btn btn-outline btn-primary hidden'
+									>
+										Transact!
+									</button>
+
+									{errorMessage === '' ? null : (
+										<div className='mt-6 alert alert-error shadow-lg'>
+											<div>
+												<svg
+													xmlns='http://www.w3.org/2000/svg'
+													className='stroke-current flex-shrink-0 h-6 w-6'
+													fill='none'
+													viewBox='0 0 24 24'
+												>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth='2'
+														d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
+													/>
+												</svg>
+												<span>
+													Error! {errorMessage}
+												</span>
+											</div>
 										</div>
-									</div>
-								)}
-							</form>
+									)}
+								</form>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</DashboardLayout>
 	);
 };
 

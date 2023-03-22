@@ -37,7 +37,7 @@ const Transactions: NextPage = () => {
 	const [userData, setUserData] = useState<userDataDoc | null>(null);
 
 	useEffect(() => {
-		return onAuthStateChanged(auth, user => {
+		return onAuthStateChanged(auth, (user) => {
 			if (user) {
 				setUser(user);
 				fetchUserData(user.uid);
@@ -77,37 +77,31 @@ const Transactions: NextPage = () => {
 	return loading ? (
 		<Loader />
 	) : (
-		<div className="min-h-screen flex flex-col">
+		<div className='min-h-screen flex flex-col'>
 			<Navbar />
-			<div className="hero flex-grow">
-				<div className="hero-content text-center">
-					<div className="w-full">
-						<h1 className="mb-4 text-5xl font-bold">
+			<div className='hero flex-grow'>
+				<div className='w-full hero-content text-center'>
+					<div className='w-full'>
+						<h1 className='mb-4 text-5xl font-bold'>
 							Transactions
 						</h1>
 						<p>{userData?.fullName}</p>
-						<p className="mb-8">Balance: {userData?.balance}</p>
+						<p className='mb-8'>Balance: {userData?.balance}</p>
 
-						<div className="overflow-x-auto">
-							<table className="table w-full">
+						<div className='w-full overflow-x-auto'>
+							<table className='table w-full'>
 								<thead>
 									<tr>
-										<th>Tx ID</th>
-										<th>Amount</th>
 										<th>Sender Name</th>
-										<th>Recipient Name</th>
-										<th>Status</th>
+										<th>Amount</th>
 										<th>Timestamp</th>
 									</tr>
 								</thead>
 								<tbody>
 									{userData?.transactions.map((v, i) => (
 										<tr key={i}>
-											<th>{v.id}</th>
-											<th>{v.amount}</th>
 											<th>{v.senderName}</th>
-											<th>{v.recipientName}</th>
-											<th>{v.status}</th>
+											<th>{v.amount}</th>
 											<th>
 												{formatTimestamp(v.timestamp)}
 											</th>
