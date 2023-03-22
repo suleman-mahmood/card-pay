@@ -301,6 +301,29 @@ const Transactions: NextPage = () => {
 							</h1>
 
 							<div className='w-3/4 flex flex-col items-center'>
+								{order !== undefined
+									? Object.keys(order).map((uid) => (
+											<div
+												className='mb-4 card bg-white text-black shadow-xl'
+												onClick={() =>
+													handleOpenOrderRequest(uid)
+												}
+												key={uid}
+											>
+												<div className='card-body'>
+													{order[uid].cart.map(
+														(item, i) => (
+															<p key={i}>
+																{item.name}:{' '}
+																{item.quantity}
+															</p>
+														)
+													)}
+												</div>
+											</div>
+									  ))
+									: null}
+
 								{KEY_PAD_CONFIG.map((k, i) => {
 									return (
 										<div
