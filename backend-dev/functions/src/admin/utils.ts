@@ -6,8 +6,7 @@ export const ADMIN_UIDS: Array<string> = [
 	'xe2YEIpAr6XUbAu1SNfUY55Eutf1', // Suleman
 	'2PfhS8wU3EMnu0fVNTa2piqQIla2', // Tayyab
 	'CZi8ek4SxMORpuY92Rs2O0iRqmu2', // Shamsi
-	'cbRuwoSNsogJt5sQnJnSsQouneP2', // Suleman-dev
-	'AgV1v1mCfLXx4D489HoEJFFefbu1', // Faraz-dev
+	'HYtUWuJUz0Mho4dN8Y4hvsfZFCs1', // Huzaifa
 ];
 
 export const CARDPAY_ROLLNUMBER = '00000000';

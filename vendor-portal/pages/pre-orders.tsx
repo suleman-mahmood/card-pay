@@ -43,6 +43,7 @@ interface PreOrdersDoc {
 	customerRollNumber: string;
 	contactNumber: string;
 	deliveryAddress: string;
+	timestamp: number;
 }
 
 const Transactions: NextPage = () => {
@@ -65,8 +66,16 @@ const Transactions: NextPage = () => {
 	}, []);
 
 	const fetchPreOrders = async (uid: string) => {
+		const now = Date.now();
+		const twoHours = 2 * 60 * 60 * 1000;
+		const twoHoursAgo = now - twoHours;
+
 		const colRef = collection(db, 'pre-orders');
-		const q = query(colRef, where('restaurantId', '==', uid));
+		const q = query(
+			colRef,
+			where('restaurantId', '==', uid),
+			where('timestamp', '>=', twoHoursAgo)
+		);
 		const querySnapshot = await getDocs(q);
 
 		if (querySnapshot.empty) {
@@ -75,7 +84,7 @@ const Transactions: NextPage = () => {
 			const docs = querySnapshot.docs.map(
 				(d) => d.data() as PreOrdersDoc
 			);
-			setPreOrders(docs);
+			setPreOrders(docs.reverse());
 		}
 
 		setLoading(false);

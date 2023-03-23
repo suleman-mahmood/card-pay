@@ -37,6 +37,9 @@ const Transactions: NextPage = () => {
 	const [errorMessage, setErrorMessage] = useState('');
 	const [shouldFocus, setShouldFocus] = useState(true);
 
+	const [playAudio, setPlayAudio] = useState(false);
+	const [intervalId, setIntervalId] = useState<NodeJS.Timer>();
+
 	const [order, setOrder] = useState<{
 		[uid: string]: {
 			orderId: string;
@@ -52,6 +55,7 @@ const Transactions: NextPage = () => {
 			customerRollNumber: string;
 			contactNumber: string;
 			deliveryAddress: string;
+			timestamp: number;
 		};
 	}>();
 
@@ -94,21 +98,40 @@ const Transactions: NextPage = () => {
 			return;
 		}
 		const restaurantId = user.uid;
-		return onSnapshot(doc(db, 'new_order_requests', restaurantId), (d) => {
-			// Play audio
-			var audio = new Audio(
+		return onSnapshot(
+			doc(db, 'new_order_requests', restaurantId),
+			async (d) => {
+				if (Object.keys(d.data()?.orders).length !== 0) {
+					setPlayAudio(true);
+				} else {
+					setPlayAudio(false);
+				}
+				setOrder(d.data()?.orders);
+				console.log(d.data()?.orders);
+			}
+		);
+	}, [user]);
+
+	useEffect(() => {
+		// Play audio
+		const play = async () => {
+			let audio = new Audio(
 				'https://assets.mixkit.co/active_storage/sfx/940/940-preview.mp3'
 			);
-			setInterval(async () => {
-				if (Object.keys(d.data()?.orders).length !== 0) {
-					await audio.play();
-				}
-			}, 5000);
 
-			setOrder(d.data()?.orders);
-			console.log(d.data()?.orders);
-		});
-	}, [user]);
+			await audio.play();
+			let id = setInterval(async () => {
+				await audio.play();
+			}, 1500);
+			setIntervalId(id);
+		};
+
+		if (playAudio) {
+			play();
+		} else {
+			clearInterval(intervalId);
+		}
+	}, [playAudio]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -190,6 +213,8 @@ const Transactions: NextPage = () => {
 	};
 
 	const handleOpenOrderRequest = async (uid: string) => {
+		setPlayAudio(false);
+
 		if (order === undefined || user == null) {
 			return;
 		}
@@ -301,28 +326,34 @@ const Transactions: NextPage = () => {
 							</h1>
 
 							<div className='w-3/4 flex flex-col items-center'>
-								{order !== undefined
-									? Object.keys(order).map((uid) => (
-											<div
-												className='mb-4 card bg-white text-black shadow-xl'
-												onClick={() =>
-													handleOpenOrderRequest(uid)
-												}
-												key={uid}
-											>
-												<div className='card-body'>
-													{order[uid].cart.map(
-														(item, i) => (
-															<p key={i}>
-																{item.name}:{' '}
-																{item.quantity}
-															</p>
+								<div className='stack'>
+									{order !== undefined
+										? Object.keys(order).map((uid) => (
+												<div
+													className='mb-4 card bg-white text-black shadow-xl'
+													onClick={() =>
+														handleOpenOrderRequest(
+															uid
 														)
-													)}
+													}
+													key={uid}
+												>
+													<div className='card-body'>
+														{order[uid].cart.map(
+															(item, i) => (
+																<p key={i}>
+																	{item.name}:{' '}
+																	{
+																		item.quantity
+																	}
+																</p>
+															)
+														)}
+													</div>
 												</div>
-											</div>
-									  ))
-									: null}
+										  ))
+										: null}
+								</div>
 
 								{KEY_PAD_CONFIG.map((k, i) => {
 									return (

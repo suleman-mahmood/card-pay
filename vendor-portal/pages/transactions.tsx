@@ -60,7 +60,7 @@ const Transactions: NextPage = () => {
 		setLoading(false);
 	};
 
-	const formatTimestamp = (timestamp: string): string => {
+	const formatTimestamp = (timestamp: string | number): string => {
 		const date = new Date(timestamp);
 		const options: Intl.DateTimeFormatOptions = {
 			weekday: 'long',
@@ -72,6 +72,38 @@ const Transactions: NextPage = () => {
 		};
 
 		return date.toLocaleDateString('en-US', options);
+	};
+
+	const showTransactions = () => {
+		const transactions = userData?.transactions.map((v) => {
+			const d = new Date(v.timestamp);
+			return { ...v, timestamp: d.getTime() };
+		});
+
+		if (transactions === undefined) {
+			return;
+		}
+
+		transactions.sort((obj1, obj2) => obj2.timestamp - obj1.timestamp);
+
+		const lastReconcile = [];
+		for (let i = 0; i < transactions.length; i++) {
+			const t = transactions[i];
+
+			if (t.senderName === userData?.fullName) {
+				break;
+			}
+
+			lastReconcile.push(t);
+		}
+
+		return lastReconcile.map((v, i) => (
+			<tr key={i}>
+				<th>{v.senderName}</th>
+				<th>{v.amount}</th>
+				<th>{formatTimestamp(v.timestamp)}</th>
+			</tr>
+		));
 	};
 
 	return loading ? (
@@ -97,17 +129,7 @@ const Transactions: NextPage = () => {
 										<th>Timestamp</th>
 									</tr>
 								</thead>
-								<tbody>
-									{userData?.transactions.map((v, i) => (
-										<tr key={i}>
-											<th>{v.senderName}</th>
-											<th>{v.amount}</th>
-											<th>
-												{formatTimestamp(v.timestamp)}
-											</th>
-										</tr>
-									))}
-								</tbody>
+								<tbody>{showTransactions()}</tbody>
 							</table>
 						</div>
 					</div>

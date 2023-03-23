@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import { checkUserAuthAndDoc } from '.././helpers';
 import { db } from '.././initialize';
-import { sendEmail, throwError } from '.././utils';
+import { getTimestampMilliseconds, sendEmail, throwError } from '.././utils';
 import { UserDoc } from '../types';
 import { transactionMain } from '../makeTransaction';
 
@@ -39,6 +39,7 @@ interface NewOrderRequests {
 			customerRollNumber: string;
 			contactNumber: string;
 			deliveryAddress: string;
+			timestamp: number;
 		};
 	};
 }
@@ -146,6 +147,7 @@ export const createPickupOrder = functions
 				customerRollNumber: data.customerRollNumber,
 				contactNumber: data.contactNumber,
 				deliveryAddress: data.deliveryAddress,
+				timestamp: getTimestampMilliseconds(),
 			};
 
 			transaction.update(ref, { orders: docData.orders });
@@ -162,6 +164,7 @@ export const createPickupOrder = functions
 				customerRollNumber: data.customerRollNumber,
 				contactNumber: data.contactNumber,
 				deliveryAddress: data.deliveryAddress,
+				timestamp: getTimestampMilliseconds(),
 			});
 		});
 

@@ -13,6 +13,14 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '../../../store/store';
 import TextField from '../../../components/inputs/TextField';
 
+const restaurant_map = new Map<string, string>([
+	['kJsH8JZUXWM8inVd4K3rl2BMzZ32', 'The Bunkers'],
+	['x9YRwWaAjEhGaqqFrK8UN5ulfWJ3', 'Delish'],
+	['g6lwpLs9e5PkLGksluN8GMk3GLg2', 'Chop Chop'],
+	['7h2Oo2aLVBgcYF9u4PIsGZZkLYB2', 'Juice Zone'],
+	['2V2NmkCJyMd9AtQYg6q4ES51q1o1', 'Frooti'],
+]);
+
 const DigitalCard: NextPage = () => {
 	const { userState } = useSelector(selectUser);
 
@@ -35,19 +43,6 @@ const DigitalCard: NextPage = () => {
 			quantity: number;
 		}>
 	>();
-
-	// const restaurant_map:{restaurantId:string,restaurantName:string} = {
-
-	// }
-
-	const restaurant_map = new Map<string, string>([
-		["kJsH8JZUXWM8inVd4K3rl2BMzZ32", "The Bunkers"],
-		["x9YRwWaAjEhGaqqFrK8UN5ulfWJ3","Delish"],
-		["g6lwpLs9e5PkLGksluN8GMk3GLg2","Chop Chop"],
-		["7h2Oo2aLVBgcYF9u4PIsGZZkLYB2","Juice Zone"],
-		["2V2NmkCJyMd9AtQYg6q4ES51q1o1","Frooti"]
-	])
-
 
 	useEffect(() => {
 		const cartString = localStorage.getItem('cart');
@@ -197,7 +192,11 @@ const DigitalCard: NextPage = () => {
 
 				<div className='h-12'></div>
 
-				<h2 className='mb-2 text-2xl font-medium'>{restaurant_map.get(cart?.at(0)?.restaurantId!)?restaurant_map.get(cart?.at(0)?.restaurantId!):"Noname"}</h2>
+				<h2 className='mb-2 text-2xl font-medium'>
+					{restaurant_map.get(cart?.at(0)?.restaurantId!)
+						? restaurant_map.get(cart?.at(0)?.restaurantId!)
+						: 'Noname'}
+				</h2>
 
 				{cart?.map((cartItem, index) => (
 					<div
@@ -214,7 +213,7 @@ const DigitalCard: NextPage = () => {
 							</div>
 						</div>
 
-						<div className='flex flex-row card-actions justify-center mb-2 mt-1'	>
+						<div className='flex flex-row card-actions justify-center mb-2 mt-1'>
 							<button
 								className='btn btn-success text-3xl text-white w-14 bg-blue-600 focus:bg-blue-600 mr-2'
 								onClick={() => increaseQuantity(index)}
