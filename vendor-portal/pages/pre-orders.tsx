@@ -74,7 +74,8 @@ const Transactions: NextPage = () => {
 		const q = query(
 			colRef,
 			where('restaurantId', '==', uid),
-			where('timestamp', '>=', twoHoursAgo)
+			where('timestamp', '>=', twoHoursAgo),
+			where('status', '==', 'confirmed')
 		);
 		const querySnapshot = await getDocs(q);
 
