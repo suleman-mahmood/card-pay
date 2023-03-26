@@ -3,12 +3,14 @@ import { Action } from 'redux';
 import { createWrapper } from 'next-redux-wrapper';
 import { authSlice } from './authSlice';
 import { userSlice } from './userSlice';
+import { cartSlice } from './cartSlice';
 
 const makeStore = () =>
 	configureStore({
 		reducer: {
 			[authSlice.name]: authSlice.reducer,
 			[userSlice.name]: userSlice.reducer,
+			[cartSlice.name]: cartSlice.reducer,
 		},
 		devTools: true,
 	});
@@ -26,3 +28,4 @@ export const wrapper = createWrapper<AppStore>(makeStore);
 
 export const selectAuth = (state: AppState) => state.auth.authState;
 export const selectUser = (state: AppState) => state.user;
+export const selectCart = (state: AppState) => state.cart;

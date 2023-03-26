@@ -3,6 +3,7 @@ import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import ButtonSecondary from '../../components/buttons/ButtonSecondary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import PhoneField from '../../components/inputs/PhoneField';
 import TextField from '../../components/inputs/signup_text_field';
@@ -90,15 +91,14 @@ const Signup: NextPage = () => {
 		<BoxLoading />
 	) : (
 		<WelcomeLayout>
-			<h1 className='text-2xl'>Create your account</h1>
-			<h2 className='mb-4 text-sm'>
-				Do you already have an account?
-				<a
-					className='ml-2 text-blue-50 text-xl'
+			<h1 className='text-2xl mb-2'>Create your account</h1>
+			<h2 className='mb-4 text-xs'>
+				Already have an account?
+				<ButtonSecondary
 					onClick={redirectToLogin}
-				>
-					Sign In Now
-				</a>
+					text={'Sign In Now'}
+					invertColors={true}
+				/>
 			</h2>
 
 			<form onSubmit={signupUser} className='form-control w-full'>

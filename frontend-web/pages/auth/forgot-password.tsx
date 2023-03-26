@@ -74,7 +74,7 @@ const Login: NextPage = () => {
 				/>
 			</form>
 
-			<BackButton to='/auth/login' textColor='text-black' />
+			<BackButton textColor='text-black' />
 			<ErrorAlert message={errorMessage} />
 		</AuthLayout>
 	);

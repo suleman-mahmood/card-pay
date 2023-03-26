@@ -1,29 +1,22 @@
-import { FC } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-interface IBackButton {
-	to?: string;
+interface IBackButtonProps {
 	textColor?: string;
 }
 
-const BackButton: FC<IBackButton> = ({ to, textColor }) => {
+const BackButton: FC<IBackButtonProps> = ({ textColor }) => {
 	const router = useRouter();
 
-	const redirectToDashboard = () => {
-		if (to === undefined) {
-			router.push('/dashboard');
-		} else {
-			router.push(to);
-		}
+	const handleBack = () => {
+		router.back();
 	};
 
 	return (
 		<div className='btn-group grid grid-cols-2 absolute top-4 left-8'>
 			<button
-				className={`btn btn-outline ${
-					textColor === undefined ? 'text-white' : textColor
-				}`}
-				onClick={redirectToDashboard}
+				className={'btn btn-outline textColor text-white ' + textColor}
+				onClick={handleBack}
 			>
 				Back
 			</button>

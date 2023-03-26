@@ -8,6 +8,7 @@ import JJKitchenImage from '../../../assets/jj-kitchen.jpg';
 import BunkersImage from '../../../assets/Bunkers.jpeg';
 import FrootiImage from '../../../assets/frooti.jpg';
 import DelishImage from '../../../assets/Delish.jpeg';
+import BaradariImage from '../../../assets/Baradari.jpg';
 import ChopChopImage from '../../../assets/ChopChop.jpeg';
 import JuiceZoneImage from '../../../assets/JuiceZone.jpeg';
 import RestaurantCard from '../../../components/cards/RestaurantCard';
@@ -25,6 +26,7 @@ const imagesMap = new Map<string, StaticImageData>([
 	['g6lwpLs9e5PkLGksluN8GMk3GLg2', ChopChopImage],
 	['7h2Oo2aLVBgcYF9u4PIsGZZkLYB2', JuiceZoneImage],
 	['2V2NmkCJyMd9AtQYg6q4ES51q1o1', FrootiImage],
+	['2BTm3kcTW6ar1WfVAWoUysHuAkn2',BaradariImage]
 ]);
 
 const DigitalCard: NextPage = () => {

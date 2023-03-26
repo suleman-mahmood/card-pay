@@ -6,10 +6,10 @@ interface IButtonPrimary {
 	type?: 'button' | 'submit' | 'reset';
 }
 
-const ButtonPrimary: FC<IButtonPrimary> = props => {
+const ButtonPrimary: FC<IButtonPrimary> = (props) => {
 	return (
 		<button
-			className='btn btn-primary bg-gradient-to-l from-primary to-primarydark rounded-3xl text-lg text-white'
+			className='btn btn-primary border-hidden shadow-lg bg-gradient-to-l from-primary to-primarydark rounded-3xl text-lg text-white'
 			type={props.type}
 			onClick={props.onClick}
 		>

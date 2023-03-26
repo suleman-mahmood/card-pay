@@ -9,9 +9,13 @@ import { httpsCallable } from 'firebase/functions';
 import { FirebaseError } from 'firebase/app';
 import { doc, onSnapshot } from 'firebase/firestore';
 import SuccessAlert from '../../../components/cards/SuccessAlert';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '../../../store/store';
 import TextField from '../../../components/inputs/TextField';
+import {
+	decrementItemsCount,
+	incrementItemsCount,
+} from '../../../store/cartSlice';
 
 const restaurant_map = new Map<string, string>([
 	['kJsH8JZUXWM8inVd4K3rl2BMzZ32', 'The Bunkers'],
@@ -19,10 +23,14 @@ const restaurant_map = new Map<string, string>([
 	['g6lwpLs9e5PkLGksluN8GMk3GLg2', 'Chop Chop'],
 	['7h2Oo2aLVBgcYF9u4PIsGZZkLYB2', 'Juice Zone'],
 	['2V2NmkCJyMd9AtQYg6q4ES51q1o1', 'Frooti'],
+	['2BTm3kcTW6ar1WfVAWoUysHuAkn2', 'Baradari'],
+	['ZSNSJzaE6hg0K9XueSvuy2qltc82', 'JJ Kitchen Food'],
+	['j4lFpFk51rgQcipHvss8GucqzPV2', 'JJ Kitchen Drinks & Desserts'],
 ]);
 
 const DigitalCard: NextPage = () => {
 	const { userState } = useSelector(selectUser);
+	const dispatch = useDispatch();
 
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
@@ -60,6 +68,8 @@ const DigitalCard: NextPage = () => {
 	}, []);
 
 	const decreaseQuantity = (index: number) => {
+		dispatch(decrementItemsCount());
+
 		const cartString = localStorage.getItem('cart');
 
 		const cart = JSON.parse(cartString!) as Array<{
@@ -80,6 +90,8 @@ const DigitalCard: NextPage = () => {
 	};
 
 	const increaseQuantity = (index: number) => {
+		dispatch(incrementItemsCount());
+
 		const cartString = localStorage.getItem('cart');
 
 		const cart = JSON.parse(cartString!) as Array<{
@@ -195,7 +207,7 @@ const DigitalCard: NextPage = () => {
 				<h2 className='mb-2 text-2xl font-medium'>
 					{restaurant_map.get(cart?.at(0)?.restaurantId!)
 						? restaurant_map.get(cart?.at(0)?.restaurantId!)
-						: 'Noname'}
+						: null}
 				</h2>
 
 				{cart?.map((cartItem, index) => (

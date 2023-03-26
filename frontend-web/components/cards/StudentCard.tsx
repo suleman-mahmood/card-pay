@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../store/store';
@@ -20,6 +20,23 @@ const StudentCard: FC<IStudentCard> = () => {
 
 	const [refreshBalanceLoading, setRefreshBalanceLoading] = useState(false);
 
+	useEffect(() => {
+		const refreshBalance = async () => {
+			if (userState.pendingDeposits) {
+				const handleDepositSuccess = httpsCallable(
+					functions,
+					'handleDepositSuccess'
+				);
+				try {
+					await handleDepositSuccess();
+				} catch (error) {
+					console.log((error as FirebaseError).message);
+				}
+			}
+		};
+		refreshBalance();
+	}, []);
+
 	const handleRefreshBalance = async () => {
 		setRefreshBalanceLoading(true);
 		setTimeout(() => {
@@ -36,6 +53,7 @@ const StudentCard: FC<IStudentCard> = () => {
 			console.log((error as FirebaseError).message);
 		}
 	};
+
 	const showName = (): string => {
 		const name = userState.fullName;
 		const words = name.split(' ');

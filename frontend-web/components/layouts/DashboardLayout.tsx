@@ -6,13 +6,12 @@ import { faCartShopping, faPowerOff } from '@fortawesome/free-solid-svg-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { auth, db, functions } from '../../services/initialize-firebase';
-import { selectUser } from '../../store/store';
+import { auth, db } from '../../services/initialize-firebase';
+import { selectCart, selectUser } from '../../store/store';
 import { setUserState, UserState } from '../../store/userSlice';
 import ContentLoader from 'react-content-loader';
-import { httpsCallable } from 'firebase/functions';
-import { FirebaseError } from 'firebase/app';
 import StudentCard from '../cards/StudentCard';
+import { setItemsCount } from '../../store/cartSlice';
 
 export interface IDashboardLayout {
 	children: ReactNode;
@@ -30,6 +29,7 @@ const DashboardLayout: FC<IDashboardLayout> = ({
 	const router = useRouter();
 
 	const { userState } = useSelector(selectUser);
+	const { cartState } = useSelector(selectCart);
 	const dispatch = useDispatch();
 
 	const redirectToLogin = async () => {
@@ -70,6 +70,23 @@ const DashboardLayout: FC<IDashboardLayout> = ({
 			return false;
 		}
 	};
+
+	useEffect(() => {
+		const cartString = localStorage.getItem('cart');
+
+		if (cartString) {
+			const cart = JSON.parse(cartString!) as Array<{
+				name: string;
+				price: number;
+				restaurantId: string;
+				quantity: number;
+			}>;
+
+			let items = 0;
+			cart.map((i) => (items += i.quantity));
+			dispatch(setItemsCount(items));
+		}
+	}, []);
 
 	return (
 		<div className='min-h-screen w-full px-8'>
@@ -125,6 +142,12 @@ const DashboardLayout: FC<IDashboardLayout> = ({
 						onClick={redirectToCart}
 					>
 						<FontAwesomeIcon icon={faCartShopping} />
+
+						{cartState.itemsCount !== 0 ? (
+							<p className='absolute -top-1 -left-1 bg-red-600 p-1 rounded-md'>
+								{cartState.itemsCount}
+							</p>
+						) : null}
 					</button>
 				)}
 
