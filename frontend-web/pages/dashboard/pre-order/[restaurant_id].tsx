@@ -18,6 +18,7 @@ interface RestaurantDetails {
 		name: string;
 		price: number;
 		category: string;
+		description: string;
 	}>;
 }
 
@@ -105,7 +106,11 @@ const DigitalCard: NextPage = () => {
 
 	const displayMenu = () => {
 		const newMenu: {
-			[category: string]: Array<{ name: string; price: number }>;
+			[category: string]: Array<{
+				name: string;
+				price: number;
+				description: string;
+			}>;
 		} = {};
 
 		menu?.menu.forEach((item) => {
@@ -142,6 +147,11 @@ const DigitalCard: NextPage = () => {
 								<p className='max-w-max -mt-2 text-lg'>
 									Price: {item.price}
 								</p>
+								{item.description !== undefined ? (
+									<p className='max-w-max font-medium text-left'>
+										{item.description}
+									</p>
+								) : null}
 							</div>
 						</div>
 						<hr className='h-px bg-gray-200 border-2'></hr>
