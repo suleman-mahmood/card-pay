@@ -306,6 +306,7 @@ interface DenyPickupOrderData {
 	orderId: string;
 	restaurantId: string;
 	customerUid: string;
+	reason: string;
 }
 
 export const denyPickupOrder = functions
@@ -325,77 +326,80 @@ export const denyPickupOrder = functions
 			);
 		}
 
-		let docDataPreOrder: PreOrders = {
-			cart: [],
-			customerName: '',
-			customerRollNumber: '',
-			isDelivery: false,
-			orderId: '',
-			restaurantId: '',
-			specialInstructions: '',
-			status: ORDER_STATUS_ENUM.pending,
-			userUid: '',
-			contactNumber: '',
-			deliveryAddress: '',
-		};
+		if (data.reason === undefined) {
+			data['reason'] = 'Your order was denied by the restaurant';
+		}
 
-		await db.runTransaction(async (transaction) => {
-			const newOrderRequestsRef = db
-				.collection('new_order_requests')
-				.doc(data.restaurantId);
-			const preOrderRef = db.collection('pre-orders').doc(data.orderId);
-
-			const docPreOrder = await transaction.get(preOrderRef);
-			docDataPreOrder = docPreOrder.data() as PreOrders;
-
-			const docNewOrderRequest = await transaction.get(
-				newOrderRequestsRef
-			);
-			const docDataNewOrderRequest =
-				docNewOrderRequest.data() as NewOrderRequests;
-
-			if (docDataPreOrder.status !== ORDER_STATUS_ENUM.pending) {
-				throwError(
-					'failed-precondition',
-					'Order is not in pending state'
-				);
-			}
-
-			if (!(data.customerUid in docDataNewOrderRequest.orders)) {
-				throwError('failed-precondition', 'Order doesnt exist');
-			}
-
-			// Remove this from the order map
-			delete docDataNewOrderRequest.orders[data.customerUid];
-
-			transaction.update(newOrderRequestsRef, {
-				orders: docDataNewOrderRequest.orders,
-			});
-
-			transaction.update(preOrderRef, {
-				status: ORDER_STATUS_ENUM.denied,
-			});
-		});
-
-		// Send email confirmation for order
-		const studentEmail = `${docDataPreOrder.customerRollNumber}@lums.edu.pk`;
-		const subject = 'CardPay | Order Denial';
-		const orderType = docDataPreOrder.isDelivery ? 'Delivery' : 'Pick-up';
-
-		let amount = 0;
-		docDataPreOrder.cart.forEach((c) => {
-			amount += c.quantity * c.price;
-		});
-
-		const n = docDataPreOrder.customerName;
-		const r = docDataPreOrder.customerRollNumber;
-
-		let textData = '<p>Your order was denied by the restaurant</p>';
-		textData += `<p>${n} ${r}</p>`;
-		textData += docDataPreOrder.cart
-			.map((i) => `${i.name}: ${i.quantity}`)
-			.join('</p><p>');
-		textData = `<p>${textData}</p>`;
-		textData += `<p>Total: ${amount}</p><p>Order type: ${orderType}</p>`;
-		return sendEmail(studentEmail, subject, textData, textData);
+		return denyPickupOrderHelper(data);
 	});
+
+export const denyPickupOrderHelper = async (data: DenyPickupOrderData) => {
+	let docDataPreOrder: PreOrders = {
+		cart: [],
+		customerName: '',
+		customerRollNumber: '',
+		isDelivery: false,
+		orderId: '',
+		restaurantId: '',
+		specialInstructions: '',
+		status: ORDER_STATUS_ENUM.pending,
+		userUid: '',
+		contactNumber: '',
+		deliveryAddress: '',
+	};
+
+	await db.runTransaction(async (transaction) => {
+		const newOrderRequestsRef = db
+			.collection('new_order_requests')
+			.doc(data.restaurantId);
+		const preOrderRef = db.collection('pre-orders').doc(data.orderId);
+
+		const docPreOrder = await transaction.get(preOrderRef);
+		docDataPreOrder = docPreOrder.data() as PreOrders;
+
+		const docNewOrderRequest = await transaction.get(newOrderRequestsRef);
+		const docDataNewOrderRequest =
+			docNewOrderRequest.data() as NewOrderRequests;
+
+		if (docDataPreOrder.status !== ORDER_STATUS_ENUM.pending) {
+			throwError('failed-precondition', 'Order is not in pending state');
+		}
+
+		if (!(data.customerUid in docDataNewOrderRequest.orders)) {
+			throwError('failed-precondition', 'Order doesnt exist');
+		}
+
+		// Remove this from the order map
+		delete docDataNewOrderRequest.orders[data.customerUid];
+
+		transaction.update(newOrderRequestsRef, {
+			orders: docDataNewOrderRequest.orders,
+		});
+
+		transaction.update(preOrderRef, {
+			status: ORDER_STATUS_ENUM.denied,
+		});
+	});
+
+	// Send email confirmation for order
+	const studentEmail = `${docDataPreOrder.customerRollNumber}@lums.edu.pk`;
+	const subject = 'CardPay | Order Denial';
+	const orderType = docDataPreOrder.isDelivery ? 'Delivery' : 'Pick-up';
+
+	let amount = 0;
+	docDataPreOrder.cart.forEach((c) => {
+		amount += c.quantity * c.price;
+	});
+
+	const n = docDataPreOrder.customerName;
+	const r = docDataPreOrder.customerRollNumber;
+
+	let textData = `<p>${data.reason}</p>`;
+	textData += `<p>${n} ${r}</p>`;
+	textData += docDataPreOrder.cart
+		.map((i) => `${i.name}: ${i.quantity}`)
+		.join('</p><p>');
+	textData = `<p>${textData}</p>`;
+	textData += `<p>Total: ${amount}</p><p>Order type: ${orderType}</p>`;
+	return sendEmail(studentEmail, subject, textData, textData);
+};

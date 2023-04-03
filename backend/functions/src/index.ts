@@ -25,3 +25,5 @@ export {
 	confirmPickupOrder,
 	denyPickupOrder,
 } from './pre-order/order';
+
+export { houseKeeper } from './houseKeeping';
