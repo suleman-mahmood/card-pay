@@ -8,7 +8,7 @@ import JJKitchenImage from '../../../assets/jj-kitchen.jpg';
 import BunkersImage from '../../../assets/Bunkers.jpeg';
 import FrootiImage from '../../../assets/frooti.jpg';
 import DelishImage from '../../../assets/Delish.jpeg';
-import BaradariImage from '../../../assets/Baradari.jpg';
+import BaradariImage from '../../../assets/Baradari1.jpeg';
 import ChopChopImage from '../../../assets/ChopChop.jpeg';
 import JuiceZoneImage from '../../../assets/JuiceZone.jpeg';
 import RestaurantCard from '../../../components/cards/RestaurantCard';

@@ -219,7 +219,7 @@ const DigitalCard: NextPage = () => {
 									Price: {item.price}
 								</p>
 								{item.description !== undefined ? (
-									<p className='max-w-max font-medium text-left'>
+									<p className='max-w-max font-medium text-xs text-primarydark text-left'>
 										{item.description}
 									</p>
 								) : null}
@@ -299,7 +299,7 @@ const DigitalCard: NextPage = () => {
 											handleRadioChange(e, item)
 										}
 									/>
-									{item.name}: Rs.{item.price}
+									{item.name}: +Rs.{item.price}
 								</label>
 							))}
 						</div>
@@ -323,7 +323,7 @@ const DigitalCard: NextPage = () => {
 											handleCheckboxChange(e, item)
 										}
 									/>
-									{item.name}: Rs.{item.price}
+									{item.name}: +Rs.{item.price}
 								</label>
 							))}
 						</div>
@@ -430,15 +430,15 @@ const DigitalCard: NextPage = () => {
 							<div className='absolute inset-0 bg-gray-500 opacity-75'></div>
 						</div>
 
-						<div className='w-full inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6'>
+						<div className='w-full inline-block align-bottom bg-gradient-to-l from-primary to-primarydark text-gray-200	 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-2xl border-2 border-gray-500 transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6'>
 							<div className='sm:flex sm:items-start'>
 								<div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
-									<h3 className='text-lg text-center leading-6 font-medium text-gray-900'>
+									<h3 className='text-lg text-center leading-6 font-medium text-white'>
 										{selectedItemVariant?.name}: Rs.
 										{selectedItemVariant?.price}
 									</h3>
 									<div className='mt-2'>
-										<p className='text-sm leading-5 text-gray-500'>
+										<p className='text-sm leading-5 text-gray-200'>
 											{selectedItemVariant?.description}
 										</p>
 										{displaySecondaryMenu()}
