@@ -5,8 +5,13 @@ export {
 	verifyEmailOtp,
 	sendForgotPasswordEmail,
 	verifyForgotPasswordOtp,
+	checkRollNumberExists,
 } from './auth';
-export { addDepositRequest, handleDepositSuccess } from './deposit';
+export {
+	addDepositRequest,
+	handleDepositSuccess,
+	addRaastaDepositRequest,
+} from './deposit';
 export { makeTransaction } from './makeTransaction';
 export { transfer } from './transfer';
 
@@ -25,3 +30,5 @@ export {
 	confirmPickupOrder,
 	denyPickupOrder,
 } from './pre-order/order';
+
+export { houseKeeper } from './houseKeeping';

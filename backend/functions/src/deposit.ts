@@ -9,8 +9,8 @@ type Status = 'pending' | 'successful' | 'cancelled';
 const pendingStatus: Status = 'pending';
 const successfulStatus: Status = 'successful';
 
-const PAYPRO_BASE_URL = 'https://api.PayPro.com.pk';
-const USERNAME = 'Card_Pay';
+export const PAYPRO_BASE_URL = 'https://api.PayPro.com.pk';
+export const USERNAME = 'Card_Pay';
 const CLIENT_ID = 'T5u0mKpCH4cV98J';
 const CLIENT_SECRET = 'vHIXolKNjB4zNIa';
 
@@ -27,110 +27,118 @@ export const addDepositRequest = functions
 		*/
 
 		functions.logger.info('Args:', data);
-
-		amountValidated(data.amount);
-		amountAbove500(data.amount);
-
-		const timestamp = getTimestamp();
-		const amount = parseInt(data.amount);
-
 		const { uid, usersRef, userSnapshot } = await checkUserAuthAndDoc(
 			context
 		);
 
-		const transactionsRef = db.collection('transactions').doc();
-		const transactionId = transactionsRef.id;
-
-		/*
-			Handle transaction gateway to PayPro API
-		*/
-		const authToken = await getPayProAuthToken();
-
-		const dateHourLater = new Date(timestamp);
-		dateHourLater.setTime(dateHourLater.getTime() + oneHourInMs);
-
-		const orderConfig = {
-			method: 'post',
-			url: PAYPRO_BASE_URL + '/v2/ppro/co',
-			headers: {
-				token: authToken,
-			},
-			data: [
-				{
-					MerchantId: USERNAME,
-				},
-				{
-					OrderNumber: transactionId,
-					OrderAmount: amount,
-					OrderDueDate: dateHourLater.toISOString(), // A due date of an hour
-					OrderType: 'Service',
-					IssueDate: timestamp,
-					OrderExpireAfterSeconds: 60 * 60, // Expiry of an hour
-					CustomerName: userSnapshot.data()!.fullName,
-					CustomerMobile: userSnapshot.data()!.phoneNumber,
-					CustomerEmail: userSnapshot.data()!.email,
-					CustomerAddress: '',
-				},
-			],
-		};
-
-		// Send order request to PayPro
-		let ppOrderRes: any;
-		try {
-			ppOrderRes = await axios(orderConfig);
-		} catch (e) {
-			throwError(
-				'invalid-argument',
-				'Couldnt create order request in PayPro. Retry again!'
-			);
-		}
-
-		const responseData = ppOrderRes.data[1];
-		const paymentUrl: string = responseData['Click2Pay'];
-
-		// Save state into Firestore
-		const depositRequestsRef = db
-			.collection('deposit_requests')
-			.doc(transactionId);
-
-		functions.logger.info(
-			'PayPro Order creation API completed: ',
-			responseData
-		);
-
-		await depositRequestsRef.create({
-			depositerUid: uid,
-			status: pendingStatus,
-			cancellationReason: '',
-			payProMetadata: JSON.stringify(ppOrderRes.data),
-			orderNumber: responseData['OrderNumber'],
-			orderAmount: responseData['OrderAmount'],
-			orderDueDate: orderConfig.data[1].OrderDueDate,
-			orderType: orderConfig.data[1].OrderType,
-			issueDate: orderConfig.data[1].IssueDate,
-			orderExpireAfterSeconds: responseData['Order_Expire_After_Seconds'],
-			customerName: orderConfig.data[1].CustomerName,
-			customerMobile: orderConfig.data[1].CustomerMobile,
-			customerEmail: orderConfig.data[1].CustomerEmail,
-			customerAddress: orderConfig.data[1].CustomerAddress,
-			description: responseData['Description'],
-			createdOn: responseData['Created_on'],
-			click2Pay: responseData['Click2Pay'],
-			payProId: responseData['PayProId'],
-		});
-
-		await usersRef.update({
-			pendingDeposits: true,
-		});
-
-		return {
-			status: 'success',
-			message: 'Deposit request was successfully placed',
-			paymentUrl: paymentUrl,
-			orderNumber: responseData['OrderNumber'],
-			payProId: responseData['PayProId'],
-		};
+		return addDepositRequestHelper(data, uid, usersRef, userSnapshot);
 	});
+
+const addDepositRequestHelper = async (
+	data: depositRequestData,
+	uid: string,
+	usersRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
+	userSnapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>
+) => {
+	amountValidated(data.amount);
+	amountAbove500(data.amount);
+
+	const timestamp = getTimestamp();
+	const amount = parseInt(data.amount);
+
+	const transactionsRef = db.collection('transactions').doc();
+	const transactionId = transactionsRef.id;
+
+	/*
+		Handle transaction gateway to PayPro API
+	*/
+	const authToken = await getPayProAuthToken();
+
+	const dateHourLater = new Date(timestamp);
+	dateHourLater.setTime(dateHourLater.getTime() + oneHourInMs);
+
+	const orderConfig = {
+		method: 'post',
+		url: PAYPRO_BASE_URL + '/v2/ppro/co',
+		headers: {
+			token: authToken,
+		},
+		data: [
+			{
+				MerchantId: USERNAME,
+			},
+			{
+				OrderNumber: transactionId,
+				OrderAmount: amount,
+				OrderDueDate: dateHourLater.toISOString(), // A due date of an hour
+				OrderType: 'Service',
+				IssueDate: timestamp,
+				OrderExpireAfterSeconds: 60 * 60, // Expiry of an hour
+				CustomerName: userSnapshot.data()!.fullName,
+				CustomerMobile: userSnapshot.data()!.phoneNumber,
+				CustomerEmail: userSnapshot.data()!.email,
+				CustomerAddress: '',
+			},
+		],
+	};
+
+	// Send order request to PayPro
+	let ppOrderRes: any;
+	try {
+		ppOrderRes = await axios(orderConfig);
+	} catch (e) {
+		throwError(
+			'invalid-argument',
+			'Couldnt create order request in PayPro. Retry again!'
+		);
+	}
+
+	const responseData = ppOrderRes.data[1];
+	const paymentUrl: string = responseData['Click2Pay'];
+
+	// Save state into Firestore
+	const depositRequestsRef = db
+		.collection('deposit_requests')
+		.doc(transactionId);
+
+	functions.logger.info(
+		'PayPro Order creation API completed: ',
+		responseData
+	);
+
+	await depositRequestsRef.create({
+		depositerUid: uid,
+		status: pendingStatus,
+		cancellationReason: '',
+		payProMetadata: JSON.stringify(ppOrderRes.data),
+		orderNumber: responseData['OrderNumber'],
+		orderAmount: responseData['OrderAmount'],
+		orderDueDate: orderConfig.data[1].OrderDueDate,
+		orderType: orderConfig.data[1].OrderType,
+		issueDate: orderConfig.data[1].IssueDate,
+		orderExpireAfterSeconds: responseData['Order_Expire_After_Seconds'],
+		customerName: orderConfig.data[1].CustomerName,
+		customerMobile: orderConfig.data[1].CustomerMobile,
+		customerEmail: orderConfig.data[1].CustomerEmail,
+		customerAddress: orderConfig.data[1].CustomerAddress,
+		description: responseData['Description'],
+		createdOn: responseData['Created_on'],
+		click2Pay: responseData['Click2Pay'],
+		payProId: responseData['PayProId'],
+	});
+
+	await usersRef.update({
+		pendingDeposits: true,
+	});
+
+	return {
+		status: 'success',
+		message: 'Deposit request was successfully placed',
+		paymentUrl: paymentUrl,
+		orderNumber: responseData['OrderNumber'],
+		payProId: responseData['PayProId'],
+	};
+};
 
 export const handleDepositSuccess = functions
 	.region('asia-south1')
@@ -177,6 +185,14 @@ export const handleDepositSuccess = functions
 			// if (nowDate >= orderDueDate) {
 			//   return;
 			// }
+
+			if (
+				doc.data().isRaastaPayment !== undefined &&
+				doc.data().isRaastaPayment
+			) {
+				// If this is a raasta payment then ignore
+				return;
+			}
 
 			const config = {
 				method: 'get',
@@ -284,7 +300,7 @@ export const handleDepositSuccess = functions
 		};
 	});
 
-const getPayProAuthToken = async (): Promise<string> => {
+export const getPayProAuthToken = async (): Promise<string> => {
 	const authConfig = {
 		method: 'post',
 		url: PAYPRO_BASE_URL + '/v2/ppro/auth',
@@ -311,3 +327,53 @@ const getPayProAuthToken = async (): Promise<string> => {
 
 	return authToken;
 };
+
+interface addRaastaDepositRequestData {
+	amount: string;
+	rollNumber: string;
+}
+
+export const addRaastaDepositRequest = functions
+	.region('asia-south1')
+	.https.onCall(async (data: addRaastaDepositRequestData) => {
+		/*
+			This function calls the PayPro API to create an order for the
+			amount provided for the invocation user
+		*/
+
+		functions.logger.info('Args:', data);
+
+		// Get the user details from Firestore
+		const sendersQueryRef = db
+			.collection('users')
+			.where('rollNumber', '==', data.rollNumber);
+		const senderSnapshot = await sendersQueryRef.get();
+		if (senderSnapshot.empty) {
+			throwError('not-found', 'Sender does not exist in Firestore');
+		}
+		if (senderSnapshot.docs.length > 1) {
+			throwError(
+				'internal',
+				'Multiple senders with the same roll number exists in Firestore'
+			);
+		}
+		const uid = senderSnapshot.docs[0].id;
+		const usersRef = db.collection('users').doc(uid);
+		const userSnapshot = await usersRef.get();
+
+		const response = await addDepositRequestHelper(
+			{ amount: data.amount },
+			uid,
+			usersRef,
+			userSnapshot
+		);
+
+		await db
+			.collection('deposit_requests')
+			.doc(response.orderNumber)
+			.update({
+				isRaastaPayment: true,
+			});
+
+		return response;
+	});

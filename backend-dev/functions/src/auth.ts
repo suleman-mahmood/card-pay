@@ -384,3 +384,30 @@ export const verifyForgotPasswordOtp = functions
 			password: data.password,
 		});
 	});
+
+interface checkRollNumberExistsData {
+	rollNumber: string;
+}
+
+export const checkRollNumberExists = functions
+	.region('asia-south1')
+	.https.onCall(async (data: checkRollNumberExistsData, _) => {
+		const userQueryRef = db
+			.collection('users')
+			.where('rollNumber', '==', data.rollNumber);
+
+		const senderSnapshot = await userQueryRef.get();
+
+		if (senderSnapshot.empty) {
+			return { userExists: false };
+		}
+
+		if (senderSnapshot.docs.length > 1) {
+			throwError(
+				'failed-precondition',
+				'Multiple users with the same roll number exists in Firestore'
+			);
+		}
+
+		return { userExists: true };
+	});

@@ -2,7 +2,7 @@ import { FirebaseError } from 'firebase/app';
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ButtonSecondary from '../../components/buttons/ButtonSecondary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import PhoneField from '../../components/inputs/PhoneField';
@@ -29,6 +29,33 @@ const Signup: NextPage = () => {
 	const redirectToLogin = () => {
 		router.push('/auth/login');
 	};
+
+	useEffect(() => {
+		// Used to pre-fill the form fields
+
+		if (Object.keys(router.query).length === 0) {
+			return;
+		}
+
+		console.log(router.query);
+
+		if (router.query.rollNumber !== undefined) {
+			setRollNumber(router.query.rollNumber as string);
+		}
+		if (router.query.phoneNumber !== undefined) {
+			const ph = router.query.phoneNumber as string;
+
+			if (ph.length === 11) {
+				// Converting 11 digit phone number to 10 digits by removinng first zero
+				setPhoneNumber(ph.substring(1));
+			} else if (ph.length === 10) {
+				setPhoneNumber(ph);
+			}
+		}
+		if (router.query.fullName !== undefined) {
+			setFullName(router.query.fullName as string);
+		}
+	}, [router]);
 
 	const signupUser = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -77,6 +104,7 @@ const Signup: NextPage = () => {
 			router.push({
 				pathname: '/auth/student-verification',
 				query: {
+					...router.query,
 					uid: uid,
 				},
 			});

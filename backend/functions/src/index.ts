@@ -5,8 +5,13 @@ export {
 	verifyEmailOtp,
 	sendForgotPasswordEmail,
 	verifyForgotPasswordOtp,
+	checkRollNumberExists,
 } from './auth';
-export { addDepositRequest, handleDepositSuccess } from './deposit';
+export {
+	addDepositRequest,
+	handleDepositSuccess,
+	addRaastaDepositRequest,
+} from './deposit';
 export { makeTransaction } from './makeTransaction';
 export { transfer } from './transfer';
 

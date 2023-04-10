@@ -2,7 +2,7 @@ import { FirebaseError } from 'firebase/app';
 import { httpsCallable } from 'firebase/functions';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import TextField from '../../components/inputs/TextField';
@@ -33,9 +33,38 @@ const Login: NextPage = () => {
 			});
 
 			// on success
+			await auth.signOut();
+
+			if (
+				router.query.rollNumber !== undefined &&
+				router.query.amount !== undefined &&
+				router.query.isRaastaPayment !== undefined &&
+				router.query.isRaastaPayment === 'true'
+			) {
+				const addRaastaDepositRequest = httpsCallable(
+					functions,
+					'addRaastaDepositRequest'
+				);
+				try {
+					const { data } = await addRaastaDepositRequest({
+						amount: router.query.amount,
+						rollNumber: router.query.rollNumber,
+					});
+
+					setIsLoading(false);
+					setErrorMessage('');
+
+					const url = (data as any).paymentUrl;
+					window.location.href = url;
+				} catch (error) {
+					console.log(error);
+				}
+				return;
+			}
+
 			setIsLoading(false);
 			setErrorMessage('');
-			await auth.signOut();
+
 			router.push('/auth/login');
 		} catch (error) {
 			setIsLoading(false);
