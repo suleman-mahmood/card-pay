@@ -13,6 +13,8 @@ import Image from 'next/image';
 import DepositIcon from '../../assets/deposit_icon.png';
 import ChangePinIcon from '../../assets/change_pin_icon.png';
 
+const raastaURL = 'https://raasta.com.pk/';
+
 const Dashboard: NextPage = () => {
 	const router = useRouter();
 
@@ -73,6 +75,15 @@ const Dashboard: NextPage = () => {
 						</button>
 						<h3 className='text-lg mt-1'>Pre Order</h3>
 					</div>
+				</div>
+
+				<div className='flex flex-col items-center'>
+					<a href={raastaURL} target='_blank'
+						rel='noreferrer'
+						className='flex flex-col items-center w-24 shadow-lg p-2 mt-2  rounded-2xl '>
+						<img src='https://i.ibb.co/qMxxtV4/raasta.png' />
+					</a>
+					<h3 className='text-lg mt-1'>Raasta Trip</h3>
 				</div>
 			</div>
 		</DashboardLayout>
