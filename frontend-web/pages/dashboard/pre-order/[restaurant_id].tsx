@@ -413,10 +413,6 @@ const DigitalCard: NextPage = () => {
 						: 'Noname'}
 				</h1>
 				<div className='h-10'></div>
-				<img
-					src='https://i.ibb.co/p4Lk71y/ramadan.png'
-					className='scale-110 rounded-3xl shadow-lg'
-				></img>
 				{displayMenu()}
 			</div>
 
