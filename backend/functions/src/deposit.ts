@@ -9,10 +9,15 @@ type Status = 'pending' | 'successful' | 'cancelled';
 const pendingStatus: Status = 'pending';
 const successfulStatus: Status = 'successful';
 
+// export const PAYPRO_BASE_URL = 'https://api.PayPro.com.pk';
+// export const USERNAME = 'Card_Pay';
+// const CLIENT_ID = 'T5u0mKpCH4cV98J';
+// const CLIENT_SECRET = 'vHIXolKNjB4zNIa';
+
 export const PAYPRO_BASE_URL = 'https://api.PayPro.com.pk';
-export const USERNAME = 'Card_Pay';
-const CLIENT_ID = 'T5u0mKpCH4cV98J';
-const CLIENT_SECRET = 'vHIXolKNjB4zNIa';
+export const USERNAME = 'Card_Tech';
+const CLIENT_ID = 'nZe98DIdpegfEpR';
+const CLIENT_SECRET = 'OI5venNO0VdClBD';
 
 interface depositRequestData {
 	amount: string;
