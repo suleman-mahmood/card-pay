@@ -3,7 +3,7 @@ import { checkUserAuthAndDoc } from './helpers';
 import { admin, db } from './initialize';
 import { TRANSACTION_TYPE } from './pre-order/order';
 import { UserDoc } from './types';
-import { getTimestamp, throwError } from './utils';
+import { getTimestamp, sendEmail, throwError } from './utils';
 import {
 	amountValidated,
 	fourDigitPinValidated,
@@ -205,5 +205,9 @@ export const makeFarewellTransaction = functions
 			);
 		}
 
-		return transactionMain(uid, FAREWELL_ID, FAREWELL_AMOUNT.toString());
+		await transactionMain(uid, FAREWELL_ID, FAREWELL_AMOUNT.toString());
+
+		const subject = 'CardPay | Farewell Registration Successfull';
+		const htmlBody = `You have successfully registered and paid for the Farewell! Enjoy!`;
+		return sendEmail(doc.email, subject, htmlBody, htmlBody);
 	});
