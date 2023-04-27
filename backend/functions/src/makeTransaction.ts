@@ -208,6 +208,7 @@ export const makeFarewellTransaction = functions
 		await transactionMain(uid, FAREWELL_ID, FAREWELL_AMOUNT.toString());
 
 		const subject = 'CardPay | Farewell Registration Successfull';
-		const htmlBody = `You have successfully registered and paid for the Farewell! Enjoy!`;
+		const htmlBody =
+			'You have successfully registered and paid for the Farewell! Enjoy!';
 		return sendEmail(doc.email, subject, htmlBody, htmlBody);
 	});
