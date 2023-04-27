@@ -195,7 +195,15 @@ export const makeFarewellTransaction = functions
 	.https.onCall(async (_, context) => {
 		functions.logger.info('Args:', _);
 
-		const { uid } = await checkUserAuthAndDoc(context);
+		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
+
+		const doc = userSnapshot.data() as UserDoc;
+		if (doc.rollNumber.slice(0, 2) !== '23') {
+			throwError(
+				'permission-denied',
+				'Only batch of 23 can register for farewell'
+			);
+		}
 
 		return transactionMain(uid, FAREWELL_ID, FAREWELL_AMOUNT.toString());
 	});
