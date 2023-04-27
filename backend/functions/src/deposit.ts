@@ -9,12 +9,12 @@ type Status = 'pending' | 'successful' | 'cancelled';
 const pendingStatus: Status = 'pending';
 const successfulStatus: Status = 'successful';
 
-// export const PAYPRO_BASE_URL = 'https://api.PayPro.com.pk';
-// export const USERNAME = 'Card_Pay';
-// const CLIENT_ID = 'T5u0mKpCH4cV98J';
-// const CLIENT_SECRET = 'vHIXolKNjB4zNIa';
-
 export const PAYPRO_BASE_URL = 'https://api.PayPro.com.pk';
+
+export const MAIN_USERNAME = 'Card_Pay';
+const MAIN_CLIENT_ID = 'T5u0mKpCH4cV98J';
+const MAIN_CLIENT_SECRET = 'vHIXolKNjB4zNIa';
+
 export const USERNAME = 'Card_Tech';
 const CLIENT_ID = 'nZe98DIdpegfEpR';
 const CLIENT_SECRET = 'OI5venNO0VdClBD';
@@ -43,8 +43,13 @@ const addDepositRequestHelper = async (
 	data: depositRequestData,
 	uid: string,
 	usersRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
-	userSnapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>
+	userSnapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>,
+	isRaastaPayment?: boolean
 ) => {
+	if (isRaastaPayment === undefined) {
+		isRaastaPayment = false;
+	}
+
 	amountValidated(data.amount);
 	amountAbove500(data.amount);
 
@@ -57,7 +62,7 @@ const addDepositRequestHelper = async (
 	/*
 		Handle transaction gateway to PayPro API
 	*/
-	const authToken = await getPayProAuthToken();
+	const authToken = await getPayProAuthToken(!isRaastaPayment);
 
 	const dateHourLater = new Date(timestamp);
 	dateHourLater.setTime(dateHourLater.getTime() + oneHourInMs);
@@ -70,7 +75,7 @@ const addDepositRequestHelper = async (
 		},
 		data: [
 			{
-				MerchantId: USERNAME,
+				MerchantId: isRaastaPayment ? USERNAME : MAIN_USERNAME,
 			},
 			{
 				OrderNumber: transactionId,
@@ -159,7 +164,7 @@ export const handleDepositSuccess = functions
 		const { uid, usersRef, userSnapshot } = await checkUserAuthAndDoc(
 			context
 		);
-		const authToken = await getPayProAuthToken();
+		const authToken = await getPayProAuthToken(true);
 
 		/*
 			Get all pending deposit requests for this user
@@ -207,7 +212,7 @@ export const handleDepositSuccess = functions
 					'Content-Type': 'application/json',
 				},
 				data: JSON.stringify({
-					Username: USERNAME,
+					Username: MAIN_USERNAME,
 					cpayId: doc.data().payProId,
 				}),
 			};
@@ -305,14 +310,22 @@ export const handleDepositSuccess = functions
 		};
 	});
 
-export const getPayProAuthToken = async (): Promise<string> => {
+export const getPayProAuthToken = async (
+	useMainCredentials?: boolean
+): Promise<string> => {
+	if (useMainCredentials === undefined) {
+		useMainCredentials = false;
+	}
+
 	const authConfig = {
 		method: 'post',
 		url: PAYPRO_BASE_URL + '/v2/ppro/auth',
 		headers: {},
 		data: {
-			clientid: CLIENT_ID,
-			clientsecret: CLIENT_SECRET,
+			clientid: useMainCredentials ? MAIN_CLIENT_ID : CLIENT_ID,
+			clientsecret: useMainCredentials
+				? MAIN_CLIENT_SECRET
+				: CLIENT_SECRET,
 		},
 	};
 

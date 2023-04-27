@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as functions from 'firebase-functions';
-import { getPayProAuthToken, PAYPRO_BASE_URL, USERNAME } from './deposit';
+import { getPayProAuthToken, MAIN_USERNAME, PAYPRO_BASE_URL } from './deposit';
 import { admin, db } from './initialize';
 import { transactionMain } from './makeTransaction';
 import { denyPickupOrderHelper } from './pre-order/order';
@@ -33,7 +33,7 @@ const handleRaastaPayments = async () => {
 		.get();
 
 	const ppPromises: Promise<any>[] = [];
-	const authToken = await getPayProAuthToken();
+	const authToken = await getPayProAuthToken(true);
 	const orderNumberUserData: {
 		[orderNumber: string]: {
 			uid: string;
@@ -63,7 +63,7 @@ const handleRaastaPayments = async () => {
 				'Content-Type': 'application/json',
 			},
 			data: JSON.stringify({
-				Username: USERNAME,
+				Username: MAIN_USERNAME,
 				cpayId: docData.payProId,
 			}),
 		};
