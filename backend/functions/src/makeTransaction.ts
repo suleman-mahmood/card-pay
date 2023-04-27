@@ -12,6 +12,8 @@ import {
 } from './validations';
 
 const MAX_TRANSACTIONS_IN_ONE_DOC = 2000;
+const FAREWELL_ID = 'cjtqXJAvhjcBYjJ9A7RukKdryE13';
+const FAREWELL_AMOUNT = 2550;
 
 interface makeTransactionData {
 	amount: string;
@@ -187,3 +189,13 @@ export const transactionMain = async (
 		};
 	});
 };
+
+export const makeFarewellTransaction = functions
+	.region('asia-south1')
+	.https.onCall(async (_, context) => {
+		functions.logger.info('Args:', _);
+
+		const { uid } = await checkUserAuthAndDoc(context);
+
+		return transactionMain(uid, FAREWELL_ID, FAREWELL_AMOUNT.toString());
+	});

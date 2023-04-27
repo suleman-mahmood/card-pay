@@ -1,22 +1,25 @@
-import {
-	faIdCard,
-	faLock,
-	faMoneyBillTransfer,
-	faPowerOff,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import Image from 'next/image';
 import DepositIcon from '../../assets/deposit_icon.png';
 import ChangePinIcon from '../../assets/change_pin_icon.png';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../services/initialize-firebase';
+import ErrorAlert from '../../components/cards/ErrorAlert';
+import SuccessAlert from '../../components/cards/SuccessAlert';
+import { useState } from 'react';
+import BoxLoading from '../../components/loaders/BoxLoading';
+import { FirebaseError } from 'firebase/app';
 
 const raastaURL = 'https://raasta.com.pk/';
 
 const Dashboard: NextPage = () => {
 	const router = useRouter();
+
+	const [errorMessage, setErrorMessage] = useState('');
+	const [successMessage, setSuccessMessage] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
 
 	const redirectToDeposit = () => {
 		router.push('/dashboard/deposit');
@@ -34,7 +37,30 @@ const Dashboard: NextPage = () => {
 		router.push('/dashboard/pre-order');
 	};
 
-	return (
+	const handleFarewellPayment = async () => {
+		setIsLoading(true);
+
+		const makeFarewellTransaction = httpsCallable(
+			functions,
+			'makeFarewellTransaction'
+		);
+		try {
+			await makeFarewellTransaction();
+
+			setIsLoading(false);
+			setErrorMessage('');
+			setSuccessMessage('Farewell payment successful!');
+		} catch (error) {
+			setIsLoading(false);
+			setSuccessMessage('');
+			setErrorMessage((error as FirebaseError).message);
+			console.log(error);
+		}
+	};
+
+	return isLoading ? (
+		<BoxLoading />
+	) : (
 		<DashboardLayout>
 			<div className='flex flex-col'>
 				<div className='flex flex-row justify-around'>
@@ -77,15 +103,61 @@ const Dashboard: NextPage = () => {
 					</div>
 				</div>
 
-				<div className='flex flex-col items-center'>
-					<a href={raastaURL} target='_blank'
-						rel='noreferrer'
-						className='flex flex-col items-center w-24 shadow-lg p-2 mt-2  rounded-2xl '>
-						<img src='https://i.ibb.co/qMxxtV4/raasta.png' />
-					</a>
-					<h3 className='text-lg mt-1'>Raasta Trip</h3>
+				<div className='flex flex-row justify-around'>
+					<div className='flex flex-col'>
+						<a href={raastaURL} target='_blank' rel='noreferrer'>
+							<div className='w-24 shadow-lg p-4 rounded-2xl'>
+								<img
+									src='https://i.ibb.co/qMxxtV4/raasta.png'
+									className='my-2'
+								/>
+							</div>
+						</a>
+						<h3 className='text-lg mt-1'>Raasta</h3>
+					</div>
+
+					<div className='flex flex-col'>
+						<label htmlFor='my-modal'>
+							<div className='w-24 shadow-lg p-4 rounded-2xl'>
+								<img
+									src='https://i.ibb.co/Lt3HRXc/graduation.png'
+									className='-mb-2'
+								/>
+							</div>
+						</label>
+						<h3 className='text-lg mt-1'>Farewell</h3>
+					</div>
 				</div>
 			</div>
+
+			{/* Put this part before </body> tag */}
+			<input type='checkbox' id='my-modal' className='modal-toggle' />
+			<div className='modal'>
+				<div className='modal-box'>
+					<h3 className='font-bold text-lg'>Farewell payment</h3>
+					<p className='py-4'>
+						Are you sure you want to pay <b>Rs.2550</b> for the
+						farewell payment?
+					</p>
+					<div className='modal-action'>
+						<label
+							htmlFor='my-modal'
+							className='btn bg-gradient-to-l from-primary to-primarydark text-white border-none'
+							onClick={handleFarewellPayment}
+						>
+							Abosulutely!
+						</label>
+						<label
+							htmlFor='my-modal'
+							className='btn bg-gradient-to-l from-primary to-primarydark text-white border-none'
+						>
+							Still thinking :/
+						</label>
+					</div>
+				</div>
+			</div>
+			<ErrorAlert message={errorMessage} />
+			<SuccessAlert message={successMessage} />
 		</DashboardLayout>
 	);
 };

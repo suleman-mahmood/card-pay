@@ -12,7 +12,7 @@ export {
 	handleDepositSuccess,
 	addRaastaDepositRequest,
 } from './deposit';
-export { makeTransaction } from './makeTransaction';
+export { makeTransaction, makeFarewellTransaction } from './makeTransaction';
 export { transfer } from './transfer';
 
 // Admin functions

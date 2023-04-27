@@ -1,5 +1,4 @@
 import * as functions from 'firebase-functions';
-import { topUpUserVirtualCashHelper } from './admin/transactions';
 import { checkUserAuthAndDoc, noDocumentWithRollNumber } from './helpers';
 import { admin, db } from './initialize';
 import { generateRandom4DigitPin, sendEmail, throwError } from './utils';
@@ -12,8 +11,8 @@ import {
 	uidValidated,
 } from './validations';
 
-const INITIAL_BALANCE = 50;
-const REFERRAL_COMMISSION = 30;
+// const INITIAL_BALANCE = 50;
+// const REFERRAL_COMMISSION = 30;
 
 interface CreateUserData {
 	fullName: string;
@@ -170,29 +169,30 @@ export const verifyEmailOtp = functions
 			verified: true,
 		});
 
-		await topUpUserVirtualCashHelper({
-			amount: INITIAL_BALANCE.toString(),
-			rollNumber: userSnapshot.data()!.rollNumber,
-		});
+		// await topUpUserVirtualCashHelper({
+		// 	amount: INITIAL_BALANCE.toString(),
+		// 	rollNumber: userSnapshot.data()!.rollNumber,
+		// });
 
-		const referralRollNumber = userSnapshot.data()!.referralRollNumber;
+		// const referralRollNumber = userSnapshot.data()!.referralRollNumber;
 
-		// Send Rs.30 to referral roll number if exists
-		if (referralRollNumber && referralRollNumber.length !== 0) {
-			// Referrall roll number exists
-			try {
-				await topUpUserVirtualCashHelper({
-					amount: REFERRAL_COMMISSION.toString(),
-					rollNumber: referralRollNumber,
-				});
-			} catch (e) {
-				return {
-					status: 'success',
-					message:
-						'Sign up was successful but referral roll number doesnt exist',
-				};
-			}
-		}
+		// // Send Rs.30 to referral roll number if exists
+		// if (referralRollNumber && referralRollNumber.length !== 0) {
+		// 	// Referrall roll number exists
+		// 	try {
+		// 		await topUpUserVirtualCashHelper({
+		// 			amount: REFERRAL_COMMISSION.toString(),
+		// 			rollNumber: referralRollNumber,
+		// 		});
+		// 	} catch (e) {
+		// 		return {
+		// 			status: 'success',
+		// 			message:
+		// 				'Sign up was successful but referral roll number doesnt exist',
+		// 		};
+		// 	}
+		// }
+
 		return {
 			status: 'success',
 			message: 'Sign up for successful',
