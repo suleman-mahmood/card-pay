@@ -383,7 +383,8 @@ export const addRaastaDepositRequest = functions
 			{ amount: data.amount },
 			uid,
 			usersRef,
-			userSnapshot
+			userSnapshot,
+			true
 		);
 
 		await db
