@@ -63,6 +63,9 @@ const Dashboard: NextPage = () => {
 	) : (
 		<DashboardLayout>
 			<div className='flex flex-col'>
+				<ErrorAlert message={errorMessage} />
+				<SuccessAlert message={successMessage} />
+
 				<div className='flex flex-row justify-around'>
 					<div className='flex flex-col'>
 						<button onClick={redirectToDeposit}>
@@ -156,8 +159,6 @@ const Dashboard: NextPage = () => {
 					</div>
 				</div>
 			</div>
-			<ErrorAlert message={errorMessage} />
-			<SuccessAlert message={successMessage} />
 		</DashboardLayout>
 	);
 };
