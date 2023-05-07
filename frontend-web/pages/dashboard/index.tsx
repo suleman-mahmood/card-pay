@@ -105,32 +105,6 @@ const Dashboard: NextPage = () => {
 						<h3 className='text-lg mt-1'>Pre Order</h3>
 					</div>
 				</div>
-
-				<div className='flex flex-row justify-around'>
-					<div className='flex flex-col'>
-						<a href={raastaURL} target='_blank' rel='noreferrer'>
-							<div className='w-24 shadow-lg p-4 rounded-2xl'>
-								<img
-									src='https://i.ibb.co/qMxxtV4/raasta.png'
-									className='my-2'
-								/>
-							</div>
-						</a>
-						<h3 className='text-lg mt-1'>Raasta</h3>
-					</div>
-
-					<div className='flex flex-col'>
-						<label htmlFor='my-modal'>
-							<div className='w-24 shadow-lg p-4 rounded-2xl'>
-								<img
-									src='https://i.ibb.co/Lt3HRXc/graduation.png'
-									className='-mb-2'
-								/>
-							</div>
-						</label>
-						<h3 className='text-lg mt-1'>Farewell</h3>
-					</div>
-				</div>
 			</div>
 
 			{/* Put this part before </body> tag */}

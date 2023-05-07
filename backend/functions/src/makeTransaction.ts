@@ -198,7 +198,12 @@ export const makeFarewellTransaction = functions
 		const { uid, userSnapshot } = await checkUserAuthAndDoc(context);
 
 		const doc = userSnapshot.data() as UserDoc;
-		if (doc.rollNumber.slice(0, 2) !== '23') {
+		if (
+			!(
+				doc.rollNumber.slice(0, 2) === '23' ||
+				doc.rollNumber.slice(0, 4) === '2409'
+			)
+		) {
 			throwError(
 				'permission-denied',
 				'Only batch of 23 can register for farewell'
