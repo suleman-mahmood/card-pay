@@ -45,6 +45,7 @@ const WelcomeLayout: FC<IAuthLayout> = ({ children }) => {
 							href='https://www.linkedin.com/in/sulemanmahmood/'
 							className='underline font-bold'
 							target='_blank'
+							rel='noreferrer'
 						>
 							Suleman
 						</a>
