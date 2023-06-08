@@ -130,4 +130,3 @@ class Transaction:
             raise TransactionNotAllowedException("This is not a p2p pull transaction")
 
         self.status = TransactionStatus.DECLINED
-
