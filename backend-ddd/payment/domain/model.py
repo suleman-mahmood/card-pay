@@ -39,7 +39,7 @@ class User:
     phone_number: str = ""
     email: str = ""  # Personal email
     full_name: str = ""
-
+    is_active: bool = True
 
 @dataclass
 class Wallet:
@@ -47,7 +47,6 @@ class Wallet:
 
     id: str = field(default_factory=lambda: str(uuid4()))
     balance: int = 0
-
 
 class TransactionStatus(str, Enum):
     """Transaction status enum"""
@@ -83,6 +82,7 @@ class TransactionType(str, Enum):
 
     PAYMENT_GATEWAY = 5
 
+    CARD_PAY = 6 # source of tokens in cardpay
 
 @dataclass
 class Transaction:
@@ -104,8 +104,15 @@ class Transaction:
 
     def make_transaction(self):
         if self.amount > self.sender_wallet.balance:
+            self.status = TransactionStatus.FAILED
             raise TransactionNotAllowedException(
                 "Insufficient balance in sender's wallet"
+            )
+
+        if self.recipient_wallet.id == self.sender_wallet.id:
+            self.status = TransactionStatus.FAILED
+            raise TransactionNotAllowedException(
+                "Constraint violated, sender and recipient wallets are the same"
             )
 
         self.sender_wallet.balance -= self.amount
@@ -123,3 +130,4 @@ class Transaction:
             raise TransactionNotAllowedException("This is not a p2p pull transaction")
 
         self.status = TransactionStatus.DECLINED
+
