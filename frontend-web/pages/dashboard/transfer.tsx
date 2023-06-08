@@ -110,7 +110,7 @@ const Transfer: NextPage = () => {
 				type='number'
 				valueSetter={setAmount}
 				placeholder='Amount'
-				value={amount}
+				value={amount.toString()}
 			/>
 
 			<ButtonPrimary onClick={handleTransfer} text='Transfer Now!' />
