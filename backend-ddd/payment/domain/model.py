@@ -47,7 +47,6 @@ class Wallet:
 
     id: str = field(default_factory=lambda: str(uuid4()))
     balance: int = 0
-    transaction_ids: List[str] = field(default_factory=list)
 
 
 class TransactionStatus(str, Enum):
@@ -94,13 +93,13 @@ class Transaction:
     amount: int
     mode: TransactionMode
     transaction_type: TransactionType
-    status: TransactionStatus
 
     recipient_wallet: Wallet
     sender_wallet: Wallet
 
     id: str = field(default_factory=lambda: str(uuid4()))
     timestamp: datetime = field(default_factory=datetime.now)
+    status: TransactionStatus = TransactionStatus.PENDING
 
     # def p2p_transaction(self, user: User):
     #     if user.user_type != UserType.CUSTOMER:
