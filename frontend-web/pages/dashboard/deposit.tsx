@@ -96,7 +96,7 @@ const Deposit: NextPage = () => {
 				type='number'
 				valueSetter={setAmount}
 				placeholder='Amount'
-				value={amount}
+				value={amount.toString()}
 			/>
 
 			<ButtonPrimary onClick={handleDeposit} text='Deposit Now!' />
