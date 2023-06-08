@@ -39,7 +39,7 @@ class User:
     phone_number: str = ""
     email: str = ""  # Personal email
     full_name: str = ""
-
+    is_active: bool = True
 
 @dataclass
 class Wallet:
@@ -47,8 +47,6 @@ class Wallet:
 
     id: str = field(default_factory=lambda: str(uuid4()))
     balance: int = 0
-    transaction_ids: List[str] = field(default_factory=list)
-
 
 class TransactionStatus(str, Enum):
     """Transaction status enum"""
@@ -57,6 +55,7 @@ class TransactionStatus(str, Enum):
     FAILED = 2
     SUCCESSFUL = 3
     EXPIRED = 4
+    DECLINED = 5
 
 
 class TransactionMode(str, Enum):
@@ -83,6 +82,7 @@ class TransactionType(str, Enum):
 
     PAYMENT_GATEWAY = 5
 
+    CARD_PAY = 6 # source of tokens in cardpay
 
 @dataclass
 class Transaction:
@@ -94,16 +94,40 @@ class Transaction:
     amount: int
     mode: TransactionMode
     transaction_type: TransactionType
-    status: TransactionStatus
 
     recipient_wallet: Wallet
     sender_wallet: Wallet
 
     id: str = field(default_factory=lambda: str(uuid4()))
     timestamp: datetime = field(default_factory=datetime.now)
+    status: TransactionStatus = TransactionStatus.PENDING
 
-    # def p2p_transaction(self, user: User):
-    #     if user.user_type != UserType.CUSTOMER:
-    #         raise TransactionNotAllowedException(
-    #             "p2p is only allowed for user type customer"
-    #         )
+    def make_transaction(self):
+        if self.amount > self.sender_wallet.balance:
+            self.status = TransactionStatus.FAILED
+            raise TransactionNotAllowedException(
+                "Insufficient balance in sender's wallet"
+            )
+
+        if self.recipient_wallet.id == self.sender_wallet.id:
+            self.status = TransactionStatus.FAILED
+            raise TransactionNotAllowedException(
+                "Constraint violated, sender and recipient wallets are the same"
+            )
+
+        self.sender_wallet.balance -= self.amount
+        self.recipient_wallet.balance += self.amount
+        self.status = TransactionStatus.SUCCESSFUL
+
+    def accept_p2p_pull_transaction(self):
+        if self.transaction_type != TransactionType.P2P_PULL:
+            raise TransactionNotAllowedException("This is not a p2p pull transaction")
+
+        self.make_transaction()
+
+    def decline_p2p_pull_transaction(self):
+        if self.transaction_type != TransactionType.P2P_PULL:
+            raise TransactionNotAllowedException("This is not a p2p pull transaction")
+
+        self.status = TransactionStatus.DECLINED
+
