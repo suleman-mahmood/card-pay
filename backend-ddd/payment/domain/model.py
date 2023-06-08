@@ -56,6 +56,7 @@ class TransactionStatus(str, Enum):
     FAILED = 2
     SUCCESSFUL = 3
     EXPIRED = 4
+    DECLINED = 5
 
 
 class TransactionMode(str, Enum):
@@ -101,8 +102,24 @@ class Transaction:
     timestamp: datetime = field(default_factory=datetime.now)
     status: TransactionStatus = TransactionStatus.PENDING
 
-    # def p2p_transaction(self, user: User):
-    #     if user.user_type != UserType.CUSTOMER:
-    #         raise TransactionNotAllowedException(
-    #             "p2p is only allowed for user type customer"
-    #         )
+    def make_transaction(self):
+        if self.amount > self.sender_wallet.balance:
+            raise TransactionNotAllowedException(
+                "Insufficient balance in sender's wallet"
+            )
+
+        self.sender_wallet.balance -= self.amount
+        self.recipient_wallet.balance += self.amount
+        self.status = TransactionStatus.SUCCESSFUL
+
+    def accept_p2p_pull_transaction(self):
+        if self.transaction_type != TransactionType.P2P_PULL:
+            raise TransactionNotAllowedException("This is not a p2p pull transaction")
+
+        self.make_transaction()
+
+    def decline_p2p_pull_transaction(self):
+        if self.transaction_type != TransactionType.P2P_PULL:
+            raise TransactionNotAllowedException("This is not a p2p pull transaction")
+
+        self.status = TransactionStatus.DECLINED

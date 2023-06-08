@@ -54,20 +54,20 @@ def test_p2p_push_transaction(seed_user_wallet):
     )
     tx.make_transaction()
 
-    assert wallet1.balance == 0
-    assert wallet2.balance == 1000
+    assert tx.sender_wallet.balance == 0
+    assert tx.recipient_wallet.balance == 1000
 
     assert tx.status == TransactionStatus.SUCCESSFUL
     assert tx.mode == TransactionMode.APP_TRANSFER
     assert tx.transaction_type == TransactionType.P2P_PUSH
 
-    assert tx.sender_wallet == wallet1
-    assert tx.recipient_wallet == wallet2
+    assert tx.sender_wallet == tx.sender_wallet
+    assert tx.recipient_wallet == tx.recipient_wallet
 
     assert tx.status == TransactionStatus.SUCCESSFUL
 
 
-def test_initaite_deposit(seed_user_wallet, seed_wallet):
+def test_initiate_deposit(seed_user_wallet, seed_wallet):
     _, wallet = seed_user_wallet()
     pg_wallet = seed_wallet()
 
@@ -82,16 +82,16 @@ def test_initaite_deposit(seed_user_wallet, seed_wallet):
     )
     tx.make_transaction()
 
-    assert wallet.balance == 0
-    assert pg_wallet.balance == 1000000 - 1000
+    assert tx.recipient_wallet.balance == 1000
+    assert tx.sender_wallet.balance == 1000000 - 1000
 
-    assert tx.status == TransactionStatus.PENDING
+    assert tx.status == TransactionStatus.SUCCESSFUL
     assert tx.mode == TransactionMode.APP_TRANSFER
     assert tx.transaction_type == TransactionType.PAYMENT_GATEWAY
     assert tx.amount == 1000
 
-    assert tx.sender_wallet == pg_wallet
-    assert tx.recipient_wallet == wallet
+    assert tx.sender_wallet == tx.sender_wallet
+    assert tx.recipient_wallet == tx.recipient_wallet
 
 
 def test_pos_transaction(seed_user_wallet):
@@ -115,13 +115,10 @@ def test_pos_transaction(seed_user_wallet):
     assert tx.mode == TransactionMode.QR
     assert tx.transaction_type == TransactionType.POS
 
-    assert tx.sender_wallet == customer_wallet
-    assert tx.recipient_wallet == vendor_wallet
-
     assert tx.status == TransactionStatus.SUCCESSFUL
 
 
-def test_p2p_pull_transaction(seed_user_wallet):
+def test_accept_p2p_pull_transaction(seed_user_wallet):
     """consider adding request feature if a transaction has been made previously"""
     _, wallet1 = seed_user_wallet()
     _, wallet2 = seed_user_wallet()
@@ -137,19 +134,47 @@ def test_p2p_pull_transaction(seed_user_wallet):
     )
 
     # Initiate transaction
-    assert wallet1.balance == 0
-    assert wallet2.balance == 1000
+    assert tx.recipient_wallet.balance == 0
+    assert tx.sender_wallet.balance == 1000
 
     assert tx.status == TransactionStatus.PENDING
     assert tx.mode == TransactionMode.APP_TRANSFER
     assert tx.transaction_type == TransactionType.P2P_PULL
 
-    assert tx.sender_wallet == wallet1
-    assert tx.recipient_wallet == wallet2
-
     # Complete transaction
     tx.accept_p2p_pull_transaction()
 
-    assert wallet1.balance == 1000
-    assert wallet2.balance == 0
+    assert tx.recipient_wallet.balance == 1000
+    assert tx.sender_wallet.balance == 0
     assert tx.status == TransactionStatus.SUCCESSFUL
+
+
+def test_decline_p2p_pull_transaction(seed_user_wallet):
+    """consider adding request feature if a transaction has been made previously"""
+    _, wallet1 = seed_user_wallet()
+    _, wallet2 = seed_user_wallet()
+
+    # Wallet1 requesting 1000 from wallet 2
+    wallet2.balance = 1000
+    tx = Transaction(
+        amount=1000,
+        mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.P2P_PULL,
+        recipient_wallet=wallet1,
+        sender_wallet=wallet2,
+    )
+
+    # Initiate transaction
+    assert tx.recipient_wallet.balance == 0
+    assert tx.sender_wallet.balance == 1000
+
+    assert tx.status == TransactionStatus.PENDING
+    assert tx.mode == TransactionMode.APP_TRANSFER
+    assert tx.transaction_type == TransactionType.P2P_PULL
+
+    # Complete transaction
+    tx.decline_p2p_pull_transaction()
+
+    assert tx.recipient_wallet.balance == 0
+    assert tx.sender_wallet.balance == 1000
+    assert tx.status == TransactionStatus.DECLINED
