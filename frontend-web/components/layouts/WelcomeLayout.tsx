@@ -37,7 +37,7 @@ const WelcomeLayout: FC<IAuthLayout> = ({ children }) => {
 				{children}
 			</div>
 
-			<footer className='footer absolute bottom-0 p-4 bg-neutral text-neutral-content'>
+			{/* <footer className='footer absolute bottom-0 p-4 bg-neutral text-neutral-content'>
 				<div className='w-full grid-flow-col text-center'>
 					<div className='w-full flex flex-row justify-center'>
 						<p className='mr-1'>Made with ❤️ by</p>
@@ -51,7 +51,7 @@ const WelcomeLayout: FC<IAuthLayout> = ({ children }) => {
 						</a>
 					</div>
 				</div>
-			</footer>
+			</footer> */}
 		</div>
 	);
 };

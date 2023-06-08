@@ -4,11 +4,11 @@ interface ITextField {
 	placeholder: string;
 	type: string;
 	valueSetter: React.Dispatch<React.SetStateAction<any>>;
-	value?: number;
+	value?: string;
 	maxLength?: number;
 }
 
-const TextField: FC<ITextField> = props => {
+const TextField: FC<ITextField> = (props) => {
 	return (
 		<input
 			type={props.type}

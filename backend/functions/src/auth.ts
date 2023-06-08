@@ -21,6 +21,9 @@ interface CreateUserData {
 	pin: string;
 	phoneNumber: string;
 	referralRollNumber: string;
+	isFaculty: boolean;
+	facultyEmail: string;
+	employeeId: string;
 }
 
 export const createUser = functions
@@ -42,6 +45,14 @@ export const createUser = functions
 		phoneNumberValidated(data.phoneNumber);
 		passwordValidated(data.password);
 
+		let rollNumber = data.rollNumber;
+		let email = `${data.rollNumber}@lums.edu.pk`;
+
+		if (data.isFaculty) {
+			rollNumber = '0000' + data.employeeId.substring(1);
+			email = data.facultyEmail;
+		}
+
 		// Check if user has entered a referral roll number and validate it
 		if (data.referralRollNumber && data.referralRollNumber.length !== 0) {
 			rollNumberValidated(data.referralRollNumber);
@@ -50,10 +61,9 @@ export const createUser = functions
 		const randomPin = generateRandom4DigitPin();
 		const phoneNumber = `0${data.phoneNumber}`;
 		const phoneNumberE164 = `+92${data.phoneNumber}`;
-		const email = `${data.rollNumber}@lums.edu.pk`;
 
 		// 2. User does not already exist with the same roll number
-		noDocumentWithRollNumber(data.rollNumber);
+		noDocumentWithRollNumber(rollNumber);
 
 		/*
 			Handle Success:
@@ -110,7 +120,7 @@ export const createUser = functions
 			pendingDeposits: false,
 			pin: data.pin,
 			phoneNumber: phoneNumber,
-			rollNumber: data.rollNumber,
+			rollNumber: rollNumber,
 			verified: false,
 			role: 'student',
 			balance: 0,

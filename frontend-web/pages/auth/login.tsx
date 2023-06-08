@@ -27,6 +27,9 @@ const Login: NextPage = () => {
 	const [errorMessage, setErrorMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 
+	const [isFaculty, setIsFaculty] = useState(false);
+	const [facultyEmail, setFacultyEmail] = useState('');
+
 	const redirectToSignup = () => {
 		router.push('/auth/signup');
 	};
@@ -36,7 +39,10 @@ const Login: NextPage = () => {
 		setIsLoading(true);
 		setErrorMessage('');
 
-		const email = `${rollNumber}@lums.edu.pk`;
+		let email = `${rollNumber}@lums.edu.pk`;
+		if (isFaculty) {
+			email = facultyEmail;
+		}
 
 		try {
 			await signInWithEmailAndPassword(auth, email, password);
@@ -48,6 +54,10 @@ const Login: NextPage = () => {
 			setErrorMessage((error as FirebaseError).message);
 			console.log(error);
 		}
+	};
+
+	const toggleUserType = (e: React.FormEvent<HTMLInputElement>) => {
+		setIsFaculty(e.currentTarget.checked);
 	};
 
 	return isLoading ? (
@@ -64,13 +74,36 @@ const Login: NextPage = () => {
 				/>
 			</h2>
 
+			<div className='flex flex-row justify-center'>
+				<div className='form-control'>
+					<label className='cursor-pointer label'>
+						<span className='label-text text-lg mr-2'>Student</span>
+						<input
+							type='checkbox'
+							className='toggle'
+							onChange={toggleUserType}
+						/>
+						<span className='label-text text-lg ml-2'>Faculty</span>
+					</label>
+				</div>
+			</div>
+
 			<form onSubmit={loginUser} className='w-full form-control'>
-				<TextField
-					type='text'
-					valueSetter={setRollNumber}
-					placeholder='Roll Number'
-					maxLength={8}
-				/>
+				{!isFaculty ? (
+					<TextField
+						type='text'
+						valueSetter={setRollNumber}
+						placeholder='Roll Number'
+						maxLength={8}
+					/>
+				) : (
+					<TextField
+						type='text'
+						valueSetter={setFacultyEmail}
+						placeholder='Email: first.last@lums.edu.pk'
+						value={facultyEmail}
+					/>
+				)}
 				<TextField
 					type='password'
 					valueSetter={setPassword}

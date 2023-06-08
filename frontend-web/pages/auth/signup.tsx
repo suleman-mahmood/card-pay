@@ -24,7 +24,11 @@ const Signup: NextPage = () => {
 	const [pin, setPin] = useState('');
 	const [confirmPin, setConfirmPin] = useState('');
 	const [phoneNumber, setPhoneNumber] = useState('');
-	const [referralRollNumber, setReferralRollNumber] = useState('');
+	// const [referralRollNumber, setReferralRollNumber] = useState('');
+
+	const [isFaculty, setIsFaculty] = useState(false);
+	const [facultyEmail, setFacultyEmail] = useState('');
+	const [employeeId, setEmployeeId] = useState('');
 
 	const redirectToLogin = () => {
 		router.push('/auth/login');
@@ -57,9 +61,35 @@ const Signup: NextPage = () => {
 		}
 	}, [router]);
 
+	function isValidEmail(email: string): boolean {
+		const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return regex.test(email);
+	}
+
+	function isValidEmployeeId(input: string): boolean {
+		const regex = /^[e,E]\d{4}$/;
+		return regex.test(input);
+	}
+
 	const signupUser = async (e: React.FormEvent) => {
 		e.preventDefault();
 		const words = fullName.split(' ');
+
+		if (isFaculty) {
+			if (!isValidEmail(facultyEmail)) {
+				console.log('Wrongly formatted email');
+				setErrorMessage('Wrongly formatted email');
+				return;
+			} else if (facultyEmail.split('@')[1] !== 'lums.edu.pk') {
+				console.log('Enter your lums email');
+				setErrorMessage('Enter your lums email');
+				return;
+			} else if (!isValidEmployeeId(employeeId)) {
+				console.log('Wrongly formatted Employee id');
+				setErrorMessage('Wrongly formatted Employee id');
+				return;
+			}
+		}
 
 		if (password !== confirmPassword) {
 			console.log("Passwords don't match");
@@ -69,7 +99,7 @@ const Signup: NextPage = () => {
 			console.log("Pins don't match");
 			setErrorMessage("Pins don't match");
 			return;
-		} else if (rollNumber.length !== 8) {
+		} else if (!isFaculty && rollNumber.length !== 8) {
 			console.log('Roll number must be 8 digits');
 			setErrorMessage('Roll number must be 8 digits');
 			return;
@@ -94,7 +124,10 @@ const Signup: NextPage = () => {
 				password: password,
 				pin: pin,
 				phoneNumber: phoneNumber,
-				referralRollNumber: referralRollNumber,
+				referralRollNumber: '',
+				isFaculty: isFaculty,
+				facultyEmail: facultyEmail,
+				employeeId: employeeId,
 			});
 			const uid: string = res.data as string;
 
@@ -115,6 +148,10 @@ const Signup: NextPage = () => {
 		}
 	};
 
+	const toggleUserType = (e: React.FormEvent<HTMLInputElement>) => {
+		setIsFaculty(e.currentTarget.checked);
+	};
+
 	return isLoading ? (
 		<BoxLoading />
 	) : (
@@ -129,6 +166,24 @@ const Signup: NextPage = () => {
 				/>
 			</h2>
 
+			<div className='flex flex-row justify-center'>
+				<div className='form-control'>
+					<label className='cursor-pointer label'>
+						<span className='text-white label-text text-lg mr-2'>
+							Student
+						</span>
+						<input
+							type='checkbox'
+							className='toggle'
+							onChange={toggleUserType}
+						/>
+						<span className='text-white label-text text-lg ml-2'>
+							Faculty
+						</span>
+					</label>
+				</div>
+			</div>
+
 			<form onSubmit={signupUser} className='form-control w-full'>
 				<TextField
 					type='text'
@@ -136,13 +191,31 @@ const Signup: NextPage = () => {
 					placeholder='Full Name'
 					value={fullName}
 				/>
-				<TextField
-					type='text'
-					valueSetter={setRollNumber}
-					maxLength={8}
-					placeholder='Roll Number: 23xxxxxx'
-					value={rollNumber}
-				/>
+				{!isFaculty ? (
+					<TextField
+						type='text'
+						valueSetter={setRollNumber}
+						maxLength={8}
+						placeholder='Roll Number: 23xxxxxx'
+						value={rollNumber}
+					/>
+				) : (
+					<>
+						<TextField
+							type='text'
+							valueSetter={setFacultyEmail}
+							placeholder='Email: first.last@lums.edu.pk'
+							value={facultyEmail}
+						/>
+						<TextField
+							type='text'
+							valueSetter={setEmployeeId}
+							placeholder='Employee id: EXXXX'
+							value={employeeId}
+							maxLength={5}
+						/>
+					</>
+				)}
 				<TextField
 					type='password'
 					valueSetter={setPassword}
@@ -171,14 +244,14 @@ const Signup: NextPage = () => {
 				/>
 				<PhoneField valueSetter={setPhoneNumber} value={phoneNumber} />
 
-				<h1 className='mt-4 pl-1 text-left text-gray-300'>Optional:</h1>
+				{/* <h1 className='mt-4 pl-1 text-left text-gray-300'>Optional:</h1>
 				<TextField
 					type='text'
 					valueSetter={setReferralRollNumber}
 					maxLength={8}
 					placeholder='Referral Roll Number: 2xxxxxxx'
 					value={referralRollNumber}
-				/>
+				/> */}
 
 				<div className='h-6'></div>
 
