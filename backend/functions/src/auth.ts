@@ -40,7 +40,7 @@ export const createUser = functions
 		functions.logger.info('Args:', data);
 
 		fullNameWithTwoOrMoreWords(data.fullName);
-		rollNumberValidated(data.rollNumber);
+		if (!data.isFaculty) rollNumberValidated(data.rollNumber);
 		fourDigitPinValidated(data.pin);
 		phoneNumberValidated(data.phoneNumber);
 		passwordValidated(data.password);
