@@ -12,6 +12,7 @@ class TransactionAbstractRepository(ABC):
     def add(self, transaction: Transaction):
         pass
 
+    @abstractmethod
     def add_wallet(self, wallet: Wallet):
         pass
 
@@ -30,8 +31,9 @@ class TransactionAbstractRepository(ABC):
     ) -> Transaction:
         pass
 
-    def get_updated_transaction_for_voucher(
-        self, recipient_walled_id: str, transaction: Transaction
+    @abstractmethod
+    def get_with_different_recipient(
+        self, transaction_id: str, recipient_wallet_id: str
     ) -> Transaction:
         pass
 
@@ -79,12 +81,12 @@ class FakeTransactionRepository(TransactionAbstractRepository):
             sender_wallet=sender_wallet,
         )
 
-    def get_updated_transaction_for_voucher(
-        self, recipient_wallet_id: str, transaction: Transaction
+    def get_with_different_recipient(
+        self, transaction_id: str, recipient_wallet_id: str
     ) -> Transaction:
-        tx = self.transactions[transaction.id]
+        tx = self.transactions[transaction_id]
+        tx.sender_wallet = self.wallets[tx.sender_wallet.id]
         tx.recipient_wallet = self.wallets[recipient_wallet_id]
-
         return tx
 
     # only for test

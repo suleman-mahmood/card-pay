@@ -97,10 +97,8 @@ def redeem_voucher(
     recipient_wallet_id: str, transaction_id: str, uow: AbstractUnitOfWork
 ) -> Transaction:
     with uow:
-        tx = uow.transactions.get(transaction_id=transaction_id)
-
-        tx = uow.transactions.get_updated_transaction_for_voucher(
-            recipient_wallet_id=recipient_wallet_id, transaction=tx
+        tx = uow.transactions.get_with_different_recipient(
+            transaction_id=transaction_id, recipient_wallet_id=recipient_wallet_id
         )
 
         tx.redeem_voucher()
