@@ -10,43 +10,13 @@ Use cases
 """
 
 
-# This will be moved to marketing domain
-# referral_roll_number: Optional[str] = None
-
-
-class UserType(str, Enum):
-    """User type enum"""
-
-    CUSTOMER = 1  # Student, Faculty, Staff, etc.
-    VENDOR = 2  # Shopkeeper, Society, Student Council etc.
-    ADMIN = 3  # Admin of the closed loop system
-
-
-# This can goto authentication domain
-@dataclass
-class User:
-    """
-    -> User entity - Aggregate root
-    -> User manages transactions
-    """
-
-    # Unique identifiers for the user
-    id: str
-    qr_code: str
-    pin: str
-    wallet_id: str
-    user_type: UserType  # Previously role
-    phone_number: str = ""
-    email: str = ""  # Personal email
-    full_name: str = ""
-    is_active: bool = True
-
 @dataclass
 class Wallet:
     """Wallet entity"""
 
     id: str = field(default_factory=lambda: str(uuid4()))
     balance: int = 0
+
 
 class TransactionStatus(str, Enum):
     """Transaction status enum"""
@@ -82,7 +52,8 @@ class TransactionType(str, Enum):
 
     PAYMENT_GATEWAY = 5
 
-    CARD_PAY = 6 # source of tokens in cardpay
+    CARD_PAY = 6  # source of tokens in cardpay
+
 
 @dataclass
 class Transaction:

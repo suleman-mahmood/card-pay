@@ -1,7 +1,8 @@
 from uuid import uuid4
 from typing import Tuple
 import pytest
-from ..domain.model import User, Wallet, UserType
+from ..domain.model import Wallet
+from backend_ddd.authentication.domain.model import User, UserType
 
 
 @pytest.fixture
@@ -17,6 +18,9 @@ def seed_user_wallet():
             email="mlkmoaz@gmail.com",
             full_name="Malik M. Moaz",
             user_type=UserType.CUSTOMER,
+            email_verification_otp="1234",
+            forget_password_otp="1234",
+            is_active=True,
         )
 
         return user, wallet

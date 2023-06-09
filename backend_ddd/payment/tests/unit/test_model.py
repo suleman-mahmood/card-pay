@@ -3,12 +3,11 @@ from ...domain.model import (
     TransactionStatus,
     TransactionType,
     Transaction,
-    Wallet,
-    User,
 )
 from uuid import uuid4
 import pytest
 from ...domain.exceptions import TransactionNotAllowedException
+from backend_ddd.authentication.domain.model import User
 
 
 def behaviour():
@@ -90,7 +89,6 @@ def test_initiate_deposit(seed_user_wallet, seed_wallet):
     assert tx.mode == TransactionMode.APP_TRANSFER
     assert tx.transaction_type == TransactionType.PAYMENT_GATEWAY
     assert tx.amount == 1000
-
 
 
 def test_pos_transaction(seed_user_wallet):
@@ -218,7 +216,10 @@ def test_p2p_push_transaction_self_wallet(seed_user_wallet):
     with pytest.raises(TransactionNotAllowedException) as e_info:
         tx.make_transaction()
 
-    assert str(e_info.value) == "Constraint violated, sender and recipient wallets are the same"
+    assert (
+        str(e_info.value)
+        == "Constraint violated, sender and recipient wallets are the same"
+    )
     assert tx.sender_wallet.balance == 1000
     assert tx.recipient_wallet.balance == 1000
     assert tx.status == TransactionStatus.FAILED
