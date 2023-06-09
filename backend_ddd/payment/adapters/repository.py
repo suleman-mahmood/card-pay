@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from ..domain.model import Transaction, Wallet, TransactionMode, TransactionStatus
+from typing import Dict
 
 
 class TransactionAbstractRepository(ABC):
@@ -29,6 +30,11 @@ class TransactionAbstractRepository(ABC):
     ) -> Transaction:
         pass
 
+    def get_updated_transaction_for_voucher(
+        self, recipient_walled_id: str, transaction: Transaction
+    ) -> Transaction:
+        pass
+
     @abstractmethod
     def save(self, transaction: Transaction):
         pass
@@ -38,8 +44,8 @@ class FakeTransactionRepository(TransactionAbstractRepository):
     """Fake Transaction Repository"""
 
     def __init__(self):
-        self.transactions = {}
-        self.wallets = {}
+        self.transactions: Dict[str, Transaction] = {}
+        self.wallets: Dict[str, Wallet] = {}
 
     def add(self, transaction: Transaction):
         self.transactions[transaction.id] = transaction
@@ -72,6 +78,14 @@ class FakeTransactionRepository(TransactionAbstractRepository):
             recipient_wallet=recipient_wallet,
             sender_wallet=sender_wallet,
         )
+
+    def get_updated_transaction_for_voucher(
+        self, recipient_wallet_id: str, transaction: Transaction
+    ) -> Transaction:
+        tx = self.transactions[transaction.id]
+        tx.recipient_wallet = self.wallets[recipient_wallet_id]
+
+        return tx
 
     # only for test
     def add_1000_wallet(self, wallet: Wallet):

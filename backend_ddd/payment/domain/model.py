@@ -1,13 +1,9 @@
+"""payments microservices domain model"""
 from dataclasses import dataclass, field
-from typing import List
+from uuid import uuid4
 from enum import Enum
 from datetime import datetime
 from .exceptions import TransactionNotAllowedException
-from uuid import uuid4
-
-"""
-Use cases
-"""
 
 
 @dataclass
@@ -42,17 +38,14 @@ class TransactionType(str, Enum):
     """Transaction type enum"""
 
     POS = 1
-
     # Ends at another customer's wallet
     P2P_PUSH = 2
     P2P_PULL = 3
-
+    VOUCHER = 4
     # Direct payment to event registrations, donations, trips etc; Ends at a vendor
-    VIRTUAL_POS = 4
-
-    PAYMENT_GATEWAY = 5
-
-    CARD_PAY = 6  # source of tokens in cardpay
+    VIRTUAL_POS = 5
+    PAYMENT_GATEWAY = 6
+    CARD_PAY = 7  # source of tokens in cardpay
 
 
 @dataclass
@@ -73,7 +66,8 @@ class Transaction:
     timestamp: datetime = field(default_factory=datetime.now)
     status: TransactionStatus = TransactionStatus.PENDING
 
-    def make_transaction(self):
+    def execute_transaction(self):
+        """for executing a transaction"""
         if self.amount > self.sender_wallet.balance:
             self.status = TransactionStatus.FAILED
             raise TransactionNotAllowedException(
@@ -91,13 +85,29 @@ class Transaction:
         self.status = TransactionStatus.SUCCESSFUL
 
     def accept_p2p_pull_transaction(self):
+        """for accepting a p2p pull transaction"""
         if self.transaction_type != TransactionType.P2P_PULL:
             raise TransactionNotAllowedException("This is not a p2p pull transaction")
 
-        self.make_transaction()
+        self.execute_transaction()
 
     def decline_p2p_pull_transaction(self):
+        """for declining a p2p pull transaction"""
         if self.transaction_type != TransactionType.P2P_PULL:
             raise TransactionNotAllowedException("This is not a p2p pull transaction")
 
         self.status = TransactionStatus.DECLINED
+
+    def redeem_voucher(self):
+        """for validating and redeeming vouchers"""
+        if self.transaction_type != TransactionType.VOUCHER:
+            raise TransactionNotAllowedException(
+                "This is not a voucher redemption transaction"
+            )
+
+        if self.status != TransactionStatus.PENDING:
+            raise TransactionNotAllowedException(
+                "Constraint violated, voucher is no longer valid"
+            )
+
+        self.execute_transaction()

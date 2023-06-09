@@ -47,7 +47,7 @@ def test_p2p_push_transaction(seed_wallet):
         recipient_wallet=wallet2,
         sender_wallet=wallet1,
     )
-    tx.make_transaction()
+    tx.execute_transaction()
 
     assert tx.sender_wallet.balance == 0
     assert tx.recipient_wallet.balance == 1000
@@ -75,7 +75,7 @@ def test_initiate_deposit(seed_wallet):
         recipient_wallet=wallet,
         sender_wallet=pg_wallet,
     )
-    tx.make_transaction()
+    tx.execute_transaction()
 
     assert tx.recipient_wallet.balance == 1000
     assert tx.sender_wallet.balance == 1000000 - 1000
@@ -98,7 +98,7 @@ def test_pos_transaction(seed_wallet):
         recipient_wallet=vendor_wallet,
         sender_wallet=customer_wallet,
     )
-    tx.make_transaction()
+    tx.execute_transaction()
 
     assert customer_wallet.balance == 0
     assert vendor_wallet.balance == 1000
@@ -186,7 +186,7 @@ def test_p2p_push_transaction_insufficient_balance(seed_wallet):
     )
 
     with pytest.raises(TransactionNotAllowedException) as e_info:
-        tx.make_transaction()
+        tx.execute_transaction()
 
     assert str(e_info.value) == "Insufficient balance in sender's wallet"
     assert tx.sender_wallet.balance == 1000
@@ -209,7 +209,7 @@ def test_p2p_push_transaction_self_wallet(seed_wallet):
     )
 
     with pytest.raises(TransactionNotAllowedException) as e_info:
-        tx.make_transaction()
+        tx.execute_transaction()
 
     assert (
         str(e_info.value)
@@ -220,3 +220,49 @@ def test_p2p_push_transaction_self_wallet(seed_wallet):
     assert tx.status == TransactionStatus.FAILED
     assert tx.mode == TransactionMode.APP_TRANSFER
     assert tx.transaction_type == TransactionType.P2P_PUSH
+
+
+def test_redeem_voucher(seed_wallet):
+    sender_wallet = seed_wallet()
+    recipient_wallet = seed_wallet()
+    # giving money to source wallet (cardpay)
+    sender_wallet.balance = 1000
+
+    tx = Transaction(
+        amount=1000,
+        mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.VOUCHER,
+        recipient_wallet=recipient_wallet,
+        sender_wallet=sender_wallet,
+    )
+
+    tx.redeem_voucher()
+
+    assert recipient_wallet.balance == 1000
+    assert sender_wallet.balance == 0
+    assert tx.status == TransactionStatus.SUCCESSFUL
+
+
+def test_redeemed_voucher(seed_wallet):
+    recipient_wallet = seed_wallet()
+    sender_wallet = seed_wallet()
+    # giving money to source wallet (cardpay)
+    sender_wallet.balance = 1000
+
+    tx = Transaction(
+        amount=1000,
+        mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.VOUCHER,
+        recipient_wallet=recipient_wallet,
+        sender_wallet=sender_wallet,
+    )
+    # legal redeem
+    tx.redeem_voucher()
+
+    with pytest.raises(TransactionNotAllowedException) as e_info:
+        # illegal redeem
+        tx.redeem_voucher()
+
+    assert recipient_wallet.balance == 1000
+    assert sender_wallet.balance == 0
+    assert str(e_info.value) == "Constraint violated, voucher is no longer valid"
