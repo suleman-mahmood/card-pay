@@ -26,9 +26,14 @@ const Deposit: NextPage = () => {
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
+	const [iAmRendered, setIAmRendered] = useState(false);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [recipientUid, setRecipientUid] = useState('');
+
+	useEffect(() => {
+		setIAmRendered(true);
+	}, []);
 
 	const handlePaymentSend = async () => {
 		if (amount <= 0) {
@@ -84,15 +89,17 @@ const Deposit: NextPage = () => {
 			<ErrorAlert message={errorMessage} />
 			<SuccessAlert message={successMessage} />
 
-			<QrReader
-				delay={100}
-				style={{
-					height: 240,
-					width: 320,
-				}}
-				onError={(e: any) => console.log(e)}
-				onScan={onScan}
-			/>
+			{iAmRendered ? (
+				<QrReader
+					delay={100}
+					style={{
+						height: 240,
+						width: 320,
+					}}
+					onError={(e: any) => console.log(e)}
+					onScan={onScan}
+				/>
+			) : null}
 
 			{/* Open the modal using ID.showModal() method */}
 			<dialog className={'modal ' + (isModalOpen ? 'modal-open' : '')}>
