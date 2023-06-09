@@ -27,22 +27,17 @@ def behaviour():
     """
 
 
-def test_wallet_is_created_after_customer_creation(seed_user_wallet):
-    user, wallet = seed_user_wallet()
-    user2, wallet2 = seed_user_wallet()
-
-    # Ensure that right wallet is assigned to right user
-    assert user.wallet_id == wallet.id
-    assert user2.wallet_id == wallet2.id
+def test_wallet_is_unique(seed_wallet):
+    wallet = seed_wallet()
+    wallet2 = seed_wallet()
 
     # Ensure that wallet ids and user ids are unique
     assert wallet.id != wallet2.id
-    assert user.id != user2.id
 
 
-def test_p2p_push_transaction(seed_user_wallet):
-    _, wallet1 = seed_user_wallet()
-    _, wallet2 = seed_user_wallet()
+def test_p2p_push_transaction(seed_wallet):
+    wallet1 = seed_wallet()
+    wallet2 = seed_wallet()
 
     wallet1.balance = 1000
     tx = Transaction(
@@ -67,8 +62,8 @@ def test_p2p_push_transaction(seed_user_wallet):
     assert tx.status == TransactionStatus.SUCCESSFUL
 
 
-def test_initiate_deposit(seed_user_wallet, seed_wallet):
-    _, wallet = seed_user_wallet()
+def test_initiate_deposit(seed_wallet):
+    wallet = seed_wallet()
     pg_wallet = seed_wallet()
 
     pg_wallet.balance = 1000000
@@ -91,9 +86,9 @@ def test_initiate_deposit(seed_user_wallet, seed_wallet):
     assert tx.amount == 1000
 
 
-def test_pos_transaction(seed_user_wallet):
-    _, customer_wallet = seed_user_wallet()
-    _, vendor_wallet = seed_user_wallet()
+def test_pos_transaction(seed_wallet):
+    customer_wallet = seed_wallet()
+    vendor_wallet = seed_wallet()
 
     customer_wallet.balance = 1000
     tx = Transaction(
@@ -115,10 +110,10 @@ def test_pos_transaction(seed_user_wallet):
     assert tx.status == TransactionStatus.SUCCESSFUL
 
 
-def test_accept_p2p_pull_transaction(seed_user_wallet):
+def test_accept_p2p_pull_transaction(seed_wallet):
     """consider adding request feature if a transaction has been made previously"""
-    _, wallet1 = seed_user_wallet()
-    _, wallet2 = seed_user_wallet()
+    wallet1 = seed_wallet()
+    wallet2 = seed_wallet()
 
     # Wallet1 requesting 1000 from wallet 2
     wallet2.balance = 1000
@@ -146,10 +141,10 @@ def test_accept_p2p_pull_transaction(seed_user_wallet):
     assert tx.status == TransactionStatus.SUCCESSFUL
 
 
-def test_decline_p2p_pull_transaction(seed_user_wallet):
+def test_decline_p2p_pull_transaction(seed_wallet):
     """consider adding request feature if a transaction has been made previously"""
-    _, wallet1 = seed_user_wallet()
-    _, wallet2 = seed_user_wallet()
+    wallet1 = seed_wallet()
+    wallet2 = seed_wallet()
 
     # Wallet1 requesting 1000 from wallet 2
     wallet2.balance = 1000
@@ -177,9 +172,9 @@ def test_decline_p2p_pull_transaction(seed_user_wallet):
     assert tx.status == TransactionStatus.DECLINED
 
 
-def test_p2p_push_transaction_insufficient_balance(seed_user_wallet):
-    _, wallet1 = seed_user_wallet()
-    _, wallet2 = seed_user_wallet()
+def test_p2p_push_transaction_insufficient_balance(seed_wallet):
+    wallet1 = seed_wallet()
+    wallet2 = seed_wallet()
 
     wallet1.balance = 1000
     tx = Transaction(
@@ -201,8 +196,8 @@ def test_p2p_push_transaction_insufficient_balance(seed_user_wallet):
     assert tx.transaction_type == TransactionType.P2P_PUSH
 
 
-def test_p2p_push_transaction_self_wallet(seed_user_wallet):
-    _, wallet1 = seed_user_wallet()
+def test_p2p_push_transaction_self_wallet(seed_wallet):
+    wallet1 = seed_wallet()
 
     wallet1.balance = 1000
     tx = Transaction(
