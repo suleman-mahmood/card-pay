@@ -33,6 +33,10 @@ const Dashboard: NextPage = () => {
 		router.push('/dashboard/digital-card');
 	};
 
+	const redirectToQRPayment = () => {
+		router.push('/dashboard/qr-payment');
+	};
+
 	const redirectToPreOrder = () => {
 		router.push('/dashboard/pre-order');
 	};
@@ -103,6 +107,17 @@ const Dashboard: NextPage = () => {
 							</div>
 						</button>
 						<h3 className='text-lg mt-1'>Pre Order</h3>
+					</div>
+				</div>
+
+				<div className='flex flex-row justify-around'>
+					<div className='flex flex-col'>
+						<button onClick={redirectToQRPayment}>
+							<div className='w-24 shadow-lg p-4 rounded-2xl'>
+								<img src='https://www.qrcode-monkey.com/img/default-preview-qr.svg' />
+							</div>
+						</button>
+						<h3 className='text-lg mt-1'>Scan QR</h3>
 					</div>
 				</div>
 			</div>

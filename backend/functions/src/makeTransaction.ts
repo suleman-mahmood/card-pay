@@ -217,3 +217,19 @@ export const makeFarewellTransaction = functions
 			'You have successfully registered and paid for the Farewell! Enjoy!';
 		return sendEmail(doc.email, subject, htmlBody, htmlBody);
 	});
+
+interface makeQRTransactionData {
+	amount: string;
+	recipientUid: string;
+}
+export const makeQRTransaction = functions
+	.region('asia-south1')
+	.https.onCall(async (data: makeQRTransactionData, context) => {
+		functions.logger.info('Args:', data);
+
+		const { uid } = await checkUserAuthAndDoc(context);
+		await uidValidated(data.recipientUid);
+		amountValidated(data.amount);
+
+		await transactionMain(uid, data.recipientUid, data.amount);
+	});

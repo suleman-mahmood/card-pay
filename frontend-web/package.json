@@ -23,6 +23,7 @@
     "react-barcode": "^1.4.6",
     "react-content-loader": "^6.2.0",
     "react-dom": "18.2.0",
+    "react-qr-scanner": "^1.0.0-alpha.11",
     "react-redux": "^8.0.4"
   },
   "devDependencies": {
