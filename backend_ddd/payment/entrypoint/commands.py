@@ -7,8 +7,6 @@ from ..domain.model import (
 )
 
 # Features left:
-# -> Top up vouchers
-# -> Block card
 # -> Balance locking for fuel
 
 
