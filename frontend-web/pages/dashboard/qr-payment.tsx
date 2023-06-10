@@ -4,16 +4,15 @@ import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import BackButton from '../../components/buttons/BackButton';
-import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import ErrorAlert from '../../components/cards/ErrorAlert';
 import TextField from '../../components/inputs/TextField';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import BoxLoading from '../../components/loaders/BoxLoading';
 import { functions } from '../../services/initialize-firebase';
 import { selectUser } from '../../store/store';
-import QrReader from 'react-qr-scanner';
 import { useRouter } from 'next/router';
 import SuccessAlert from '../../components/cards/SuccessAlert';
+import QrScanner from 'qr-scanner';
 
 const CHARACTERS_IN_UID = 28;
 
@@ -26,13 +25,31 @@ const Deposit: NextPage = () => {
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [iAmRendered, setIAmRendered] = useState(false);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [recipientUid, setRecipientUid] = useState('');
 
 	useEffect(() => {
-		setIAmRendered(true);
+		if (document === null) return;
+
+		const videoElem = document.querySelector('video');
+		if (videoElem === null) return;
+
+		// To enforce the use of the new api with detailed scan results, call the constructor with an options object, see below.
+		const qrScanner = new QrScanner(
+			videoElem,
+			(result) => {
+				if (result.data.length !== CHARACTERS_IN_UID) return;
+
+				setRecipientUid(result.data);
+				setIsModalOpen(true);
+			},
+			{
+				/* your options or returnDetailedScanResult: true if you're not specifying any other options */
+			}
+		);
+
+		qrScanner.start();
 	}, []);
 
 	const handlePaymentSend = async () => {
@@ -71,14 +88,6 @@ const Deposit: NextPage = () => {
 		setAmount(n);
 	};
 
-	const onScan = (data: any) => {
-		if (data === null) return;
-		if (data.text.length !== CHARACTERS_IN_UID) return;
-
-		setRecipientUid(data.text);
-		setIsModalOpen(true);
-	};
-
 	return isLoading ? (
 		<BoxLoading />
 	) : (
@@ -89,19 +98,8 @@ const Deposit: NextPage = () => {
 			<ErrorAlert message={errorMessage} />
 			<SuccessAlert message={successMessage} />
 
-			{iAmRendered ? (
-				<QrReader
-					delay={100}
-					style={{
-						height: 240,
-						width: 320,
-					}}
-					onError={(e: any) => console.log(e)}
-					onScan={onScan}
-				/>
-			) : null}
+			<video></video>
 
-			{/* Open the modal using ID.showModal() method */}
 			<dialog className={'modal ' + (isModalOpen ? 'modal-open' : '')}>
 				<form method='dialog' className='modal-box'>
 					<h3 className='mb-4 font-bold text-lg'>Enter amount</h3>
