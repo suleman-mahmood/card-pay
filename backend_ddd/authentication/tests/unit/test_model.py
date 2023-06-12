@@ -44,7 +44,7 @@ def test_deactivate_user(seed_user):  # new method?
     user = seed_user()
     user.toggle_active()
 
-    assert user.is_active == False
+    assert user.is_active is False
 
 
 def test_change_name(seed_user):  # new method?
@@ -87,8 +87,8 @@ def test_register_closed_loop(seed_user, seed_closed_loop):
     user.register_closed_loop(closed_loop_user)
 
     assert len(user.closed_loops) == 1
-    assert user.closed_loops[0].closed_loop_id == closed_loop.id
-    assert user.closed_loops[0].status == ClosedLoopUserState.UN_VERIFIED
+    assert user.closed_loops[closed_loop.id].closed_loop_id == closed_loop.id
+    assert user.closed_loops[closed_loop.id].status == ClosedLoopUserState.UN_VERIFIED
 
 
 def test_verify_closed_loop(seed_user, seed_closed_loop):

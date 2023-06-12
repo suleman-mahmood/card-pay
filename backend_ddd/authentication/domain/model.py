@@ -1,10 +1,10 @@
 """authentication domain model"""
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Dict
 from enum import Enum
 from datetime import datetime
 from .utils import _generate_4_digit_otp
-from .exceptions import InvalidOtpException
+from .exceptions import InvalidOtpException, ClosedLoopException, VerificationException
 
 
 def behaviour():
@@ -45,8 +45,7 @@ class ClosedLoopUserState(str, Enum):
     """Closed loop enum"""
 
     UN_VERIFIED = 1
-    PENDING = 2
-    VERIFIED = 3
+    VERIFIED = 2
 
 
 @dataclass
@@ -60,6 +59,13 @@ class ClosedLoopUser:
     unique_identifier_otp: str = field(default_factory=_generate_4_digit_otp)
     status: ClosedLoopUserState = ClosedLoopUserState.UN_VERIFIED
     created_at: datetime = datetime.now()
+
+    def verify_unique_identifier(self, unique_identifier: str) -> None:
+        """Verify unique identifier"""
+        if self.unique_identifier != unique_identifier:
+            raise ClosedLoopException("Unique identifier doesn't match")
+
+        self.status = ClosedLoopUserState.VERIFIED
 
 
 class UserType(str, Enum):
@@ -103,7 +109,9 @@ class User:
 
     is_active: bool = True
     is_phone_number_verified: bool = False
-    closed_loops: List[ClosedLoopUser] = field(default_factory=list)  # use dict here?
+    closed_loops: Dict[str, ClosedLoopUser] = field(
+        default_factory=dict
+    )  # use dict here?
 
     otp: str = field(default_factory=_generate_4_digit_otp)
     otp_generated_at: datetime = field(default_factory=datetime.now)
@@ -112,12 +120,6 @@ class User:
     def qr_code(self) -> str:
         """QR code"""
         return self.id
-
-    def register_closed_loop(self, closed_loop_user: ClosedLoopUser) -> None:
-        """Register closed loop"""
-        self.closed_loops.append(closed_loop_user)
-
-    # def verify_closed_loop(self, )
 
     def change_name(self, name: str) -> None:
         """to change name"""
@@ -141,12 +143,35 @@ class User:
         self.generate_new_otp()
         return True
 
-    def verify_phone_number(self, otp: str) -> None:
-        """Verify phone number"""
-        if self.verify_otp(otp):
-            self.is_phone_number_verified = True
-
     def generate_new_otp(self) -> None:
         """Generate OTP"""
         self.otp = _generate_4_digit_otp()
         self.otp_generated_at = datetime.now()
+
+    def verify_phone_number(self, otp: str) -> None:
+        """Verify phone number"""
+        # if phone number verified, raise exception
+        if self.is_phone_number_verified:
+            raise VerificationException("Phone number already verified")
+
+        if self.verify_otp(otp):
+            self.is_phone_number_verified = True
+
+    def register_closed_loop(self, closed_loop_user: ClosedLoopUser) -> None:
+        """Register closed loop"""
+        self.closed_loops[closed_loop_user.closed_loop_id] = closed_loop_user
+
+    def verify_closed_loop(self, closed_loop_id: str, otp: str) -> None:
+        """Verify closed loop"""
+        closed_loop_user = self.closed_loops.get(closed_loop_id)
+
+        if not closed_loop_user:
+            raise ClosedLoopException("Closed loop not found")
+
+        if closed_loop_user.unique_identifier_otp != otp:
+            raise InvalidOtpException("Otps don't match")
+
+        closed_loop_user.status = ClosedLoopUserState.VERIFIED
+
+        if self.verify_otp(otp):
+            self.is_phone_number_verified = True
