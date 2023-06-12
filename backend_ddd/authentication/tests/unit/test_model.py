@@ -1,16 +1,19 @@
+"""tests for authentication model"""
+
+from uuid import uuid4
 import pytest
 from ...domain.model import (
     User,
     ClosedLoop,
+    ClosedLoopVerificationType,
     ClosedLoopUser,
     ClosedLoopUserState,
     UserType,
 )
 from ...domain.exceptions import InvalidOtpException
-from uuid import uuid4
 
 
-def test_users_have_unique_otps(seed_user):
+def test_users_have_unique_otps(seed_user):  # why are we testing this?
     """Test create user"""
     user1 = seed_user()
     user2 = seed_user()
@@ -36,25 +39,65 @@ def test_user_verified_otp(seed_user):
         assert str(e_info.value) == "Otps don't match"
 
 
-def test_deactivate_user():
+def test_deactivate_user(seed_user):  # new method?
     """Test deactivate user"""
+    user = seed_user()
+    user.toggle_active()
+
+    assert user.is_active == False
 
 
-def test_change_name():
+def test_change_name(seed_user):  # new method?
     """Test change name"""
+    user = seed_user()
+    new_name = "Malik M. Moaz"
+    user.change_name(new_name)
+
+    assert user.full_name == new_name
 
 
-def test_change_pin():
+def test_change_pin(seed_user):
     """Test change pin"""
+    user = seed_user()
+    new_pin = "1234"
+    user.set_pin(new_pin)
+
+    assert user.pin == new_pin
 
 
-def test_verify_phone_number():
+def test_verify_phone_number(seed_user):  # how will phone number be verified?
     """Test verify phone number"""
+    user = seed_user()
+    otp = user.otp
+
+    user.verify_phone_number(otp=otp)
+
+    assert user.is_phone_number_verified is True
 
 
-def test_register_closed_loop():
-    """Test register closed loop"""
+def test_register_closed_loop(seed_user, seed_closed_loop):
+    """Test user tries to join closed loop"""
+    user = seed_user()
+    closed_loop = seed_closed_loop()
+    closed_loop_user = ClosedLoopUser(
+        id=str(uuid4()),
+        closed_loop_id=closed_loop.id,
+    )
+
+    user.register_closed_loop(closed_loop_user)
+
+    assert len(user.closed_loops) == 1
+    assert user.closed_loops[0].closed_loop_id == closed_loop.id
+    assert user.closed_loops[0].status == ClosedLoopUserState.UN_VERIFIED
 
 
-def test_verify_closed_loop():
+def test_verify_closed_loop(seed_user, seed_closed_loop):
     """Test verify closed loop"""
+    user = seed_user()
+    closed_loop = seed_closed_loop()
+    closed_loop_user = ClosedLoopUser(
+        id=str(uuid4()),
+        closed_loop_id=closed_loop.id,
+    )
+
+    user.register_closed_loop(closed_loop_user)

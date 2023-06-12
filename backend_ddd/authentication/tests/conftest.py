@@ -1,5 +1,12 @@
 import pytest
-from ..domain.model import User, UserType, PersonalEmail, PhoneNumber
+from ..domain.model import (
+    User,
+    UserType,
+    PersonalEmail,
+    PhoneNumber,
+    ClosedLoop,
+    ClosedLoopVerificationType,
+)
 from uuid import uuid4
 
 
@@ -17,3 +24,17 @@ def seed_user():
         )
 
     return _seed_user
+
+
+@pytest.fixture
+def seed_closed_loop():
+    def _seed_closed_loop() -> ClosedLoop:
+        return ClosedLoop(
+            id=str(uuid4()),
+            name="Test Loop",
+            logo_url="https://www.google.com",
+            description="This is a test loop.",
+            verification_type=ClosedLoopVerificationType.ROLLNUMBER,
+        )
+
+    return _seed_closed_loop

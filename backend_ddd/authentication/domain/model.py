@@ -103,7 +103,7 @@ class User:
 
     is_active: bool = True
     is_phone_number_verified: bool = False
-    closed_loops: List[ClosedLoopUser] = field(default_factory=list)
+    closed_loops: List[ClosedLoopUser] = field(default_factory=list)  # use dict here?
 
     otp: str = field(default_factory=_generate_4_digit_otp)
     otp_generated_at: datetime = field(default_factory=datetime.now)
@@ -113,6 +113,26 @@ class User:
         """QR code"""
         return self.id
 
+    def register_closed_loop(self, closed_loop_user: ClosedLoopUser) -> None:
+        """Register closed loop"""
+        self.closed_loops.append(closed_loop_user)
+
+    # def verify_closed_loop(self, )
+
+    def change_name(self, name: str) -> None:
+        """to change name"""
+        self.full_name = name
+
+    def set_pin(self, pin: str) -> None:
+        """to set/update pin"""
+        self.pin = pin
+
+    def toggle_active(self) -> bool:
+        """Toggle active"""
+        self.is_active = not self.is_active
+
+        return self.is_active
+
     def verify_otp(self, otp: str) -> bool:
         """Verify OTP"""
         if self.otp != otp:
@@ -120,6 +140,11 @@ class User:
 
         self.generate_new_otp()
         return True
+
+    def verify_phone_number(self, otp: str) -> None:
+        """Verify phone number"""
+        if self.verify_otp(otp):
+            self.is_phone_number_verified = True
 
     def generate_new_otp(self) -> None:
         """Generate OTP"""
