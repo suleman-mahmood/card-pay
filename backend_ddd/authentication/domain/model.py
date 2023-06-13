@@ -39,6 +39,7 @@ class ClosedLoop:
     logo_url: str
     description: str
     verification_type: ClosedLoopVerificationType
+    
     id: str = field(default_factory=lambda: str(uuid4()))
 
 
@@ -145,10 +146,10 @@ class User:
         if self.otp != otp:
             raise InvalidOtpException("Otps don't match")
 
-        self.generate_new_otp()
+        self._generate_new_otp()
         return True
 
-    def generate_new_otp(self) -> None:
+    def _generate_new_otp(self) -> None:
         """Generate OTP"""
         self.otp = _generate_4_digit_otp()
         self.otp_generated_at = datetime.now()
