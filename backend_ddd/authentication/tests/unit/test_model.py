@@ -75,13 +75,29 @@ def test_verify_phone_number(seed_user):  # how will phone number be verified?
     assert user.is_phone_number_verified is True
 
 
+def test_register_open_closed_loop(seed_user, seed_closed_loop):
+    """Test user tries to join closed loop"""
+    user = seed_user()
+    closed_loop = seed_closed_loop()
+    closed_loop_user = ClosedLoopUser(
+        closed_loop_id=closed_loop.id,
+        unique_identifier=None,
+    )
+
+    user.register_closed_loop(closed_loop_user)
+
+    assert len(user.closed_loops) == 1
+    assert user.closed_loops[closed_loop.id].closed_loop_id == closed_loop.id
+    assert user.closed_loops[closed_loop.id].status == ClosedLoopUserState.VERIFIED
+
+
 def test_register_closed_loop(seed_user, seed_closed_loop):
     """Test user tries to join closed loop"""
     user = seed_user()
     closed_loop = seed_closed_loop()
     closed_loop_user = ClosedLoopUser(
-        id=str(uuid4()),
         closed_loop_id=closed_loop.id,
+        unique_identifier="1234567890",
     )
 
     user.register_closed_loop(closed_loop_user)
@@ -96,8 +112,14 @@ def test_verify_closed_loop(seed_user, seed_closed_loop):
     user = seed_user()
     closed_loop = seed_closed_loop()
     closed_loop_user = ClosedLoopUser(
-        id=str(uuid4()),
         closed_loop_id=closed_loop.id,
+        unique_identifier="1234567890",
     )
 
     user.register_closed_loop(closed_loop_user)
+
+    otp = closed_loop_user.unique_identifier_otp
+
+    user.verify_closed_loop(closed_loop_id=closed_loop.id, otp=otp)
+
+    assert user.closed_loops[closed_loop.id].status == ClosedLoopUserState.VERIFIED

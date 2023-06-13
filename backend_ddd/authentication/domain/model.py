@@ -5,6 +5,7 @@ from enum import Enum
 from datetime import datetime
 from .utils import _generate_4_digit_otp
 from .exceptions import InvalidOtpException, ClosedLoopException, VerificationException
+from uuid import uuid4
 
 
 def behaviour():
@@ -34,11 +35,11 @@ class ClosedLoopVerificationType(str, Enum):
 class ClosedLoop:
     """Closed loop entity - Aggregate root"""
 
-    id: str
     name: str
     logo_url: str
     description: str
     verification_type: ClosedLoopVerificationType
+    id: str = field(default_factory=lambda: str(uuid4()))
 
 
 class ClosedLoopUserState(str, Enum):
@@ -52,18 +53,26 @@ class ClosedLoopUserState(str, Enum):
 class ClosedLoopUser:
     """Closed loop entity"""
 
-    id: str
     closed_loop_id: str
+    unique_identifier: Optional[str]  # Roll number etc
 
-    unique_identifier: Optional[str] = None  # Roll number etc
+    id: str = field(default_factory=lambda: str(uuid4()))
     unique_identifier_otp: str = field(default_factory=_generate_4_digit_otp)
     status: ClosedLoopUserState = ClosedLoopUserState.UN_VERIFIED
     created_at: datetime = datetime.now()
 
-    def verify_unique_identifier(self, unique_identifier: str) -> None:
+    def __post_init__(self):
+        """Post init hook"""
+        if self.unique_identifier is None:
+            self.status = ClosedLoopUserState.VERIFIED
+
+    def verify_unique_identifier(self, otp: str) -> None:
         """Verify unique identifier"""
-        if self.unique_identifier != unique_identifier:
-            raise ClosedLoopException("Unique identifier doesn't match")
+        if self.status == ClosedLoopUserState.VERIFIED:
+            raise VerificationException("User is already in closed loop")
+
+        if self.unique_identifier_otp != otp:
+            raise InvalidOtpException("Unique identifier doesn't match")
 
         self.status = ClosedLoopUserState.VERIFIED
 
@@ -98,8 +107,7 @@ class User:
     User entity - Aggregate root
     """
 
-    # Unique identifiers for the user
-    id: str
+    id: str  # Unique identifiers for the user
     personal_email: PersonalEmail
     phone_number: PhoneNumber
     user_type: UserType  # Previously role
@@ -109,10 +117,7 @@ class User:
 
     is_active: bool = True
     is_phone_number_verified: bool = False
-    closed_loops: Dict[str, ClosedLoopUser] = field(
-        default_factory=dict
-    )  # use dict here?
-
+    closed_loops: Dict[str, ClosedLoopUser] = field(default_factory=dict)
     otp: str = field(default_factory=_generate_4_digit_otp)
     otp_generated_at: datetime = field(default_factory=datetime.now)
 
@@ -168,10 +173,6 @@ class User:
         if not closed_loop_user:
             raise ClosedLoopException("Closed loop not found")
 
-        if closed_loop_user.unique_identifier_otp != otp:
-            raise InvalidOtpException("Otps don't match")
+        closed_loop_user.verify_unique_identifier(otp)
 
-        closed_loop_user.status = ClosedLoopUserState.VERIFIED
-
-        if self.verify_otp(otp):
-            self.is_phone_number_verified = True
+        self.closed_loops[closed_loop_id] = closed_loop_user
