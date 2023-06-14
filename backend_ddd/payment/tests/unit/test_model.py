@@ -7,7 +7,6 @@ from ...domain.model import (
 from uuid import uuid4
 import pytest
 from ...domain.exceptions import TransactionNotAllowedException
-from backend_ddd.authentication.domain.model import User
 
 
 def behaviour():
