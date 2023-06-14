@@ -45,11 +45,10 @@ class SignupView extends HookWidget {
                   SizedBox(height: 10),
                   Text(
                     'Didn\'t receive the code? Resend',
-                    style: TextStyle(
-                      color: AppColors().primaryColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: AppColors().headingFont.copyWith(
+                          fontSize: 16,
+                          color: AppColors().primaryColor,
+                        ),
                   ),
                   SizedBox(height: 2),
                   CustomButton(
@@ -136,11 +135,10 @@ class SignupView extends HookWidget {
             },
             child: Text(
               'Already have an account?',
-              style: TextStyle(
-                color: AppColors().primaryColor,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppColors().headingFont.copyWith(
+                    fontSize: 16,
+                    color: AppColors().primaryColor,
+                  ),
             ),
           ),
         ],

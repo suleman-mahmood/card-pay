@@ -3,11 +3,11 @@ import 'package:frontend_futter/src/config/themes/colors.dart';
 
 class MainHeading extends StatelessWidget {
   final String accountTitle;
-  final String accountDescription;
+  final String? accountDescription; // Updated: Made accountDescription optional
 
   const MainHeading({
     required this.accountTitle,
-    required this.accountDescription,
+    this.accountDescription, // Updated: Made accountDescription optional
   });
 
   @override
@@ -16,13 +16,15 @@ class MainHeading extends StatelessWidget {
       children: [
         Text(accountTitle, style: AppColors().headingFont),
         SizedBox(height: 10),
-        Text(
-          accountDescription,
-          style: AppColors().inputFont.copyWith(
-                color: AppColors().greyColor,
-                fontSize: 16,
-              ),
-        ),
+        if (accountDescription !=
+            null) // Added condition to display accountDescription only if it's not null
+          Text(
+            accountDescription!,
+            style: AppColors().inputFont.copyWith(
+                  color: AppColors().greyColor,
+                  fontSize: 16,
+                ),
+          ),
       ],
     );
   }

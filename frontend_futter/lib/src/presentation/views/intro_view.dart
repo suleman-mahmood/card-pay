@@ -21,31 +21,25 @@ class IntroView extends HookWidget {
                 child: Image.asset('assets/images/transection.png'),
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'Revolutionise ',
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
-                ),
+                style: AppColors().mainHeading.copyWith(
+                      fontSize: 45,
+                    ),
                 textAlign: TextAlign.center,
               ),
-              const Text(
+              Text(
                 'Your ',
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
-                ),
+                style: AppColors().mainHeading.copyWith(
+                      fontSize: 45,
+                    ),
                 textAlign: TextAlign.center,
               ),
-              const Text(
+              Text(
                 'Transactions ',
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
-                ),
+                style: AppColors().mainHeading.copyWith(
+                      fontSize: 45,
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 5),
@@ -58,32 +52,20 @@ class IntroView extends HookWidget {
               const SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
-                  // context.router.replace(SignupRoute());
-
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => LoginPage()),
-                  // );
+                  context.router.replace(LoginRoute());
                 },
                 child: RichText(
                   text: TextSpan(
                     text: 'Already have an account? ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                      color: AppColors().blackColor,
-                    ),
+                    style: AppColors().inputFont.copyWith(
+                          color: AppColors().blackColor,
+                        ),
                     children: [
                       TextSpan(
-                        text: 'Log In',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                          color: AppColors().primaryColor,
-                        ),
-                      ),
+                          text: 'Log In',
+                          style: AppColors().inputFont.copyWith(
+                                color: AppColors().primaryColor,
+                              )),
                     ],
                   ),
                 ),

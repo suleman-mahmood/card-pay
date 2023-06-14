@@ -62,8 +62,8 @@ class AppColors {
   );
 
   final TextStyle headingFont = const TextStyle(
-    fontFamily: 'Lato', // Replace with your desired heading font family
-    fontSize: 20, // Replace with your desired heading font size
+    fontFamily: 'poppins', // Replace with your desired heading font family
+    fontSize: 16, // Replace with your desired heading font size
     fontWeight:
         FontWeight.bold, // Replace with your desired heading font weight
     fontStyle: FontStyle.normal, // Replace with your desired heading font style
