@@ -1,3 +1,4 @@
+"""Fixtures for seeding data for tests."""
 import pytest
 from ..domain.model import (
     User,
@@ -8,6 +9,8 @@ from ..domain.model import (
     ClosedLoopVerificationType,
 )
 from uuid import uuid4
+from backend_ddd.entrypoint.uow import AbstractUnitOfWork
+from backend_ddd.authentication.entrypoint import commands as auth_commands
 
 
 @pytest.fixture
@@ -34,7 +37,24 @@ def seed_closed_loop():
             name="Test Loop",
             logo_url="https://www.google.com",
             description="This is a test loop.",
+            regex=None,
             verification_type=ClosedLoopVerificationType.ROLLNUMBER,
         )
 
     return _seed_closed_loop
+
+
+@pytest.fixture
+def seed_auth_user():
+    def _seed_auth_user(uow: AbstractUnitOfWork) -> User:
+        return auth_commands.create_user(
+            user_id=str(uuid4()),
+            personal_email="mlkmoaz@gmail.com",
+            phone_number="03034952255",
+            user_type="CUSTOMER",
+            pin="1234",
+            full_name="Malik Muhammad Moaz",
+            uow=uow,
+        )
+
+    return _seed_auth_user

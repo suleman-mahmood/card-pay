@@ -18,6 +18,7 @@ def create_closed_loop(
     logo_url: str,
     description: str,
     verification_type: str,
+    regex: Optional[str],
     uow: AbstractUnitOfWork,
 ):
     """Create closed loop"""
@@ -26,6 +27,7 @@ def create_closed_loop(
             name=name,
             logo_url=logo_url,
             description=description,
+            regex=regex,
             verification_type=ClosedLoopVerificationType.__members__[verification_type],
         )
         uow.closed_loops.add(closed_loop)
@@ -74,7 +76,7 @@ def change_pin(user_id: str, new_pin: str, uow: AbstractUnitOfWork):
     """Change pin"""
     with uow:
         user = uow.users.get(user_id=user_id)
-        user.change_pin(new_pin)
+        user.set_pin(new_pin)
         uow.users.save(user)
 
     return user

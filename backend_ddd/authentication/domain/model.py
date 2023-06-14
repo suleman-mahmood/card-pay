@@ -1,6 +1,6 @@
 """authentication domain model"""
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import Optional, Dict
 from enum import Enum
 from datetime import datetime
 from .utils import _generate_4_digit_otp
@@ -38,8 +38,9 @@ class ClosedLoop:
     name: str
     logo_url: str
     description: str
+    regex: Optional[str]
     verification_type: ClosedLoopVerificationType
-    
+
     id: str = field(default_factory=lambda: str(uuid4()))
 
 
@@ -166,6 +167,7 @@ class User:
     def register_closed_loop(self, closed_loop_user: ClosedLoopUser) -> None:
         """Register closed loop"""
         self.closed_loops[closed_loop_user.closed_loop_id] = closed_loop_user
+        
 
     def verify_closed_loop(self, closed_loop_id: str, otp: str) -> None:
         """Verify closed loop"""
