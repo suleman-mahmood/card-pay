@@ -20,7 +20,7 @@ class CustomButton extends StatelessWidget {
       width: width,
       height: height,
       margin: EdgeInsets.only(
-          top: 0.15 * MediaQuery.of(context).size.height,
+          top: 0.03 * MediaQuery.of(context).size.height,
           left: 0.05 * MediaQuery.of(context).size.width),
       child: ElevatedButton(
         onPressed: onPressed,

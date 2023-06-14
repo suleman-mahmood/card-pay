@@ -14,14 +14,14 @@ class MainHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(accountTitle, style: AppColors().headingFont),
+        Text(accountTitle, style: AppColors().mainHeading),
         SizedBox(height: 10),
         if (accountDescription !=
             null) // Added condition to display accountDescription only if it's not null
           Text(
             accountDescription!,
             style: AppColors().inputFont.copyWith(
-                  color: AppColors().greyColor,
+                  color: AppColors().blackColor,
                   fontSize: 16,
                 ),
           ),

@@ -7,10 +7,12 @@ class AppColors {
   final Color orangeColor = Colors.orange[300]!;
   final Color redColor = Colors.red;
   final Color blueColor = Color(0xFF171582);
+  final Color greyColor = Colors.grey[300]!;
+  // final Color greyColor = Color.fromARGB(235, 235, 235, 209);
 
   final Color greenColor = Colors.lightGreen[300]!;
   final Color blackColor = Colors.black;
-  final Color greyColor = Color.fromARGB(255, 188, 192, 209);
+  // final Color greyColor = Color.fromARGB(255, 188, 192, 209);
 
   final Gradient dashboardButtonGradient = const LinearGradient(
     begin: Alignment.topCenter,
@@ -49,7 +51,7 @@ class AppColors {
     fontFamily: 'poppins',
     fontSize: 35, // Replace with your desired main font size
     fontWeight: FontWeight.bold,
-    fontStyle: FontStyle.normal,
+    // fontStyle: FontStyle.normal,
   );
 
   final TextStyle inputFont = const TextStyle(

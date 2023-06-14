@@ -48,7 +48,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
         Text(
           widget.label,
           style: AppColors().inputFont.copyWith(
-                color: AppColors().greyColor,
+                color: AppColors().blackColor,
                 fontSize: 16,
               ),
         ),
@@ -57,9 +57,10 @@ class _CustomInputFieldState extends State<CustomInputField> {
           alignment: Alignment.center, // Align elements to the left
           children: [
             Container(
+              width: 420, // Set the width to occupy the available space
               decoration: BoxDecoration(
                 color: AppColors().greyColor.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(19),
               ),
               child: Row(
                 children: [
@@ -84,9 +85,14 @@ class _CustomInputFieldState extends State<CustomInputField> {
                         border: InputBorder.none, // Remove the border
                         hintText: widget.hint,
                         isCollapsed: true, // Remove unnecessary padding
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 19, // Increase the height slightly
+                          horizontal: 8, // Decrease the width slightly
+                        ),
                       ),
+                      style: TextStyle(
+                          color: AppColors()
+                              .greenColor), // Change the color of the hint text to grey
                     ),
                   ),
                 ],
