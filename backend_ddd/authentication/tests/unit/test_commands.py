@@ -37,7 +37,7 @@ def test_create_closed_loop():
         assert fetched_closed_loop.verification_type == ClosedLoopVerificationType.NONE
 
 
-def test_create_user(seed_auth_user):
+def test_create_user():
     with FakeUnitOfWork() as uow:
         user = create_user(
             user_id=str(uuid4()),
@@ -103,33 +103,86 @@ def test_verify_phone_number(seed_auth_user):
             verify_phone_number(user_id=user.id, otp=otp, uow=uow)
 
 
-# def test_register_closed_loop(seed_auth_user):
-#     with FakeUnitOfWork() as uow:
-#         user = seed_auth_user(uow)
-#         closed_loop = create_closed_loop(
-#             name="Test Closed Loop",
-#             logo_url="https://test.com/logo.png",
-#             description="Test description",
-#             verification_type="ROLLNUMBER",
-#             uow=uow,
-#         )
+def test_register_closed_loop(seed_auth_user, seed_closed_loop):
+    with FakeUnitOfWork() as uow:
+        user = seed_auth_user(uow)
+        closed_loop = create_closed_loop(
+            name="Test Closed Loop",
+            logo_url="https://test.com/logo.png",
+            description="Test description",
+            regex="",
+            verification_type="NONE",
+            uow=uow,
+        )
 
-#         fetched_user = uow.users.get(user_id=user.id)
+        fetched_user = uow.users.get(user_id=user.id)
 
-#         register_closed_loop(
-#             user_id=fetched_user.id,
-#             closed_loop_id=closed_loop.id,
-#             unique_identifier="24100163",
-#             uow=uow,
-#         )
+        register_closed_loop(
+            user_id=fetched_user.id,
+            closed_loop_id=closed_loop.id,
+            unique_identifier=None,
+            uow=uow,
+        )
 
-#         fetched_user = uow.users.get(user_id=user.id)
-#         fetched_closed_loop = uow.closed_loops.get(closed_loop.id)
+        fetched_user = uow.users.get(user_id=user.id)
 
-#         assert fetched_user.id == user.id
-#         assert fetched_closed_loop.id == closed_loop.id
-#         assert fetched_user.closed_loop_users[0].closed_loop_id == closed_loop.id
-#         assert (
-#             fetched_user.closed_loop_users[0].closed_loop_user_state
-#             == ClosedLoopUserState.PENDING
-#         )
+        assert (
+            fetched_user.closed_loops[closed_loop.id].status
+            == ClosedLoopUserState.VERIFIED
+        )
+        assert len(fetched_user.closed_loops) == 1
+
+
+def test_verify_closed_loop(seed_auth_user):
+    with FakeUnitOfWork() as uow:
+        user = seed_auth_user(uow)
+        closed_loop = create_closed_loop(
+            name="Test Closed Loop",
+            logo_url="https://test.com/logo.png",
+            description="Test description",
+            regex="",
+            verification_type="ROLLNUMBER",
+            uow=uow,
+        )
+
+        fetched_user = uow.users.get(user_id=user.id)
+
+        registered_user = register_closed_loop(
+            user_id=fetched_user.id,
+            closed_loop_id=closed_loop.id,
+            unique_identifier="24100163",
+            uow=uow,
+        )
+
+        assert (
+            registered_user.closed_loops[closed_loop.id].status
+            == ClosedLoopUserState.UN_VERIFIED
+        )
+
+        otp = user.closed_loops[closed_loop.id].unique_identifier_otp
+
+        with pytest.raises(InvalidOtpException):
+            verify_closed_loop(
+                user_id=user.id,
+                closed_loop_id=closed_loop.id,
+                unique_identifier_otp="0000",
+                uow=uow,
+            )
+
+        fetched_user = uow.users.get(user_id=user.id)
+        assert (
+            fetched_user.closed_loops[closed_loop.id].status
+            == ClosedLoopUserState.UN_VERIFIED
+        )
+
+        verified_user = verify_closed_loop(
+            user_id=user.id,
+            closed_loop_id=closed_loop.id,
+            unique_identifier_otp=otp,
+            uow=uow,
+        )
+
+        assert (
+            verified_user.closed_loops[closed_loop.id].status
+            == ClosedLoopUserState.VERIFIED
+        )

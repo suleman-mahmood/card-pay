@@ -167,7 +167,6 @@ class User:
     def register_closed_loop(self, closed_loop_user: ClosedLoopUser) -> None:
         """Register closed loop"""
         self.closed_loops[closed_loop_user.closed_loop_id] = closed_loop_user
-        
 
     def verify_closed_loop(self, closed_loop_id: str, otp: str) -> None:
         """Verify closed loop"""
@@ -175,6 +174,9 @@ class User:
 
         if not closed_loop_user:
             raise ClosedLoopException("Closed loop not found")
+
+        if closed_loop_user.status == ClosedLoopUserState.VERIFIED:
+            raise VerificationException("User is already verified")
 
         closed_loop_user.verify_unique_identifier(otp)
 
