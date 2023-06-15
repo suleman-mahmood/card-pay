@@ -49,24 +49,27 @@ class IntroView extends HookWidget {
                   context.router.push(SignupRoute());
                 },
               ),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  context.router.push(LoginRoute());
-                },
-                child: RichText(
-                  text: TextSpan(
-                    text: 'Already have an account? ',
-                    style: AppColors().inputFont.copyWith(
-                          color: AppColors().blackColor,
-                        ),
-                    children: [
-                      TextSpan(
-                          text: 'Log In',
-                          style: AppColors().inputFont.copyWith(
-                                color: AppColors().primaryColor,
-                              )),
-                    ],
+              Container(
+                padding: EdgeInsets.only(bottom: 20), // Add padding here
+
+                child: GestureDetector(
+                  onTap: () {
+                    context.router.push(LoginRoute());
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Already have an account? ',
+                      style: AppColors().inputFont.copyWith(
+                            color: AppColors().blackColor,
+                          ),
+                      children: [
+                        TextSpan(
+                            text: 'Log In',
+                            style: AppColors().inputFont.copyWith(
+                                  color: AppColors().primaryColor,
+                                )),
+                      ],
+                    ),
                   ),
                 ),
               ),

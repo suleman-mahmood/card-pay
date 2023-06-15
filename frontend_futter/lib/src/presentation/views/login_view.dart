@@ -37,11 +37,13 @@ class LoginView extends HookWidget {
             obscureText: true,
           ),
           SizedBox(height: 5),
-          Text('Forgot Password?',
-              style: AppColors().headingFont.copyWith(
-                    fontSize: 16,
-                    color: AppColors().primaryColor,
-                  )),
+          Text(
+            'Forgot Password?',
+            style: AppColors().headingFont.copyWith(
+                  fontSize: 16,
+                  color: AppColors().primaryColor,
+                ),
+          ),
           CustomButton(
             text: 'Login',
             onPressed: () => handleLoginButtonPressed(context),

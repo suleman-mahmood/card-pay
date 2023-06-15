@@ -106,7 +106,11 @@ class SignupView extends HookWidget {
             label: "Phone",
             hint: "Please Enter you phone  number",
             dropdownItems: ['+92', ' 2', ' 3'],
-            obscureText: false, // Optional
+            dropdownAlignment: Alignment.centerLeft,
+
+            obscureText: false,
+            keyboardType: TextInputType.phone,
+// Optional
             // validator: (value) {
             //   // Optional
             //   if (value == null || value.isEmpty) {

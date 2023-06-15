@@ -75,7 +75,9 @@ class RegisterView extends HookWidget {
           SizedBox(height: 5),
           CustomInputField(
             label: "Organization",
-            dropdownItems: ['None', 'LUMS', ' MIT', ' IBA'],
+            hint: "Enter your organization name",
+            dropdownItems: ['LUMS', ' MIT', ' IBA'],
+            dropdownAlignment: Alignment.centerRight,
             obscureText: false,
             onChanged: (value) {
               showRollNumberField.value = value != null;

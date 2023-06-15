@@ -16,17 +16,22 @@ class CustomDropdown extends HookWidget {
   Widget build(BuildContext context) {
     final dropdownValue = useMemoized(() => value);
 
-    return DropdownButton<String>(
-      value: dropdownValue,
-      onChanged: onChanged,
-      items: useMemoized(() {
-        return items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
-        }).toList();
-      }),
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<String>(
+        value: dropdownValue,
+        onChanged: onChanged,
+        items: useMemoized(
+          () {
+            return items.map((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(item),
+              );
+            }).toList();
+          },
+          [items], // Rebuild the items only when the items list changes
+        ),
+      ),
     );
   }
 }
