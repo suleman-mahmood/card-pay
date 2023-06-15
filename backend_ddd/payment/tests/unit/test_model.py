@@ -265,3 +265,24 @@ def test_redeemed_voucher(seed_wallet):
     assert recipient_wallet.balance == 1000
     assert sender_wallet.balance == 0
     assert str(e_info.value) == "Constraint violated, voucher is no longer valid"
+
+def test_amount_negative(seed_wallet):
+    customer_wallet = seed_wallet()
+    vendor_wallet = seed_wallet()
+
+    tx = Transaction(
+        amount= -1000,
+        mode=TransactionMode.QR,
+        transaction_type=TransactionType.POS,
+        recipient_wallet=vendor_wallet,
+        sender_wallet=customer_wallet,
+    )
+    with pytest.raises(TransactionNotAllowedException, match="Amount is zero or negative"):
+        tx.execute_transaction()
+
+    assert tx.sender_wallet.balance == 0
+    assert tx.recipient_wallet.balance == 0
+
+    assert tx.status == TransactionStatus.FAILED
+    assert tx.mode == TransactionMode.QR
+    assert tx.transaction_type == TransactionType.POS

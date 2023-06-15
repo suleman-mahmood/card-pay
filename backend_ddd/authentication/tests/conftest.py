@@ -58,3 +58,17 @@ def seed_auth_user():
         )
 
     return _seed_auth_user
+
+@pytest.fixture
+def seed_auth_closed_loop():
+    def _seed_auth_closed_loop(uow: AbstractUnitOfWork) -> ClosedLoop:
+        return auth_commands.create_closed_loop(
+            name="Test Closed Loop",
+            logo_url="https://test.com/logo.png",
+            description="Test description",
+            regex=None,
+            verification_type="NONE",
+            uow=uow,
+        )
+
+    return _seed_auth_closed_loop

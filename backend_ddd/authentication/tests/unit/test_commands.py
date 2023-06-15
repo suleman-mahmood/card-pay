@@ -18,38 +18,21 @@ from copy import deepcopy
 from ...domain.exceptions import InvalidOtpException, VerificationException
 
 
-def test_create_closed_loop():
+def test_create_closed_loop(seed_auth_closed_loop):
     with FakeUnitOfWork() as uow:
-        closed_loop = create_closed_loop(
-            name="Test Closed Loop",
-            logo_url="https://test.com/logo.png",
-            description="Test description",
-            regex=None,
-            verification_type="NONE",
-            uow=uow,
-        )
+        closed_loop = seed_auth_closed_loop(uow)
 
         fetched_closed_loop = uow.closed_loops.get(closed_loop.id)
 
-        assert fetched_closed_loop.id == closed_loop.id
-        assert fetched_closed_loop.name == "Test Closed Loop"
-        assert fetched_closed_loop.description == "Test description"
-        assert fetched_closed_loop.verification_type == ClosedLoopVerificationType.NONE
+        assert fetched_closed_loop == closed_loop
+      
 
-
-def test_create_user():
+def test_create_user(seed_auth_user):
     with FakeUnitOfWork() as uow:
-        user = create_user(
-            user_id=str(uuid4()),
-            personal_email="mlkmoaz@gmail.com",
-            phone_number="03034952255",
-            user_type="CUSTOMER",
-            pin="1234",
-            full_name="Malik Muhammad Moaz",
-            uow=uow,
-        )
+        user = seed_auth_user(uow)
 
         fetched_user = uow.users.get(user_id=user.id)
+
         assert fetched_user == user
 
 
@@ -87,7 +70,10 @@ def test_verify_otp(seed_auth_user):
     with FakeUnitOfWork() as uow:
         user = seed_auth_user(uow)
         otp = user.otp
+        wrong_otp = "0000"
 
+        with pytest.raises(InvalidOtpException, match = "Otps don't match"):
+            verify_otp(user_id=user.id, otp=wrong_otp, uow=uow)
         assert verify_otp(user_id=user.id, otp=otp, uow=uow)
         with pytest.raises(InvalidOtpException):
             verify_otp(user_id=user.id, otp=otp, uow=uow)
@@ -103,17 +89,10 @@ def test_verify_phone_number(seed_auth_user):
             verify_phone_number(user_id=user.id, otp=otp, uow=uow)
 
 
-def test_register_closed_loop(seed_auth_user, seed_closed_loop):
+def test_register_closed_loop(seed_auth_user, seed_auth_closed_loop):
     with FakeUnitOfWork() as uow:
         user = seed_auth_user(uow)
-        closed_loop = create_closed_loop(
-            name="Test Closed Loop",
-            logo_url="https://test.com/logo.png",
-            description="Test description",
-            regex="",
-            verification_type="NONE",
-            uow=uow,
-        )
+        closed_loop = seed_auth_closed_loop(uow)
 
         fetched_user = uow.users.get(user_id=user.id)
 
@@ -133,17 +112,10 @@ def test_register_closed_loop(seed_auth_user, seed_closed_loop):
         assert len(fetched_user.closed_loops) == 1
 
 
-def test_verify_closed_loop(seed_auth_user):
+def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
     with FakeUnitOfWork() as uow:
         user = seed_auth_user(uow)
-        closed_loop = create_closed_loop(
-            name="Test Closed Loop",
-            logo_url="https://test.com/logo.png",
-            description="Test description",
-            regex="",
-            verification_type="ROLLNUMBER",
-            uow=uow,
-        )
+        closed_loop = seed_auth_closed_loop(uow)
 
         fetched_user = uow.users.get(user_id=user.id)
 

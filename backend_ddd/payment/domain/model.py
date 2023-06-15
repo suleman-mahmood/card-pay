@@ -73,6 +73,12 @@ class Transaction:
             raise TransactionNotAllowedException(
                 "Insufficient balance in sender's wallet"
             )
+        
+        if self.amount <= 0:
+            self.status = TransactionStatus.FAILED
+            raise TransactionNotAllowedException(
+                "Amount is zero or negative"
+            )
 
         if self.recipient_wallet.id == self.sender_wallet.id:
             self.status = TransactionStatus.FAILED
