@@ -66,6 +66,7 @@ class Transaction:
     id: str = field(default_factory=lambda: str(uuid4()))
     status: TransactionStatus = TransactionStatus.PENDING
     created_at: datetime = field(default_factory=datetime.now)
+    last_updated: datetime = field(default_factory=datetime.now)
 
     def execute_transaction(self):
         """for executing a transaction"""

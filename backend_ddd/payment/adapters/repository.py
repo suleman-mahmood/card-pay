@@ -123,3 +123,27 @@ class TransactionRepository(TransactionAbstractRepository):
                 transaction.status.value,
             ],
         )
+
+    def add_wallet(self, wallet: Wallet):
+        pass
+
+    def get(self, transaction_id: str) -> Transaction:
+        pass
+
+    def get_by_wallet_ids(
+        self,
+        amount: int,
+        mode: TransactionMode,
+        transaction_type=TransactionStatus,
+        sender_wallet_id=str,
+        recipient_wallet_id=str,
+    ) -> Transaction:
+        pass
+
+    def get_with_different_recipient(
+        self, transaction_id: str, recipient_wallet_id: str
+    ) -> Transaction:
+        pass
+
+    def save(self, transaction: Transaction):
+        pass
