@@ -46,13 +46,13 @@ class IntroView extends HookWidget {
               CustomButton(
                 text: 'Get Started',
                 onPressed: () {
-                  context.router.replace(SignupRoute());
+                  context.router.push(SignupRoute());
                 },
               ),
               const SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
-                  context.router.replace(LoginRoute());
+                  context.router.push(LoginRoute());
                 },
                 child: RichText(
                   text: TextSpan(

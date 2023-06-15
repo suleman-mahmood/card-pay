@@ -13,10 +13,25 @@ class AppRouter extends _$AppRouter {
   @override
   List<AutoRoute> get routes => [
         AutoRoute(page: SplashRoute.page, initial: true),
-        AutoRoute(page: IntroRoute.page),
-        AutoRoute(page: SignupRoute.page),
-        AutoRoute(page: RegisterRoute.page),
-        AutoRoute(page: RegisterrollRoute.page),
-        AutoRoute(page: LoginRoute.page),
+        CustomRoute(
+          page: IntroRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: SignupRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: RegisterRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: RegisterrollRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: LoginRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
       ];
 }
