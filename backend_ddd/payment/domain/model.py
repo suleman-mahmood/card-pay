@@ -12,6 +12,7 @@ class Wallet:
 
     id: str = field(default_factory=lambda: str(uuid4()))
     balance: int = 0
+    created_at: datetime = datetime.now()
 
 
 class TransactionStatus(str, Enum):
@@ -63,8 +64,8 @@ class Transaction:
     sender_wallet: Wallet
 
     id: str = field(default_factory=lambda: str(uuid4()))
-    timestamp: datetime = field(default_factory=datetime.now)
     status: TransactionStatus = TransactionStatus.PENDING
+    created_at: datetime = field(default_factory=datetime.now)
 
     def execute_transaction(self):
         """for executing a transaction"""
@@ -73,12 +74,10 @@ class Transaction:
             raise TransactionNotAllowedException(
                 "Insufficient balance in sender's wallet"
             )
-        
+
         if self.amount <= 0:
             self.status = TransactionStatus.FAILED
-            raise TransactionNotAllowedException(
-                "Amount is zero or negative"
-            )
+            raise TransactionNotAllowedException("Amount is zero or negative")
 
         if self.recipient_wallet.id == self.sender_wallet.id:
             self.status = TransactionStatus.FAILED

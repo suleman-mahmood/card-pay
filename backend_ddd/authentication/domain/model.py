@@ -1,11 +1,11 @@
 """authentication domain model"""
+from uuid import uuid4
 from dataclasses import dataclass, field
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 from enum import Enum
 from datetime import datetime
 from .utils import _generate_4_digit_otp
 from .exceptions import InvalidOtpException, ClosedLoopException, VerificationException
-from uuid import uuid4
 
 
 def behaviour():
@@ -42,6 +42,7 @@ class ClosedLoop:
     verification_type: ClosedLoopVerificationType
 
     id: str = field(default_factory=lambda: str(uuid4()))
+    created_at: datetime = datetime.now()
 
 
 class ClosedLoopUserState(str, Enum):
@@ -122,6 +123,8 @@ class User:
     closed_loops: Dict[str, ClosedLoopUser] = field(default_factory=dict)
     otp: str = field(default_factory=_generate_4_digit_otp)
     otp_generated_at: datetime = field(default_factory=datetime.now)
+    location: Tuple[float, float] = field(default_factory=(None, None))
+    created_at: datetime = datetime.now()
 
     @property
     def qr_code(self) -> str:
