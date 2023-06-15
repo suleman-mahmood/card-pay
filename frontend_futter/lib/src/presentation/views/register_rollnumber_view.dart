@@ -54,7 +54,7 @@ class RegisterrollView extends HookWidget {
                   CustomButton(
                     text: 'Verify',
                     onPressed: () {
-                      context.router.replace(RegisterRoute());
+                      context.router.push(RegisterRoute());
                     },
                   ),
                 ],
@@ -78,7 +78,7 @@ class RegisterrollView extends HookWidget {
           SizedBox(height: 5),
           CustomInputField(
             label: "Organization",
-            dropdownItems: ['LUMS', ' MIT', ' IBA'],
+            dropdownItems: ['None', 'LUMS', ' MIT', ' IBA'],
             obscureText: false, // Optional
             // validator: (value) {
             //   // Optional

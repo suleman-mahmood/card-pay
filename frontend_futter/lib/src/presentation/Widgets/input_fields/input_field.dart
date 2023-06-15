@@ -1,52 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/presentation/Widgets/input_fields/drop_down.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 
-class CustomInputField extends StatefulWidget {
+class CustomInputField extends HookWidget {
   final String label;
   final String? hint;
   final bool obscureText;
   final FormFieldValidator<String>? validator;
   final List<String>? dropdownItems; // Optional list of dropdown items
+  final ValueChanged<String?>? onChanged; // New onChanged property
 
   const CustomInputField({
     required this.label,
     this.hint,
-    this.dropdownItems, // This can be null
+    this.dropdownItems,
     this.obscureText = false,
     this.validator,
+    this.onChanged, // Include onChanged property in the constructor
   });
 
   @override
-  _CustomInputFieldState createState() => _CustomInputFieldState();
-}
-
-class _CustomInputFieldState extends State<CustomInputField> {
-  final _controller = TextEditingController();
-  String? selectedDropdownItem; // To hold the selected dropdown item
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.dropdownItems != null && widget.dropdownItems!.isNotEmpty) {
-      selectedDropdownItem = widget
-          .dropdownItems![0]; // Initialize with the first item in the list
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final selectedDropdownItem = useState<String?>(null);
+    final controller = useTextEditingController();
+
+    useEffect(() {
+      if (dropdownItems != null && dropdownItems!.isNotEmpty) {
+        selectedDropdownItem.value = dropdownItems![0];
+      }
+      return () {
+        controller.dispose();
+      };
+    }, []);
+
+    // Call onChanged callback when dropdown value changes
+    void handleDropdownChange(String? newValue) {
+      selectedDropdownItem.value = newValue;
+      onChanged?.call(newValue);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.label,
+          label,
           style: AppColors().inputFont.copyWith(
                 color: AppColors().blackColor,
                 fontSize: 16,
@@ -54,45 +52,40 @@ class _CustomInputFieldState extends State<CustomInputField> {
         ),
         SizedBox(height: 5),
         Stack(
-          alignment: Alignment.center, // Align elements to the left
+          alignment: Alignment.center,
           children: [
             Container(
-              width: 420, // Set the width to occupy the available space
+              width: 420,
               decoration: BoxDecoration(
                 color: AppColors().greyColor.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(19),
               ),
               child: Row(
                 children: [
-                  if (widget.dropdownItems != null &&
-                      widget.dropdownItems!
-                          .isNotEmpty) // Display the dropdown only if there are items
+                  if (dropdownItems != null && dropdownItems!.isNotEmpty)
                     CustomDropdown(
-                      items: widget.dropdownItems!,
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedDropdownItem = newValue;
-                        });
-                      },
-                      value: selectedDropdownItem,
+                      items: dropdownItems!,
+                      onChanged:
+                          handleDropdownChange, // Use the modified callback
+                      value: selectedDropdownItem.value,
                     ),
                   Expanded(
                     child: TextFormField(
-                      obscureText: widget.obscureText,
-                      controller: _controller,
-                      validator: widget.validator,
+                      obscureText: obscureText,
+                      controller: controller,
+                      validator: validator,
                       decoration: InputDecoration(
-                        border: InputBorder.none, // Remove the border
-                        hintText: widget.hint,
-                        isCollapsed: true, // Remove unnecessary padding
+                        border: InputBorder.none,
+                        hintText: hint,
+                        isCollapsed: true,
                         contentPadding: EdgeInsets.symmetric(
-                          vertical: 19, // Increase the height slightly
-                          horizontal: 8, // Decrease the width slightly
+                          vertical: 19,
+                          horizontal: 8,
                         ),
                       ),
                       style: TextStyle(
-                          color: AppColors()
-                              .greenColor), // Change the color of the hint text to grey
+                        color: AppColors().greenColor,
+                      ),
                     ),
                   ),
                 ],

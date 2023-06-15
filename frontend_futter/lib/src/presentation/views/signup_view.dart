@@ -54,7 +54,7 @@ class SignupView extends HookWidget {
                   CustomButton(
                     text: 'Verify',
                     onPressed: () {
-                      context.router.replace(RegisterRoute());
+                      context.router.push(RegisterRoute());
                     },
                   ),
                 ],

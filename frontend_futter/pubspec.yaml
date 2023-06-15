@@ -12,6 +12,7 @@ dependencies:
 
     flutter_hooks: ^0.18.6
     auto_route: ^7.4.0
+    hooks_riverpod: ^0.14.0
 
 dev_dependencies:
     flutter_test:
@@ -25,6 +26,7 @@ flutter:
     uses-material-design: true
     assets:
       - assets/images/
+
 
 
 

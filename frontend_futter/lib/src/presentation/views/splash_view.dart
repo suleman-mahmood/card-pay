@@ -65,7 +65,7 @@ class _GradientPageState extends State<GradientPage>
 
     // Navigate to the next page after 5 to 7 seconds
     Future.delayed(Duration(seconds: 8), () {
-      context.router.replace(IntroRoute());
+      context.router.push(IntroRoute());
     });
   }
 

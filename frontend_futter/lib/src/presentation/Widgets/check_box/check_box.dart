@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 
-class CheckBox extends StatefulWidget {
+class CheckBox extends HookWidget {
   final Function(bool value)? onChanged;
   final String text;
 
@@ -11,20 +12,13 @@ class CheckBox extends StatefulWidget {
   });
 
   @override
-  _AcceptTermsCheckboxState createState() => _AcceptTermsCheckboxState();
-}
-
-class _AcceptTermsCheckboxState extends State<CheckBox> {
-  bool isChecked = false;
-
-  @override
   Widget build(BuildContext context) {
+    final isChecked = useState(false);
+
     return InkWell(
       onTap: () {
-        setState(() {
-          isChecked = !isChecked;
-          widget.onChanged?.call(isChecked);
-        });
+        isChecked.value = !isChecked.value;
+        onChanged?.call(isChecked.value);
       },
       child: Container(
         width: double.infinity,
@@ -40,11 +34,11 @@ class _AcceptTermsCheckboxState extends State<CheckBox> {
               height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isChecked
+                color: isChecked.value
                     ? AppColors().primaryColor
                     : AppColors().blueColor,
               ),
-              child: isChecked
+              child: isChecked.value
                   ? Icon(
                       Icons.check,
                       color: AppColors().greyColor,
@@ -54,11 +48,13 @@ class _AcceptTermsCheckboxState extends State<CheckBox> {
             ),
             SizedBox(width: 10),
             Expanded(
-              child: Text(widget.text,
-                  style: AppColors().inputFont.copyWith(
-                        color: AppColors().blueColor,
-                        fontSize: 16,
-                      )),
+              child: Text(
+                text,
+                style: AppColors().inputFont.copyWith(
+                      color: AppColors().blueColor,
+                      fontSize: 16,
+                    ),
+              ),
             ),
           ],
         ),

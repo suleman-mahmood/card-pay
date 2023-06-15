@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 
-class MainHeading extends StatelessWidget {
+class MainHeading extends HookWidget {
   final String accountTitle;
-  final String? accountDescription; // Updated: Made accountDescription optional
+  final String? accountDescription;
 
   const MainHeading({
     required this.accountTitle,
-    this.accountDescription, // Updated: Made accountDescription optional
+    this.accountDescription,
   });
 
   @override
@@ -16,15 +17,21 @@ class MainHeading extends StatelessWidget {
       children: [
         Text(accountTitle, style: AppColors().mainHeading),
         SizedBox(height: 10),
-        if (accountDescription !=
-            null) // Added condition to display accountDescription only if it's not null
-          Text(
-            accountDescription!,
-            style: AppColors().inputFont.copyWith(
-                  color: AppColors().blackColor,
-                  fontSize: 16,
-                ),
-          ),
+        HookBuilder(
+          builder: (context) {
+            if (accountDescription != null) {
+              return Text(
+                accountDescription!,
+                style: AppColors().inputFont.copyWith(
+                      color: AppColors().blackColor,
+                      fontSize: 16,
+                    ),
+              );
+            } else {
+              return SizedBox.shrink();
+            }
+          },
+        ),
       ],
     );
   }

@@ -12,6 +12,10 @@ import 'package:frontend_futter/src/presentation/Widgets/layout/common_app_layou
 class LoginView extends HookWidget {
   const LoginView({Key? key}) : super(key: key);
 
+  void handleLoginButtonPressed(BuildContext context) {
+    context.router.push(RegisterrollRoute());
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppLayout(
@@ -40,9 +44,7 @@ class LoginView extends HookWidget {
                   )),
           CustomButton(
             text: 'Login',
-            onPressed: () {
-              context.router.replace(RegisterrollRoute());
-            },
+            onPressed: () => handleLoginButtonPressed(context),
           ),
         ],
       ),

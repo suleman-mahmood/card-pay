@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class CustomDropdown extends StatelessWidget {
+class CustomDropdown extends HookWidget {
   final List<String> items;
-  final void Function(String?)? onChanged; // Changed String to String?
+  final void Function(String?)? onChanged;
   final String? value;
 
   CustomDropdown({
@@ -13,15 +14,19 @@ class CustomDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dropdownValue = useMemoized(() => value);
+
     return DropdownButton<String>(
-      value: value,
+      value: dropdownValue,
       onChanged: onChanged,
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
+      items: useMemoized(() {
+        return items.map((String item) {
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(item),
+          );
+        }).toList();
+      }),
     );
   }
 }

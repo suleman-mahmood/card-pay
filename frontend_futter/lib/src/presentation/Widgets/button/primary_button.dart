@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 
-class CustomButton extends StatelessWidget {
+class CustomButton extends HookWidget {
   final String text;
   final VoidCallback onPressed;
   final double width;
@@ -14,14 +15,21 @@ class CustomButton extends StatelessWidget {
     this.height = 48,
   });
 
+  EdgeInsets calculateMargin(BuildContext context) {
+    return EdgeInsets.only(
+      top: 0.03 * MediaQuery.of(context).size.height,
+      left: 0.05 * MediaQuery.of(context).size.width,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final margin = useMemoized(() => calculateMargin(context));
+
     return Container(
       width: width,
       height: height,
-      margin: EdgeInsets.only(
-          top: 0.03 * MediaQuery.of(context).size.height,
-          left: 0.05 * MediaQuery.of(context).size.width),
+      margin: margin,
       child: ElevatedButton(
         onPressed: onPressed,
         child: Container(
@@ -41,9 +49,10 @@ class CustomButton extends StatelessWidget {
           backgroundColor:
               MaterialStateProperty.all<Color>(AppColors().primaryColor),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          )),
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
         ),
       ),
     );

@@ -1,46 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 
-class OTPInput extends StatefulWidget {
+class OTPInput extends HookWidget {
   final int digitCount;
   final ValueChanged<String>? onCompleted;
 
   OTPInput({required this.digitCount, this.onCompleted});
 
-  @override
-  _OTPInputState createState() => _OTPInputState();
-}
-
-class _OTPInputState extends State<OTPInput> {
-  late List<FocusNode> _focusNodes;
-  late List<TextEditingController> _controllers;
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNodes = List.generate(widget.digitCount, (index) => FocusNode());
-    _controllers =
-        List.generate(widget.digitCount, (index) => TextEditingController());
-  }
-
-  @override
-  void dispose() {
-    for (var controller in _controllers) {
-      controller.dispose();
+  bool _isInputComplete(List<TextEditingController> controllers) {
+    for (var controller in controllers) {
+      if (controller.text.isEmpty) {
+        return false;
+      }
     }
-    super.dispose();
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
+    final focusNodes = List.generate(digitCount, (index) => useFocusNode());
+    final controllers = List.generate(
+      digitCount,
+      (index) => useTextEditingController(),
+    );
+
+    useEffect(() {
+      return () {
+        for (var controller in controllers) {
+          controller.dispose();
+        }
+      };
+    }, []);
+
     return Row(
-      children: List.generate(widget.digitCount, (index) {
+      children: List.generate(digitCount, (index) {
         return Expanded(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: TextField(
-              controller: _controllers[index],
-              focusNode: _focusNodes[index],
+              controller: controllers[index],
+              focusNode: focusNodes[index],
               keyboardType: TextInputType.number,
               maxLength: 1,
               textAlign: TextAlign.center,
@@ -51,26 +51,24 @@ class _OTPInputState extends State<OTPInput> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                   borderSide: BorderSide(
-                    color:
-                        AppColors().secondaryColor, // Set the border color here
-                    width: 1.0, // Set the border width here
+                    color: AppColors().secondaryColor,
+                    width: 1.0,
                   ),
                 ),
-                fillColor:
-                    AppColors().secondaryColor, // Set the fill color here
-                filled: true, // Enable filling
+                fillColor: AppColors().secondaryColor,
+                filled: true,
               ),
               onChanged: (value) {
-                if (value.length == 1 && index != widget.digitCount - 1) {
-                  _focusNodes[index].unfocus();
-                  FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+                if (value.length == 1 && index != digitCount - 1) {
+                  focusNodes[index].unfocus();
+                  FocusScope.of(context).requestFocus(focusNodes[index + 1]);
                 }
-                if (_isInputComplete()) {
+                if (_isInputComplete(controllers)) {
                   String otp = '';
-                  for (var controller in _controllers) {
+                  for (var controller in controllers) {
                     otp += controller.text;
                   }
-                  widget.onCompleted?.call(otp);
+                  onCompleted?.call(otp);
                 }
               },
             ),
@@ -78,14 +76,5 @@ class _OTPInputState extends State<OTPInput> {
         );
       }),
     );
-  }
-
-  bool _isInputComplete() {
-    for (var controller in _controllers) {
-      if (controller.text.isEmpty) {
-        return false;
-      }
-    }
-    return true;
   }
 }
