@@ -3,9 +3,17 @@ from ..payment.adapters.repository import (
     TransactionAbstractRepository,
     FakeTransactionRepository,
 )
+from ..authentication.adapters.repository import (
+    ClosedLoopAbstractRepository,
+    UserAbstractRepository,
+    FakeClosedLoopAbstractRepository,
+    FakeUserAbstractRepository,
+)
 
 
 class AbstractUnitOfWork(ABC):
+    users: UserAbstractRepository
+    closed_loops: ClosedLoopAbstractRepository
     transactions: TransactionAbstractRepository
 
     def __enter__(self) -> "AbstractUnitOfWork":
@@ -26,6 +34,8 @@ class AbstractUnitOfWork(ABC):
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
+        self.users = FakeUserAbstractRepository()
+        self.closed_loops = FakeClosedLoopAbstractRepository()
         self.transactions = FakeTransactionRepository()
 
     def commit(self):

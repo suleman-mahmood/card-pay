@@ -1,3 +1,4 @@
+"""Payments micro-service commands"""
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
 from ..domain.model import (
     Transaction,
@@ -12,10 +13,9 @@ from ..domain.model import (
 
 def create_wallet(uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
+    # please only call this from create_user
     wallet = Wallet()
-
-    with uow:
-        uow.transactions.add_wallet(wallet)
+    uow.transactions.add_wallet(wallet)
 
     return wallet
 
@@ -51,9 +51,7 @@ def accept_p2p_pull_transaction(
 ) -> Transaction:
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
-
         tx.accept_p2p_pull_transaction()
-
         uow.transactions.save(tx)
 
     return tx
@@ -64,9 +62,7 @@ def decline_p2p_pull_transaction(
 ) -> Transaction:
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
-
         tx.decline_p2p_pull_transaction()
-
         uow.transactions.save(tx)
 
     return tx
@@ -98,9 +94,7 @@ def redeem_voucher(
         tx = uow.transactions.get_with_different_recipient(
             transaction_id=transaction_id, recipient_wallet_id=recipient_wallet_id
         )
-
         tx.redeem_voucher()
-
         uow.transactions.save(tx)
 
     return tx
