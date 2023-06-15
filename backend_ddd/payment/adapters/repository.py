@@ -1,8 +1,8 @@
 """payments microservices repository"""
 
 from abc import ABC, abstractmethod
-from ..domain.model import Transaction, Wallet, TransactionMode, TransactionStatus
 from typing import Dict
+from ..domain.model import Transaction, Wallet, TransactionMode, TransactionStatus
 
 
 class TransactionAbstractRepository(ABC):
@@ -98,3 +98,28 @@ class FakeTransactionRepository(TransactionAbstractRepository):
         self.transactions[transaction.id] = transaction
         self.wallets[transaction.sender_wallet.id] = transaction.sender_wallet
         self.wallets[transaction.recipient_wallet.id] = transaction.recipient_wallet
+
+
+class TransactionRepository(TransactionAbstractRepository):
+    def __init__(self, connection):
+        self.connection = connection
+        self.cursor = connection.cursor()
+
+    def add(self, transaction: Transaction):
+        sql = """
+            INSERT INTO Transaction (id, amount, mode, transaction_type, sender_wallet_id, recipient_wallet_id, timestamp, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        self.cursor.execute(
+            sql,
+            [
+                transaction.id,
+                transaction.amount,
+                transaction.mode.value,
+                transaction.transaction_type.value,
+                transaction.sender_wallet.id,
+                transaction.recipient_wallet.id,
+                transaction.timestamp,
+                transaction.status.value,
+            ],
+        )
