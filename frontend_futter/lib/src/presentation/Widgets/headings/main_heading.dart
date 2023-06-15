@@ -17,21 +17,15 @@ class MainHeading extends HookWidget {
       children: [
         Text(accountTitle, style: AppColors().mainHeading),
         SizedBox(height: 10),
-        HookBuilder(
-          builder: (context) {
-            if (accountDescription != null) {
-              return Text(
+        (accountDescription != null)
+            ? Text(
                 accountDescription!,
                 style: AppColors().inputFont.copyWith(
                       color: AppColors().blackColor,
                       fontSize: 16,
                     ),
-              );
-            } else {
-              return SizedBox.shrink();
-            }
-          },
-        ),
+              )
+            : SizedBox.shrink()
       ],
     );
   }

@@ -22,16 +22,11 @@ class CustomInputField extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedDropdownItem = useState<String?>(null);
+    final selectedDropdownItem = useState<String?>(dropdownItems?[0]);
     final controller = useTextEditingController();
 
     useEffect(() {
-      if (dropdownItems != null && dropdownItems!.isNotEmpty) {
-        selectedDropdownItem.value = dropdownItems![0];
-      }
-      return () {
-        controller.dispose();
-      };
+      return controller.dispose;
     }, []);
 
     // Call onChanged callback when dropdown value changes
