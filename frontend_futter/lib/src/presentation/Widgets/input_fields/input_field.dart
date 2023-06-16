@@ -93,7 +93,7 @@ class CustomInputField extends HookWidget {
                         passwordVisible.value
                             ? Icons.visibility
                             : Icons.visibility_off,
-                        color: Colors.grey,
+                        color: AppColors().greyColor,
                       ),
                     ),
                 ],
