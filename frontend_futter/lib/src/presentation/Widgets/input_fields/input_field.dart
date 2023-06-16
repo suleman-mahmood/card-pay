@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/presentation/Widgets/input_fields/drop_down.dart';
+import 'package:frontend_futter/src/presentation/Widgets/input_fields/input_text_field.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 
 class CustomInputField extends HookWidget {
@@ -11,8 +12,7 @@ class CustomInputField extends HookWidget {
   final List<String>? dropdownItems;
   final ValueChanged<String?>? onChanged;
   final TextInputType? keyboardType;
-  final Alignment
-      dropdownAlignment; // New property for specifying dropdown alignment
+  final Alignment dropdownAlignment;
 
   const CustomInputField({
     required this.label,
@@ -22,7 +22,7 @@ class CustomInputField extends HookWidget {
     this.validator,
     this.onChanged,
     this.keyboardType,
-    this.dropdownAlignment = Alignment.centerLeft, // Set the default alignment
+    this.dropdownAlignment = Alignment.centerLeft,
   });
 
   @override
@@ -68,8 +68,7 @@ class CustomInputField extends HookWidget {
                   if (dropdownItems != null && dropdownItems!.isNotEmpty)
                     Expanded(
                       child: Align(
-                        alignment:
-                            dropdownAlignment, // Use the specified alignment
+                        alignment: dropdownAlignment,
                         child: CustomDropdown(
                           items: dropdownItems!,
                           onChanged: handleDropdownChange,
@@ -79,23 +78,12 @@ class CustomInputField extends HookWidget {
                     ),
                   Expanded(
                     flex: 2,
-                    child: TextFormField(
+                    child: CustomTextFormField(
                       obscureText: obscureText && !passwordVisible.value,
                       controller: controller,
                       validator: validator,
                       keyboardType: keyboardType,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: selectedDropdownItem.value ?? hint,
-                        isCollapsed: true,
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 19,
-                          horizontal: 8,
-                        ),
-                      ),
-                      style: TextStyle(
-                        color: AppColors().blackColor,
-                      ),
+                      hint: selectedDropdownItem.value ?? hint,
                     ),
                   ),
                   if (obscureText)
