@@ -30,7 +30,7 @@ def execute_transaction(
 ) -> Transaction:
     with uow:
         # using wallet id as txn does not exist yet
-        tx = uow.transactions.get_by_wallet_ids(
+        tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
             mode=transaction_mode,
             transaction_type=transaction_type,
@@ -73,7 +73,7 @@ def generate_voucher(
 ) -> Transaction:
     """creates a txn object whith same sender and recipient"""
     with uow:
-        tx = uow.transactions.get_by_wallet_ids(
+        tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
             mode=TransactionMode.APP_TRANSFER,
             transaction_type=TransactionType.VOUCHER,

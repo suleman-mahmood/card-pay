@@ -12,7 +12,6 @@ class Wallet:
 
     id: str = field(default_factory=lambda: str(uuid4()))
     balance: int = 0
-    created_at: datetime = datetime.now()
 
 
 class TransactionStatus(str, Enum):
