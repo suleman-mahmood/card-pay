@@ -2,7 +2,13 @@
 
 from abc import ABC, abstractmethod
 from typing import Dict
-from ..domain.model import Transaction, Wallet, TransactionMode, TransactionStatus
+from ..domain.model import (
+    Transaction,
+    Wallet,
+    TransactionMode,
+    TransactionStatus,
+    TransactionType,
+)
 from ..domain.exceptions import TransactionNotFoundException
 
 
@@ -102,6 +108,8 @@ class FakeTransactionRepository(TransactionAbstractRepository):
 
 
 class TransactionRepository(TransactionAbstractRepository):
+    """Transaction Repository"""
+
     def __init__(self, connection):
         self.connection = connection
         self.cursor = connection.cursor()
@@ -192,7 +200,7 @@ class TransactionRepository(TransactionAbstractRepository):
             id=transaction_row[0],
             amount=transaction_row[1],
             mode=TransactionMode[transaction_row[2]],
-            transaction_type=TransactionStatus[transaction_row[3]],
+            transaction_type=TransactionType[transaction_row[3]],
             status=TransactionStatus[transaction_row[4]],
             sender_wallet=Wallet(id=transaction_row[5], balance=sender_wallet_row[1]),
             recipient_wallet=Wallet(
@@ -216,10 +224,14 @@ class TransactionRepository(TransactionAbstractRepository):
             where id=%s
             for update
         """
+        print(sender_wallet_id)
         self.cursor.execute(sql, [sender_wallet_id])
         sender_wallet_row = self.cursor.fetchone()
+        print(sender_wallet_row)
+        print(recipient_wallet_id)
         self.cursor.execute(sql, [recipient_wallet_id])
         recipient_wallet_row = self.cursor.fetchone()
+        print(recipient_wallet_row)
 
         return Transaction(
             amount=amount,
@@ -322,5 +334,20 @@ class TransactionRepository(TransactionAbstractRepository):
             [
                 transaction.recipient_wallet.balance,
                 transaction.recipient_wallet.id,
+            ],
+        )
+
+    def add_1000_wallet(self, wallet: Wallet):
+        # update wallet balance
+        sql = """
+            update wallets
+            set balance = %s
+            where id=%s
+        """
+        self.cursor.execute(
+            sql,
+            [
+                1000,
+                wallet.id,
             ],
         )

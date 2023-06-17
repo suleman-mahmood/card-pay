@@ -13,6 +13,9 @@ from ..authentication.adapters.repository import (
     FakeClosedLoopAbstractRepository,
     FakeUserAbstractRepository,
 )
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class AbstractUnitOfWork(ABC):

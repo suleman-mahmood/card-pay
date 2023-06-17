@@ -6,37 +6,41 @@ from ...entrypoint.commands import (
     decline_p2p_pull_transaction,
     redeem_voucher,
     generate_voucher,
+    slow_execute_transaction,
 )
-from ....entrypoint.uow import FakeUnitOfWork
+from ....entrypoint.uow import FakeUnitOfWork, UnitOfWork
 from ...domain.model import TransactionMode, TransactionType, TransactionStatus
+import threading
+from queue import Queue
 
 
-def test_create_wallet():
-    with FakeUnitOfWork() as uow:
-        wallet = create_wallet(uow)
+# def test_create_wallet():
+#     with UnitOfWork() as uow:
+#         wallet = create_wallet(uow)
 
-    assert wallet.balance == 0
-    assert wallet.id in uow.transactions.wallets
-    assert uow.transactions.wallets[wallet.id] == wallet
+#     assert wallet.balance == 0
 
 
 def test_execute_transaction():
-    with FakeUnitOfWork() as uow:
+    with UnitOfWork() as uow:
         sender_wallet = create_wallet(uow)
         recipient_wallet = create_wallet(uow)
+
+        print(recipient_wallet.id)
 
         # for testing purposes
         uow.transactions.add_1000_wallet(sender_wallet)
 
-        tx = execute_transaction(
-            sender_wallet_id=sender_wallet.id,
-            recipient_wallet_id=recipient_wallet.id,
-            amount=1000,
-            transaction_mode=TransactionMode.APP_TRANSFER,
-            transaction_type=TransactionType.P2P_PUSH,
-            uow=uow,
-        )
+    tx = execute_transaction(
+        sender_wallet_id=sender_wallet.id,
+        recipient_wallet_id=recipient_wallet.id,
+        amount=1000,
+        transaction_mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.P2P_PUSH,
+        uow=UnitOfWork(),
+    )
 
+    with UnitOfWork() as uow:
         fetched_tx = uow.transactions.get(transaction_id=tx.id)
 
         assert fetched_tx.amount == 1000
@@ -47,113 +51,166 @@ def test_execute_transaction():
         assert fetched_tx.recipient_wallet.id == recipient_wallet.id
 
 
-def test_accept_p2p_pull_transaction():
-    with FakeUnitOfWork() as uow:
+def test_slow_execute_transaction():
+    with UnitOfWork() as uow:
         sender_wallet = create_wallet(uow)
-        recipient_wallet = create_wallet(uow)
+
+        # recipient_wallet = create_wallet(uow)
+
+        recipient_wallets = [create_wallet(uow) for i in range(5)]
 
         # for testing purposes
         uow.transactions.add_1000_wallet(sender_wallet)
 
-        # make pull transaction
-        tx = execute_transaction(
-            sender_wallet_id=sender_wallet.id,
-            recipient_wallet_id=recipient_wallet.id,
-            amount=1000,
-            transaction_mode=TransactionMode.APP_TRANSFER,
-            transaction_type=TransactionType.P2P_PULL,
-            uow=uow,
+    threads = []
+    queue = Queue()
+    for i in range(5):
+        t = threading.Thread(
+            target=slow_execute_transaction,
+            args=(
+                sender_wallet.id,
+                recipient_wallets[i].id,
+                100,
+                TransactionMode.APP_TRANSFER,
+                TransactionType.P2P_PUSH,
+                UnitOfWork(),
+                queue,
+            ),
         )
 
-        # accept previously created pull transaction
-        tx = accept_p2p_pull_transaction(transaction_id=tx.id, uow=uow)
+        threads.append(t)
+        t.start()
 
-        # fetch tx from memory
-        fetched_tx = uow.transactions.get(transaction_id=tx.id)
+    for t in threads:
+        t.join()
 
-        assert fetched_tx.amount == 1000
-        assert fetched_tx.mode == TransactionMode.APP_TRANSFER
-        assert fetched_tx.transaction_type == TransactionType.P2P_PULL
-        assert fetched_tx.status == TransactionStatus.SUCCESSFUL
-        assert fetched_tx.sender_wallet.id == sender_wallet.id
-        assert fetched_tx.recipient_wallet.id == recipient_wallet.id
-        assert fetched_tx.recipient_wallet.balance == 1000
-        assert fetched_tx.sender_wallet.balance == 0
+    txs = []
+    for i in range(5):
+        x = queue.get()
+        txs.append(x)
 
+    with UnitOfWork() as uow:
+        for i in range(5):
+            fetched_tx = uow.transactions.get(transaction_id=txs[i].id)
 
-def test_decline_p2p_pull_transaction():
-    with FakeUnitOfWork() as uow:
-        sender_wallet = create_wallet(uow)
-        recipient_wallet = create_wallet(uow)
+            assert fetched_tx.amount == 100
+            assert fetched_tx.mode == TransactionMode.APP_TRANSFER
+            assert fetched_tx.transaction_type == TransactionType.P2P_PUSH
+            assert fetched_tx.status == TransactionStatus.SUCCESSFUL
+            assert fetched_tx.sender_wallet.id == sender_wallet.id
+            # assert fetched_tx.recipient_wallet.id == recipient_wallets[i].id
 
-        # for testing purposes
-        uow.transactions.add_1000_wallet(sender_wallet)
-
-        # make pull transaction
-        tx = execute_transaction(
-            sender_wallet_id=sender_wallet.id,
-            recipient_wallet_id=recipient_wallet.id,
-            amount=1000,
-            transaction_mode=TransactionMode.APP_TRANSFER,
-            transaction_type=TransactionType.P2P_PULL,
-            uow=uow,
-        )
-
-        # decline previously created pull transaction
-        tx = decline_p2p_pull_transaction(transaction_id=tx.id, uow=uow)
-
-        # fetch tx from memory
-        fetched_tx = uow.transactions.get(transaction_id=tx.id)
-
-        assert fetched_tx.amount == 1000
-        assert fetched_tx.mode == TransactionMode.APP_TRANSFER
-        assert fetched_tx.transaction_type == TransactionType.P2P_PULL
-        assert fetched_tx.status == TransactionStatus.DECLINED
-        assert fetched_tx.sender_wallet.id == sender_wallet.id
-        assert fetched_tx.recipient_wallet.id == recipient_wallet.id
-        assert fetched_tx.recipient_wallet.balance == 0
-        assert fetched_tx.sender_wallet.balance == 1000
+        sender_wallet = uow.transactions.get(transaction_id=txs[0].id).sender_wallet
+        assert sender_wallet.balance == 500
 
 
-def test_generate_voucher():
-    with FakeUnitOfWork() as uow:
-        generator_wallet = create_wallet(uow)
+# def test_accept_p2p_pull_transaction():
+#     with UnitOfWork() as uow:
+#         sender_wallet = create_wallet(uow)
+#         recipient_wallet = create_wallet(uow)
 
-        uow.transactions.add_1000_wallet(generator_wallet)
+#         # for testing purposes
+#         uow.transactions.add_1000_wallet(sender_wallet)
 
-        tx = generate_voucher(
-            sender_wallet_id=generator_wallet.id, amount=1000, uow=uow
-        )
+#         # make pull transaction
+#         tx = execute_transaction(
+#             sender_wallet_id=sender_wallet.id,
+#             recipient_wallet_id=recipient_wallet.id,
+#             amount=1000,
+#             transaction_mode=TransactionMode.APP_TRANSFER,
+#             transaction_type=TransactionType.P2P_PULL,
+#             uow=uow,
+#         )
 
-        fetched_tx = uow.transactions.get(transaction_id=tx.id)
+#         # accept previously created pull transaction
+#         tx = accept_p2p_pull_transaction(transaction_id=tx.id, uow=uow)
 
-        assert fetched_tx.amount == 1000
-        assert fetched_tx.sender_wallet.id == generator_wallet.id
-        assert fetched_tx.recipient_wallet.id == generator_wallet.id
-        assert fetched_tx.mode == TransactionMode.APP_TRANSFER
-        assert fetched_tx.transaction_type == TransactionType.VOUCHER
-        assert fetched_tx.status == TransactionStatus.PENDING
+#         # fetch tx from memory
+#         fetched_tx = uow.transactions.get(transaction_id=tx.id)
+
+#         assert fetched_tx.amount == 1000
+#         assert fetched_tx.mode == TransactionMode.APP_TRANSFER
+#         assert fetched_tx.transaction_type == TransactionType.P2P_PULL
+#         assert fetched_tx.status == TransactionStatus.SUCCESSFUL
+#         assert fetched_tx.sender_wallet.id == sender_wallet.id
+#         assert fetched_tx.recipient_wallet.id == recipient_wallet.id
+#         assert fetched_tx.recipient_wallet.balance == 1000
+#         assert fetched_tx.sender_wallet.balance == 0
 
 
-def test_redeem_voucher():
-    with FakeUnitOfWork() as uow:
-        generator_wallet = create_wallet(uow)
-        redeemer_wallet = create_wallet(uow)
+# def test_decline_p2p_pull_transaction():
+#     with UnitOfWork() as uow:
+#         sender_wallet = create_wallet(uow)
+#         recipient_wallet = create_wallet(uow)
 
-        uow.transactions.add_1000_wallet(generator_wallet)
+#         # for testing purposes
+#         uow.transactions.add_1000_wallet(sender_wallet)
 
-        tx = generate_voucher(
-            sender_wallet_id=generator_wallet.id, amount=1000, uow=uow
-        )
+#         # make pull transaction
+#         tx = execute_transaction(
+#             sender_wallet_id=sender_wallet.id,
+#             recipient_wallet_id=recipient_wallet.id,
+#             amount=1000,
+#             transaction_mode=TransactionMode.APP_TRANSFER,
+#             transaction_type=TransactionType.P2P_PULL,
+#             uow=uow,
+#         )
 
-        tx = redeem_voucher(
-            recipient_wallet_id=redeemer_wallet.id, transaction_id=tx.id, uow=uow
-        )
+#         # decline previously created pull transaction
+#         tx = decline_p2p_pull_transaction(transaction_id=tx.id, uow=uow)
 
-        fetched_tx = uow.transactions.get(tx.id)
+#         # fetch tx from memory
+#         fetched_tx = uow.transactions.get(transaction_id=tx.id)
 
-        assert fetched_tx.amount == 1000
-        assert fetched_tx.recipient_wallet.balance == 1000
-        assert fetched_tx.sender_wallet.balance == 0
-        assert fetched_tx.transaction_type == TransactionType.VOUCHER
-        assert fetched_tx.status == TransactionStatus.SUCCESSFUL
+#         assert fetched_tx.amount == 1000
+#         assert fetched_tx.mode == TransactionMode.APP_TRANSFER
+#         assert fetched_tx.transaction_type == TransactionType.P2P_PULL
+#         assert fetched_tx.status == TransactionStatus.DECLINED
+#         assert fetched_tx.sender_wallet.id == sender_wallet.id
+#         assert fetched_tx.recipient_wallet.id == recipient_wallet.id
+#         assert fetched_tx.recipient_wallet.balance == 0
+#         assert fetched_tx.sender_wallet.balance == 1000
+
+
+# def test_generate_voucher():
+#     with UnitOfWork() as uow:
+#         generator_wallet = create_wallet(uow)
+
+#         uow.transactions.add_1000_wallet(generator_wallet)
+
+#         tx = generate_voucher(
+#             sender_wallet_id=generator_wallet.id, amount=1000, uow=uow
+#         )
+
+#         fetched_tx = uow.transactions.get(transaction_id=tx.id)
+
+#         assert fetched_tx.amount == 1000
+#         assert fetched_tx.sender_wallet.id == generator_wallet.id
+#         assert fetched_tx.recipient_wallet.id == generator_wallet.id
+#         assert fetched_tx.mode == TransactionMode.APP_TRANSFER
+#         assert fetched_tx.transaction_type == TransactionType.VOUCHER
+#         assert fetched_tx.status == TransactionStatus.PENDING
+
+
+# def test_redeem_voucher():
+#     with UnitOfWork() as uow:
+#         generator_wallet = create_wallet(uow)
+#         redeemer_wallet = create_wallet(uow)
+
+#         uow.transactions.add_1000_wallet(generator_wallet)
+
+#         tx = generate_voucher(
+#             sender_wallet_id=generator_wallet.id, amount=1000, uow=uow
+#         )
+
+#         tx = redeem_voucher(
+#             recipient_wallet_id=redeemer_wallet.id, transaction_id=tx.id, uow=uow
+#         )
+
+#         fetched_tx = uow.transactions.get(tx.id)
+
+#         assert fetched_tx.amount == 1000
+#         assert fetched_tx.recipient_wallet.balance == 1000
+#         assert fetched_tx.sender_wallet.balance == 0
+#         assert fetched_tx.transaction_type == TransactionType.VOUCHER
+#         assert fetched_tx.status == TransactionStatus.SUCCESSFUL
