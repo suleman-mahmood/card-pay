@@ -14,11 +14,11 @@ import threading
 from queue import Queue
 
 
-# def test_create_wallet():
-#     with UnitOfWork() as uow:
-#         wallet = create_wallet(uow)
+def test_create_wallet():
+    with UnitOfWork() as uow:
+        wallet = create_wallet(uow)
 
-#     assert wallet.balance == 0
+    assert wallet.balance == 0
 
 
 def test_execute_transaction():
