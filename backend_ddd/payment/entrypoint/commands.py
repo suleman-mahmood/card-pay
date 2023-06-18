@@ -49,6 +49,7 @@ def execute_transaction(
     return tx
 
 
+# for testing purposes only
 def slow_execute_transaction(
     sender_wallet_id: str,
     recipient_wallet_id: str,

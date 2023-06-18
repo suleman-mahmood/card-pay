@@ -224,14 +224,10 @@ class TransactionRepository(TransactionAbstractRepository):
             where id=%s
             for update
         """
-        print(sender_wallet_id)
         self.cursor.execute(sql, [sender_wallet_id])
         sender_wallet_row = self.cursor.fetchone()
-        print(sender_wallet_row)
-        print(recipient_wallet_id)
         self.cursor.execute(sql, [recipient_wallet_id])
         recipient_wallet_row = self.cursor.fetchone()
-        print(recipient_wallet_row)
 
         return Transaction(
             amount=amount,
@@ -270,15 +266,14 @@ class TransactionRepository(TransactionAbstractRepository):
 
         self.cursor.execute(sql, [transaction_row[5]])
         sender_wallet_row = self.cursor.fetchone()
-
-        self.cursor.execute(sql, recipient_wallet_id)
+        self.cursor.execute(sql, [recipient_wallet_id])
         recipient_wallet_row = self.cursor.fetchone()
 
         return Transaction(
             id=transaction_row[0],
             amount=transaction_row[1],
             mode=TransactionMode[transaction_row[2]],
-            transaction_type=TransactionStatus[transaction_row[3]],
+            transaction_type=TransactionType[transaction_row[3]],
             status=TransactionStatus[transaction_row[4]],
             sender_wallet=Wallet(id=transaction_row[5], balance=sender_wallet_row[1]),
             recipient_wallet=Wallet(
