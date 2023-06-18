@@ -49,6 +49,7 @@ class IntroView extends HookWidget {
                   context.router.push(SignupRoute());
                 },
               ),
+              SizedBox(height: 20),
               Container(
                 padding: EdgeInsets.only(bottom: 20), // Add padding here
 

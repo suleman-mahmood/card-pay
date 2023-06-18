@@ -9,6 +9,7 @@ import 'package:frontend_futter/src/presentation/Widgets/bottom_sheet/bottom_she
 import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 import 'package:frontend_futter/src/presentation/Widgets/layout/common_app_layout.dart';
+import 'package:frontend_futter/src/presentation/Widgets/drop_down/drop_down_org.dart';
 
 @RoutePage()
 class RegisterView extends HookWidget {
@@ -51,7 +52,7 @@ class RegisterView extends HookWidget {
                   CustomButton(
                     text: 'Verify',
                     onPressed: () {
-                      context.router.push(SplashRoute());
+                      context.router.push(AuthRoute());
                     },
                   ),
                 ],
@@ -73,15 +74,13 @@ class RegisterView extends HookWidget {
                 'Sign in to your organization account to get started',
           ),
           SizedBox(height: 5),
-          CustomInputField(
-            label: "Organization",
-            hint: "Enter your organization name",
-            dropdownItems: ['LUMS', ' MIT', ' IBA'],
-            dropdownAlignment: Alignment.centerRight,
-            obscureText: false,
-            onChanged: (value) {
-              showRollNumberField.value = value != null;
-            },
+          Container(
+            width: 200, // Set the desired width
+            child: DropDown(
+              onChanged: (String? value) {
+                showRollNumberField.value = value != null;
+              },
+            ),
           ),
           if (showRollNumberField.value)
             CustomInputField(

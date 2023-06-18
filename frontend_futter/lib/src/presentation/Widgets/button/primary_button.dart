@@ -25,32 +25,45 @@ class CustomButton extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final margin = useMemoized(() => calculateMargin(context));
+    final isHovered = useState(false);
 
     return Container(
       width: width,
       height: height,
       margin: margin,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Container(
-          constraints: BoxConstraints.expand(),
-          alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: Text(
-            text,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors().secondaryColor,
-            ),
+      child: MouseRegion(
+        onEnter: (_) => isHovered.value = true,
+        onExit: (_) => isHovered.value = false,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: isHovered.value
+                ? AppColors().primaryColor.withOpacity(0.2)
+                : AppColors().primaryColor,
           ),
-        ),
-        style: ButtonStyle(
-          padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
-          backgroundColor:
-              MaterialStateProperty.all<Color>(AppColors().primaryColor),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+          child: ElevatedButton(
+            onPressed: onPressed,
+            child: Container(
+              constraints: BoxConstraints.expand(),
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Text(
+                text,
+                style: AppColors().headingFont.copyWith(
+                      color: AppColors().secondaryColor,
+                    ),
+              ),
+            ),
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+              backgroundColor:
+                  MaterialStateProperty.all<Color>(Colors.transparent),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
           ),
         ),

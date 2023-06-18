@@ -5,7 +5,7 @@ import 'package:frontend_futter/src/presentation/views/signup_view.dart';
 import 'package:frontend_futter/src/presentation/views/register_organisation_view.dart';
 import 'package:frontend_futter/src/presentation/views/register_rollnumber_view.dart';
 import 'package:frontend_futter/src/presentation/views/login_view.dart';
-
+import 'package:frontend_futter/src/presentation/views/auth_view.dart';
 part 'app_router.gr.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'View,Route')
@@ -31,6 +31,14 @@ class AppRouter extends _$AppRouter {
         ),
         CustomRoute(
           page: LoginRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: LoginRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: AuthRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
       ];

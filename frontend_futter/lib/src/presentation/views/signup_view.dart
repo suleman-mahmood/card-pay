@@ -23,41 +23,54 @@ class SignupView extends HookWidget {
       showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return SingleChildScrollView(
-            // Make the content scrollable
+          return ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             child: Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  MainHeading(
-                    accountTitle: 'Please check your mobile',
-                    accountDescription:
-                        'We send an otp at your number +923*****786',
-                  ),
-                  SizedBox(height: 10),
-                  OTPInput(
-                    digitCount: 4,
-                    onCompleted: (String otp) {
-                      // Handle completed OTP here
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Didn\'t receive the code? Resend',
-                    style: AppColors().headingFont.copyWith(
-                          fontSize: 16,
-                          color: AppColors().primaryColor,
-                        ),
-                  ),
-                  SizedBox(height: 2),
-                  CustomButton(
-                    text: 'Verify',
-                    onPressed: () {
-                      context.router.push(RegisterRoute());
-                    },
+              decoration: BoxDecoration(
+                color: AppColors().secondaryColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.6),
+                    blurRadius: 10,
+                    spreadRadius: 15,
+                    offset: Offset(0, 5),
                   ),
                 ],
+              ),
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      MainHeading(
+                        accountTitle: 'Please check your mobile',
+                        accountDescription:
+                            'We send an otp at your number +923*****786',
+                      ),
+                      SizedBox(height: 10),
+                      OTPInput(
+                        digitCount: 4,
+                        onCompleted: (String otp) {},
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Didn\'t receive the code? Resend',
+                        style: AppColors().headingFont.copyWith(
+                              fontSize: 16,
+                              color: AppColors().primaryColor,
+                            ),
+                      ),
+                      SizedBox(height: 2),
+                      CustomButton(
+                        text: 'Verify',
+                        onPressed: () {
+                          context.router.push(RegisterRoute());
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           );
@@ -132,7 +145,7 @@ class SignupView extends HookWidget {
             text: 'Create Account',
             onPressed: _showOTPBottomSheet,
           ),
-          SizedBox(height: 5),
+          SizedBox(height: 25),
           GestureDetector(
             onTap: () {
               // Handle "Already have an account" press
