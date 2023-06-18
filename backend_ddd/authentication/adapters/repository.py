@@ -2,12 +2,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 from ..domain.model import (
-    ClosedLoopUser,
-    ClosedLoopUserState,
-    ClosedLoopVerificationType,
     ClosedLoop,
     User,
-    UserType,
 )
 
 

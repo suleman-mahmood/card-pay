@@ -5,3 +5,4 @@ requests
 gunicorn
 python-dotenv
 firebase-admin
+python-dotenv

@@ -7,6 +7,9 @@ from ..domain.model import (
     TransactionType,
 )
 
+from time import sleep
+from queue import Queue
+
 # Features left:
 # -> Balance locking for fuel
 
@@ -30,7 +33,7 @@ def execute_transaction(
 ) -> Transaction:
     with uow:
         # using wallet id as txn does not exist yet
-        tx = uow.transactions.get_by_wallet_ids(
+        tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
             mode=transaction_mode,
             transaction_type=transaction_type,
@@ -44,6 +47,34 @@ def execute_transaction(
         uow.transactions.save(tx)
 
     return tx
+
+
+# for testing purposes only
+def slow_execute_transaction(
+    sender_wallet_id: str,
+    recipient_wallet_id: str,
+    amount: int,
+    transaction_mode: TransactionMode,
+    transaction_type: TransactionType,
+    uow: AbstractUnitOfWork,
+    queue: Queue,
+):
+    with uow:
+        # using wallet id as txn does not exist yet
+        tx = uow.transactions.get_wallets_create_transaction(
+            amount=amount,
+            mode=transaction_mode,
+            transaction_type=transaction_type,
+            sender_wallet_id=sender_wallet_id,
+            recipient_wallet_id=recipient_wallet_id,
+        )
+        sleep(1)
+        if transaction_type != TransactionType.P2P_PULL:
+            tx.execute_transaction()
+
+        uow.transactions.save(tx)
+
+    queue.put(tx)
 
 
 def accept_p2p_pull_transaction(
@@ -73,7 +104,7 @@ def generate_voucher(
 ) -> Transaction:
     """creates a txn object whith same sender and recipient"""
     with uow:
-        tx = uow.transactions.get_by_wallet_ids(
+        tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
             mode=TransactionMode.APP_TRANSFER,
             transaction_type=TransactionType.VOUCHER,
