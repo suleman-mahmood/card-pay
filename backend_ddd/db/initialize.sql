@@ -12,6 +12,7 @@ create table wallets (
     id uuid primary key,
     balance integer not null constraint  non_negative_integer check (balance >= 0),
     created_at timestamp not null default current_timestamp
+
 );
 
 create table transactions (
