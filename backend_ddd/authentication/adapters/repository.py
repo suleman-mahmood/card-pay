@@ -5,6 +5,11 @@ from ..domain.model import (
     ClosedLoop,
     User,
     ClosedLoopUser,
+    UserType,
+    ClosedLoopVerificationType,
+    PersonalEmail,
+    PhoneNumber,
+    Location,
 )
 
 
@@ -81,8 +86,8 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
     def add(self, closed_loop: ClosedLoop):
 
         sql = '''
-            insert into closed_loops (id, name, logo_url, description, regex,verification_type)
-            values (%s, %s, %s, %s, %s, %s)
+            insert into closed_loops (id, name, logo_url, description, regex,verification_type, created_at)
+            values (%s, %s, %s, %s, %s, %s, %s)
         '''
 
         self.cursor.execute(
@@ -93,7 +98,8 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
                 closed_loop.logo_url,
                 closed_loop.description,
                 closed_loop.regex,
-                closed_loop.verification_type
+                closed_loop.verification_type.name,
+                closed_loop.created_at
             ],
         )
 
@@ -113,29 +119,29 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
         )
 
         row = self.cursor.fetchone()
-
         return ClosedLoop(
             id=row[0],
             name=row[1],
             logo_url=row[2],
             description=row[3],
             regex=row[4],
-            verification_type=row[5],
+            verification_type= ClosedLoopVerificationType[row[5]],
             created_at=row[6]
         )
 
     def save(self, closed_loop: ClosedLoop):
 
         sql = """
-            insert into closed_loops (id, name, logo_url, description, regex, verification_type)
-            values (%s, %s, %s, %s, %s, %s)
-            where id = %s 
+            insert into closed_loops (id, name, logo_url, description, regex, verification_type, created_at)
+            values (%s, %s, %s, %s, %s, %s, %s)
             on conflict(id) do update set 
+                id = excluded.id,
                 name = excluded.name,
                 logo_url = excluded.logo_url,
                 description = excluded.description,
                 regex = excluded.regex,
-                verification_type = excluded.verification_type)
+                verification_type = excluded.verification_type,
+                created_at = excluded.created_at
         """
 
         self.cursor.execute(
@@ -146,7 +152,8 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
                 closed_loop.logo_url,
                 closed_loop.description,
                 closed_loop.regex,
-                closed_loop.verification_type
+                closed_loop.verification_type.name,
+                closed_loop.created_at
             ]
         )
 
@@ -167,9 +174,9 @@ class UserRepository(UserAbstractRepository):
             sql,
             [
                 user.id,
-                user.personal_email,
-                user.phone_number,
-                user.user_type,
+                user.personal_email.value,
+                user.phone_number.value,
+                user.user_type.name,
                 user.pin,
                 user.full_name,
                 user.wallet_id,
@@ -198,14 +205,14 @@ class UserRepository(UserAbstractRepository):
                     closed_loop_user.unique_identifier,
                     closed_loop_user.id,
                     closed_loop_user.unique_identifier_otp,
-                    closed_loop_user.status,
+                    closed_loop_user.status.name,
                     closed_loop_user.created_at
                 ]
             )
 
     def get(self, user_id: str) -> User:
         sql = """
-        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, closed_loops, otp, otp_generated_at, location, created_at 
+        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
         from users 
         where id = %s
         """
@@ -221,18 +228,17 @@ class UserRepository(UserAbstractRepository):
 
         user = User(
             id=row[0], 
-            personal_email=row[1], 
-            phone_number=row[2], 
-            user_type=row[3], 
+            personal_email=PersonalEmail(row[1]), 
+            phone_number=PhoneNumber(row[2]), 
+            user_type=UserType[row[3]], 
             pin=row[4], 
             full_name=row[5], 
             wallet_id=row[6],
             is_active=row[7], 
             is_phone_number_verified=row[8], 
-            closed_loops={}, 
             otp=row[9], 
             otp_generated_at=row[10], 
-            location=row[11], 
+            location=Location(latitude=float(row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])), 
             created_at=row[12]
             )
 
@@ -268,8 +274,7 @@ class UserRepository(UserAbstractRepository):
     def save(self, user: User):
         sql = """
         insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at)
-        values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        where id = %s 
+        values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
         on conflict(id) do update set
             id = excluded.id,
             personal_email = excluded.personal_email,
@@ -282,16 +287,17 @@ class UserRepository(UserAbstractRepository):
             is_phone_number_verified = excluded.is_phone_number_verified,
             otp = excluded.otp,
             otp_generated_at = excluded.otp_generated_at,
-            location = excluded.location
-        )
+            location = excluded.location,
+            created_at = excluded.created_at
         """
 
         self.cursor.execute(
             sql,
-            [
-                user.personal_email, 
-                user.phone_number, 
-                user.user_type, 
+            [   
+                user.id,
+                user.personal_email.value, 
+                user.phone_number.value, 
+                user.user_type.name, 
                 user.pin, 
                 user.full_name, 
                 user.wallet_id,
@@ -300,7 +306,7 @@ class UserRepository(UserAbstractRepository):
                 user.otp, 
                 user.otp_generated_at, 
                 user.location, 
-                user.id
+                user.created_at
             ]
         )
 
@@ -322,10 +328,11 @@ class UserRepository(UserAbstractRepository):
             self.cursor.execute(
                 sql,
                 [
+                    user.id,
+                    key,
                     closed_loop_user.unique_identifier,
-                    closed_loop_user.unique_identifier_otp, 
-                    closed_loop_user.status, 
-                    user.id, 
-                    key
+                    closed_loop_user.unique_identifier_otp,
+                    closed_loop_user.status,
+                    closed_loop_user.created_at
                 ]
             )
