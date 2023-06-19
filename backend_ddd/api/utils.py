@@ -1,7 +1,7 @@
 from uuid import uuid5, NAMESPACE_OID
 from functools import wraps
 from firebase_admin import auth
-from flask import request
+from flask import request, jsonify
 
 
 def firebaseUidToUUID(uid: str) -> str:
@@ -34,3 +34,13 @@ def authenticate_token(f):
             return "Unauthorized", 401
 
     return decorated_function
+
+
+def handle_exception(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 400
+        return wrapper
