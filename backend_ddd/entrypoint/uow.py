@@ -69,7 +69,7 @@ class UnitOfWork(AbstractUnitOfWork):
         # fix this asap
         self.transactions = TransactionRepository(self.connection)
         self.closed_loops = ClosedLoopRepository(self.connection)
-        self.transactions = UserRepository(self.connection)
+        self.users = UserRepository(self.connection)
 
         return super().__enter__()
 

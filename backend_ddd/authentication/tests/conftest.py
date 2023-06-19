@@ -39,7 +39,7 @@ def seed_closed_loop():
             logo_url="https://www.google.com",
             description="This is a test loop.",
             regex=None,
-            verification_type=ClosedLoopVerificationType.ROLLNUMBER,
+            verification_type= ClosedLoopVerificationType.ROLLNUMBER,
         )
 
     return _seed_closed_loop
@@ -69,7 +69,7 @@ def seed_auth_closed_loop():
             name="Test Closed Loop",
             logo_url="https://test.com/logo.png",
             description="Test description",
-            regex=None,
+            regex="No regex yet",
             verification_type="NONE",
             uow=uow,
         )
