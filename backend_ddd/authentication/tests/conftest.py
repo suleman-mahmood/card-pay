@@ -23,6 +23,7 @@ def seed_user():
             phone_number=PhoneNumber(value="+923000000000"),
             pin="1234",
             full_name="Suleman Mahmood",
+            location=(0, 0),
             wallet_id=str(uuid4()),
         )
 
@@ -54,10 +55,12 @@ def seed_auth_user():
             user_type="CUSTOMER",
             pin="1234",
             full_name="Malik Muhammad Moaz",
+            location=(0, 0),
             uow=uow,
         )
 
     return _seed_auth_user
+
 
 @pytest.fixture
 def seed_auth_closed_loop():

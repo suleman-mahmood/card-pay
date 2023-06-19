@@ -1,28 +1,28 @@
-# @dataclass
-# class ClosedLoop:
-#     """Closed loop entity - Aggregate root"""
+"""events microservice domain model"""
 
-#     id: str
-#     name: str
-#     logo_url: str
-#     description: str
-
-
-# class ClosedLoopUserState(str, Enum):
-#     """Closed loop enum"""
-
-#     UN_VERIFIED = 1
-#     PENDING = 2
-#     VERIFIED = 3
+from dataclasses import dataclass, field
+from uuid import uuid4
+from enum import Enum
+from datetime import datetime
+from .exceptions import TransactionNotAllowedException
 
 
-# @dataclass
-# class ClosedLoopUser:
-#     """Closed loop entity - Aggregate root"""
+@dataclass
+class Registration:
+    """registration value object"""
 
-#     id: str
-#     user_id: str
-#     closed_loop_id: str
-#     email: str = ""
-#     status: ClosedLoopUserState = ClosedLoopUserState.UN_VERIFIED
-#     unique_identifier: Optional[str] = None  # Roll number etc
+    created_at: datetime = datetime.now()
+
+    id: str = field(default_factory=lambda: str(uuid4()))
+
+
+@dataclass
+class EventType:
+    """event type enum"""
+
+    STANDARD = 1
+    CONCERT = 2
+    DONATION = 3
+
+
+    

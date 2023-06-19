@@ -25,7 +25,7 @@ def test_create_closed_loop(seed_auth_closed_loop):
         fetched_closed_loop = uow.closed_loops.get(closed_loop.id)
 
         assert fetched_closed_loop == closed_loop
-      
+
 
 def test_create_user(seed_auth_user):
     with FakeUnitOfWork() as uow:
@@ -72,7 +72,7 @@ def test_verify_otp(seed_auth_user):
         otp = user.otp
         wrong_otp = "0000"
 
-        with pytest.raises(InvalidOtpException, match = "Otps don't match"):
+        with pytest.raises(InvalidOtpException, match="Otps don't match"):
             verify_otp(user_id=user.id, otp=wrong_otp, uow=uow)
         assert verify_otp(user_id=user.id, otp=otp, uow=uow)
         with pytest.raises(InvalidOtpException):
