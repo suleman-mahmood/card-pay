@@ -1,8 +1,17 @@
 from dataclasses import asdict
+
 import firebase_admin
 from firebase_admin import credentials, auth
 from flask import Flask, request, jsonify
-from .utils import authenticate_token
+
+from backend_ddd.api.utils import handle_exceptions  # authenticate_token
+from backend_ddd.entrypoint.uow import UnitOfWork
+from backend_ddd.payment.entrypoint import commands as payment_commands
+from backend_ddd.payment.domain.model import (
+    TransactionMode,
+    TransactionType,
+    TransactionStatus,
+)
 
 app = Flask(__name__)
 PREFIX = "/api/v1"
@@ -49,7 +58,7 @@ def hello():
 
 
 @app.route(PREFIX + "/create-user", methods=["POST"])
-@authenticate_token
+# @authenticate_token
 def create_user(uid):
     """Create a new user account"""
     raise NotImplementedError
@@ -103,7 +112,7 @@ def decode_access_token():
 
 
 @app.route(PREFIX + "/get-user", methods=["GET"])
-@authenticate_token
+# @authenticate_token
 def get_user(uid):
     raise NotImplementedError
 
@@ -124,3 +133,124 @@ def get_user(uid):
 
     # return_obj = {"user": user_dict}
     # return jsonify(return_obj), 200
+
+
+# post requests
+# flask --app ./api/flask_app.py run --debug
+
+
+# for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)
+@app.route(PREFIX + "/create-test-wallet", methods=["POST"])
+@handle_exceptions
+def create_test_wallet():
+    with UnitOfWork() as uow:
+        payment_commands.create_wallet(uow=uow)
+    return {
+        "success": True,
+        "message": "test wallet created successfully (only call me from create_user though)",
+    }, 200
+
+
+@app.route(PREFIX + "/execute-transaction", methods=["POST"])
+def execute_transaction():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    payment_commands.execute_transaction(
+        sender_wallet_id=request.json["sender_wallet_id"],
+        recipient_wallet_id=request.json["recipient_wallet_id"],
+        amount=request.json["amount"],
+        transaction_mode=TransactionMode.__members__[request.json["transaction_mode"]],
+        transaction_type=TransactionType.__members__[request.json["transaction_type"]],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify({"success": True, "message": "transaction executed successfully"}),
+        200,
+    )
+
+
+@app.route(PREFIX + "/accept-p2p-pull-transaction", methods=["POST"])
+@handle_exceptions
+def accept_p2p_pull_transaction():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    payment_commands.accept_p2p_pull_transaction(
+        transaction_id=request.json["transaction_id"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "p2p pull transaction accepted successfully",
+            }
+        ),
+        200,
+    )
+
+
+@app.route(PREFIX + "/decline-p2p-pull-transaction", methods=["POST"])
+@handle_exceptions
+def decline_p2p_pull_transaction():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    payment_commands.decline_p2p_pull_transaction(
+        transaction_id=request.json["transaction_id"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "p2p pull transaction declined successfully",
+            }
+        ),
+        200,
+    )
+
+
+@app.route(PREFIX + "/generate-voucher", methods=["POST"])
+@handle_exceptions
+def generate_voucher():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    payment_commands.generate_voucher(
+        sender_wallet_id=request.json["sender_wallet_id"],
+        amount=request.json["amount"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "voucher generated successfully",
+            }
+        ),
+        200,
+    )
+
+
+@app.route(PREFIX + "/redeem-voucher", methods=["POST"])
+@handle_exceptions
+def redeem_voucher():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    payment_commands.redeem_voucher(
+        recipient_wallet_id=request.json["recipient_wallet_id"],
+        transaction_id=request.json["transaction_id"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "voucher redeemed successfully",
+            }
+        ),
+        200,
+    )

@@ -1,5 +1,6 @@
 """Authentication commands"""
-from typing import Optional
+from typing import Optional, Tuple
+
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
 from backend_ddd.payment.entrypoint import commands as payment_commands
 from ..domain.model import (
@@ -42,6 +43,7 @@ def create_user(
     user_type: str,
     pin: str,
     full_name: str,
+    location: Tuple[float, float],
     uow: AbstractUnitOfWork,
 ) -> User:
     """Create user"""
@@ -55,6 +57,7 @@ def create_user(
             pin=pin,
             full_name=full_name,
             wallet_id=wallet.id,
+            location=location,
         )
 
         uow.users.add(user)

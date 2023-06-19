@@ -117,13 +117,13 @@ class User:
     pin: str
     full_name: str
     wallet_id: str
+    location: Tuple[float, float]
 
     is_active: bool = True
     is_phone_number_verified: bool = False
     closed_loops: Dict[str, ClosedLoopUser] = field(default_factory=dict)
     otp: str = field(default_factory=_generate_4_digit_otp)
     otp_generated_at: datetime = field(default_factory=datetime.now)
-    location: Tuple[float, float] = field(default_factory=(None, None))
     created_at: datetime = datetime.now()
 
     @property
