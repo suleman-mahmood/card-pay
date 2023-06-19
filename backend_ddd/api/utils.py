@@ -36,11 +36,12 @@ def authenticate_token(f):
     return decorated_function
 
 
-def handle_exception(func):
+def handle_exceptions(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
             return jsonify({"success": False, "message": str(e)}), 400
-        return wrapper
+
+    return wrapper

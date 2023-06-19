@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 from flask import Flask, request, jsonify
 
-from .utils import handle_exception  # authenticate_token
+from backend_ddd.api.utils import handle_exceptions  # authenticate_token
 from backend_ddd.entrypoint.uow import UnitOfWork
 from backend_ddd.payment.entrypoint import commands as payment_commands
 from backend_ddd.payment.domain.model import (
@@ -171,6 +171,7 @@ def execute_transaction():
 
 
 @app.route(PREFIX + "/accept-p2p-pull-transaction", methods=["POST"])
+@handle_exceptions
 def accept_p2p_pull_transaction():
     if request.json is None:
         return jsonify({"success": False, "message": "payload missing in request"}), 400
@@ -191,6 +192,7 @@ def accept_p2p_pull_transaction():
 
 
 @app.route(PREFIX + "/decline-p2p-pull-transaction", methods=["POST"])
+@handle_exceptions
 def decline_p2p_pull_transaction():
     if request.json is None:
         return jsonify({"success": False, "message": "payload missing in request"}), 400
@@ -211,6 +213,7 @@ def decline_p2p_pull_transaction():
 
 
 @app.route(PREFIX + "/generate-voucher", methods=["POST"])
+@handle_exceptions
 def generate_voucher():
     if request.json is None:
         return jsonify({"success": False, "message": "payload missing in request"}), 400
@@ -232,6 +235,7 @@ def generate_voucher():
 
 
 @app.route(PREFIX + "/redeem-voucher", methods=["POST"])
+@handle_exceptions
 def redeem_voucher():
     if request.json is None:
         return jsonify({"success": False, "message": "payload missing in request"}), 400
