@@ -27,3 +27,38 @@ create table transactions (
     last_updated timestamp not null default current_timestamp
 );
 
+create closed_loops(
+    id uuid primary key,
+    name varchar(255) not null,
+    logo_url varchar(255) not null,
+    description varchar(255) not null,
+    regex varchar(255) not null,
+    verification_type varchar(255) not null,
+    created_at timestamp not null
+)
+
+create table users (
+    id uuid primary key,
+    personal_email varchar(255) not null,
+    phone_number varchar(255) not null,
+    user_type varchar(255) not null,
+    pin varchar(255) not null,
+    full_name varchar(255) not null,
+    wallet_id uuid References wallets(id) not null,
+    is_active boolean not null,
+    is_phone_number_verified boolean not null,
+  
+    otp varchar(255) not null,
+    otp_generated_at timestamp not null,
+    created_at timestamp not null,
+    -- location tuple
+
+
+);
+
+create table user_closed_loops (
+    
+    user_id uuid references users(id),
+    closed_loop_id uuid references closed_loops(id),
+    primary key (user_id, closed_loop_id)
+)
