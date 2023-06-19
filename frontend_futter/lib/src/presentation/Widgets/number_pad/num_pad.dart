@@ -62,10 +62,10 @@ class NumberButton extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           digit,
-          style: AppColors().headingFont.copyWith(
-                color: AppColors().secondaryColor,
-                fontSize: 24,
-              ),
+          style: AppTypography.headingFont.copyWith(
+            color: AppColors.secondaryColor,
+            fontSize: 24,
+          ),
         ),
       ),
     );

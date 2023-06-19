@@ -24,7 +24,7 @@ class CheckBox extends HookWidget {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         decoration: BoxDecoration(
-          color: AppColors().greyColor,
+          color: AppColors.greyColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -35,13 +35,13 @@ class CheckBox extends HookWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isChecked.value
-                    ? AppColors().primaryColor
-                    : AppColors().blueColor,
+                    ? AppColors.primaryColor
+                    : AppColors.blueColor,
               ),
               child: isChecked.value
                   ? Icon(
                       Icons.check,
-                      color: AppColors().greyColor,
+                      color: AppColors.greyColor,
                       size: 16,
                     )
                   : null,
@@ -50,10 +50,10 @@ class CheckBox extends HookWidget {
             Expanded(
               child: Text(
                 text,
-                style: AppColors().inputFont.copyWith(
-                      color: AppColors().blueColor,
-                      fontSize: 16,
-                    ),
+                style: AppTypography.inputFont.copyWith(
+                  color: AppColors.blueColor,
+                  fontSize: 16,
+                ),
               ),
             ),
           ],

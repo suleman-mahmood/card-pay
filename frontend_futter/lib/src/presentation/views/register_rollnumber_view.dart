@@ -45,7 +45,7 @@ class RegisterrollView extends HookWidget {
                   Text(
                     'Didn\'t receive the code? Resend',
                     style: TextStyle(
-                      color: AppColors().primaryColor,
+                      color: AppColors.primaryColor,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),

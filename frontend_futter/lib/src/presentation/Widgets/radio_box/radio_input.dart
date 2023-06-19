@@ -48,7 +48,7 @@ class RadioView extends HookWidget {
             ),
           ),
         ),
-        SizedBox(height: 124), // Increase the height for spacing
+        SizedBox(height: 30), // Increase the height for spacing
         NumberPad(controller: controller),
       ],
     );
@@ -67,9 +67,9 @@ class PinRadioButton extends StatelessWidget {
       height: 16,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: filled ? AppColors().secondaryColor : Colors.transparent,
+        color: filled ? AppColors.secondaryColor : Colors.transparent,
         border: Border.all(
-          color: AppColors().secondaryColor,
+          color: AppColors.secondaryColor,
           width: 1.0,
         ),
       ),

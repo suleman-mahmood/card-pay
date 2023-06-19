@@ -44,10 +44,10 @@ class RegisterView extends HookWidget {
                   ),
                   SizedBox(height: 10),
                   Text('Didn\'t receive the code? Resend',
-                      style: AppColors().headingFont.copyWith(
-                            color: AppColors().primaryColor,
-                            fontSize: 16,
-                          )),
+                      style: AppTypography.headingFont.copyWith(
+                        color: AppColors.primaryColor,
+                        fontSize: 16,
+                      )),
                   SizedBox(height: 2),
                   CustomButton(
                     text: 'Verify',
@@ -70,14 +70,16 @@ class RegisterView extends HookWidget {
           SizedBox(height: 10),
           MainHeading(
             accountTitle: 'Register your Organization',
-            accountDescription:
-                'Sign in to your organization account to get started',
+            accountDescription: 'Sign in to your organization to get started',
           ),
           SizedBox(height: 5),
           Container(
-            width: 200, // Set the desired width
+            width: 420,
+            height: 50, // Set the desired width
             child: DropDown(
               onChanged: (String? value) {
+                Align:
+                Alignment.center;
                 showRollNumberField.value = value != null;
               },
             ),

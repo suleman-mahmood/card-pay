@@ -49,10 +49,10 @@ class CustomInputField extends HookWidget {
       children: [
         Text(
           label,
-          style: AppColors().inputFont.copyWith(
-                color: AppColors().blackColor,
-                fontSize: 16,
-              ),
+          style: AppTypography.inputFont.copyWith(
+            color: AppColors.blackColor,
+            fontSize: 16,
+          ),
         ),
         SizedBox(height: 5),
         Stack(
@@ -60,7 +60,7 @@ class CustomInputField extends HookWidget {
             Container(
               width: 420,
               decoration: BoxDecoration(
-                color: AppColors().greyColor.withOpacity(0.6),
+                color: AppColors.greyColor.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(19),
               ),
               child: Row(
@@ -93,7 +93,7 @@ class CustomInputField extends HookWidget {
                         passwordVisible.value
                             ? Icons.visibility
                             : Icons.visibility_off,
-                        color: AppColors().greyColor,
+                        color: AppColors.greyColor,
                       ),
                     ),
                 ],

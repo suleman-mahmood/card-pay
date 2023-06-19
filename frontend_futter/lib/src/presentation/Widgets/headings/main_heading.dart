@@ -15,15 +15,15 @@ class MainHeading extends HookWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(accountTitle, style: AppColors().mainHeading),
+        Text(accountTitle, style: AppTypography.mainHeading),
         SizedBox(height: 10),
         (accountDescription != null)
             ? Text(
                 accountDescription!,
-                style: AppColors().inputFont.copyWith(
-                      color: AppColors().blackColor,
-                      fontSize: 16,
-                    ),
+                style: AppTypography.inputFont.copyWith(
+                  color: AppColors.blackColor,
+                  fontSize: 16,
+                ),
               )
             : SizedBox.shrink()
       ],

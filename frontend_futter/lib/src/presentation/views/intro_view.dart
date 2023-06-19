@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/presentation/Widgets/button/primary_button.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:frontend_futter/src/presentation/Widgets/layout/common_app_layout.dart';
 
 @RoutePage()
 class IntroView extends HookWidget {
@@ -11,36 +12,34 @@ class IntroView extends HookWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
                 flex: 3,
-                child: Image.asset('assets/images/transection.png'),
+                child: FractionallySizedBox(
+                  widthFactor: 0.6, // Adjust the width factor as needed
+                  heightFactor: 0.6, // Adjust the height factor as needed
+                  child: Image.asset('assets/images/transection.png'),
+                ),
               ),
-              const SizedBox(height: 10),
-              Text(
-                'Revolutionise ',
-                style: AppColors().mainHeading.copyWith(
-                      fontSize: 45,
+              Column(
+                children: [
+                  Text(
+                    'Revolutions Your',
+                    style: AppTypography.mainHeading.copyWith(
+                      fontSize: 42,
                     ),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Your ',
-                style: AppColors().mainHeading.copyWith(
-                      fontSize: 45,
+                  ),
+                  Text(
+                    'Transactions',
+                    style: AppTypography.mainHeading.copyWith(
+                      fontSize: 42,
                     ),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Transactions ',
-                style: AppColors().mainHeading.copyWith(
-                      fontSize: 45,
-                    ),
-                textAlign: TextAlign.center,
+                  ),
+                ],
               ),
               const SizedBox(height: 5),
               CustomButton(
@@ -49,31 +48,30 @@ class IntroView extends HookWidget {
                   context.router.push(SignupRoute());
                 },
               ),
-              SizedBox(height: 20),
-              Container(
-                padding: EdgeInsets.only(bottom: 20), // Add padding here
-
-                child: GestureDetector(
-                  onTap: () {
-                    context.router.push(LoginRoute());
-                  },
-                  child: RichText(
-                    text: TextSpan(
-                      text: 'Already have an account? ',
-                      style: AppColors().inputFont.copyWith(
-                            color: AppColors().blackColor,
-                          ),
-                      children: [
-                        TextSpan(
-                            text: 'Log In',
-                            style: AppColors().inputFont.copyWith(
-                                  color: AppColors().primaryColor,
-                                )),
-                      ],
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () {
+                  context.router.push(LoginRoute());
+                },
+                child: RichText(
+                  text: TextSpan(
+                    text: 'Already have an account? ',
+                    style: TextStyle(
+                      color: AppColors.blackColor,
                     ),
+                    children: [
+                      TextSpan(
+                        text: 'Log In',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
+              const SizedBox(height: 70), // Add bottom spacing
             ],
           ),
         ),

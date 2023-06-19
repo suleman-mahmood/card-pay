@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  final Color primaryColor = Colors.blue;
-  final Color secondaryColor = Colors.white;
+  static const Color primaryColor = Colors.blue;
+  static const Color secondaryColor = Colors.white;
 
-  final Color orangeColor = Colors.orange[300]!;
-  final Color redColor = Colors.red;
-  final Color blueColor = Color(0xFF171582);
-  final Color greyColor = Colors.grey[300]!;
-  // final Color greyColor = Color.fromARGB(235, 235, 235, 209);
+  static const Color orangeColor = Colors.orange;
+  static const Color redColor = Colors.red;
+  static const Color blueColor = Color(0xFF171582);
+  static const Color greyColor = Colors.grey;
 
-  final Color greenColor = Colors.lightGreen[300]!;
-  final Color blackColor = Colors.black;
-  // final Color greyColor = Color.fromARGB(255, 188, 192, 209);
+  static const Color greenColor = Colors.lightGreen;
+  static const Color blackColor = Colors.black;
 
-  final Gradient dashboardButtonGradient = const LinearGradient(
+  static const Gradient dashboardButtonGradient = LinearGradient(
     begin: Alignment.topCenter,
     colors: [
       Color.fromARGB(255, 45, 87, 177),
@@ -22,7 +20,8 @@ class AppColors {
       Color.fromARGB(255, 37, 115, 184),
     ],
   );
-  final Gradient dashboardCardGradient = const LinearGradient(
+
+  static const Gradient dashboardCardGradient = LinearGradient(
     begin: Alignment.topCenter,
     colors: [
       Color.fromRGBO(28, 66, 146, 1),
@@ -30,7 +29,8 @@ class AppColors {
       Color.fromRGBO(65, 160, 242, 1),
     ],
   );
-  final Gradient bottomNavbarGradient = const LinearGradient(
+
+  static const Gradient bottomNavbarGradient = LinearGradient(
     begin: Alignment.topCenter,
     colors: [
       Color.fromARGB(255, 28, 80, 190),
@@ -38,7 +38,8 @@ class AppColors {
       Color.fromRGBO(65, 160, 242, 1),
     ],
   );
-  final Gradient animationHomeGradient = const LinearGradient(
+
+  static const Gradient animationHomeGradient = LinearGradient(
     begin: Alignment.topCenter,
     colors: [
       Color(0xFF067FCD),
@@ -46,28 +47,26 @@ class AppColors {
       Color(0xFF42409F),
     ],
   );
+}
 
-  final TextStyle mainHeading = const TextStyle(
+class AppTypography {
+  static const TextStyle mainHeading = TextStyle(
     fontFamily: 'poppins',
-    fontSize: 35, // Replace with your desired main font size
+    fontSize: 35,
     fontWeight: FontWeight.bold,
-    // fontStyle: FontStyle.normal,
   );
 
-  final TextStyle inputFont = const TextStyle(
-    fontFamily:
-        'plus jakarta sans', // Replace with your desired primary font family
-    fontSize: 16, // Replace with your desired primary font size
-    fontWeight:
-        FontWeight.normal, // Replace with your desired primary font weight
-    fontStyle: FontStyle.normal, // Replace with your desired primary font style
+  static const TextStyle inputFont = TextStyle(
+    fontFamily: 'plus jakarta sans',
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    fontStyle: FontStyle.normal,
   );
 
-  final TextStyle headingFont = const TextStyle(
-    fontFamily: 'poppins', // Replace with your desired heading font family
-    fontSize: 16, // Replace with your desired heading font size
-    fontWeight:
-        FontWeight.bold, // Replace with your desired heading font weight
-    fontStyle: FontStyle.normal, // Replace with your desired heading font style
+  static const TextStyle headingFont = TextStyle(
+    fontFamily: 'poppins',
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    fontStyle: FontStyle.normal,
   );
 }

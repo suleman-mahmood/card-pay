@@ -13,7 +13,7 @@ class LoginView extends HookWidget {
   const LoginView({Key? key}) : super(key: key);
 
   void handleLoginButtonPressed(BuildContext context) {
-    context.router.push(RegisterrollRoute());
+    context.router.push(RegisterRoute());
   }
 
   @override
@@ -21,6 +21,7 @@ class LoginView extends HookWidget {
     return AppLayout(
       child: Column(
         children: [
+          SizedBox(height: 100),
           MainHeading(
             accountTitle: 'Login',
           ),
@@ -28,7 +29,7 @@ class LoginView extends HookWidget {
           CustomInputField(
             label: 'Email Address',
             hint: 'Enter your email address',
-            obscureText: true,
+            obscureText: false,
           ),
           SizedBox(height: 5),
           CustomInputField(
@@ -39,10 +40,10 @@ class LoginView extends HookWidget {
           SizedBox(height: 5),
           Text(
             'Forgot Password?',
-            style: AppColors().headingFont.copyWith(
-                  fontSize: 16,
-                  color: AppColors().primaryColor,
-                ),
+            style: AppTypography.headingFont.copyWith(
+              fontSize: 16,
+              color: AppColors.primaryColor,
+            ),
           ),
           CustomButton(
             text: 'Login',

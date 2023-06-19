@@ -24,6 +24,25 @@ class OTPInput extends HookWidget {
     return true;
   }
 
+  void _onTextChanged(
+      List<TextEditingController> controllers,
+      List<FocusNode> focusNodes,
+      int index,
+      String value,
+      BuildContext context) {
+    if (value.length == 1 && index != digitCount - 1) {
+      focusNodes[index].unfocus();
+      FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+    }
+    if (_isInputComplete(controllers)) {
+      String otp = '';
+      for (var controller in controllers) {
+        otp += controller.text;
+      }
+      onCompleted?.call(otp);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final focusNodes = List.generate(digitCount, (index) => useFocusNode());
@@ -41,51 +60,48 @@ class OTPInput extends HookWidget {
     }, []);
 
     return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(digitCount, (index) {
-          return SizedBox(
-            width: boxWidth,
-            height: boxHeight,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: TextField(
-                controller: controllers[index],
-                focusNode: focusNodes[index],
-                keyboardType: TextInputType.number,
-                maxLength: 1,
-                textAlign: TextAlign.center,
-                style: AppColors().inputFont.copyWith(),
-                decoration: InputDecoration(
-                  counterText: '',
-                  contentPadding: EdgeInsets.all(8.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6.0),
-                    borderSide: BorderSide(
-                      color: AppColors().secondaryColor,
-                      width: 1.0,
-                    ),
+      child: Align(
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(digitCount, (index) {
+            return SizedBox(
+              width: boxWidth,
+              height: boxHeight,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: TextField(
+                  controller: controllers[index],
+                  focusNode: focusNodes[index],
+                  keyboardType: TextInputType.number,
+                  maxLength: 1,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.inputFont.copyWith(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
                   ),
-                  fillColor: AppColors().secondaryColor,
-                  filled: true,
+                  decoration: InputDecoration(
+                    counterText: '',
+                    contentPadding: EdgeInsets.all(8.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6.0),
+                      borderSide: BorderSide(
+                        color: AppColors.secondaryColor,
+                        width: 1.0,
+                      ),
+                    ),
+                    fillColor: AppColors.secondaryColor,
+                    filled: true,
+                  ),
+                  onChanged: (value) {
+                    _onTextChanged(
+                        controllers, focusNodes, index, value, context);
+                  },
                 ),
-                onChanged: (value) {
-                  if (value.length == 1 && index != digitCount - 1) {
-                    focusNodes[index].unfocus();
-                    FocusScope.of(context).requestFocus(focusNodes[index + 1]);
-                  }
-                  if (_isInputComplete(controllers)) {
-                    String otp = '';
-                    for (var controller in controllers) {
-                      otp += controller.text;
-                    }
-                    onCompleted?.call(otp);
-                  }
-                },
               ),
-            ),
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }

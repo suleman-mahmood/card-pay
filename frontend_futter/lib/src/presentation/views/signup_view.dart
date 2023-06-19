@@ -27,7 +27,7 @@ class SignupView extends HookWidget {
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors().secondaryColor,
+                color: AppColors.secondaryColor,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.6),
@@ -56,10 +56,10 @@ class SignupView extends HookWidget {
                       SizedBox(height: 10),
                       Text(
                         'Didn\'t receive the code? Resend',
-                        style: AppColors().headingFont.copyWith(
-                              fontSize: 16,
-                              color: AppColors().primaryColor,
-                            ),
+                        style: AppTypography.headingFont.copyWith(
+                          fontSize: 16,
+                          color: AppColors.primaryColor,
+                        ),
                       ),
                       SizedBox(height: 2),
                       CustomButton(
@@ -148,14 +148,24 @@ class SignupView extends HookWidget {
           SizedBox(height: 25),
           GestureDetector(
             onTap: () {
-              // Handle "Already have an account" press
+              context.router.push(LoginRoute());
             },
-            child: Text(
-              'Already have an account?',
-              style: AppColors().headingFont.copyWith(
-                    fontSize: 16,
-                    color: AppColors().primaryColor,
+            child: RichText(
+              text: TextSpan(
+                text: 'Already have an account? ',
+                style: TextStyle(
+                  color: AppColors.blackColor,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'Log In',
+                    style: TextStyle(
+                      color: AppColors.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                ],
+              ),
             ),
           ),
         ],
