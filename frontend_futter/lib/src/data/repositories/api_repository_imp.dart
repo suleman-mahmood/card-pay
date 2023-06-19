@@ -7,16 +7,16 @@ import '../../domain/repositories/api_repository.dart';
 import 'base/base_api_repository.dart';
 
 class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
-  final PythonApiService _newsApiService;
+  final PythonApiService _pythonApiService;
 
-  ApiRepositoryImpl(this._newsApiService);
+  ApiRepositoryImpl(this._pythonApiService);
 
   @override
   Future<DataState<UserResponse>> getUser({
     required UserRequest request,
   }) {
     return getStateOf<UserResponse>(
-      request: () => _newsApiService.getUser(
+      request: () => _pythonApiService.getUser(
         id: request.id,
       ),
     );
