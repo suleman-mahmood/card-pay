@@ -10,8 +10,10 @@ from ..payment.adapters.repository import (
 from ..authentication.adapters.repository import (
     ClosedLoopAbstractRepository,
     UserAbstractRepository,
-    FakeClosedLoopAbstractRepository,
-    FakeUserAbstractRepository,
+    FakeClosedLoopRepository,
+    FakeUserRepository,
+    ClosedLoopRepository,
+    UserRepository,
 )
 from dotenv import load_dotenv
 
@@ -41,8 +43,8 @@ class AbstractUnitOfWork(ABC):
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
-        self.users = FakeUserAbstractRepository()
-        self.closed_loops = FakeClosedLoopAbstractRepository()
+        self.users = FakeUserRepository()
+        self.closed_loops = FakeClosedLoopRepository()
         self.transactions = FakeTransactionRepository()
 
     def commit(self):
@@ -66,6 +68,8 @@ class UnitOfWork(AbstractUnitOfWork):
 
         # fix this asap
         self.transactions = TransactionRepository(self.connection)
+        self.closed_loops = ClosedLoopRepository(self.connection)
+        self.transactions = UserRepository(self.connection)
 
         return super().__enter__()
 
