@@ -74,6 +74,7 @@ def test_initiate_deposit(seed_wallet):
         recipient_wallet=wallet,
         sender_wallet=pg_wallet,
     )
+            
     tx.execute_transaction()
 
     assert tx.recipient_wallet.balance == 1000

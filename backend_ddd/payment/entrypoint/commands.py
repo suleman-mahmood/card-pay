@@ -41,6 +41,9 @@ def execute_transaction(
         if transaction_type != TransactionType.P2P_PULL:
             tx.execute_transaction()
 
+            # if transaction_type != TransactionType.CASH_BACK:
+            #     marketing_commands.give_cashback(transaction_type, amount, uow)
+            
         uow.transactions.save(tx)
 
     return tx
