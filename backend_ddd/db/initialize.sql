@@ -50,8 +50,9 @@ create table users (
   
     otp varchar(255) not null,
     otp_generated_at timestamp not null,
+    location point not null,
     created_at timestamp not null,
-    -- location tuple
+    
 
 
 );
@@ -60,5 +61,12 @@ create table user_closed_loops (
     
     user_id uuid references users(id),
     closed_loop_id uuid references closed_loops(id),
+    
+    unique_indentifier varchar(255) not null,
+    closed_loop_user_id varchar(255) not null,
+    unique_indentifier_otp varchar(255) not null,
+    status varchar(255) not null,
+    created_at timestamp not null,
+
     primary key (user_id, closed_loop_id)
 )
