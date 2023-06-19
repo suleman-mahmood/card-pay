@@ -201,3 +201,73 @@ def accept_p2p_pull_transaction():
         )
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
+
+
+@app.route(PREFIX + "/decline-p2p-pull-transaction", methods=["POST"])
+def decline_p2p_pull_transaction():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+    try:
+        payment_commands.decline_p2p_pull_transaction(
+            transaction_id=request.json["transaction_id"],
+            uow=UnitOfWork(),
+        )
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": "p2p pull transaction declined successfully",
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
+
+@app.route(PREFIX + "/generate-voucher", methods=["POST"])
+def generate_voucher():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    try:
+        payment_commands.generate_voucher(
+            sender_wallet_id=request.json["sender_wallet_id"],
+            amount=request.json["amount"],
+            uow=UnitOfWork(),
+        )
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": "voucher generated successfully",
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
+
+@app.route(PREFIX + "/redeem-voucher", methods=["POST"])
+def redeem_voucher():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    try:
+        payment_commands.redeem_voucher(
+            recipient_wallet_id=request.json["recipient_wallet_id"],
+            transaction_id=request.json["transaction_id"],
+            uow=UnitOfWork(),
+        )
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": "voucher redeemed successfully",
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400
