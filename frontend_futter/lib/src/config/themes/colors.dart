@@ -52,7 +52,7 @@ class AppColors {
 class AppTypography {
   static const TextStyle mainHeading = TextStyle(
     fontFamily: 'poppins',
-    fontSize: 35,
+    fontSize: 30,
     fontWeight: FontWeight.bold,
   );
 

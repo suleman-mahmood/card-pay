@@ -5,11 +5,12 @@ import 'package:frontend_futter/src/presentation/Widgets/button/primary_button.d
 import 'package:frontend_futter/src/presentation/Widgets/headings/main_heading.dart';
 import 'package:frontend_futter/src/presentation/Widgets/check_box/check_box.dart';
 import 'package:frontend_futter/src/presentation/Widgets/progress_bar/progress_bar.dart';
-import 'package:frontend_futter/src/presentation/Widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend_futter/src/presentation/Widgets/bottom_sheet/bottom_sheet_otp.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:frontend_futter/src/presentation/Widgets/layout/common_app_layout.dart';
+import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
+import 'package:frontend_futter/src/presentation/Widgets/input_fields/phone_input.dart';
 
 @RoutePage()
 class SignupView extends HookWidget {
@@ -19,57 +20,48 @@ class SignupView extends HookWidget {
   Widget build(BuildContext context) {
     final acceptPrivacyTerms = useState<bool>(false);
 
+    final phoneNumberController = useTextEditingController();
+    final dropdownValue = useState<String>("+1");
+
     void _showOTPBottomSheet() {
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (BuildContext context) {
-          return ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.6),
-                    blurRadius: 10,
-                    spreadRadius: 15,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MainHeading(
-                        accountTitle: 'Please check your mobile',
-                        accountDescription:
-                            'We send an otp at your number +923*****786',
-                      ),
-                      SizedBox(height: 10),
-                      OTPInput(
-                        digitCount: 4,
-                        onCompleted: (String otp) {},
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Didn\'t receive the code? Resend',
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MainHeading(
+                      accountTitle: 'Please check your mobile',
+                      accountDescription:
+                          'We send an otp at your number +923*****786',
+                    ),
+                    SizedBox(height: 10),
+                    OTPInput(
+                      digitCount: 4,
+                      onCompleted: (String otp) {
+                        // Handle completed OTP here
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    Text('Didn\'t receive the code? Resend',
                         style: AppTypography.headingFont.copyWith(
-                          fontSize: 16,
                           color: AppColors.primaryColor,
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      CustomButton(
-                        text: 'Verify',
-                        onPressed: () {
-                          context.router.push(RegisterRoute());
-                        },
-                      ),
-                    ],
-                  ),
+                          fontSize: 16,
+                        )),
+                    SizedBox(height: 2),
+                    CustomButton(
+                      text: 'Verify',
+                      onPressed: () {
+                        context.router.push(RegisterRoute());
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -78,14 +70,13 @@ class SignupView extends HookWidget {
       );
     }
 
-    return AppLayout(
+    return AuthLayout(
       child: Column(
         children: [
           SizedBox(height: 10),
           CustomProgressBar(
             progress: 0.5,
-          ), // Use the custom progress bar widget here
-
+          ),
           SizedBox(height: 10),
           MainHeading(
             accountTitle: 'Create Your Account',
@@ -115,31 +106,27 @@ class SignupView extends HookWidget {
             obscureText: true,
           ),
           SizedBox(height: 10),
-          CustomInputField(
-            label: "Phone",
-            hint: "Please Enter you phone  number",
-            dropdownItems: ['+92', ' 2', ' 3'],
-            dropdownAlignment: Alignment.centerLeft,
+          PhoneNumberInput(
+            controller: phoneNumberController,
+            dropdownItems: [
+              '+1',
+              '+92',
+              '+7'
+            ], // Add your required country codes
 
-            obscureText: false,
-            keyboardType: TextInputType.phone,
-// Optional
-            // validator: (value) {
-            //   // Optional
-            //   if (value == null || value.isEmpty) {
-            //     return 'Please enter some text';
-            //   }
-            // return null;
-            // },
+            dropdownValue: dropdownValue.value,
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                dropdownValue.value = newValue;
+              }
+            },
           ),
-
           SizedBox(height: 15),
           CheckBox(
             onChanged: (bool value) {
-              acceptPrivacyTerms.value = value; // Assign value to the hook
+              acceptPrivacyTerms.value = value;
             },
-            text:
-                'I accept the privacy terms and conditions. By creating an account, you agree to our terms and conditions.',
+            text: 'I accept the privacy terms and conditions. ',
           ),
           CustomButton(
             text: 'Create Account',

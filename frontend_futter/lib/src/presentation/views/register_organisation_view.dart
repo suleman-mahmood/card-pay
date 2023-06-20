@@ -5,10 +5,10 @@ import 'package:frontend_futter/src/presentation/Widgets/headings/main_heading.d
 import 'package:frontend_futter/src/presentation/Widgets/input_fields/input_field.dart';
 import 'package:frontend_futter/src/presentation/Widgets/progress_bar/progress_bar.dart';
 import 'package:frontend_futter/src/presentation/Widgets/button/primary_button.dart';
-import 'package:frontend_futter/src/presentation/Widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend_futter/src/presentation/Widgets/bottom_sheet/bottom_sheet_otp.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/Widgets/layout/common_app_layout.dart';
+import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
 import 'package:frontend_futter/src/presentation/Widgets/drop_down/drop_down_org.dart';
 
 @RoutePage()
@@ -22,40 +22,43 @@ class RegisterView extends HookWidget {
     void _showOTPBottomSheet() {
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true, // add this line
         builder: (BuildContext context) {
-          return SingleChildScrollView(
-            // Make the content scrollable
-            child: Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  MainHeading(
-                    accountTitle: 'Please check your mobile',
-                    accountDescription:
-                        'We send an otp at your number +923*****786',
-                  ),
-                  SizedBox(height: 10),
-                  OTPInput(
-                    digitCount: 4,
-                    onCompleted: (String otp) {
-                      // Handle completed OTP here
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  Text('Didn\'t receive the code? Resend',
-                      style: AppTypography.headingFont.copyWith(
-                        color: AppColors.primaryColor,
-                        fontSize: 16,
-                      )),
-                  SizedBox(height: 2),
-                  CustomButton(
-                    text: 'Verify',
-                    onPressed: () {
-                      context.router.push(AuthRoute());
-                    },
-                  ),
-                ],
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets, // Compute padding
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MainHeading(
+                      accountTitle: 'Please check your mobile',
+                      accountDescription:
+                          'We send an otp at your number +923*****786',
+                    ),
+                    SizedBox(height: 10),
+                    OTPInput(
+                      digitCount: 4,
+                      onCompleted: (String otp) {
+                        // Handle completed OTP here
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    Text('Didn\'t receive the code? Resend',
+                        style: AppTypography.headingFont.copyWith(
+                          color: AppColors.primaryColor,
+                          fontSize: 16,
+                        )),
+                    SizedBox(height: 2),
+                    CustomButton(
+                      text: 'Verify',
+                      onPressed: () {
+                        context.router.push(AuthRoute());
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -63,7 +66,7 @@ class RegisterView extends HookWidget {
       );
     }
 
-    return AppLayout(
+    return AuthLayout(
       child: Column(
         children: [
           CustomProgressBar(progress: progress.value),

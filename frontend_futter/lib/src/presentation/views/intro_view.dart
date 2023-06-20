@@ -4,7 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/presentation/Widgets/button/primary_button.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/Widgets/layout/common_app_layout.dart';
+import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
 
 @RoutePage()
 class IntroView extends HookWidget {

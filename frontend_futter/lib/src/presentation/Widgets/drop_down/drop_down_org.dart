@@ -33,7 +33,7 @@ class DropDown extends HookWidget {
             isDense: true,
           ),
           value: selectedOrganization.value,
-          dropdownColor: AppColors.primaryColor,
+          dropdownColor: AppColors.greyColor,
           items: organizations.map((String organization) {
             return DropdownMenuItem<String>(
               value: organization,

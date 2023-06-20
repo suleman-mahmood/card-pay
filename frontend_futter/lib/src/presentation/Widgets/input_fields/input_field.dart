@@ -78,22 +78,30 @@ class CustomInputField extends HookWidget {
                     ),
                   Expanded(
                     flex: 2,
-                    child: CustomTextFormField(
-                      obscureText: obscureText && !passwordVisible.value,
-                      controller: controller,
-                      validator: validator,
-                      keyboardType: keyboardType,
-                      hint: selectedDropdownItem.value ?? hint,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 15.0,
+                          right: 8.0), // Add left and right padding here
+                      child: CustomTextFormField(
+                        obscureText: obscureText && !passwordVisible.value,
+                        controller: controller,
+                        validator: validator,
+                        keyboardType: keyboardType,
+                        hint: selectedDropdownItem.value ?? hint,
+                      ),
                     ),
                   ),
                   if (obscureText)
                     GestureDetector(
                       onTap: togglePasswordVisibility,
-                      child: Icon(
-                        passwordVisible.value
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: AppColors.greyColor,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 15.0),
+                        child: Icon(
+                          passwordVisible.value
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: AppColors.greyColor,
+                        ),
                       ),
                     ),
                 ],

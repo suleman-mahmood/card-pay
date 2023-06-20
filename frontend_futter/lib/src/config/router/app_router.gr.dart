@@ -33,12 +33,6 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const RegisterView(),
       );
     },
-    RegisterrollRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const RegisterrollView(),
-      );
-    },
     SignupRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,

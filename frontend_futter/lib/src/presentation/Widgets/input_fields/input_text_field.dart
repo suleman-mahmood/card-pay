@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class CustomTextFormField extends StatelessWidget {
+class CustomTextFormField extends HookWidget {
   final bool obscureText;
   final TextEditingController controller;
   final FormFieldValidator<String>? validator;
@@ -17,9 +18,18 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textEditingController = useTextEditingController();
+
+    useEffect(() {
+      textEditingController.text = controller.text;
+      return () {
+        controller.text = textEditingController.text;
+      };
+    }, [controller]);
+
     return TextFormField(
       obscureText: obscureText,
-      controller: controller,
+      controller: textEditingController,
       validator: validator,
       keyboardType: keyboardType,
       decoration: InputDecoration(

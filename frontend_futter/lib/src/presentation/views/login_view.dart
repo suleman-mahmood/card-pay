@@ -6,7 +6,7 @@ import 'package:frontend_futter/src/presentation/Widgets/headings/main_heading.d
 import 'package:frontend_futter/src/presentation/Widgets/input_fields/input_field.dart';
 import 'package:frontend_futter/src/presentation/Widgets/button/primary_button.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
-import 'package:frontend_futter/src/presentation/Widgets/layout/common_app_layout.dart';
+import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
 
 @RoutePage()
 class LoginView extends HookWidget {
@@ -18,7 +18,7 @@ class LoginView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppLayout(
+    return AuthLayout(
       child: Column(
         children: [
           SizedBox(height: 100),

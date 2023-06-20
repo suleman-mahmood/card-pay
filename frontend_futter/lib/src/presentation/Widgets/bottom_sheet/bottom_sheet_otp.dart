@@ -11,8 +11,8 @@ class OTPInput extends HookWidget {
   OTPInput({
     required this.digitCount,
     this.onCompleted,
-    this.boxWidth = 48.0,
-    this.boxHeight = 30.0,
+    this.boxWidth = 70.0,
+    this.boxHeight = 43.0,
   });
 
   bool _isInputComplete(List<TextEditingController> controllers) {
