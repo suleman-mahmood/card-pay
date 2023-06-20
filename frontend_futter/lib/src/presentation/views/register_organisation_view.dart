@@ -69,6 +69,7 @@ class RegisterView extends HookWidget {
     return AuthLayout(
       child: Column(
         children: [
+          SizedBox(height: 10),
           CustomProgressBar(progress: progress.value),
           SizedBox(height: 10),
           MainHeading(

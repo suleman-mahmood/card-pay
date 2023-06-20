@@ -20,8 +20,9 @@ class LoginView extends HookWidget {
   Widget build(BuildContext context) {
     return AuthLayout(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: 120),
+          // SizedBox(height: 120),
           MainHeading(
             accountTitle: 'Login',
           ),
