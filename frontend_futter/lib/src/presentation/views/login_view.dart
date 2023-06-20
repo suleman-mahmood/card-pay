@@ -21,7 +21,7 @@ class LoginView extends HookWidget {
     return AuthLayout(
       child: Column(
         children: [
-          SizedBox(height: 100),
+          SizedBox(height: 120),
           MainHeading(
             accountTitle: 'Login',
           ),
@@ -31,7 +31,7 @@ class LoginView extends HookWidget {
             hint: 'Enter your email address',
             obscureText: false,
           ),
-          SizedBox(height: 5),
+          SizedBox(height: 15),
           CustomInputField(
             label: 'PASSWORD',
             hint: 'Enter your password',

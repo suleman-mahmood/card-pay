@@ -4,7 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/presentation/Widgets/button/primary_button.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
+// import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
 
 @RoutePage()
 class IntroView extends HookWidget {
@@ -20,8 +20,8 @@ class IntroView extends HookWidget {
               Expanded(
                 flex: 3,
                 child: FractionallySizedBox(
-                  widthFactor: 0.6, // Adjust the width factor as needed
-                  heightFactor: 0.6, // Adjust the height factor as needed
+                  widthFactor: 0.7, // Adjust the width factor as needed
+                  heightFactor: 0.7, // Adjust the height factor as needed
                   child: Image.asset('assets/images/transection.png'),
                 ),
               ),

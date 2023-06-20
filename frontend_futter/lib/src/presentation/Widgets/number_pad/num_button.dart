@@ -39,7 +39,7 @@ class NumberButton extends HookWidget {
           digit,
           style: TextStyle(
             color: AppColors.secondaryColor,
-            fontSize: 24,
+            fontSize: 28,
           ),
         ),
       ),

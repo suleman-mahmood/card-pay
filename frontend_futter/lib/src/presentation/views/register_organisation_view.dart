@@ -33,9 +33,9 @@ class RegisterView extends HookWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     MainHeading(
-                      accountTitle: 'Please check your mobile',
+                      accountTitle: 'Please check your Email',
                       accountDescription:
-                          'We send an otp at your number +923*****786',
+                          'We send an otp at tal******@youremail.com',
                     ),
                     SizedBox(height: 10),
                     OTPInput(

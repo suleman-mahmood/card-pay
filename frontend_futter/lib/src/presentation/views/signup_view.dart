@@ -10,7 +10,7 @@ import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
-import 'package:frontend_futter/src/presentation/Widgets/input_fields/phone_input.dart';
+import 'package:frontend_futter/src/presentation/Widgets/drop_down/phone_input.dart';
 
 @RoutePage()
 class SignupView extends HookWidget {
@@ -21,7 +21,7 @@ class SignupView extends HookWidget {
     final acceptPrivacyTerms = useState<bool>(false);
 
     final phoneNumberController = useTextEditingController();
-    final dropdownValue = useState<String>("+1");
+    final dropdownValue = useState<String>("+92");
 
     void _showOTPBottomSheet() {
       showModalBottomSheet(
@@ -108,12 +108,7 @@ class SignupView extends HookWidget {
           SizedBox(height: 10),
           PhoneNumberInput(
             controller: phoneNumberController,
-            dropdownItems: [
-              '+1',
-              '+92',
-              '+7'
-            ], // Add your required country codes
-
+            dropdownItems: ['+92', '+91', '+7'],
             dropdownValue: dropdownValue.value,
             onChanged: (String? newValue) {
               if (newValue != null) {
