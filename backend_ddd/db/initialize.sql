@@ -43,7 +43,7 @@ create table closed_loops(
     description varchar(255) not null,
     regex varchar(255) not null,
     verification_type closed_loop_verification_type not null,
-    created_at timestamp not null
+    created_at timestamp not null default current_timestamp
 );
 
 create table users (
@@ -71,9 +71,9 @@ create table user_closed_loops (
     user_id uuid references users(id),
     closed_loop_id uuid references closed_loops(id),
 
-    unique_identifier varchar(255) default null,
+    unique_identifier varchar(255) not null,
     closed_loop_user_id varchar(255) not null,
-    unique_identifier_otp varchar(4) default null,
+    unique_identifier_otp varchar(4) not null,
     status closed_loop_user_state_enum not null,
     created_at timestamp not null default current_timestamp,
 
