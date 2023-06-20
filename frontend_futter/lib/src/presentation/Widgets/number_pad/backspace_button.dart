@@ -15,10 +15,14 @@ class BackspaceButton extends StatelessWidget {
         }
       },
       child: Container(
-        width: 64,
-        height: 64,
+        width: 70, // Increased width
+        height: 70, // Increased height
         alignment: Alignment.center,
-        child: Icon(Icons.backspace),
+        child: Icon(
+          Icons.backspace,
+          color: Colors.white, // Changed color to white
+          size: 35.0, // Increased icon size
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 import 'package:frontend_futter/src/presentation/Widgets/radio_box/radio_view.dart';
+import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
 
 @RoutePage()
 class AuthView extends HookWidget {
@@ -26,19 +27,22 @@ class AuthView extends HookWidget {
       };
     }, []);
 
+    // Get the screen height
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Container(
-        color: AppColors.blueColor,
+        color: Color.fromARGB(255, 19, 103, 177),
         child: Column(
           children: [
-            SizedBox(height: 70),
+            SizedBox(height: screenHeight * 0.15), // 10% of the screen height
             Text(
               'Enter your PIN',
               style: AppTypography.mainHeading.copyWith(
                 color: AppColors.secondaryColor,
               ),
             ),
-            SizedBox(height: 120),
+            SizedBox(height: screenHeight * 0.15), // 20% of the screen height
             Expanded(
               child: SingleChildScrollView(
                 child: RadioView(

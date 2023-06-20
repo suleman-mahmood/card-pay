@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const Color primaryColor = Colors.blue;
   static const Color secondaryColor = Colors.white;
+  static const Color lightBlueColor = Color.fromRGBO(65, 160, 242, 1);
 
   static const Color orangeColor = Colors.orange;
   static const Color redColor = Colors.red;
@@ -52,7 +53,7 @@ class AppColors {
 class AppTypography {
   static const TextStyle mainHeading = TextStyle(
     fontFamily: 'poppins',
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: FontWeight.bold,
   );
 

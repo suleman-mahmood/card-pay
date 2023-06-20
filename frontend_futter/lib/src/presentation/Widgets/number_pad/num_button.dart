@@ -14,7 +14,25 @@ class NumberButton extends HookWidget {
   @override
   Widget build(BuildContext context) {
     if (digit == 'X') {
-      return GestureDetector(
+      return Padding(
+        padding: EdgeInsets.all(10.0),
+        child: InkWell(
+          onTap: () {
+            controller.text += digit;
+          },
+          child: Container(
+            width: 64,
+            height: 64,
+            alignment: Alignment.center,
+            child: Icon(Icons.close),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(10.0),
+      child: InkWell(
         onTap: () {
           controller.text += digit;
         },
@@ -22,24 +40,12 @@ class NumberButton extends HookWidget {
           width: 64,
           height: 64,
           alignment: Alignment.center,
-          child: Icon(Icons.close),
-        ),
-      );
-    }
-
-    return GestureDetector(
-      onTap: () {
-        controller.text += digit;
-      },
-      child: Container(
-        width: 64,
-        height: 64,
-        alignment: Alignment.center,
-        child: Text(
-          digit,
-          style: TextStyle(
-            color: AppColors.secondaryColor,
-            fontSize: 28,
+          child: Text(
+            digit,
+            style: TextStyle(
+              color: AppColors.secondaryColor,
+              fontSize: 28,
+            ),
           ),
         ),
       ),

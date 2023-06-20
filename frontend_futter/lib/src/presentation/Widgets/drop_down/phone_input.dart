@@ -38,7 +38,8 @@ class PhoneNumberInput extends HookWidget {
           ),
           child: Row(
             children: [
-              Expanded(
+              Container(
+                width: 75,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: DropdownButton<String>(
@@ -50,6 +51,7 @@ class PhoneNumberInput extends HookWidget {
                       height: 2,
                       color: Colors.transparent,
                     ),
+                    isDense: true, // Set isDense to true
                     onChanged: (String? newValue) {
                       selectedDropdownItem.value = newValue!;
                       onChanged?.call(newValue);
