@@ -1,11 +1,14 @@
 drop table if exists transactions CASCADE;
 drop table if exists wallets CASCADE;
-drop type if exists transaction_mode_enum;
-drop type if exists transaction_type_enum;
-drop type if exists transaction_status_enum;
-drop type if exists closed_loop_verification_type;
-drop type if exists user_type_enum;
-drop type if exists closed_loop_user_state_enum;
+drop table if exists closed_loops CASCADE;
+drop table if exists users CASCADE;
+drop table if exists user_closed_loops CASCADE;
+drop type if exists transaction_mode_enum CASCADE;
+drop type if exists transaction_type_enum CASCADE;
+drop type if exists transaction_status_enum CASCADE;
+drop type if exists closed_loop_verification_type CASCADE;
+drop type if exists user_type_enum CASCADE;
+drop type if exists closed_loop_user_state_enum CASCADE;
 
 create type  transaction_mode_enum as enum ('QR', 'RFID', 'NFC', 'BARCODE', 'APP_TRANSFER');
 create type transaction_type_enum as enum ('POS', 'P2P_PUSH', 'P2P_PULL', 'VOUCHER', 'VIRTUAL_POS', 'PAYMENT_GATEWAY', 'CARD_PAY');
@@ -40,7 +43,7 @@ create table closed_loops(
     description varchar(255) not null,
     regex varchar(255) not null,
     verification_type closed_loop_verification_type not null,
-    created_at timestamp not null default current_timestamp
+    created_at timestamp not null
 );
 
 create table users (
@@ -68,9 +71,9 @@ create table user_closed_loops (
     user_id uuid references users(id),
     closed_loop_id uuid references closed_loops(id),
 
-    unique_indentifier varchar(255) not null,
+    unique_identifier varchar(255) default null,
     closed_loop_user_id varchar(255) not null,
-    unique_indentifier_otp varchar(4) not null,
+    unique_identifier_otp varchar(4) default null,
     status closed_loop_user_state_enum not null,
     created_at timestamp not null default current_timestamp,
 
