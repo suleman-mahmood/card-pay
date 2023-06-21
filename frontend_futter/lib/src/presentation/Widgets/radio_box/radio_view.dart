@@ -47,7 +47,6 @@ class RadioView extends HookWidget {
             ),
           ),
         ),
-        SizedBox(height: 30),
         NumPad(controller: controller),
       ],
     );
