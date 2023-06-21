@@ -135,8 +135,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
-
 import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:frontend_futter/src/config/themes/screen_util.dart';
 
 @RoutePage()
 class SplashView extends HookWidget {
@@ -150,31 +150,32 @@ class SplashView extends HookWidget {
           onTap: () {
             context.router.push(IntroRoute());
           },
-          child: GradientPage(),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.animationHomeGradient.colors[0],
+                  AppColors.animationHomeGradient.colors[1],
+                  AppColors.animationHomeGradient.colors[2],
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.0417, 1.0, 1.0],
+              ),
+            ),
+            child: Center(
+              child: LayoutBuilder(
+                builder: (ctx, constraints) {
+                  return Image.asset(
+                    'assets/images/logo.png',
+                    height: constraints.maxHeight * 0.5,
+                    width: constraints.maxWidth * 0.5,
+                  );
+                },
+              ),
+            ),
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class GradientPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.animationHomeGradient.colors[0],
-            AppColors.animationHomeGradient.colors[1],
-            AppColors.animationHomeGradient.colors[2],
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: [0.0417, 1.0, 1.0],
-        ),
-      ),
-      child: Center(
-        child: Image.asset('assets/images/logo.png'), // Static image widget
       ),
     );
   }

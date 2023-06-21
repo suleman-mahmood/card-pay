@@ -12,7 +12,6 @@ class AuthView extends HookWidget {
   Widget build(BuildContext context) {
     final pinController = useTextEditingController();
     final showErrorMessage = useState(false);
-
     void handleLogin() {
       if (pinController.text.length == 4) {
         context.router.push(SplashRoute());
@@ -27,7 +26,6 @@ class AuthView extends HookWidget {
       };
     }, []);
 
-    // Get the screen height
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -35,14 +33,14 @@ class AuthView extends HookWidget {
         color: Color.fromARGB(255, 19, 103, 177),
         child: Column(
           children: [
-            SizedBox(height: screenHeight * 0.15), // 10% of the screen height
+            SizedBox(height: screenHeight * 0.15),
             Text(
               'Enter your PIN',
               style: AppTypography.mainHeading.copyWith(
                 color: AppColors.secondaryColor,
               ),
             ),
-            SizedBox(height: screenHeight * 0.15), // 20% of the screen height
+            SizedBox(height: screenHeight * 0.15),
             Expanded(
               child: SingleChildScrollView(
                 child: RadioView(
@@ -53,9 +51,9 @@ class AuthView extends HookWidget {
             ),
             if (showErrorMessage.value)
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 20,
+                padding: EdgeInsets.symmetric(
+                  vertical: screenHeight * 0.02,
+                  horizontal: screenHeight * 0.04,
                 ),
                 child: Text(
                   'Please enter a 4-digit PIN.',

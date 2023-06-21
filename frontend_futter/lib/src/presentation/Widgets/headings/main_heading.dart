@@ -13,16 +13,19 @@ class MainHeading extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Column(
       children: [
         Text(accountTitle, style: AppTypography.mainHeading),
-        SizedBox(height: 10),
+        SizedBox(height: screenHeight * 0.01),
         (accountDescription != null)
             ? Text(
                 accountDescription!,
                 style: AppTypography.inputFont.copyWith(
                   color: AppColors.blackColor,
-                  fontSize: 16,
+                  fontSize: screenWidth * 0.04, 
                 ),
               )
             : SizedBox.shrink()

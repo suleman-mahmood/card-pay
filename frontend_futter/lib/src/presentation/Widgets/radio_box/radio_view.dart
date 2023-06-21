@@ -35,6 +35,8 @@ class RadioView extends HookWidget {
       };
     }, []);
 
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Column(
       children: [
         Row(
@@ -42,7 +44,7 @@ class RadioView extends HookWidget {
           children: List.generate(
             pinLength,
             (index) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
               child: RadioButton(filled: index < enteredDigits.value),
             ),
           ),

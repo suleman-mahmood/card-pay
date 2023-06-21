@@ -5,12 +5,14 @@ import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/presentation/Widgets/button/primary_button.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
-// import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
 
 @RoutePage()
 class IntroView extends HookWidget {
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return AuthLayout(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -21,25 +23,25 @@ class IntroView extends HookWidget {
               Text(
                 'Revolutions Your',
                 style: AppTypography.mainHeading.copyWith(
-                  fontSize: 42,
+                  fontSize: screenWidth * 0.1,
                 ),
               ),
               Text(
                 'Transactions',
                 style: AppTypography.mainHeading.copyWith(
-                  fontSize: 42,
+                  fontSize: screenWidth * 0.1,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          SizedBox(height: screenHeight * 0.005),
           CustomButton(
             text: 'Get Started',
             onPressed: () {
               context.router.push(SignupRoute());
             },
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 0.02),
           GestureDetector(
             onTap: () {
               context.router.push(LoginRoute());
@@ -49,6 +51,7 @@ class IntroView extends HookWidget {
                 text: 'Already have an account? ',
                 style: TextStyle(
                   color: AppColors.blackColor,
+                  fontSize: screenWidth * 0.04,
                 ),
                 children: [
                   TextSpan(
@@ -56,13 +59,13 @@ class IntroView extends HookWidget {
                     style: TextStyle(
                       color: AppColors.primaryColor,
                       fontWeight: FontWeight.bold,
+                      fontSize: screenWidth * 0.04,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          // const SizedBox(height: 70), // Add bottom spacing
         ],
       ),
     );

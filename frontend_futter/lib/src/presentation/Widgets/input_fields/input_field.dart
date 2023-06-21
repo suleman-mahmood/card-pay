@@ -23,6 +23,8 @@ class CustomInputField extends HookWidget {
   Widget build(BuildContext context) {
     final controller = useTextEditingController();
     final passwordVisible = useState<bool>(false);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     useEffect(() {
       return controller.dispose;
@@ -42,11 +44,11 @@ class CustomInputField extends HookWidget {
             fontSize: 16,
           ),
         ),
-        SizedBox(height: 5),
+        SizedBox(height: screenHeight * 0.005),
         Container(
-          width: 420,
+          width: screenWidth * 0.9,
           decoration: BoxDecoration(
-            color: AppColors.greyColor.withOpacity(0.6),
+            color: AppColors.greyColor.withOpacity(0.5),
             borderRadius: BorderRadius.circular(19),
           ),
           child: Row(
@@ -54,7 +56,8 @@ class CustomInputField extends HookWidget {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  // Responsive horizontal padding
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
                   child: TextFormField(
                     obscureText: obscureText && !passwordVisible.value,
                     controller: controller,
@@ -65,9 +68,10 @@ class CustomInputField extends HookWidget {
                       border: InputBorder.none,
                       hintText: hint,
                       isCollapsed: true,
+                      // Responsive content padding
                       contentPadding: EdgeInsets.symmetric(
-                        vertical: 19,
-                        horizontal: 8,
+                        vertical: screenHeight * 0.02,
+                        horizontal: screenWidth * 0.02,
                       ),
                     ),
                   ),
@@ -77,7 +81,8 @@ class CustomInputField extends HookWidget {
                 GestureDetector(
                   onTap: togglePasswordVisibility,
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 15.0),
+                    // Responsive padding
+                    padding: EdgeInsets.only(right: screenWidth * 0.04),
                     child: Icon(
                       passwordVisible.value
                           ? Icons.visibility

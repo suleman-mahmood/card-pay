@@ -8,8 +8,10 @@ class AuthLayout extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      resizeToAvoidBottomInset: true, // change to true
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -19,7 +21,7 @@ class AuthLayout extends HookWidget {
                   MediaQuery.of(context).padding.bottom,
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: child,
             ),
           ),

@@ -11,8 +11,8 @@ class OTPInput extends HookWidget {
   OTPInput({
     required this.digitCount,
     this.onCompleted,
-    this.boxWidth = 70.0,
-    this.boxHeight = 43.0,
+    this.boxWidth = 60.0,
+    this.boxHeight = 37.0,
   });
 
   bool _isInputComplete(List<TextEditingController> controllers) {
@@ -59,6 +59,12 @@ class OTPInput extends HookWidget {
       };
     }, []);
 
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double scaledBoxWidth = boxWidth * screenWidth / 375.0;
+    final double scaledBoxHeight = boxHeight * screenHeight / 812.0;
+    final double fontSize = 20.0 * screenWidth / 375.0;
+
     return Center(
       child: Align(
         alignment: Alignment.center,
@@ -66,10 +72,11 @@ class OTPInput extends HookWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(digitCount, (index) {
             return SizedBox(
-              width: boxWidth,
-              height: boxHeight,
+              width: scaledBoxWidth,
+              height: scaledBoxHeight,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                padding:
+                    EdgeInsets.symmetric(horizontal: scaledBoxWidth * 0.05),
                 child: TextField(
                   controller: controllers[index],
                   focusNode: focusNodes[index],
@@ -77,16 +84,17 @@ class OTPInput extends HookWidget {
                   maxLength: 1,
                   textAlign: TextAlign.center,
                   style: AppTypography.inputFont.copyWith(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                    color: AppColors.blackColor,
                   ),
                   decoration: InputDecoration(
                     counterText: '',
-                    contentPadding: EdgeInsets.all(8.0),
+                    contentPadding: EdgeInsets.all(scaledBoxWidth * 0.05),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
+                      borderRadius:
+                          BorderRadius.circular(scaledBoxWidth * 0.16),
                       borderSide: BorderSide(
-                        color: AppColors.secondaryColor,
+                        color: Theme.of(context).primaryColor,
                         width: 1.0,
                       ),
                     ),
@@ -95,7 +103,12 @@ class OTPInput extends HookWidget {
                   ),
                   onChanged: (value) {
                     _onTextChanged(
-                        controllers, focusNodes, index, value, context);
+                      controllers,
+                      focusNodes,
+                      index,
+                      value,
+                      context,
+                    );
                   },
                 ),
               ),

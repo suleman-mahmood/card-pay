@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:frontend_futter/src/presentation/Widgets/headings/main_heading.dart';
 import 'package:frontend_futter/src/presentation/Widgets/input_fields/input_field.dart';
 import 'package:frontend_futter/src/presentation/Widgets/progress_bar/progress_bar.dart';
@@ -19,13 +19,16 @@ class RegisterView extends HookWidget {
   Widget build(BuildContext context) {
     final progress = useState<double>(1);
     final showRollNumberField = useState<bool>(false);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     void _showOTPBottomSheet() {
       showModalBottomSheet(
         context: context,
-        isScrollControlled: true, // add this line
+        isScrollControlled: true,
         builder: (BuildContext context) {
           return Padding(
-            padding: MediaQuery.of(context).viewInsets, // Compute padding
+            padding: MediaQuery.of(context).viewInsets,
             child: SingleChildScrollView(
               child: Container(
                 padding: EdgeInsets.all(20),
@@ -37,20 +40,20 @@ class RegisterView extends HookWidget {
                       accountDescription:
                           'We send an otp at tal******@youremail.com',
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: screenHeight * 0.01),
                     OTPInput(
                       digitCount: 4,
-                      onCompleted: (String otp) {
-                        // Handle completed OTP here
-                      },
+                      onCompleted: (String otp) {},
                     ),
-                    SizedBox(height: 10),
-                    Text('Didn\'t receive the code? Resend',
-                        style: AppTypography.headingFont.copyWith(
-                          color: AppColors.primaryColor,
-                          fontSize: 16,
-                        )),
-                    SizedBox(height: 2),
+                    SizedBox(height: screenHeight * 0.01),
+                    Text(
+                      'Didn\'t receive the code? Resend',
+                      style: AppTypography.headingFont.copyWith(
+                        color: AppColors.primaryColor,
+                        fontSize: screenWidth * 0.04,
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.002),
                     CustomButton(
                       text: 'Verify',
                       onPressed: () {
@@ -69,24 +72,18 @@ class RegisterView extends HookWidget {
     return AuthLayout(
       child: Column(
         children: [
-          SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.01),
           CustomProgressBar(progress: progress.value),
-          SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.01),
           MainHeading(
             accountTitle: 'Register your Organization',
             accountDescription: 'Sign in to your organization to get started',
           ),
-          SizedBox(height: 5),
-          Container(
-            width: 420,
-            height: 50, // Set the desired width
-            child: DropDown(
-              onChanged: (String? value) {
-                Align:
-                Alignment.center;
-                showRollNumberField.value = value != null;
-              },
-            ),
+          SizedBox(height: screenHeight * 0.005),
+          DropDown(
+            onChanged: (String? value) {
+              showRollNumberField.value = value != null;
+            },
           ),
           if (showRollNumberField.value)
             CustomInputField(
@@ -95,8 +92,7 @@ class RegisterView extends HookWidget {
             ),
           CustomButton(
             text: 'Create Account',
-            onPressed:
-                _showOTPBottomSheet, // Call the function instead of assigning it
+            onPressed: _showOTPBottomSheet,
           ),
         ],
       ),

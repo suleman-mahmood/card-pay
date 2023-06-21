@@ -8,11 +8,13 @@ class CustomProgressBar extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     final valueColor =
         useMemoized(() => AlwaysStoppedAnimation<Color>(Colors.blue));
 
     return Container(
-      height: 5,
+      height: screenHeight * 0.009,
       child: LinearProgressIndicator(
         value: progress,
         valueColor: valueColor,

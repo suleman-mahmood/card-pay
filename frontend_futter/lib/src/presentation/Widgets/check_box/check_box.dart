@@ -14,6 +14,8 @@ class CheckBox extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final isChecked = useState(false);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return InkWell(
       onTap: () {
@@ -22,38 +24,39 @@ class CheckBox extends HookWidget {
       },
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        padding: EdgeInsets.symmetric(
+            vertical: screenHeight * 0.01, horizontal: screenWidth * 0.05),
         decoration: BoxDecoration(
-          color: AppColors.greyColor,
+          color: AppColors.greyColor.withOpacity(0.5),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           children: [
             Container(
-              width: 24,
-              height: 24,
+              width: screenWidth * 0.06,
+              height: screenWidth * 0.06,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isChecked.value
                     ? AppColors.primaryColor
-                    : AppColors.blueColor,
+                    : const Color.fromARGB(255, 34, 31, 208),
               ),
               child: isChecked.value
                   ? Icon(
                       Icons.check,
                       color: AppColors.greyColor,
-                      size: 16,
+                      size: screenWidth * 0.04,
                     )
                   : null,
             ),
-            SizedBox(width: 10),
+            SizedBox(width: screenWidth * 0.02),
             Expanded(
               child: Text(
                 text,
-                style: AppTypography.inputFont.copyWith(
-                  color: AppColors.blueColor,
-                  fontSize: 16,
-                ),
+                style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                      color: AppColors.blackColor,
+                      fontSize: screenWidth * 0.045,
+                    ),
               ),
             ),
           ],

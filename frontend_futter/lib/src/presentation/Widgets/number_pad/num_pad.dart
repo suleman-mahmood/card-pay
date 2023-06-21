@@ -10,13 +10,14 @@ class NumPad extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.6,
+      height: screenHeight * 0.6,
       child: Padding(
-        padding: const EdgeInsets.only(top: 70),
+        padding: EdgeInsets.only(top: screenHeight * 0.1),
         child: Column(
           children: [
-            // Rows 1-3
             for (int row = 0; row < 3; row++)
               Expanded(
                 child: Padding(
@@ -39,7 +40,6 @@ class NumPad extends HookWidget {
                   ),
                 ),
               ),
-            // Row 4
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

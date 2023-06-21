@@ -39,6 +39,14 @@ class AppColors {
       Color.fromRGBO(65, 160, 242, 1),
     ],
   );
+  static const Gradient splashGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    colors: [
+      Color.fromARGB(255, 28, 80, 190),
+      Color.fromARGB(255, 6, 73, 132),
+      Color.fromRGBO(65, 160, 242, 1),
+    ],
+  );
 
   static const Gradient animationHomeGradient = LinearGradient(
     begin: Alignment.topCenter,

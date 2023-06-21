@@ -17,6 +17,9 @@ class PhoneNumberInput extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     final dropdownMenuItems =
         dropdownItems.map<DropdownMenuItem<String>>((String value) {
       return DropdownMenuItem<String>(
@@ -30,7 +33,7 @@ class PhoneNumberInput extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 5),
+        SizedBox(height: screenHeight * 0.005), // Responsive height
         Container(
           decoration: BoxDecoration(
             color: AppColors.greyColor.withOpacity(0.6),
@@ -39,19 +42,19 @@ class PhoneNumberInput extends HookWidget {
           child: Row(
             children: [
               Container(
-                width: 75,
+                width: screenWidth * 0.18,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  padding: EdgeInsets.only(left: screenWidth * 0.02),
                   child: DropdownButton<String>(
                     value: selectedDropdownItem.value,
                     icon: Icon(Icons.arrow_drop_down),
-                    iconSize: 24,
+                    iconSize: screenWidth * 0.05,
                     elevation: 16,
                     underline: Container(
                       height: 2,
                       color: Colors.transparent,
                     ),
-                    isDense: true, // Set isDense to true
+                    isDense: true,
                     onChanged: (String? newValue) {
                       selectedDropdownItem.value = newValue!;
                       onChanged?.call(newValue);
@@ -61,9 +64,8 @@ class PhoneNumberInput extends HookWidget {
                 ),
               ),
               Expanded(
-                flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
+                  padding: EdgeInsets.only(right: screenWidth * 0.02),
                   child: TextField(
                     controller: controller,
                     keyboardType: TextInputType.phone,
@@ -72,7 +74,7 @@ class PhoneNumberInput extends HookWidget {
                       hintText: 'Enter your cell number',
                       isCollapsed: true,
                       contentPadding: EdgeInsets.symmetric(
-                        vertical: 19,
+                        vertical: screenHeight * 0.021,
                         horizontal: 8,
                       ),
                     ),

@@ -7,6 +7,9 @@ class BackspaceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
       onTap: () {
         final text = controller.text;
@@ -15,13 +18,13 @@ class BackspaceButton extends StatelessWidget {
         }
       },
       child: Container(
-        width: 70, // Increased width
-        height: 70, // Increased height
+        width: screenWidth * 0.15,
+        height: screenHeight * 0.1,
         alignment: Alignment.center,
         child: Icon(
           Icons.backspace,
-          color: Colors.white, // Changed color to white
-          size: 35.0, // Increased icon size
+          color: Colors.white,
+          size: screenHeight * 0.04,
         ),
       ),
     );

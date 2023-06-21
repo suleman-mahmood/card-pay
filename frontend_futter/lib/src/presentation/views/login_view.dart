@@ -18,39 +18,45 @@ class LoginView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return AuthLayout(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // SizedBox(height: 120),
-          MainHeading(
-            accountTitle: 'Login',
-          ),
-          SizedBox(height: 5),
-          CustomInputField(
-            label: 'Email Address',
-            hint: 'Enter your email address',
-            obscureText: false,
-          ),
-          SizedBox(height: 15),
-          CustomInputField(
-            label: 'PASSWORD',
-            hint: 'Enter your password',
-            obscureText: true,
-          ),
-          SizedBox(height: 5),
-          Text(
-            'Forgot Password?',
-            style: AppTypography.headingFont.copyWith(
-              fontSize: 16,
-              color: AppColors.primaryColor,
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: screenHeight * 0.22),
+            MainHeading(
+              accountTitle: 'Login',
             ),
-          ),
-          CustomButton(
-            text: 'Login',
-            onPressed: () => handleLoginButtonPressed(context),
-          ),
-        ],
+            SizedBox(height: screenHeight * 0.005),
+            CustomInputField(
+              label: 'Email Address',
+              hint: 'Enter your email address',
+              obscureText: false,
+            ),
+            SizedBox(height: screenHeight * 0.015),
+            CustomInputField(
+              label: 'PASSWORD',
+              hint: 'Enter your password',
+              obscureText: true,
+            ),
+            SizedBox(height: screenHeight * 0.005),
+            Text(
+              'Forgot Password?',
+              style: AppTypography.headingFont.copyWith(
+                fontSize: screenWidth * 0.04,
+                color: AppColors.primaryColor,
+              ),
+            ),
+            CustomButton(
+              text: 'Login',
+              onPressed: () => handleLoginButtonPressed(context),
+            ),
+          ],
+        ),
       ),
     );
   }

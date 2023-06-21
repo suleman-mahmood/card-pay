@@ -13,6 +13,9 @@ class NumberButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     if (digit == 'X') {
       return Padding(
         padding: EdgeInsets.all(10.0),
@@ -21,8 +24,8 @@ class NumberButton extends HookWidget {
             controller.text += digit;
           },
           child: Container(
-            width: 64,
-            height: 64,
+            width: screenWidth * 0.15,
+            height: screenHeight * 0.1,
             alignment: Alignment.center,
             child: Icon(Icons.close),
           ),
@@ -37,14 +40,14 @@ class NumberButton extends HookWidget {
           controller.text += digit;
         },
         child: Container(
-          width: 64,
-          height: 64,
+          width: screenWidth * 0.15,
+          height: screenHeight * 0.1,
           alignment: Alignment.center,
           child: Text(
             digit,
             style: TextStyle(
               color: AppColors.secondaryColor,
-              fontSize: 28,
+              fontSize: screenHeight * 0.04,
             ),
           ),
         ),

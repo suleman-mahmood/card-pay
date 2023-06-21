@@ -9,8 +9,9 @@ class DropDown extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedOrganization =
-        useState<String?>('None'); // Set default organization to "None"
+    final selectedOrganization = useState<String?>('None');
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     final organizations = [
       'None',
@@ -25,12 +26,12 @@ class DropDown extends HookWidget {
         borderRadius: BorderRadius.circular(19),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.04, vertical: screenHeight * 0.01),
         child: DropdownButtonFormField<String>(
           decoration: InputDecoration(
-            hintText: 'Select your organizationS', // Add hint text
+            hintText: 'Select your organization',
             border: InputBorder.none,
-            isDense: true,
           ),
           value: selectedOrganization.value,
           dropdownColor: AppColors.greyColor,
@@ -38,21 +39,18 @@ class DropDown extends HookWidget {
             return DropdownMenuItem<String>(
               value: organization,
               child: Align(
-                alignment:
-                    Alignment.center, // Align the organization in the center
+                alignment: Alignment.center,
                 child: Text(
                   organization,
-                  style: TextStyle(
-                    color: AppColors.blackColor,
-                  ),
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                        fontSize: screenWidth * 0.04,
+                        color: AppColors.blackColor,
+                      ),
                 ),
               ),
             );
           }).toList(),
-          onChanged: (value) {
-            selectedOrganization.value = value;
-            onChanged(value);
-          },
+          onChanged: onChanged,
         ),
       ),
     );
