@@ -13,8 +13,11 @@ class InvalidCashbackTypeException(Exception):
 class NegativeAmountException(Exception):
     """exception raised for negative amount"""
 
-class InvalidAddingLoyalityPointsException(Exception):
+class InvalidAddingLoyaltyPointsException(Exception):
     """exception raised for invalid adding loyality points"""
 
 class InvalidSlabException(Exception):
     """exception raised for invalid slab"""
+
+class NotVerifiedException(Exception):
+    """exception raised for user not verified"""
