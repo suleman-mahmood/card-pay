@@ -189,26 +189,35 @@ class UserRepository(UserAbstractRepository):
             ]
         )
 
-        for key in user.closed_loops:
+        if(len(user.closed_loops) != 0):
+
             sql = """
-                insert into user_closed_loops (user_id, closed_loop_id, unique_identifier, closed_loop_user_id, unique_identifier_otp, status, created_at)
-                values (%s, %s, %s, %s, %s, %s, %s)
+            insert into user_closed_loops (user_id, closed_loop_id, unique_identifier, closed_loop_user_id, unique_identifier_otp, status, created_at)
+            values
             """
 
-            closed_loop_user = user.closed_loops[key]
-
-            self.cursor.execute(
-                sql,
-                [
-                    user.id,
-                    key,
-                    closed_loop_user.unique_identifier,
-                    closed_loop_user.id,
-                    closed_loop_user.unique_identifier_otp,
-                    closed_loop_user.status.name,
-                    closed_loop_user.created_at
-                ]
+            args = [
+                        (
+                            user.id,
+                            key, #closed_loop_id
+                            closed_loop_user.unique_identifier,
+                            closed_loop_user.id,
+                            closed_loop_user.unique_identifier_otp,
+                            closed_loop_user.status.name,
+                            closed_loop_user.created_at,
+                        )
+                        for key, closed_loop_user in user.closed_loops.items()
+                    ]
+            
+            args_str = ",".join(
+                self.cursor.mogrify(
+                    "(%s,%s,%s,%s,%s,%s,%s)",
+                    x
+                ).decode("utf-8")
+                for x in args
             )
+            
+            self.cursor.execute(sql + args_str)
 
     def get(self, user_id: str) -> User:
         sql = """
@@ -310,29 +319,45 @@ class UserRepository(UserAbstractRepository):
             ]
         )
 
-        for key in user.closed_loops:
+        sql = """
+            delete from user_closed_loops 
+            where user_id = %s
+        """
+
+        self.cursor.execute(
+            sql,
+            [
+                user.id
+            ]
+        )
+
+        if(len(user.closed_loops) != 0):
+
             sql = """
-            insert into user_closed_loops (user_id, closed_loop_id, unique_identifier, unique_identifier_otp, status, created_at)
-            values (%s, %s, %s, %s, %s, %s)
-            on conflict(user_id, closed_loop_id) do update set
-                user_id = excluded.user_id,
-                closed_loop_id = excluded.closed_loop_id,
-                unique_identifier = excluded.unique_identifier,
-                unique_identifier_otp = excluded.unique_identifier_otp,
-                status = excluded.status,
-                created_at = excluded.created_at
+            insert into user_closed_loops (user_id, closed_loop_id, unique_identifier, closed_loop_user_id, unique_identifier_otp, status, created_at)
+            values
             """
 
-            closed_loop_user = user.closed_loops[key]
-
-            self.cursor.execute(
-                sql,
-                [
-                    user.id,
-                    key,
-                    closed_loop_user.unique_identifier,
-                    closed_loop_user.unique_identifier_otp,
-                    closed_loop_user.status,
-                    closed_loop_user.created_at
-                ]
+            args = [
+                        (
+                            user.id,
+                            key, #closed_loop_id
+                            closed_loop_user.unique_identifier,
+                            closed_loop_user.id,
+                            closed_loop_user.unique_identifier_otp,
+                            closed_loop_user.status.name,
+                            closed_loop_user.created_at,
+                        )
+                        for key, closed_loop_user in user.closed_loops.items()
+                    ]
+            
+            args_str = ",".join(
+                self.cursor.mogrify(
+                    "(%s,%s,%s,%s,%s,%s,%s)",
+                    x
+                ).decode("utf-8")
+                for x in args
             )
+            
+            self.cursor.execute(sql + args_str)
+
