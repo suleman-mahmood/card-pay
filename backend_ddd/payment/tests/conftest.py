@@ -8,3 +8,5 @@ def seed_wallet():
         return Wallet()
 
     return _seed_wallet
+
+    
