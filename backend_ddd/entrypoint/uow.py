@@ -2,6 +2,9 @@
 import os
 from abc import ABC, abstractmethod
 import psycopg2
+
+from psycopg2.extensions import adapt, register_adapter, AsIs
+from ..authentication.domain.model import Location
 from ..payment.adapters.repository import (
     TransactionAbstractRepository,
     FakeTransactionRepository,
@@ -10,13 +13,19 @@ from ..payment.adapters.repository import (
 from ..authentication.adapters.repository import (
     ClosedLoopAbstractRepository,
     UserAbstractRepository,
-    FakeClosedLoopAbstractRepository,
-    FakeUserAbstractRepository,
+    FakeClosedLoopRepository,
+    FakeUserRepository,
+    ClosedLoopRepository,
+    UserRepository,
 )
 from dotenv import load_dotenv
 
 load_dotenv()
 
+def adapt_point(point: Location):
+    lat = adapt(point.latitude)
+    lng = adapt(point.longitude)
+    return AsIs("'(%s, %s)'" % (lat, lng))
 
 class AbstractUnitOfWork(ABC):
     users: UserAbstractRepository
@@ -41,8 +50,8 @@ class AbstractUnitOfWork(ABC):
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
-        self.users = FakeUserAbstractRepository()
-        self.closed_loops = FakeClosedLoopAbstractRepository()
+        self.users = FakeUserRepository()
+        self.closed_loops = FakeClosedLoopRepository()
         self.transactions = FakeTransactionRepository()
 
     def commit(self):
@@ -53,6 +62,11 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 
 class UnitOfWork(AbstractUnitOfWork):
+
+    def __init__(self):
+        register_adapter(Location, adapt_point)
+
+
     def __enter__(self):
         self.connection = psycopg2.connect(
             host=os.environ.get("DB_HOST"),
@@ -66,6 +80,8 @@ class UnitOfWork(AbstractUnitOfWork):
 
         # fix this asap
         self.transactions = TransactionRepository(self.connection)
+        self.closed_loops = ClosedLoopRepository(self.connection)
+        self.users = UserRepository(self.connection)
 
         return super().__enter__()
 

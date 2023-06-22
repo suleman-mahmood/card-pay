@@ -7,6 +7,7 @@ from ..domain.model import (
     PhoneNumber,
     ClosedLoop,
     ClosedLoopVerificationType,
+    Location
 )
 from uuid import uuid4
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
@@ -23,7 +24,7 @@ def seed_user():
             phone_number=PhoneNumber(value="+923000000000"),
             pin="1234",
             full_name="Suleman Mahmood",
-            location=(0, 0),
+            location=Location(latitude=0, longitude=0),
             wallet_id=str(uuid4()),
         )
 
@@ -38,8 +39,8 @@ def seed_closed_loop():
             name="Test Loop",
             logo_url="https://www.google.com",
             description="This is a test loop.",
-            regex=None,
-            verification_type=ClosedLoopVerificationType.ROLLNUMBER,
+            regex="No regex yet",
+            verification_type= ClosedLoopVerificationType.ROLLNUMBER,
         )
 
     return _seed_closed_loop
@@ -50,12 +51,12 @@ def seed_auth_user():
     def _seed_auth_user(uow: AbstractUnitOfWork) -> User:
         return auth_commands.create_user(
             user_id=str(uuid4()),
-            personal_email="mlkmoaz@gmail.com",
-            phone_number="03034952255",
+            personal_email=PersonalEmail(value="mlkmoaz@gmail.com"),
+            phone_number=PhoneNumber(value="03034952255"),
             user_type="CUSTOMER",
             pin="1234",
             full_name="Malik Muhammad Moaz",
-            location=(0, 0),
+            location=Location(latitude=0, longitude=0),
             uow=uow,
         )
 
@@ -69,7 +70,7 @@ def seed_auth_closed_loop():
             name="Test Closed Loop",
             logo_url="https://test.com/logo.png",
             description="Test description",
-            regex=None,
+            regex="No regex yet",
             verification_type="NONE",
             uow=uow,
         )

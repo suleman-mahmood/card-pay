@@ -59,7 +59,7 @@ def create_user(
             wallet_id=wallet.id,
             location=location,
         )
-
+        
         uow.users.add(user)
 
     return user

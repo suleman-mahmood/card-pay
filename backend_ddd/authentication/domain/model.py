@@ -103,6 +103,12 @@ class PhoneNumber:
 
     value: str
 
+@dataclass
+class Location:
+    """Location value object"""
+
+    latitude: float
+    longitude: float
 
 @dataclass
 class User:
@@ -117,8 +123,8 @@ class User:
     pin: str
     full_name: str
     wallet_id: str
-    location: Tuple[float, float]
-
+    location: Location
+    
     is_active: bool = True
     is_phone_number_verified: bool = False
     closed_loops: Dict[str, ClosedLoopUser] = field(default_factory=dict)
