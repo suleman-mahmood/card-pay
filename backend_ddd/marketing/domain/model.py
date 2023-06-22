@@ -42,7 +42,7 @@ class Weightage:
     weightage_type: TransactionType
 
     '''
-    Weightage value will be in percentage for P2P_PUSH, P2P_PULL, PAYMENT_GATEWAY
+    Weightage value will be a percentage for P2P_PUSH, P2P_PULL, PAYMENT_GATEWAY
     Weightage value will be an absolute amount for REFERRAL
     '''
 
