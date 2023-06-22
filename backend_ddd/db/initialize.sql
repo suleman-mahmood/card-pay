@@ -51,7 +51,7 @@ create table users (
     personal_email varchar(255) not null,
     phone_number varchar(255) not null,
     user_type user_type_enum not null,
-    pin varchar(255) not null,
+    pin varchar(4) not null,
     full_name varchar(255) not null,
     wallet_id uuid References wallets(id) not null,
     is_active boolean not null,
