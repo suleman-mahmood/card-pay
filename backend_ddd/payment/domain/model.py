@@ -47,7 +47,8 @@ class TransactionType(str, Enum):
     PAYMENT_GATEWAY = 6
     CARD_PAY = 7  # source of tokens in cardpay
     CASH_BACK = 8 # Marketing
-
+    REFERRAL = 9 # Marketing
+    
 @dataclass
 class Transaction:
     """
