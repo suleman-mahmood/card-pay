@@ -4,64 +4,99 @@
 from dataclasses import dataclass, field
 from uuid import uuid4
 from enum import Enum
-from .exceptions import InactiveDealException
-from typing import List
+from .exceptions import InvalidReferenceException
+from ...payment.domain.model import TransactionType
+from typing import List, Dict
 
-@dataclass(frozen = True)
-class Deal_status(str, Enum):
-    """Value Object"""
-
-    ACTIVE = 1
-    INACTIVE = 2
+class CashbackType(str, Enum):
+    PERCENTAGE = 1,
+    ABSOLUTE = 2
 
 @dataclass
-class Deal():
+class WeightageCashback:
     """Entity"""
+    
+    start_amount: int
+    end_amount: int
+    cashback_type: CashbackType
+    cashback_value: float
 
-    vendor_id : str
-    name : str
-    description: str = ""
-    status: Deal_status = Deal_status.ACTIVE
-    type: str = ""
-    skus_id: List[str] = field(default_factory=list)
-    discounts: List[float] = field(default_factory=list)
-    id: str = field(default_factory=lambda: str(uuid4()))
+class WeightageType(TransactionType):
+    
 
+
+@dataclass
+class Weightage:
+    """Entity"""
+    id:int = 1
+    weightage_payment_gateway: int = 0.1 
+    weightage_p2p_push: int = 2
+    weightage_p2p_pull: int = 3
+    weightage_referral: int = 0.1
+    weightage_cashback: List[WeightageCashback] = field(default_factory=list)
+
+    def change_weightage(self, weightage_type: str, amount: int):
+        if weightage_type == "PAYMENT_GATEWAY":
+            self.weightage_payment_gateway = amount
+        elif weightage_type == "P2P_PUSH":
+            self.weightage_p2p_push = amount
+        elif weightage_type == "P2P_PULL":
+            self.weightage_p2p_pull = amount
+        elif weightage_type == "REFERRAL":
+            self.weightage_referral = amount
+        else:
+            raise Exception("Invalid weightage type")
+    
+    def change_cashback_weightage(self, weightage_cashback:Dict[int, float]):
+        self.weightage_cashback = weightage_cashback
+
+    
 @dataclass
 class User():
     """Entity"""
-
-    id: str = field(default_factory=lambda: str(uuid4()))
+    id: str
     loyalty_points: int = 0
-    number_of_transactions: int = 0
-    number_of_deals_redeemed: int = 0
-    cashback: int = 0
-    referral_id: str = None
-   
-    def redeem_deal(self, deal: Deal) -> None:
+    referral_id: str = ""
 
-        if deal.status == Deal_status.INACTIVE:
-            raise InactiveDealException("Deal is inactive")
-        self.number_of_deals_redeemed += 1
-        loyalty_points = _calculate_loyalty_points(self.number_of_transactions, self.total_amount, self.number_of_deals_redeemed)
-        self.loyalty_points = loyalty_points
+    def use_reference(self, referral_id: str):
+        if self.referral_id :
+            raise InvalidReferenceException(
+                "User has already been referred"
+            )
+        if self.id == referral_id:
+            raise InvalidReferenceException(
+                "User cannot refer themselves"
+            )
 
-    def use_reference(self,referral_id: str) -> None:
         self.referral_id = referral_id
 
-  
+    def add_loyalty_points(self, loyalty_type: str, amount: int, weightage: Weightage):
         
+        if loyalty_type == "PAYMENT_GATEWAY":
+            self.loyalty_points += amount * weightage.weightage_payment_gateway
 
+        elif loyalty_type == "P2P_PUSH":
+            self.loyalty_points += amount * weightage.weightage_p2p_push
 
-@dataclass
-class Vendor():
-    """Entity"""
+        elif loyalty_type == "P2P_PULL":
+            self.loyalty_points += amount * weightage.weightage_p2p_pull
+    
+    def add_referral_loyalty_points(self, weightage: Weightage):
+        self.loyalty_points += weightage.weightage_referral
 
-    deals : list[str] = field(default_factory = list)
-    id: str = field(default_factory=lambda: str(uuid4()))
-
-    def create_deal(self, name: str) -> Deal:
-        """Create a deal"""
-        deal = Deal(vendor_id = self.id, name = name)
-        self.deals.append(deal.id)
-        return deal
+    def calculate_cashback(self, deposit_amount: int, weightage: Weightage) -> float:
+        
+        weightage_cashback = weightage.weightage_cashback
+        slabs = list(weightage_cashback.keys())
+        slab = slabs[-1]
+        for i in range(len(slabs)):
+            if deposit_amount >= slabs[i]:
+                continue
+            else:
+                slab = slabs[i-1]
+                break
+                    
+        if weightage_cashback[slab] <= 1:
+            return deposit_amount * weightage_cashback[slab]
+        else:
+            return weightage_cashback[slab]

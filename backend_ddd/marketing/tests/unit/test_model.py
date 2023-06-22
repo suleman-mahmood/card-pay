@@ -1,108 +1,82 @@
 import pytest
 
-from ...domain.model import (User, Vendor, Deal, Deal_status)
-from .utils import _calculate_loyalty_points    
-from .conftest import seed_user
-
-# def test_add_loyalty_points_for_transactions_and_deals():
-#     user = User()
-
-#     user.make_transaction(1000)
-#     user.make_transaction(2000)
-#     vendor = Vendor()
-#     deal = vendor.create_deal(name = "Ek ke sath ek free")
-#     user.redeem_deal(deal)
-
-#     loyalty_points = _calculate_loyalty_points(user.number_of_transactions, user.total_amount, user.number_of_deals_redeemed)
-
-#     assert user.loyalty_points == loyalty_points
+from .conftest import (seed_user, seed_weightage)
+from ...domain.exceptions import InvalidReferenceException
 
 
-# def test_give_referral():
-#     """One user give referral to another user
-#             Check the referral and referee id of the user"""
-#     referral = User()
-#     referee_1 = User()
-#     referee_2 = User()
 
-#     referee_1.use_reference(referral.id)
-#     referee_2.use_reference(referral.id)
-
-#     assert referee_1.referral_id == referral.id
-#     assert referee_2.referral_id == referral.id
-
-# def test_cashback_on_amount():
-#     amount = 100000
-#     user = User()
-#     user.make_transaction(amount)
-#     user.cashback = _calculate_cashback_amount(amount)
-
-
-# def test_cashback_on_number_of_transactions():
-#     pass
-
-
-def test_add_loyalty_points_for_deposit(seed_user):
+def test_add_loyalty_points_for_deposit(seed_user, seed_weightage):
     transaction_type = "PAYMENT_GATEWAY"
     amount = 1000
+    weightage = seed_weightage()
 
     user = seed_user()
-    user.add_loyalty_points(transaction_type, amount)
+    user.add_loyalty_points(transaction_type, amount, weightage)
 
-    assert user.loyalty_points == 1000
+    assert user.loyalty_points == amount * weightage.weightage_payment_gateway
 
-def test_add_loyalty_points_on_push_transaction(seed_user):
+def test_add_loyalty_points_on_push_transaction(seed_user, seed_weightage):
     transaction_type = "P2P_PUSH"
     amount = 1000
+    weightage = seed_weightage()
 
     user = seed_user()
-    user.add_loyalty_points(transaction_type, amount)
+    user.add_loyalty_points(transaction_type, amount, weightage)
 
-    assert user.loyalty_points == 100
+    assert user.loyalty_points == amount * weightage.weightage_p2p_push
 
 
-def test_add_loyalty_points_on_pull_transaction(seed_user):
+def test_add_loyalty_points_on_pull_transaction(seed_user, seed_weightage):
     transaction_type = "P2P_PULL"
     amount = 1000
+    weightage = seed_weightage()
 
     user = seed_user()
-    user.add_loyalty_points(transaction_type, amount)
+    user.add_loyalty_points(transaction_type, amount, weightage)
 
-    assert user.loyalty_points == 50
+    assert user.loyalty_points == amount * weightage.weightage_p2p_pull
 
-def test_cashback_on_deposit(seed_user):
-    action = "PAYMENT_GATEWAY"
-    amount = 1000
+def test_cashback_on_deposit(seed_user, seed_weightage):
+    """Also Caters to cashback on number of transactions"""
+    
+    amount = 1200
+    weightage = seed_weightage()
 
     user = seed_user()
-    user.calculate_cashback(action, amount)
+    assert user.calculate_cashback(amount, weightage) == weightage.weightage_cashback[1000] * amount
 
-    assert user.cashback == 100
+    amount = 550
+    assert user.calculate_cashback(amount, weightage) == weightage.weightage_cashback[500]
 
-def test_cashback_on_x_transactions():
-    #We have to record the number of transactions for this. No?
-    pass
+    amount = 400
+    assert user.calculate_cashback(amount, weightage) == weightage.weightage_cashback[0]
 
-def test_referral(seed_user):
-    referral = seed_user()
+
+def test_referral(seed_user, seed_weightage):
+
+    referral_1 = seed_user()
+    referral_2 = seed_user()
     referee_1 = seed_user()
     referee_2 = seed_user()
+    weightage = seed_weightage()
 
-    referee_1.use_reference(referral.id)
-    referral.calculate_cashback("REFERRAL", 0)
-    assert referral.cashback == 100
+    with pytest.raises(InvalidReferenceException, match = "User cannot refer themselves"):
+        referral_1.use_reference(referral_1.id)
 
-    referee_2.use_reference(referral.id)
-    referral.calculate_cashback("REFERRAL", 0)
-    assert referral.cashback == 200
+    referee_1.use_reference(referral_1.id)
+    referral_1.add_referral_loyalty_points(weightage)
+    assert referral_1.loyalty_points == weightage.weightage_referral
 
-    assert referee_1.referral_id == referral.id
-    assert referee_2.referral_id == referral.id
+    referee_2.use_reference(referral_1.id)
+    referral_1.add_referral_loyalty_points(weightage)
+    assert referral_1.loyalty_points == 2 * weightage.weightage_referral
 
-def test_vendor_create_deal(seed_vendor):
-    vendor = seed_vendor()
-    deal_name = "Bazinga"
-    deal = vendor.create_deal(deal_name)
+    assert referee_1.referral_id == referral_1.id
+    assert referee_2.referral_id == referral_1.id
 
-    assert deal.vendor_id == vendor.id
-    assert vendor.deals[0] == deal.id
+    with pytest.raises(InvalidReferenceException, match = "User has already been referred"):
+        referee_1.use_reference(referral_2.id)
+
+    with pytest.raises(InvalidReferenceException, match = "User has already been referred"):
+        referee_2.use_reference(referral_2.id)
+
