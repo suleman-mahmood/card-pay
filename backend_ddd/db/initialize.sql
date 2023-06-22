@@ -60,7 +60,10 @@ create table users (
     otp varchar(4) not null,
     otp_generated_at timestamp not null default current_timestamp,
     location point not null default point(0,0),
-    created_at timestamp not null default current_timestamp
+    created_at timestamp not null default current_timestamp,
+    loyalty_points integer not null default 0,
+    referral_id uuid default "",
+    
     
 
 
