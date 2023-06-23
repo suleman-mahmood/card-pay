@@ -75,7 +75,7 @@ def test_use_reference_and_add_referral_loyalty_points(seed_user):
 
     referral.add_referral_loyalty_points(
         weightage = weightage,
-        referee_verified= referee_1.user_verified
+        referee_verified= referee_1.marketing_user_verified
     ) # This function will be called by the marketing commands
     
     assert referral.loyalty_points == weightage.weightage_value
@@ -88,7 +88,7 @@ def test_use_reference_and_add_referral_loyalty_points(seed_user):
 
     referral.add_referral_loyalty_points(
         weightage = weightage,
-        referee_verified= referee_2.user_verified
+        referee_verified= referee_2.marketing_user_verified
     ) # This function will be called by the marketing commands
     
     assert referral.loyalty_points == 2 * weightage.weightage_value

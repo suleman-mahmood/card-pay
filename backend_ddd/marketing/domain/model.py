@@ -57,7 +57,7 @@ class User():
     id: str
     loyalty_points: int = 0
     referral_id: str = ""
-    user_verified: bool = False
+    marketing_user_verified: bool = False
 
     def _negative_amount_exception(self, amount: int):
         if amount < 0:
@@ -66,7 +66,7 @@ class User():
             )
 
     def _not_verified_exception(self):
-        if not self.user_verified:
+        if not self.marketing_user_verified:
             raise NotVerifiedException(
                 "User is not verified"
             )
@@ -74,7 +74,7 @@ class User():
 
     def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
         """Add loyalty points to user account for P transaction type"""
-        if self.user_verified == False:
+        if self.marketing_user_verified == False:
             raise InvalidAddingLoyaltyPointsException(
                 "Referral is not verified"
             )
@@ -154,6 +154,6 @@ class User():
 
     def verify_user(self):
         """Verify user"""
-        self.user_verified = True
+        self.marketing_user_verified = True
         
         
