@@ -98,6 +98,21 @@ def add_loyalty_points_for_pull_transaction(
 #             transaction_type = TransactionType.CASH_BACK,
 #         )
 
+def add_weightage(
+    weightage_type: str,
+    weightage_value: float,
+    uow: AbstractUnitOfWork,
+):
+
+    weightage_type = TransactionType[weightage_type]
+
+    with uow:
+        weightage = Weightage(
+            weightage_type = weightage_type,
+            weightage_value = weightage_value
+        )
+        uow.weightages.save(weightage)
+
 def set_weightage(
     weightage_type: str,
     weightage_value: float,
@@ -112,6 +127,8 @@ def set_weightage(
         weightage.set_weightage(weightage_value)
 
         uow.weightages.save(weightage)
+
+
 
 def set_cashback_slabs(
     cashback_slabs: list,

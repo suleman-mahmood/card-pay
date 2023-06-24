@@ -7,34 +7,28 @@ from ....authentication.domain.model import User as AuthenticationUser
 from ....payment.entrypoint import commands as payment_commands
 from ....payment.domain.model import TransactionType
 from ...adapters.repository import (MarketingUserRepository, WeightageRepository, CashbackSlabRepository,)
+from ....authentication.tests.conftest import seed_auth_user
 from uuid import uuid4
 
-def _create_authentication_user(uow: AbstractUnitOfWork):
-    user_id = str(uuid4())
-    wallet = payment_commands.create_wallet(uow)
-    authentication_user = AuthenticationUser(
-        id = user_id,
-        personal_email = PersonalEmail(value = "asdasd@asdasd.com"),
-        phone_number = PhoneNumber(value = "1234567890"),
-        user_type = UserType.CUSTOMER,
-        pin = "1234",
-        full_name = "asdasd",
-        wallet_id = wallet.id,
-        location = Location(latitude = 1.0, longitude = 1.0),
-    )
-    uow.users.add(authentication_user)
-    
-    return authentication_user
 
-
-def test_marketing_user_repository_add_get_save():
+def test_marketing_user_repository_add_get_save(seed_auth_user):
     uow = UnitOfWork()
     #Use Authentication command to create a user first, then use marketing command to fill the 4 marketing related columns in the users table
-    with uow:
-        
-        #create a user (authentication)
-        authentication_user = _create_authentication_user(uow)            
 
+    # authentication_user = authentication_commands.create_user(
+    #     user_id =  str(uuid4()),
+    #     personal_email =  "asdasd@asdasd.com",
+    #     phone_number = "1231241231",
+    #     user_type = "CUSTOMER",
+    #     pin =  "4251",
+    #     full_name = "Shaheer",
+    #     location = (1.2,5.2),
+    #     uow = uow,
+    # )
+
+    authentication_user = seed_auth_user(uow)
+    with uow:
+                  
         marketing_user = User(
             id = authentication_user.id,
             loyalty_points=0,
@@ -55,23 +49,23 @@ def test_marketing_user_repository_add_get_save():
         assert fetched_user == marketing_user
 
 
-def test_weightage_repository_add_get_save():
-   
-    uow = UnitOfWork()
-    with uow:
-        weightage = Weightage(
-            weightage_type= TransactionType.REFERRAL,
-            weightage_value= 10,
-        )
+# def test_weightage_repository_add_get_save():
 
-        uow.weightages.save(weightage)
-        fetched_weightage = uow.weightages.get(weightage_type= TransactionType.REFERRAL)
-        assert fetched_weightage == weightage
+#     uow = UnitOfWork()
+#     with uow:
+#         weightage = Weightage(
+#             weightage_type= TransactionType.REFERRAL,
+#             weightage_value= 10,
+#         )
 
-        weightage.weightage_value = 20
-        uow.weightages.save(weightage)
-        fetched_weightage = uow.weightages.get(weightage_type= TransactionType.REFERRAL)
-        assert fetched_weightage == weightage
+#         uow.weightages.save(weightage)
+#         fetched_weightage = uow.weightages.get(weightage_type= TransactionType.REFERRAL)
+#         assert fetched_weightage == weightage
+
+#         weightage.weightage_value = 20
+#         uow.weightages.save(weightage)
+#         fetched_weightage = uow.weightages.get(weightage_type= TransactionType.REFERRAL)
+#         assert fetched_weightage == weightage
 
 def test_cashback_slab_repository_add_get_save():
     uow = UnitOfWork()

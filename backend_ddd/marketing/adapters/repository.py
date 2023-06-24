@@ -21,17 +21,6 @@ class MarkteingUserAbstractRepository(ABC):
         pass
 
 
-class FakeMarketingUserRepository(MarkteingUserAbstractRepository):
-
-    def __init__(self):
-        self.users: Dict[str, User] = {}
-
-    def get(self, id: str) -> User:
-        return self.users[id]
-
-    def save(self, user: User):
-        self.users[user.id] = user
-
 
 class MarketingUserRepository(MarkteingUserAbstractRepository):
 
@@ -96,13 +85,13 @@ class WeightageAbstractRepository(ABC):
 class FakeWeightageRepository(WeightageAbstractRepository):
 
     def __init__(self):
-        self.weightages: Dict[TransactionType, Weightage] = {}
+        self.weightages: Dict[str, Weightage] = {}
 
     def get(self, weightage_type: TransactionType) -> Weightage:
-        return self.weightages[weightage_type]
+        return self.weightages[weightage_type.name]
 
     def save(self, weightage: Weightage):
-        self.weightages[weightage.weightage_type] = weightage
+        self.weightages[weightage.weightage_type.name] = weightage
 
 
 class WeightageRepository(WeightageAbstractRepository):
@@ -164,14 +153,14 @@ class CashbackSlabAbstractRepository(ABC):
 class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
 
     def __init__(self):
-        self.cashback_slabs: Dict[str, CashbackSlab] = {}
+        self.cashback_slabs: List[CashbackSlab] = []
 
-    def get(self, id: str) -> CashbackSlab:
-        return self.cashback_slabs[id]
+    def get(self) -> List[CashbackSlab]:
+        return self.cashback_slabs
 
-    def save(self, cashback_slab: CashbackSlab):
+    def save(self, cashback_slabs: List[CashbackSlab]):
         """throw exception in commands"""
-        self.cashback_slabs[cashback_slab.id] = cashback_slab
+        self.cashback_slabs = cashback_slabs
 
 
 class CashbackSlabRepository(CashbackSlabAbstractRepository):
