@@ -60,12 +60,11 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
 
     def save(self, user: User):
         sql = """
-            insert into users (loyalty_points, referral_id, marketing_user_verified)
-            values (%s, %s, %s)
-            on conflict (id) do update
-            set loyalty_points = excluded.loyalty_points,
-            referral_id = excluded.referral_id,
-            marketing_user_verified = excluded.marketing_user_verified
+            update users
+            set loyalty_points = %s,
+            referral_id = %s,
+            marketing_user_verified = %s
+            where id = %s
         """
         # Here users is the same table as in authentication microservice
 
@@ -74,7 +73,8 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
             [
                 user.loyalty_points,
                 user.referral_id,
-                user.marketing_user_verified
+                user.marketing_user_verified,
+                user.id
             ]
         )
 
