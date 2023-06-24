@@ -50,6 +50,9 @@ class Weightage:
 
     id: str = field(default_factory=lambda: str(uuid4()))
 
+    def set_weightage(self, weightage_value: float):
+        self.weightage_value = weightage_value
+
 
 @dataclass
 class User():
@@ -124,23 +127,28 @@ class User():
         self._not_verified_exception()
         self._negative_amount_exception(deposit_amount)
 
-        eligible_slabs = list(
-            filter(
-                    lambda slab: deposit_amount >= slab.start_amount and deposit_amount < slab.end_amount,
-                    cashback_slabs
-                )
-        )
+        if (deposit_amount > cashback_slabs[-1].end_amount):
+            
+            slab = cashback_slabs[-1]
         
-        if len(eligible_slabs) > 1:
-            raise InvalidSlabException(
-                "Multiple slabs exist for the passed amount"
+        else:
+            eligible_slabs = list(
+                filter(
+                        lambda slab: deposit_amount >= slab.start_amount and deposit_amount < slab.end_amount,
+                        cashback_slabs
+                    )
             )
-        elif len(eligible_slabs) == 0:
-            raise InvalidSlabException(
-                "No slab exists for the passed amount"
-            )
+            
+            if len(eligible_slabs) > 1:
+                raise InvalidSlabException(
+                    "Multiple slabs exist for the passed amount"
+                )
+            elif len(eligible_slabs) == 0:
+                raise InvalidSlabException(
+                    "No slab exists for the passed amount"
+                )
 
-        slab = eligible_slabs[0]
+            slab = eligible_slabs[0]
 
         if slab.cashback_type != CashbackType.PERCENTAGE and slab.cashback_type != CashbackType.ABSOLUTE:
             raise InvalidCashbackTypeException(

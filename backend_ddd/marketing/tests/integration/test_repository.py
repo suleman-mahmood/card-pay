@@ -65,29 +65,38 @@ def test_weightage_repository_add_get_save():
         )
 
         uow.weightages.save(weightage)
-        fetched_weightage = uow.weightages.get(id = weightage.id)
+        fetched_weightage = uow.weightages.get(weightage_type= TransactionType.REFERRAL)
         assert fetched_weightage == weightage
 
         weightage.weightage_value = 20
         uow.weightages.save(weightage)
-        fetched_weightage = uow.weightages.get(id = weightage.id)
+        fetched_weightage = uow.weightages.get(weightage_type= TransactionType.REFERRAL)
         assert fetched_weightage == weightage
 
 def test_cashback_slab_repository_add_get_save():
     uow = UnitOfWork()
     with uow:
-        cashback_slab = CashbackSlab(
+        cashback_slab_1 = CashbackSlab(
             start_amount= 0,
             end_amount= 100,
             cashback_type= CashbackType.PERCENTAGE,
             cashback_value= 10,
         )
 
-        uow.cashback_slabs.save(cashback_slab)
-        fetched_cashback_slab = uow.cashback_slabs.get(id = cashback_slab.id)
-        assert fetched_cashback_slab == cashback_slab
+        cashback_slab_2 = CashbackSlab(
+            start_amount= 100,
+            end_amount= 200,
+            cashback_type= CashbackType.PERCENTAGE,
+            cashback_value= 20,
+        )
+        
+        cashback_slabs = [cashback_slab_1, cashback_slab_2]
 
-        cashback_slab.cashback_value = 20
-        uow.cashback_slabs.save(cashback_slab)
-        fetched_cashback_slab = uow.cashback_slabs.get(id = cashback_slab.id)
-        assert fetched_cashback_slab == cashback_slab
+        uow.cashback_slabs.save(cashback_slabs)
+        fetched_cashback_slabs = uow.cashback_slabs.get()
+        assert fetched_cashback_slabs == cashback_slabs
+
+        cashback_slabs[0].cashback_value = 20
+        uow.cashback_slabs.save(cashback_slabs)
+        fetched_cashback_slab = uow.cashback_slabs.get()
+        assert fetched_cashback_slab == cashback_slabs
