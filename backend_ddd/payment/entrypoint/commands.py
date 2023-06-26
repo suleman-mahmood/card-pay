@@ -6,7 +6,8 @@ from ..domain.model import (
     TransactionMode,
     TransactionType,
 )
-
+from ...marketing.entrypoint import commands as marketing_commands
+from ...marketing.entrypoint import queries as marketing_queries
 from time import sleep
 from queue import Queue
 
@@ -41,11 +42,35 @@ def execute_transaction(
             recipient_wallet_id=recipient_wallet_id,
         )
 
+        user_id = marketing_queries.get_user_id_from_wallet_id(
+            wallet_id=sender_wallet_id,
+            uow=uow
+        )
+
         if transaction_type != TransactionType.P2P_PULL:
             tx.execute_transaction()
 
-            # if transaction_type != TransactionType.CASH_BACK:
-            #     marketing_commands.give_cashback(transaction_type, amount, uow)
+        # Give Loyalty Points
+
+        if transaction_type == TransactionType.P2P_PUSH:
+            marketing_commands.add_loyalty_points_for_push_transaction(
+                user_id= user_id,
+                transaction_amount= amount,
+                uow= uow,
+            )
+
+
+        if transaction_type == TransactionType.PAYMENT_GATEWAY:
+            marketing_commands.give_cashback(
+                recipient_wallet_id=sender_wallet_id,
+                deposited_amount=amount,
+                uow= uow
+            )
+            marketing_commands.add_loyalty_points_for_deposit(
+                user_id= user_id,
+                transaction_amount= amount,
+                uow= uow,
+            )
             
         uow.transactions.save(tx)
 
@@ -85,7 +110,18 @@ def accept_p2p_pull_transaction(
 ) -> Transaction:
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
+        user_id = marketing_queries.get_user_id_from_wallet_id(
+            wallet_id=tx.sender_wallet.id,
+            uow=uow,
+        )
+
         tx.accept_p2p_pull_transaction()
+        marketing_commands.add_loyalty_points_for_pull_transaction(
+            user_id= user_id,
+            transaction_amount= tx.amount,
+            uow= uow,
+        )
+        
         uow.transactions.save(tx)
 
     return tx

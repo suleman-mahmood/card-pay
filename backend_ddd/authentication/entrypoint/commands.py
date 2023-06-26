@@ -11,6 +11,7 @@ from ..domain.model import (
     UserType,
     PersonalEmail,
     PhoneNumber,
+    Location,
 )
 
 
@@ -47,6 +48,8 @@ def create_user(
     uow: AbstractUnitOfWork,
 ) -> User:
     """Create user"""
+    location_object = Location(latitude=location[0], longitude=location[1])
+
     with uow:
         wallet = payment_commands.create_wallet(uow)
         user = User(
@@ -57,7 +60,7 @@ def create_user(
             pin=pin,
             full_name=full_name,
             wallet_id=wallet.id,
-            location=location,
+            location=location_object,
         )
         
         uow.users.add(user)
