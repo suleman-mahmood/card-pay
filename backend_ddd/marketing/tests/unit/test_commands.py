@@ -1,9 +1,8 @@
 from ...entrypoint.commands import (
     verify_user,
     use_reference,
-    add_loyalty_points_for_deposit,
-    add_loyalty_points_for_push_transaction,
-    add_loyalty_points_for_pull_transaction,
+    add_loyalty_points,
+    give_cashback,
     add_weightage,
     set_weightage,
     set_cashback_slabs,
@@ -63,6 +62,6 @@ def test_add_and_set_cashback_slabs():
             uow=uow,
         )
 
-        fetched_cashback_slabs = uow.cashback_slabs.get()
+        fetched_cashback_slabs = uow.cashback_slabs.get_all()
 
         assert fetched_cashback_slabs[0].cashback_value == 20
