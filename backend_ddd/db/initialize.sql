@@ -68,9 +68,7 @@ create table users (
     created_at timestamp not null default current_timestamp,
 
     loyalty_points integer not null default 0,
-    referral_id uuid default null,
-    marketing_user_verified boolean not null default false
-    
+    referral_id uuid not null default ""    
     
 
 
@@ -92,9 +90,8 @@ create table user_closed_loops (
 
 create table weightages (
     
-    weightage_type transaction_type_enum not null,
-    weightage_value float not null,
-    id uuid primary key
+    weightage_type transaction_type_enum primary key,
+    weightage_value float not null
 );
 
 create table cashback_slabs (

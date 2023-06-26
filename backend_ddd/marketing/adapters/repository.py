@@ -30,7 +30,7 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
 
     def get(self, id: str) -> User:
         sql = """
-            select id, loyalty_points, referral_id, marketing_user_verified
+            select id, loyalty_points, referral_id, phone_number_verified
             from users
             where id = %s
         """
@@ -55,7 +55,6 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
             update users
             set loyalty_points = %s,
             referral_id = %s,
-            marketing_user_verified = %s
             where id = %s
         """
         # Here users is the same table as in authentication microservice
@@ -65,7 +64,6 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
             [
                 user.loyalty_points,
                 user.referral_id,
-                user.marketing_user_verified,
                 user.id
             ]
         )
@@ -102,7 +100,7 @@ class WeightageRepository(WeightageAbstractRepository):
 
     def get(self, weightage_type: TransactionType) -> Weightage:
         sql = """
-            select id, weightage_type, weightage_value
+            select weightage_type, weightage_value
             from weightages
             where weightage_type = %s
         """
@@ -116,25 +114,23 @@ class WeightageRepository(WeightageAbstractRepository):
         row = self.cursor.fetchone()
 
         return Weightage(
-            id=row[0],
-            weightage_type=TransactionType[row[1]],
-            weightage_value=row[2],
+            weightage_type=TransactionType[row[0]],
+            weightage_value=row[1],
         )
+    
     def save(self, weightage: Weightage):
         sql = """
-            insert into weightages (weightage_type, weightage_value, id)
-            values (%s, %s, %s)
-            on conflict (id) do update
+            insert into weightages (weightage_type, weightage_value)
+            values (%s, %s)
+            on conflict (weightage_type) do update
             set weightage_type = excluded.weightage_type,
-            weightage_value = excluded.weightage_value,
-            id = excluded.id
+            weightage_value = excluded.weightage_value
         """
         self.cursor.execute(
             sql,
             [
                 weightage.weightage_type.name,
-                weightage.weightage_value,
-                weightage.id
+                weightage.weightage_value
             ]
         )
 
@@ -142,11 +138,11 @@ class WeightageRepository(WeightageAbstractRepository):
 class CashbackSlabAbstractRepository(ABC):
 
     @abstractmethod
-    def get(self) -> List[CashbackSlab]:
+    def get_all(self) -> List[CashbackSlab]:
         pass
 
     @abstractmethod
-    def save(self, cashback_slabs: List[CashbackSlab]):
+    def save_all(self, cashback_slabs: List[CashbackSlab]):
         pass
 
 
@@ -155,10 +151,10 @@ class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
     def __init__(self):
         self.cashback_slabs: List[CashbackSlab] = []
 
-    def get(self) -> List[CashbackSlab]:
+    def get_all(self) -> List[CashbackSlab]:
         return self.cashback_slabs
 
-    def save(self, cashback_slabs: List[CashbackSlab]):
+    def save_all(self, cashback_slabs: List[CashbackSlab]):
         """throw exception in commands"""
         self.cashback_slabs = cashback_slabs
 
@@ -168,8 +164,8 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
     def __init__(self, connection):
         self.connection = connection
         self.cursor = connection.cursor()
-
-    def get(self) -> List[CashbackSlab]:
+    #get all
+    def get_all(self) -> List[CashbackSlab]:
         sql = """
             select start_amount, end_amount, cashback_type, cashback_value, id
             from cashback_slabs
@@ -194,7 +190,7 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
 
         return cashback_slabs
 
-    def save(self, cashback_slabs: List[CashbackSlab]):
+    def save_all(self, cashback_slabs: List[CashbackSlab]):
 
         sql_del = """
             delete from cashback_slabs

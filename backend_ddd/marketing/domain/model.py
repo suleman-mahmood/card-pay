@@ -47,9 +47,7 @@ class Weightage:
     '''
 
     weightage_value: float 
-
-    id: str = field(default_factory=lambda: str(uuid4()))
-
+  
     def set_weightage(self, weightage_value: float):
         self.weightage_value = weightage_value
 
@@ -127,6 +125,11 @@ class User():
         self._not_verified_exception()
         self._negative_amount_exception(deposit_amount)
 
+        if len(cashback_slabs) == 0:
+            raise InvalidSlabException(
+                "No slabs exist"
+            )
+        
         if (deposit_amount > cashback_slabs[-1].end_amount):
             
             slab = cashback_slabs[-1]
