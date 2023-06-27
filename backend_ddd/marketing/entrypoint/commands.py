@@ -13,7 +13,6 @@ def use_reference(
     referral_id: str,
     uow: AbstractUnitOfWork,
 ):
-
     with uow:
         referee = uow.marketing_users.get(referee_id)
         referral = uow.marketing_users.get(referral_id)

@@ -70,6 +70,7 @@ create table users (
     referral_id uuid not null default '00000000-0000-0000-0000-000000000000'  
 );
 
+
 create table user_closed_loops (
     
     user_id uuid references users(id),

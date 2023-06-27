@@ -327,8 +327,9 @@ def set_cashback_slabs():
     if request.json is None:
         return jsonify({"success": False, "message": "payload missing in request"}), 400
 
+    print(request.json)
     cashback_slabs = request.json["cashback_slabs"]
-
+    
     marketing_commands.set_cashback_slabs(
         cashback_slabs = cashback_slabs,
         uow=UnitOfWork(),
@@ -340,4 +341,5 @@ def set_cashback_slabs():
                 "message": "cashback slabs set successfully",
             }
         ),
+        200
     )
