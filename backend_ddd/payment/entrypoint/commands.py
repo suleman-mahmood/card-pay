@@ -33,7 +33,9 @@ def execute_cashback_transaction(
     amount: int,
     uow: AbstractUnitOfWork,
 ) -> Transaction:
+    print(amount)
     # using wallet id as txn does not exist yet
+    # with uow:
     tx = uow.transactions.get_wallets_create_transaction(
         amount=amount,
         mode=TransactionMode.APP_TRANSFER,
@@ -46,7 +48,8 @@ def execute_cashback_transaction(
     #     wallet_id=sender_wallet_id,
     #     uow=uow
     # )
-
+    print("sender balance: ", tx.sender_wallet.balance)
+    print("recipient balance: ", tx.recipient_wallet.balance)
     tx.execute_transaction()
 
     uow.transactions.save(tx)
@@ -71,10 +74,16 @@ def execute_transaction(
             recipient_wallet_id=recipient_wallet_id,
         )
 
-        user_id = marketing_queries.get_user_id_from_wallet_id(
-            wallet_id=sender_wallet_id,
-            uow=uow
-        )
+        if transaction_type == TransactionType.P2P_PUSH:
+            user_id = marketing_queries.get_user_id_from_wallet_id(
+                wallet_id=sender_wallet_id,
+                uow=uow
+            )
+        elif transaction_type == TransactionType.P2P_PULL or transaction_type == TransactionType.PAYMENT_GATEWAY:
+            user_id = marketing_queries.get_user_id_from_wallet_id(
+                wallet_id=recipient_wallet_id,
+                uow=uow
+            )
 
         if transaction_type != TransactionType.P2P_PULL:
             tx.execute_transaction()
@@ -84,17 +93,22 @@ def execute_transaction(
                 transaction_type=transaction_type,
                 uow=uow,
             )
+
+        uow.transactions.save(tx)
+
         # Give Loyalty Points
 
         if transaction_type == TransactionType.PAYMENT_GATEWAY:
+            # card_pay_wallet = create_wallet(uow)
+            # uow.transactions.add_1000_wallet(card_pay_wallet)
+
             marketing_commands.give_cashback(
                 sender_wallet_id=CARD_PAY_WALLET_ID,
-                recipient_wallet_id=sender_wallet_id,
+                recipient_wallet_id= recipient_wallet_id,
                 deposited_amount=amount,
                 uow=uow
             )
 
-        uow.transactions.save(tx)
 
     return tx
 

@@ -15,7 +15,7 @@ drop type if exists closed_loop_user_state_enum CASCADE;
 drop type if exists cashback_type_enum CASCADE;
 
 create type  transaction_mode_enum as enum ('QR', 'RFID', 'NFC', 'BARCODE', 'APP_TRANSFER');
-create type transaction_type_enum as enum ('POS', 'P2P_PUSH', 'P2P_PULL', 'VOUCHER', 'VIRTUAL_POS', 'PAYMENT_GATEWAY', 'CARD_PAY', 'CASHBACK', 'REFERRAL');
+create type transaction_type_enum as enum ('POS', 'P2P_PUSH', 'P2P_PULL', 'VOUCHER', 'VIRTUAL_POS', 'PAYMENT_GATEWAY', 'CARD_PAY', 'CASH_BACK', 'REFERRAL');
 create type transaction_status_enum as enum ('PENDING', 'FAILED', 'SUCCESSFUL', 'EXPIRED', 'DECLINED');
 create type closed_loop_verification_type as enum ('NONE','ROLLNUMBER','EMAIL','MEMBERSHIP_ID');
 create type user_type_enum as enum ('CUSTOMER','VENDOR','ADMIN','PAYMENT_GATEWAY','CARDPAY');
@@ -66,12 +66,8 @@ create table users (
     otp_generated_at timestamp not null default current_timestamp,
     location point not null default point(0,0),
     created_at timestamp not null default current_timestamp,
-
     loyalty_points integer not null default 0,
-    referral_id uuid not null default ""    
-    
-
-
+    referral_id uuid not null default '00000000-0000-0000-0000-000000000000'  
 );
 
 create table user_closed_loops (

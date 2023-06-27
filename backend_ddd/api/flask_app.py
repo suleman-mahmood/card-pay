@@ -1,7 +1,7 @@
 from dataclasses import asdict
 
-import firebase_admin
-from firebase_admin import credentials, auth
+# import firebase_admin
+# from firebase_admin import credentials, auth
 from flask import Flask, request, jsonify
 
 from backend_ddd.api.utils import handle_exceptions  # authenticate_token
@@ -12,6 +12,7 @@ from backend_ddd.payment.domain.model import (
     TransactionType,
     TransactionStatus,
 )
+from backend_ddd.marketing.entrypoint import commands as marketing_commands
 
 app = Flask(__name__)
 PREFIX = "/api/v1"
@@ -253,4 +254,90 @@ def redeem_voucher():
             }
         ),
         200,
+    )
+
+@app.route(PREFIX + "/use-reference", methods=["POST"])
+@handle_exceptions
+def use_reference():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    marketing_commands.use_reference(
+        referee_id = request.json["referee_id"],
+        referral_id = request.json["referral_id"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "reference used successfully",
+            }
+        ),
+        200,
+    )
+
+# Admin Portal Routes
+
+@app.route(PREFIX + "/add-weightage", methods=["POST"])
+@handle_exceptions
+def add_weightage():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    marketing_commands.add_weightage(
+        weightage_type = request.json["weightage_type"],
+        weightage_value = request.json["weightage_value"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "weightage added successfully",
+            }
+        ),
+        200,
+    )
+
+@app.route(PREFIX + "/set-weightage", methods=["POST"])
+@handle_exceptions
+def set_weightage():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    marketing_commands.set_weightage(
+        weightage_type = request.json["weightage_type"],
+        weightage_value = request.json["weightage_value"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "weightage set successfully",
+            }
+        ),
+        200,
+    )
+
+@app.route(PREFIX + "/set-cashback-slabs", methods=["POST"])
+@handle_exceptions
+def set_cashback_slabs():
+    if request.json is None:
+        return jsonify({"success": False, "message": "payload missing in request"}), 400
+
+    cashback_slabs = request.json["cashback_slabs"]
+
+    marketing_commands.set_cashback_slabs(
+        cashback_slabs = cashback_slabs,
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "cashback slabs set successfully",
+            }
+        ),
     )
