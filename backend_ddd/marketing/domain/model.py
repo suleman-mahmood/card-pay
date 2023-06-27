@@ -57,7 +57,7 @@ class User():
     """Entity"""
     id: str
     loyalty_points: int = 0
-    referral_id: str = ""
+    referral_id: str = "00000000-0000-0000-0000-000000000000"
     marketing_user_verified: bool = False
 
     def _negative_amount_exception(self, amount: int):
@@ -94,7 +94,7 @@ class User():
         
         self._not_verified_exception()
 
-        if self.referral_id != "":
+        if self.referral_id != "00000000-0000-0000-0000-000000000000":
             raise InvalidReferenceException(
                 "User has already been referred"
             )
@@ -103,9 +103,6 @@ class User():
                 "User cannot refer themselves"
             )
 
-        # if referral_id == "":
-        #     self.referral_id = "-1111"
-        # else:
         self.referral_id = referral_id
 
     def add_loyalty_points(self, transaction_type: TransactionType, transaction_amount: int, weightage: Weightage):
@@ -130,7 +127,7 @@ class User():
                 "No slabs exist"
             )
         
-        if (deposit_amount > cashback_slabs[-1].end_amount):
+        if (deposit_amount >= cashback_slabs[-1].end_amount):
             
             slab = cashback_slabs[-1]
         

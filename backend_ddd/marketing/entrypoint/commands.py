@@ -8,17 +8,6 @@ from ...payment.domain.model import TransactionType, TransactionMode
 # Every transaction will check if its a cashback transaction then it'll call the marketing command which will again call the transaction command.
 
 
-def verify_user(
-    user_id: str,
-    uow: AbstractUnitOfWork,
-):
-    user = uow.marketing_users.get(user_id)
-
-    user.verify_user()
-
-    uow.marketing_users.save(user)
-
-
 def use_reference(
     referee_id: str,
     referral_id: str,

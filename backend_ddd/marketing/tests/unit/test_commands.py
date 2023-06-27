@@ -1,45 +1,85 @@
-from ...entrypoint.commands import (
-    verify_user,
-    use_reference,
-    add_loyalty_points,
-    give_cashback,
-    add_weightage,
-    set_weightage,
-    set_cashback_slabs,
-)
-from ....entrypoint.uow import FakeUnitOfWork
-from ....payment.domain.model import TransactionType
-from ....authentication.tests.conftest import seed_auth_user
+from ...entrypoint import commands as marketing_commands
+from ....entrypoint.uow import FakeUnitOfWork, UnitOfWork, AbstractUnitOfWork
+from ....payment.domain.model import TransactionType, TransactionMode, Wallet
+from ....payment.entrypoint import commands as payment_commands
+from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
+from ....authentication.entrypoint import commands as auth_commands
+from ...domain.model import User, Weightage, CashbackSlab, CashbackType 
+# User related commands are not tested because there is not a fake Marketing user repo
 
-# User related commands are not tested because there is not a fake Marketing user repo 
 
-# def test_use_reference(seed_auth_user):
+def get_marketing_user(
+    user_id: str,
+    uow: AbstractUnitOfWork,
+):
+    with uow:
+        return uow.marketing_users.get(user_id)
 
-#     uow = FakeUnitOfWork()
-#     referee = seed_auth_user(uow=uow)
-#     referral = seed_auth_user(uow=uow)
-#     with uow:
-#         use_reference(
-#             referee_id=referee.id,
-#             referral_id=referral.id,
-#             uow=uow,
-#         )
-        
-#         fetched_referee = uow.marketing_users.get(referee.id)
 
-#         assert fetched_referee.referral_id == referral.id
+def get_weightage(
+    weightage_type: str,
+    uow: AbstractUnitOfWork,
+):
+    with uow:
+        weightage_type = TransactionType[weightage_type]
+        return uow.weightages.get(weightage_type)
+
+def get_wallet_balance(
+    wallet_id: str,
+    uow: AbstractUnitOfWork,
+):
+    with uow:
+        sql = """
+            select balance
+            from wallets
+            where id = %s
+            """
+        uow.cursor.execute(
+            sql,
+            [
+                wallet_id
+            ]
+        )
+        row = uow.cursor.fetchone()
+        return row[0]
+
+
+def test_use_reference_and_add_referral_loyalty_points(seed_verified_auth_user):
+
+    uow = UnitOfWork()
+    referee = seed_verified_auth_user(uow)
+    referral = seed_verified_auth_user(uow)
+    marketing_commands.add_weightage(
+        weightage_type="REFERRAL",
+        weightage_value=10,
+        uow=uow,
+    )
+    marketing_commands.use_reference(
+        referee_id=referee.id,
+        referral_id=referral.id,
+        uow=uow,
+    )
+
+    fetched_loyalty_points = get_weightage(
+        weightage_type="REFERRAL", uow=uow,).weightage_value
+    fetched_referee = get_marketing_user(user_id=referee.id, uow=uow)
+    fetched_referral = get_marketing_user(user_id=referral.id, uow=uow)
+
+    assert fetched_referee.referral_id == referral.id
+    assert fetched_referral.loyalty_points == fetched_loyalty_points
+
 
 def test_add_and_set_weightage():
 
     uow = FakeUnitOfWork()
-    add_weightage(
-        weightage_type= "PAYMENT_GATEWAY",
+    marketing_commands.add_weightage(
+        weightage_type="PAYMENT_GATEWAY",
         weightage_value=10,
         uow=uow
     )
     with uow:
-        set_weightage(
-            weightage_type= "PAYMENT_GATEWAY",
+        marketing_commands.set_weightage(
+            weightage_type="PAYMENT_GATEWAY",
             weightage_value=20,
             uow=uow,
         )
@@ -48,20 +88,75 @@ def test_add_and_set_weightage():
 
         assert fetched_weightage.weightage_value == 20
 
+
 def test_add_and_set_cashback_slabs():
-     
-    uow = FakeUnitOfWork()
-    set_cashback_slabs(
-        cashback_slabs= [[0,100,"PERCENTAGE",10],[100,200,"PERCENTAGE",20]],
+
+    uow = UnitOfWork()
+    marketing_commands.set_cashback_slabs(
+        cashback_slabs=[[0, 100, "PERCENTAGE", 10],
+                        [100, 200, "PERCENTAGE", 20]],
         uow=uow,
-    ) #Adding cashback slabs
+    )  # Adding cashback slabs
+
+    marketing_commands.set_cashback_slabs(
+        cashback_slabs=[[0, 100, "PERCENTAGE", 20],
+                        [100, 200, "PERCENTAGE", 30]],
+        uow=uow,
+    )
+
+    with uow:
+        fetched_cashback_slabs = uow.cashback_slabs.get_all()
+        assert fetched_cashback_slabs[0].cashback_value == 20
+
+
+    marketing_commands.set_cashback_slabs(
+        cashback_slabs=[[20, 100, "PERCENTAGE", 20], [100, 200, "PERCENTAGE", 30]],
+        uow=uow,
+    )
+
+
+
+    with uow:
+        fetched_cashback_slabs = uow.cashback_slabs.get_all()
+        assert fetched_cashback_slabs[0].start_amount == 0
+        assert fetched_cashback_slabs[0].end_amount == 20
+
+def test_cashback(seed_verified_auth_user):
+    uow = UnitOfWork()
+    marketing_commands.add_weightage(
+        weightage_type="PAYMENT_GATEWAY",
+        weightage_value=0.1,
+        uow=uow,
+    )
+    
+
+    marketing_commands.set_cashback_slabs(
+        cashback_slabs=[[0, 100, "PERCENTAGE", 0.1],
+                        [100, 200, "PERCENTAGE", 0.2]],
+        uow=uow,
+    )
+    recipient = seed_verified_auth_user(uow)
     
     with uow:
-        set_cashback_slabs(
-            cashback_slabs= [[0,100,"PERCENTAGE",20],[100,200,"PERCENTAGE",30]],
-            uow=uow,
-        )
+        pg_wallet = payment_commands.create_wallet(uow = uow)    
+        uow.transactions.add_1000_wallet(wallet = pg_wallet)
+    
+    print(get_wallet_balance(pg_wallet.id, uow))
 
-        fetched_cashback_slabs = uow.cashback_slabs.get_all()
+    payment_commands.execute_transaction(
+        sender_wallet_id = pg_wallet.id,
+        recipient_wallet_id = recipient.wallet_id,
+        amount = 100,
+        transaction_mode = TransactionMode.APP_TRANSFER,
+        transaction_type = TransactionType.PAYMENT_GATEWAY,
+        uow = uow,
+    )
 
-        assert fetched_cashback_slabs[0].cashback_value == 20
+    marketing_recipient = get_marketing_user(
+        user_id = recipient.id,
+        uow = uow,
+    )
+
+    assert marketing_recipient.loyalty_points == 10
+    assert get_wallet_balance(pg_wallet.id, uow) == 900
+    assert get_wallet_balance(recipient.wallet_id, uow) == (100*1.2)

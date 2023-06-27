@@ -30,7 +30,7 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
 
     def get(self, id: str) -> User:
         sql = """
-            select id, loyalty_points, referral_id, phone_number_verified
+            select id, loyalty_points, referral_id, is_phone_number_verified
             from users
             where id = %s
         """
@@ -54,7 +54,7 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
         sql = """
             update users
             set loyalty_points = %s,
-            referral_id = %s,
+            referral_id = %s
             where id = %s
         """
         # Here users is the same table as in authentication microservice
