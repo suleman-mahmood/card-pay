@@ -21,7 +21,7 @@ def behaviour():
     # view
     # transfer
         # p2p
-        # pos
+        # pos 
         # virtual pos
     """
 
