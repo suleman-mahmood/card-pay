@@ -147,17 +147,17 @@ class CashbackSlabAbstractRepository(ABC):
         pass
 
 
-# class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
+class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
 
-#     def __init__(self):
-#         self.cashback_slabs: List[CashbackSlab] = []
+    def __init__(self):
+        self.cashback_slabs: List[CashbackSlab] = []
 
-#     def get_all(self) -> List[CashbackSlab]:
-#         return self.cashback_slabs
+    def get_all(self) -> List[CashbackSlab]:
+        return self.cashback_slabs
 
-#     def save_all(self, cashback_slabs: List[CashbackSlab]):
-#         """throw exception in commands"""
-#         self.cashback_slabs = cashback_slabs
+    def save_all(self, cashback_slabs: List[CashbackSlab]):
+        """throw exception in commands"""
+        self.cashback_slabs = cashback_slabs
 
 
 class CashbackSlabRepository(CashbackSlabAbstractRepository):
