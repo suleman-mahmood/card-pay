@@ -30,61 +30,48 @@ class PhoneNumberInput extends HookWidget {
 
     final selectedDropdownItem = useState<String>(dropdownValue);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: screenHeight * 0.005), // Responsive height
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.greyColor.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(19),
+    return Container(
+      width: screenWidth * 0.9,
+      decoration: BoxDecoration(
+        color: AppColors.greyColor.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(19),
+      ),
+      child: Row(
+        children: [
+          DropdownButton<String>(
+            padding: EdgeInsets.only(left: screenWidth * 0.02),
+            value: selectedDropdownItem.value,
+            icon: Icon(Icons.arrow_drop_down),
+            // iconSize: screenWidth * 0.05,
+            elevation: 16,
+            underline: Container(
+              height: 2,
+              color: Colors.transparent,
+            ),
+            isDense: true,
+            onChanged: (String? newValue) {
+              selectedDropdownItem.value = newValue!;
+              onChanged?.call(newValue);
+            },
+            items: dropdownMenuItems,
           ),
-          child: Row(
-            children: [
-              Container(
-                width: screenWidth * 0.18,
-                child: Padding(
-                  padding: EdgeInsets.only(left: screenWidth * 0.02),
-                  child: DropdownButton<String>(
-                    value: selectedDropdownItem.value,
-                    icon: Icon(Icons.arrow_drop_down),
-                    iconSize: screenWidth * 0.05,
-                    elevation: 16,
-                    underline: Container(
-                      height: 2,
-                      color: Colors.transparent,
-                    ),
-                    isDense: true,
-                    onChanged: (String? newValue) {
-                      selectedDropdownItem.value = newValue!;
-                      onChanged?.call(newValue);
-                    },
-                    items: dropdownMenuItems,
-                  ),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Enter your cell number',
+                isCollapsed: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: screenHeight * 0.021,
+                  horizontal: 8,
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: screenWidth * 0.02),
-                  child: TextField(
-                    controller: controller,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Enter your cell number',
-                      isCollapsed: true,
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: screenHeight * 0.021,
-                        horizontal: 8,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

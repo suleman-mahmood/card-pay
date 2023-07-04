@@ -23,7 +23,7 @@ class CheckBox extends HookWidget {
         onChanged?.call(isChecked.value);
       },
       child: Container(
-        width: double.infinity,
+        width: screenWidth * 0.9,
         padding: EdgeInsets.symmetric(
             vertical: screenHeight * 0.01, horizontal: screenWidth * 0.05),
         decoration: BoxDecoration(
