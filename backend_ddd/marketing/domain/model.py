@@ -4,7 +4,7 @@
 from dataclasses import dataclass, field
 from uuid import uuid4
 from enum import Enum
-from .exceptions import InvalidReferenceException, InvalidWeightageException, InvalidTrasnsactionTypeException, InvalidCashbackTypeException, NegativeAmountException, InvalidAddingLoyaltyPointsException, InvalidSlabException, NotVerifiedException
+from .exceptions import InvalidReferenceException, InvalidWeightageException, InvalidTrasnsactionTypeException, InvalidCashbackTypeException, NegativeAmountException, InvalidAddingLoyaltyPointsException, InvalidSlabException, NotVerifiedException, negative_amount_exception, not_verified_exception, referee_not_verified_exception, user_already_referred_exception, cannot_refer_self
 from ...payment.domain.model import TransactionType
 from typing import List, Dict
 from itertools import filterfalse
@@ -117,73 +117,46 @@ class User():
     marketing_user_verified: bool = False
 
     # exceptions
-    def _negative_amount_exception(self, amount: int):
-        if amount < 0:
-            raise NegativeAmountException(
-                "Negative amount passed, amount cannot be negative"
-            )
-
-    def _not_verified_exception(self):
-        if not self.marketing_user_verified:
-            raise NotVerifiedException(
-                "User is not verified"
-            )
-
-    def _already_referred_exception(self):
-        if self.referral_id != DEFAULT_UUID:
-            raise InvalidReferenceException(
-                "User has already been referred"
-            )
-
-    def _cannot_refer_self(self, referral_id: str):
-        if self.id == referral_id:
-            raise InvalidReferenceException(
-                "User cannot refer themselves"
-            )
-
-    def _referee_not_verified_exception(self, referee_verified: bool):
-        if not referee_verified:
-            raise InvalidReferenceException(
-                "Referee is not verified"
-            )
-
     def _invalid_weightage_passed_exception(self, weightage: Weightage):
         if weightage.weightage_type != TransactionType.REFERRAL:
             raise InvalidWeightageException(
                 "Invalid weightage type passed. Weightage type should be REFERRAL"
             )
 
-    def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
-        """Add loyalty points to user account for P transaction type"""
-
-        self._not_verified_exception()
-        self._referee_not_verified_exception(referee_verified)
-        self._invalid_weightage_passed_exception(weightage)
-
-        self.loyalty_points += weightage.weightage_value
-
     def _invalid_transaction_type_exception(self, transaction_type: TransactionType, weightage_type: TransactionType):
         if transaction_type != weightage_type:
             raise InvalidTrasnsactionTypeException(
                 "Passed transaction type and weightage type do not match"
             )
+        
+    def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
+        """Add loyalty points to user account for P transaction type"""
+
+        # self._not_verified_exception()
+        # self._referee_not_verified_exception(referee_verified)
+
+        not_verified_exception(self.marketing_user_verified)
+        referee_not_verified_exception(referee_verified)
+        self._invalid_weightage_passed_exception(weightage)
+
+    
+        self.loyalty_points += weightage.weightage_value
+
 
     # use cases
     def use_reference(self, referral_id: str):
 
-        self._not_verified_exception()
-
-        self._already_referred_exception()
-
-        self._cannot_refer_self(referral_id)
+        not_verified_exception(self.marketing_user_verified)
+        user_already_referred_exception(self.referral_id)
+        cannot_refer_self(self.id, referral_id)
 
         self.referral_id = referral_id
 
     def add_loyalty_points(self, transaction_type: TransactionType, transaction_amount: int, weightage: Weightage):
         """Add loyalty points to user account for P2P_PUSH, P2P_PULL, and PAYMENT_GATEWAY transaction type"""
 
-        self._not_verified_exception()
-        self._negative_amount_exception(transaction_amount)
+        not_verified_exception(self.marketing_user_verified)
+        negative_amount_exception(transaction_amount)
         self._invalid_transaction_type_exception(
             transaction_type, weightage.weightage_type)
 
@@ -192,9 +165,9 @@ class User():
     def calculate_cashback(self, deposit_amount: int, all_cashbacks: AllCashbacks) -> float:
         """Calculate cashback for the passed deposit amount"""
 
-        self._not_verified_exception()
-        self._negative_amount_exception(deposit_amount)
-
+        not_verified_exception(self.marketing_user_verified)
+        negative_amount_exception(deposit_amount)
+        
         # If deposit amount is greater than the last slab, then the last slab will be used
         if (deposit_amount >= all_cashbacks.cashback_slabs[-1].end_amount):
             slab = all_cashbacks.cashback_slabs[-1]
