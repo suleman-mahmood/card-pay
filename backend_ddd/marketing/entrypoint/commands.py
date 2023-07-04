@@ -97,43 +97,43 @@ def set_weightage(
 
 
 
-def _helper_handle_invalid_slabs(cashback_slabs: list, idx):
+# def _helper_handle_invalid_slabs(cashback_slabs: list, idx):
     
-    if cashback_slabs[idx][1] <= cashback_slabs[idx][0]:
-        raise ValueError(
-            "ending amount should be greater than starting amount")
+#     if cashback_slabs[idx][1] <= cashback_slabs[idx][0]:
+#         raise ValueError(
+#             "ending amount should be greater than starting amount")
 
     
-    if cashback_slabs[idx][3] < 0:
-        raise ValueError("Cashback value cannot be negative")
+#     if cashback_slabs[idx][3] < 0:
+#         raise ValueError("Cashback value cannot be negative")
 
-    if cashback_slabs[idx][2] != "PERCENTAGE" and cashback_slabs[idx][2] != "ABSOLUTE":
-        raise ValueError(
-            "Cashback type should be either PERCENTAGE or ABSOLUTE")
+#     if cashback_slabs[idx][2] != "PERCENTAGE" and cashback_slabs[idx][2] != "ABSOLUTE":
+#         raise ValueError(
+#             "Cashback type should be either PERCENTAGE or ABSOLUTE")
 
-    if cashback_slabs[idx][2] == "PERCENTAGE":
-        if cashback_slabs[idx][3] > 1:
-            raise ValueError(
-                "Cashback percentage value cannot be greater than 1")
-        else:
-            if cashback_slabs[idx][3] > cashback_slabs[idx][1]:
-                raise ValueError(
-                    "Cashback absolute value cannot be greater than the slab ending amount")
+#     if cashback_slabs[idx][2] == "PERCENTAGE":
+#         if cashback_slabs[idx][3] > 1:
+#             raise ValueError(
+#                 "Cashback percentage value cannot be greater than 1")
+#         else:
+#             if cashback_slabs[idx][3] > cashback_slabs[idx][1]:
+#                 raise ValueError(
+#                     "Cashback absolute value cannot be greater than the slab ending amount")
     
 
-def _handle_invalid_slabs(cashback_slabs: list):
-    if len(cashback_slabs) == 0:
-        raise ValueError("Cashback slabs cannot be empty")
+# def _handle_invalid_slabs(cashback_slabs: list):
+#     if len(cashback_slabs) == 0:
+#         raise ValueError("Cashback slabs cannot be empty")
 
-    first_slab_start_amount = cashback_slabs[0][0]
-    if first_slab_start_amount != 0:
-        cashback_slabs.insert(
-            0, [0, first_slab_start_amount, "PERCENTAGE", 0])
+#     first_slab_start_amount = cashback_slabs[0][0]
+#     if first_slab_start_amount != 0:
+#         cashback_slabs.insert(
+#             0, [0, first_slab_start_amount, "PERCENTAGE", 0])
 
-    _helper_handle_invalid_slabs(cashback_slabs, -1)
+#     _helper_handle_invalid_slabs(cashback_slabs, -1)
 
-    for i in range(len(cashback_slabs) - 1):
-        _helper_handle_invalid_slabs(cashback_slabs, i)
+#     for i in range(len(cashback_slabs) - 1):
+#         _helper_handle_invalid_slabs(cashback_slabs, i)
 
 def set_cashback_slabs(
     cashback_slabs: list,
