@@ -61,6 +61,7 @@ class User():
     referral_id: str = DEFAULT_UUID
     marketing_user_verified: bool = False
 
+    # exceptions
     def _negative_amount_exception(self, amount: int):
         if amount < 0:
             raise NegativeAmountException(
@@ -73,34 +74,77 @@ class User():
                 "User is not verified"
             )
 
+    def _already_referred_exception(self):
+        if self.referral_id != DEFAULT_UUID:
+            raise InvalidReferenceException(
+                "User has already been referred"
+            )
 
-    def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
-        """Add loyalty points to user account for P transaction type"""
-       
-        self._not_verified_exception()
-        if referee_verified == False:
-            raise InvalidAddingLoyaltyPointsException(
+    def _cannot_refer_self(self, referral_id: str):
+        if self.id == referral_id:
+            raise InvalidReferenceException(
+                "User cannot refer themselves"
+            )
+    
+    def _referee_not_verified_exception(self, referee_verified: bool):
+        if not referee_verified:
+            raise InvalidReferenceException(
                 "Referee is not verified"
             )
+        
+    def _invalid_weightage_passed_exception(self, weightage: Weightage):
         if weightage.weightage_type != TransactionType.REFERRAL:
             raise InvalidWeightageException(
                 "Invalid weightage type passed. Weightage type should be REFERRAL"
             )
 
+    def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
+        """Add loyalty points to user account for P transaction type"""
+       
+        self._not_verified_exception()
+        self._referee_not_verified_exception(referee_verified)
+        self._invalid_weightage_passed_exception(weightage)
+
         self.loyalty_points += weightage.weightage_value
 
+    def _invalid_transaction_type_exception(self, transaction_type: TransactionType, weightage_type: TransactionType):
+        if transaction_type != weightage_type:
+            raise InvalidTrasnsactionTypeException(
+                "Passed transaction type and weightage type do not match"
+            )
+
+    def _empty_cashback_slabs_exception(self, cashback_slabs: List[CashbackSlab]):
+        if len(cashback_slabs) == 0:
+            raise InvalidSlabException(
+                "No slabs exist"
+            )
+
+    def _multiple_eligible_slabs_exception(self, eligible_slabs: List[CashbackSlab]):
+        if len(eligible_slabs) > 1:
+            raise InvalidSlabException(
+                "Multiple slabs exist for the passed amount"
+            )
+
+    def _no_eligible_slabs_exception(self, eligible_slabs: List[CashbackSlab]):
+        if len(eligible_slabs) == 0:
+            raise InvalidSlabException(
+                "No slab exists for the passed amount"
+            )
+        
+    def _invalid_cashback_type_exception(self, cashback_type: CashbackType):
+        if cashback_type != CashbackType.PERCENTAGE and cashback_type != CashbackType.ABSOLUTE:
+            raise InvalidCashbackTypeException(
+                "Invalid cashback type passed"
+            )
+        
+    # use cases
     def use_reference(self, referral_id: str):
         
         self._not_verified_exception()
 
-        if self.referral_id != DEFAULT_UUID:
-            raise InvalidReferenceException(
-                "User has already been referred"
-            )
-        if self.id == referral_id:
-            raise InvalidReferenceException(
-                "User cannot refer themselves"
-            )
+        self._already_referred_exception()
+
+        self._cannot_refer_self(referral_id)
 
         self.referral_id = referral_id
 
@@ -109,11 +153,7 @@ class User():
         
         self._not_verified_exception()
         self._negative_amount_exception(transaction_amount)
-
-        if transaction_type != weightage.weightage_type:
-            raise InvalidAddingLoyaltyPointsException(
-                "Passed transaction type and weightage type do not match"
-            )
+        self._invalid_transaction_type_exception(transaction_type, weightage.weightage_type)
 
         self.loyalty_points += transaction_amount * weightage.weightage_value
 
@@ -122,11 +162,7 @@ class User():
         
         self._not_verified_exception()
         self._negative_amount_exception(deposit_amount)
-
-        if len(cashback_slabs) == 0:
-            raise InvalidSlabException(
-                "No slabs exist"
-            )
+        self._empty_cashback_slabs_exception(cashback_slabs)
         
         # If deposit amount is greater than the last slab, then the last slab will be used
         if (deposit_amount >= cashback_slabs[-1].end_amount):
@@ -141,21 +177,12 @@ class User():
                     )
             )
             
-            if len(eligible_slabs) > 1:
-                raise InvalidSlabException(
-                    "Multiple slabs exist for the passed amount"
-                )
-            elif len(eligible_slabs) == 0:
-                raise InvalidSlabException(
-                    "No slab exists for the passed amount"
-                )
+            self._multiple_eligible_slabs_exception(eligible_slabs)
+            self._no_eligible_slabs_exception(eligible_slabs)
 
             slab = eligible_slabs[0]
 
-        if slab.cashback_type != CashbackType.PERCENTAGE and slab.cashback_type != CashbackType.ABSOLUTE:
-            raise InvalidCashbackTypeException(
-                "Invalid cashback type passed"
-            )
+            self._invalid_cashback_type_exception(slab.cashback_type)
 
         if slab.cashback_type == CashbackType.PERCENTAGE:
             return deposit_amount * slab.cashback_value
