@@ -1,64 +1,73 @@
-from ...domain.model import Registration, EventType, EventApprovalStatus, Event
+from ...domain.model import Registration, EventType, EventStatus, Event
 from uuid import uuid4
 import pytest
-from ...domain.exceptions import *
+from ...domain.exceptions import (
+    RegistrationNotAllowedException,
+    EventConstraintException,
+)
 
 
 def test_create_event_draft(seed_event):
     event = seed_event()
 
-    event.create_draft()
-
-    assert event.approval_status == EventApprovalStatus.DRAFT
+    assert event.approval_status == EventStatus.DRAFT
 
 
 def test_publish_event_draft(seed_event):
     event = seed_event()
-    event.create_draft()
 
     event.publish_draft()
 
-    assert event.approval_status == EventApprovalStatus.PENDING
+    assert event.approval_status == EventStatus.PENDING
 
 
 def test_approve_event(seed_event):
     event = seed_event()
     event.publish_draft()
-    event.publish_draft()
 
-    event.approve_draft()
+    event.approve()
 
-    assert event.approval_status == EventApprovalStatus.APPROVED
+    assert event.approval_status == EventStatus.APPROVED
 
 
 def test_decline_event(seed_event):
     event = seed_event()
     event.publish_draft()
-    event.publish_draft()
 
-    event.decline_draft()
+    event.decline()
 
-    assert event.approval_status == EventApprovalStatus.DRAFT
+    assert event.approval_status == EventStatus.DRAFT
 
 
 def test_register_for_event(seed_event, seed_registration):
     event = seed_event()  # event has one capacity
-    registration = seed_registration()
+    registration_1 = seed_registration()
 
-    event.register(registration)
+    with pytest.raises(EventConstraintException) as e_info:
+        event.register(registration_1)  # registering without approving event
 
-    assert self.event.registrations[0] == registration
+    assert str(e_info.value) == "Cannot register to an event that is not approved."
 
-    with pytest.raises(RegistrationException) as e_info:
-        event.register(registration)
+    event.publish_draft()
+    event.approve()  # approving event
+    event.register(registration_1)  # legal registration
 
-    assert str(e_info.value) == "registration already exists"
+    assert event.registrations[0] == registration_1
 
-    with pytest.raises(RegistrationException) as e_info:
-        new_registration = seed_registration()
-        event.register(new_registration)  # post-cap reached registration
+    with pytest.raises(RegistrationNotAllowedException) as e_info:
+        event.register(registration_1)
 
-    assert str(e_info.value) == "registration limit reached"
+    assert str(e_info.value) == "User has already registered with the event."
+    assert len(event.registrations) == 1
 
+    registration_2 = seed_registration()
+    event.register(registration_2)
 
+    assert len(event.registrations) == 2
 
+    registration_3 = seed_registration()
+
+    with pytest.raises(RegistrationNotAllowedException) as e_info:
+        event.register(registration_3)  # post-cap registration
+
+    assert str(e_info.value) == "This event is already at capacity."
