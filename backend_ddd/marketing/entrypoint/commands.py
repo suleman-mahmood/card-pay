@@ -2,7 +2,7 @@
 from ..entrypoint.queries import get_user_id_from_wallet_id
 from ...entrypoint.uow import UnitOfWork, AbstractUnitOfWork
 from ...payment.entrypoint import commands as payment_commands
-from ..domain.model import Weightage, CashbackSlab, CashbackType
+from ..domain.model import Weightage, CashbackSlab, CashbackType, AllCashbacks
 from ...payment.domain.model import TransactionType, TransactionMode
 # Every transaction will check if its a cashback transaction then it'll call the marketing command which will again call the transaction command.
 
@@ -141,8 +141,6 @@ def set_cashback_slabs(
 ):
 
     with uow:
-        _handle_invalid_slabs(cashback_slabs)
-        
         slab_list = []
         for slab in cashback_slabs:
             slab_list.append(
@@ -154,4 +152,7 @@ def set_cashback_slabs(
                 )
             )
 
-        uow.cashback_slabs.save_all(slab_list)
+        uow.cashback_slabs.save_all(AllCashbacks(
+            cashback_slabs=slab_list
+            )
+        )

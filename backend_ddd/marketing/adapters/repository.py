@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from ..domain.model import (
     User,
     CashbackSlab,
+    AllCashbacks,
     CashbackType,
     Weightage,
 )
@@ -138,25 +139,25 @@ class WeightageRepository(WeightageAbstractRepository):
 class CashbackSlabAbstractRepository(ABC):
 
     @abstractmethod
-    def get_all(self) -> List[CashbackSlab]:
+    def get_all(self) -> AllCashbacks:
         pass
 
     @abstractmethod
-    def save_all(self, cashback_slabs: List[CashbackSlab]):
+    def save_all(self, all_cashbacks: AllCashbacks):
         pass
 
 
-class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
+# class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
 
-    def __init__(self):
-        self.cashback_slabs: List[CashbackSlab] = []
+#     def __init__(self):
+#         self.cashback_slabs: List[CashbackSlab] = []
 
-    def get_all(self) -> List[CashbackSlab]:
-        return self.cashback_slabs
+#     def get_all(self) -> List[CashbackSlab]:
+#         return self.cashback_slabs
 
-    def save_all(self, cashback_slabs: List[CashbackSlab]):
-        """throw exception in commands"""
-        self.cashback_slabs = cashback_slabs
+#     def save_all(self, cashback_slabs: List[CashbackSlab]):
+#         """throw exception in commands"""
+#         self.cashback_slabs = cashback_slabs
 
 
 class CashbackSlabRepository(CashbackSlabAbstractRepository):
@@ -165,7 +166,7 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
         self.connection = connection
         self.cursor = connection.cursor()
 
-    def get_all(self) -> List[CashbackSlab]:
+    def get_all(self) -> AllCashbacks:
         sql = """
             select start_amount, end_amount, cashback_type, cashback_value, id
             from cashback_slabs
@@ -188,9 +189,11 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
                 )
             )
 
-        return cashback_slabs
+        return AllCashbacks(
+            cashback_slabs=cashback_slabs
+        )
 
-    def save_all(self, cashback_slabs: List[CashbackSlab]):
+    def save_all(self, all_cashbacks: AllCashbacks):
 
         sql_del = """
             delete from cashback_slabs
@@ -213,7 +216,7 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
                 cashback_slab.cashback_value,
                 cashback_slab.id
             )
-            for cashback_slab in cashback_slabs
+            for cashback_slab in all_cashbacks.cashback_slabs
         ]
 
         args_str = ','.join(
