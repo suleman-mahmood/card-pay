@@ -128,6 +128,7 @@ class User():
                 "No slabs exist"
             )
         
+        # If deposit amount is greater than the last slab, then the last slab will be used
         if (deposit_amount >= cashback_slabs[-1].end_amount):
             
             slab = cashback_slabs[-1]
