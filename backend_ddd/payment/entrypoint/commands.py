@@ -102,6 +102,7 @@ def execute_transaction(
 
         uow.transactions.save(tx)
 
+        # giving cashback
         if transaction_type == TransactionType.PAYMENT_GATEWAY:
             # UNCOMMENT FOR MARKETING TESTS
             # card_pay_wallet = create_wallet(uow)
