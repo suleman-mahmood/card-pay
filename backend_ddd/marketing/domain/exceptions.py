@@ -2,7 +2,7 @@ class InvalidReferenceException(Exception):
     """exception raised for invalid reference"""
 
 class InvalidWeightageException(Exception):
-    """exception raised for invalid weightage type"""
+    """exception raised for invalid weightage"""
 
 class InvalidTrasnsactionTypeException(Exception):
     """exception raised for invalid transaction type"""

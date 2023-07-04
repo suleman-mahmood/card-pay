@@ -10,20 +10,19 @@ from typing import List, Dict
 from itertools import filterfalse
 from .utils import DEFAULT_UUID
 
+def behaviour():
+    """
+    1. Weightage value for loyalty points can be any value which will be multipled directly to the transaction amount in case of P2P_PUSH, P2P_PULL, PAYMENT_GATEWAY or it can be an absolute amount in case of REFERRAL
+    2. Cashback value is a percentage less than 1 (0.1 or 0.2)
+
+
+    """
+    pass
+
 class CashbackType(str, Enum):
     """Cashback type enum"""
     PERCENTAGE = 1
     ABSOLUTE = 2
-
-
-# class WeightageType(str, Enum):
-#     """Weightage type enum"""
-#     P2P_PUSH = 1
-#     P2P_PULL = 2
-#     PAYMENT_GATEWAY = 3
-#     CASHBACK = 4
-#     REFERRAL = 5
-
 
 @dataclass
 class CashbackSlab:
@@ -38,7 +37,7 @@ class CashbackSlab:
 
 @dataclass
 class Weightage:
-    """data value object"""
+    """data value object - Loyality points weightage"""
     weightage_type: TransactionType
 
     '''
@@ -49,6 +48,10 @@ class Weightage:
     weightage_value: float 
   
     def set_weightage(self, weightage_value: float):
+        if (weightage_value<0):
+            raise InvalidWeightageException(
+                "Negative weightage value passed, weightage value cannot be negative"
+            )
         self.weightage_value = weightage_value
 
 

@@ -93,24 +93,24 @@ def test_add_and_set_cashback_slabs():
 
     uow = UnitOfWork()
     marketing_commands.set_cashback_slabs(
-        cashback_slabs=[[0, 100, "PERCENTAGE", 10],
-                        [100, 200, "PERCENTAGE", 20]],
+        cashback_slabs=[[0, 100, "PERCENTAGE", 0.1],
+                        [100, 200, "PERCENTAGE", 0.2]],
         uow=uow,
     )  # Adding cashback slabs
 
     marketing_commands.set_cashback_slabs(
-        cashback_slabs=[[0, 100, "PERCENTAGE", 20],
-                        [100, 200, "PERCENTAGE", 30]],
+        cashback_slabs=[[0, 100, "PERCENTAGE", 0.2],
+                        [100, 200, "PERCENTAGE", 0.3]],
         uow=uow,
     )
 
     with uow:
         fetched_cashback_slabs = uow.cashback_slabs.get_all()
-        assert fetched_cashback_slabs[0].cashback_value == 20
+        assert fetched_cashback_slabs[0].cashback_value == 0.2
 
 
     marketing_commands.set_cashback_slabs(
-        cashback_slabs=[[20, 100, "PERCENTAGE", 20], [100, 200, "PERCENTAGE", 30]],
+        cashback_slabs=[[20, 100, "PERCENTAGE", 0.2], [100, 200, "PERCENTAGE", 0.3]],
         uow=uow,
     )
 
@@ -141,8 +141,6 @@ def test_cashback(seed_verified_auth_user):
         pg_wallet = payment_commands.create_wallet(uow = uow)    
         uow.transactions.add_1000_wallet(wallet = pg_wallet)
     
-    print(get_wallet_balance(pg_wallet.id, uow))
-
     payment_commands.execute_transaction(
         sender_wallet_id = pg_wallet.id,
         recipient_wallet_id = recipient.wallet_id,
