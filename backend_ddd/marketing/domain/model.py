@@ -14,8 +14,6 @@ def behaviour():
     """
     1. Weightage value for loyalty points can be any value which will be multipled directly to the transaction amount in case of P2P_PUSH, P2P_PULL, PAYMENT_GATEWAY or it can be an absolute amount in case of REFERRAL
     2. Cashback value is a percentage less than 1 (0.1 or 0.2)
-
-
     """
     pass
 
@@ -38,13 +36,13 @@ class CashbackSlab:
 @dataclass
 class Weightage:
     """data value object - Loyality points weightage"""
-    weightage_type: TransactionType
 
     '''
     Weightage value will be a percentage for P2P_PUSH, P2P_PULL, PAYMENT_GATEWAY
     Weightage value will be an absolute amount for REFERRAL
     '''
 
+    weightage_type: TransactionType
     weightage_value: float 
   
     def set_weightage(self, weightage_value: float):
@@ -78,6 +76,7 @@ class User():
 
     def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
         """Add loyalty points to user account for P transaction type"""
+       
         self._not_verified_exception()
         if referee_verified == False:
             raise InvalidAddingLoyaltyPointsException(
@@ -107,6 +106,7 @@ class User():
 
     def add_loyalty_points(self, transaction_type: TransactionType, transaction_amount: int, weightage: Weightage):
         """Add loyalty points to user account for P2P_PUSH, P2P_PULL, and PAYMENT_GATEWAY transaction type"""
+        
         self._not_verified_exception()
         self._negative_amount_exception(transaction_amount)
 
@@ -119,6 +119,7 @@ class User():
 
     def calculate_cashback(self, deposit_amount: int, cashback_slabs: List[CashbackSlab]) -> float:
         """Calculate cashback for the passed deposit amount"""
+        
         self._not_verified_exception()
         self._negative_amount_exception(deposit_amount)
 

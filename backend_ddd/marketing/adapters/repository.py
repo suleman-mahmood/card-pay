@@ -164,7 +164,7 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
     def __init__(self, connection):
         self.connection = connection
         self.cursor = connection.cursor()
-    #get all
+
     def get_all(self) -> List[CashbackSlab]:
         sql = """
             select start_amount, end_amount, cashback_type, cashback_value, id
