@@ -1,3 +1,6 @@
+
+from ..domain.utils import DEFAULT_UUID
+
 class InvalidReferenceException(Exception):
     """exception raised for invalid reference"""
 
@@ -30,9 +33,50 @@ class NotVerifiedException(Exception):
     """exception raised for user not verified"""
 
 
-def _negative_amount_exception(amount: int):
+def negative_amount_exception(amount: int):
     if amount < 0:
         raise NegativeAmountException(
             "Negative amount passed, amount cannot be negative"
         )
 
+
+def not_verified_exception(marketing_user_verified: bool):
+    if not marketing_user_verified:
+        raise NotVerifiedException(
+            "User is not verified"
+        )
+
+
+def referee_not_verified_exception(referee_verified: bool):
+    if not referee_verified:
+        raise InvalidReferenceException(
+            "Referee is not verified"
+        )
+
+
+def user_already_referred_exception(referral_id: str):
+    if referral_id != DEFAULT_UUID:
+        raise InvalidReferenceException(
+            "User has already been referred"
+        )
+
+
+def cannot_refer_self(self_id: str, referral_id: str):
+    if self_id == referral_id:
+        raise InvalidReferenceException(
+            "User cannot refer themselves"
+        )
+
+
+# def invalid_weightage_passed_exception(weightage: Weightage):
+#     if weightage.weightage_type != TransactionType.REFERRAL:
+#         raise InvalidWeightageException(
+#             "Invalid weightage type passed. Weightage type should be REFERRAL"
+#         )
+
+
+# def invalid_transaction_type_exception(transaction_type: TransactionType, weightage_type: TransactionType):
+#     if transaction_type != weightage_type:
+#         raise InvalidTrasnsactionTypeException(
+#             "Passed transaction type and weightage type do not match"
+#         )
