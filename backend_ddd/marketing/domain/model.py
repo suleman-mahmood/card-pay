@@ -75,10 +75,7 @@ class User():
 
     def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
         """Add loyalty points to user account for P transaction type"""
-        if self.marketing_user_verified == False:
-            raise InvalidAddingLoyaltyPointsException(
-                "Referral is not verified"
-            )
+        self._not_verified_exception()
         if referee_verified == False:
             raise InvalidAddingLoyaltyPointsException(
                 "Referee is not verified"
