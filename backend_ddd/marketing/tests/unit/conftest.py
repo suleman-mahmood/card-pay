@@ -14,7 +14,6 @@ def seed_user():
 @pytest.fixture
 def seed_weightage():
     def _seed_weightage() -> Weightage:
-        print("Efjdsfsf")
         return Weightage()
     
     return _seed_weightage
