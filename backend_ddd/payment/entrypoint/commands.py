@@ -33,9 +33,7 @@ def execute_cashback_transaction(
     amount: int,
     uow: AbstractUnitOfWork,
 ) -> Transaction:
-    print(amount)
     # using wallet id as txn does not exist yet
-    # with uow:
     tx = uow.transactions.get_wallets_create_transaction(
         amount=amount,
         mode=TransactionMode.APP_TRANSFER,
@@ -43,19 +41,29 @@ def execute_cashback_transaction(
         sender_wallet_id=sender_wallet_id,
         recipient_wallet_id=recipient_wallet_id,
     )
-
-    # user_id = marketing_queries.get_user_id_from_wallet_id(
-    #     wallet_id=sender_wallet_id,
-    #     uow=uow
-    # )
-    print("sender balance: ", tx.sender_wallet.balance)
-    print("recipient balance: ", tx.recipient_wallet.balance)
     tx.execute_transaction()
-
     uow.transactions.save(tx)
     return tx
 
+def _add_loyalty_points(
+    wallet_id: str,
+    transaction_amount: int,
+    transaction_type: TransactionType,
+    uow: AbstractUnitOfWork,
+):
 
+    loyalty_points_recipient = marketing_queries.get_user_id_from_wallet_id(
+        wallet_id=wallet_id,
+        uow=uow
+    )
+    # adding loyalty points
+    marketing_commands.add_loyalty_points(
+        user_id= loyalty_points_recipient,
+        transaction_amount=transaction_amount,
+        transaction_type=transaction_type,
+        uow=uow,
+    )
+    
 def execute_transaction(
     sender_wallet_id: str,
     recipient_wallet_id: str,
@@ -74,41 +82,37 @@ def execute_transaction(
             recipient_wallet_id=recipient_wallet_id,
         )
 
-        if transaction_type == TransactionType.P2P_PUSH:
-            user_id = marketing_queries.get_user_id_from_wallet_id(
-                wallet_id=sender_wallet_id,
-                uow=uow
-            )
-        elif transaction_type == TransactionType.P2P_PULL or transaction_type == TransactionType.PAYMENT_GATEWAY:
-            user_id = marketing_queries.get_user_id_from_wallet_id(
-                wallet_id=recipient_wallet_id,
-                uow=uow
-            )
 
         if transaction_type != TransactionType.P2P_PULL:
             tx.execute_transaction()
-            marketing_commands.add_loyalty_points(
-                user_id=user_id,
-                transaction_amount=amount,
-                transaction_type=transaction_type,
-                uow=uow,
-            )
+
+            # selecting loyalty points recipient based on transaction type
+            if transaction_type == TransactionType.P2P_PUSH:
+                _add_loyalty_points(
+                    wallet_id=sender_wallet_id,
+                    transaction_amount=amount,
+                    transaction_type= transaction_type,
+                    uow=uow)
+            elif transaction_type == TransactionType.PAYMENT_GATEWAY:
+                _add_loyalty_points(
+                    wallet_id=recipient_wallet_id,
+                    transaction_amount=amount,
+                    transaction_type= transaction_type,
+                    uow=uow)
 
         uow.transactions.save(tx)
 
-        # Give Loyalty Points
-
         if transaction_type == TransactionType.PAYMENT_GATEWAY:
+            # UNCOMMENT FOR MARKETING TESTS
             # card_pay_wallet = create_wallet(uow)
             # uow.transactions.add_1000_wallet(card_pay_wallet)
 
             marketing_commands.give_cashback(
-                sender_wallet_id=CARD_PAY_WALLET_ID,
-                recipient_wallet_id= recipient_wallet_id,
+                sender_wallet_id= CARD_PAY_WALLET_ID,
+                recipient_wallet_id=recipient_wallet_id,
                 deposited_amount=amount,
                 uow=uow
             )
-
 
     return tx
 
@@ -146,18 +150,14 @@ def accept_p2p_pull_transaction(
 ) -> Transaction:
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
-        user_id = marketing_queries.get_user_id_from_wallet_id(
-            wallet_id=tx.sender_wallet.id,
-            uow=uow,
-        )
-
         tx.accept_p2p_pull_transaction()
-        marketing_commands.add_loyalty_points(
-            user_id=user_id,
-            transaction_amount=tx.amount,
-            transaction_type=TransactionType.P2P_PULL,
-            uow=uow,
-        )
+
+
+        _add_loyalty_points(
+            wallet_id=wallet_id,
+            transaction_amount=amount,
+            transaction_type= TransactionType.P2P_PULL,
+            uow=uow)
 
         uow.transactions.save(tx)
 
