@@ -8,7 +8,7 @@ from .exceptions import InvalidReferenceException, InvalidWeightageException, In
 from ...payment.domain.model import TransactionType
 from typing import List, Dict
 from itertools import filterfalse
-
+from .utils import DEFAULT_UUID
 
 class CashbackType(str, Enum):
     """Cashback type enum"""
@@ -57,7 +57,7 @@ class User():
     """Entity"""
     id: str
     loyalty_points: int = 0
-    referral_id: str = "00000000-0000-0000-0000-000000000000"
+    referral_id: str = DEFAULT_UUID
     marketing_user_verified: bool = False
 
     def _negative_amount_exception(self, amount: int):
@@ -94,7 +94,7 @@ class User():
         
         self._not_verified_exception()
 
-        if self.referral_id != "00000000-0000-0000-0000-000000000000":
+        if self.referral_id != DEFAULT_UUID:
             raise InvalidReferenceException(
                 "User has already been referred"
             )
