@@ -94,50 +94,71 @@ def test_use_reference_and_add_referral_loyalty_points(seed_user):
     assert referral.loyalty_points == 2 * weightage.weightage_value
 
 def test_cashback_on_deposit(seed_user):
-    '''
-      if self.cashback_slabs[idx].end_amount <= self.cashback_slabs[idx].start_amount:
-            raise ValueError(
-                "ending amount is smaller than starting amount")
-        if self.cashback_slabs[idx].cashback_value < 0:
-            raise ValueError("Cashback value is negative")
-        if self.cashback_slabs[idx].cashback_type != CashbackType.PERCENTAGE and self.cashback_slabs[idx].cashback_type != CashbackType.ABSOLUTE:
-            raise ValueError(
-                "Cashback type is neither PERCENTAGE nor ABSOLUTE")
-        if self.cashback_slabs[idx].cashback_type == CashbackType.PERCENTAGE:
-            if self.cashback_slabs[idx].cashback_value > 1:
-                raise ValueError(
-                    "Cashback percentage value is greater than 1")
-            else:
-                if self.cashback_slabs[idx].cashback_value > self.cashback_slabs[idx].end_amount:
-                    raise ValueError(
-                        "Cashback absolute value is greater than the slab ending amount")
-        if idx != -1 and self.cashback_slabs[idx+1].start_amount != self.cashback_slabs[idx].end_amount:
-            raise ValueError(
-                "Slabs are not continuous")
-
-    def _handle_invalid_slabs(self):
-        if len(self.cashback_slabs) == 0:
-            raise ValueError("Cashback slabs cannot be empty")
-
-        first_slab_start_amount = self.cashback_slabs[0].start_amount
-        if first_slab_start_amount != 0:
-            self.cashback_slabs.insert(
-                0, CashbackSlab(
-                    start_amount=0,
-                    end_amount=first_slab_start_amount,
-                    cashback_type=self.cashback_slabs[0].cashback_type,
-                    cashback_value=self.cashback_slabs[0].cashback_value
-                )
-            )
-        self._helper_handle_invalid_slabs(-1)
-
-        for i in range(len(self.cashback_slabs) - 1):
-            print("ASJDHASKDGHAKSDHAKSJDHASKJDHASKJDH: ", i)
-            self._helper_handle_invalid_slabs(i)
-
-    '''
-    user = seed_user()
     
+    user = seed_user()
+    with pytest.raises(InvalidSlabException, match = "ending amount is smaller than starting amount"):
+        cashback_slab_1 = CashbackSlab(
+            start_amount= 1000,
+            end_amount= 500,
+            cashback_type= CashbackType.PERCENTAGE,
+            cashback_value= 0.1
+        )
+        AllCashbacks(cashback_slabs = [cashback_slab_1])
+    
+    with pytest.raises(InvalidSlabException, match = "Cashback value is negative"):
+        cashback_slab_1 = CashbackSlab(
+            start_amount= 1000,
+            end_amount= 5000,
+            cashback_type= CashbackType.PERCENTAGE,
+            cashback_value= -0.1
+        )
+        AllCashbacks(cashback_slabs = [cashback_slab_1])
+
+    with pytest.raises(InvalidSlabException, match = "Cashback type is neither PERCENTAGE nor ABSOLUTE"):
+        cashback_slab_1 = CashbackSlab(
+            start_amount= 1000,
+            end_amount= 5000,
+            cashback_type= "random",
+            cashback_value= 0.1
+        )
+        AllCashbacks(cashback_slabs = [cashback_slab_1])
+
+    with pytest.raises(InvalidSlabException, match = "Cashback percentage value is greater than 1"):
+        cashback_slab_1 = CashbackSlab(
+            start_amount= 1000,
+            end_amount= 5000,
+            cashback_type= CashbackType.PERCENTAGE,
+            cashback_value= 2
+        )
+        AllCashbacks(cashback_slabs = [cashback_slab_1])
+
+    with pytest.raises(InvalidSlabException, match = "Cashback absolute value is greater than the slab ending amount"):
+        cashback_slab_1 = CashbackSlab(
+            start_amount= 1000,
+            end_amount= 5000,
+            cashback_type= CashbackType.ABSOLUTE,
+            cashback_value= 7000
+        )
+        AllCashbacks(cashback_slabs = [cashback_slab_1])
+
+    with pytest.raises(InvalidSlabException, match = "Slabs are not continuous"):
+        cashback_slab_1 = CashbackSlab(
+            start_amount= 1000,
+            end_amount= 5000,
+            cashback_type= CashbackType.ABSOLUTE,
+            cashback_value= 100
+        )
+        cashback_slab_2 = CashbackSlab(
+            start_amount= 6000,
+            end_amount= 7000,
+            cashback_type= CashbackType.ABSOLUTE,
+            cashback_value= 100
+        )
+        AllCashbacks(cashback_slabs = [cashback_slab_1, cashback_slab_2])
+
+    with pytest.raises(InvalidSlabException, match = "Cashback slabs cannot be empty"):
+        AllCashbacks(cashback_slabs = [])
+
     deposit_amount = 7000
 
     cashback_slab_1 = CashbackSlab(
@@ -163,8 +184,5 @@ def test_cashback_on_deposit(seed_user):
 
     with pytest.raises(NegativeAmountException, match = "amount cannot be negative"):
         user.calculate_cashback(-1 * deposit_amount, all_cashbacks.cashback_slabs)
-
-    with pytest.raises(ValueError, match = "Slabs are not continuous"):
-        AllCashbacks( cashback_slabs=[cashback_slab_1, cashback_slab_2, cashback_slab_2])
 
     assert user.calculate_cashback(deposit_amount, all_cashbacks) == cashback_slab_2.cashback_value
