@@ -55,16 +55,16 @@ def add_loyalty_points(
         wallet_id=recipient_wallet_id, uow=uow)
 
     # selecting loyalty points recipient based on transaction type
-    if transaction_type == TransactionType.P2P_PUSH:
+    if transaction_type == TransactionType.PAYMENT_GATEWAY:
         add_loyalty_points_to_user(
-            user_id=sender_user_id,
+            user_id= recipient_user_id,
             transaction_amount=transaction_amount,
             transaction_type=transaction_type,
             uow=uow,
         )
-    elif transaction_type == TransactionType.PAYMENT_GATEWAY or transaction_type == TransactionType.P2P_PULL:
+    elif transaction_type == TransactionType.P2P_PUSH or transaction_type == TransactionType.P2P_PULL:
         add_loyalty_points_to_user(
-            user_id=recipient_user_id,
+            user_id=sender_user_id,
             transaction_amount=transaction_amount,
             transaction_type=transaction_type,
             uow=uow,

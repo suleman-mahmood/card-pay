@@ -74,7 +74,7 @@ def execute_transaction(
             )
         uow.transactions.save(tx)
 
-        # for marketing tests
+        # for cashback test
         # cardpay_wallet = create_wallet(uow=uow)
         # uow.transactions.add_1000_wallet(wallet = cardpay_wallet)
         marketing_commands.give_cashback(
@@ -123,8 +123,8 @@ def accept_p2p_pull_transaction(
         tx = uow.transactions.get(transaction_id=transaction_id)
         tx.accept_p2p_pull_transaction()
         marketing_commands.add_loyalty_points(
-            sender_wallet_id=tx.sender_wallet_id,
-            recipient_wallet_id = tx.recipient_wallet_id,
+            sender_wallet_id=tx.sender_wallet.id,
+            recipient_wallet_id = tx.recipient_wallet.id,
             transaction_amount=tx.amount,
             transaction_type=tx.transaction_type,
             uow=uow,
