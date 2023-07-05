@@ -124,7 +124,7 @@ class User():
 
     def _invalid_transaction_type_exception(self, transaction_type: TransactionType, weightage_type: TransactionType):
         if transaction_type != weightage_type:
-            raise InvalidTrasnsactionTypeException(
+            raise InvalidTransactionTypeException(
                 "Passed transaction type and weightage type do not match"
             )
         
