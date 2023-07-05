@@ -2,6 +2,7 @@
 from ..domain.utils import DEFAULT_UUID
 from ...payment.domain.model import TransactionType
 
+
 class InvalidReferenceException(Exception):
     """exception raised for invalid reference"""
 
@@ -68,6 +69,7 @@ def cannot_refer_self(self_id: str, referral_id: str):
             "User cannot refer themselves"
         )
 
+
 def not_deposit_exception(transaction_type: str):
     if transaction_type != TransactionType.PAYMENT_GATEWAY:
         raise InvalidTransactionTypeException(
@@ -81,8 +83,53 @@ def not_deposit_exception(transaction_type: str):
 #         )
 
 
-# def invalid_transaction_type_exception(transaction_type: TransactionType, weightage_type: TransactionType):
-#     if transaction_type != weightage_type:
-#         raise InvalidTrasnsactionTypeException(
-#             "Passed transaction type and weightage type do not match"
-#         )
+def invalid_weightage_passed_exception(weightage_type: TransactionType):
+    if weightage_type != TransactionType.REFERRAL:
+        raise InvalidWeightageException(
+            "Invalid weightage type passed. Weightage type should be REFERRAL"
+        )
+
+
+def invalid_transaction_type_exception(transaction_type: TransactionType, weightage_type: TransactionType):
+    if transaction_type != weightage_type:
+        raise InvalidTransactionTypeException(
+            "Passed transaction type and weightage type do not match"
+        )
+
+# AllCashbacks exceptions
+
+
+def slab_ending_amount_lesser_than_or_equal_to_slab_starting_amount_exception(slab_ending_amount: float, slab_starting_amount: float):
+    if slab_ending_amount <= slab_starting_amount:
+        raise InvalidSlabException(
+            "ending amount is smaller than starting amount"
+        )
+
+
+def slab_cashback_value_is_negative_exception(slab_cashback_value: float):
+    if slab_cashback_value < 0:
+        raise InvalidSlabException(
+            "Cashback value is negative"
+        )
+
+
+def slab_not_continuos_exception(next_slab_starting_amount: float, current_slab_ending_amount: float):
+    if next_slab_starting_amount != current_slab_ending_amount:
+        raise InvalidSlabException(
+            "Slabs are not continuous"
+        )
+
+
+# _handle_invalid_slabs exceptions
+def empty_slabs_exception(slabs_len: int):
+    if slabs_len == 0:
+        raise InvalidSlabException(
+            "Cashback slabs cannot be empty"
+        )
+
+# Weightage exceptions
+def negative_weightage_exception(weightage_value: float):
+    if (weightage_value < 0):
+        raise InvalidWeightageException(
+            "Negative weightage value passed, weightage value cannot be negative"
+        )
