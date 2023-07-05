@@ -51,14 +51,13 @@ class AllCashbacks:
         if self.cashback_slabs[idx].cashback_type != CashbackType.PERCENTAGE and self.cashback_slabs[idx].cashback_type != CashbackType.ABSOLUTE:
             raise InvalidSlabException(
                 "Cashback type is neither PERCENTAGE nor ABSOLUTE")
-        if self.cashback_slabs[idx].cashback_type == CashbackType.PERCENTAGE:
-            if self.cashback_slabs[idx].cashback_value > 1:
-                raise InvalidSlabException(
-                    "Cashback percentage value is greater than 1")
-        else:
-            if self.cashback_slabs[idx].cashback_value > self.cashback_slabs[idx].end_amount:
-                raise InvalidSlabException(
-                    "Cashback absolute value is greater than the slab ending amount")
+        if self.cashback_slabs[idx].cashback_type == CashbackType.PERCENTAGE and self.cashback_slabs[idx].cashback_value > 1:
+            raise InvalidSlabException(
+                "Cashback percentage value is greater than 1")
+        elif self.cashback_slabs[idx].cashback_type == CashbackType.ABSOLUTE and self.cashback_slabs[idx].cashback_value > self.cashback_slabs[idx].end_amount:
+            raise InvalidSlabException(
+                "Cashback absolute value is greater than the slab ending amount")
+       
         if idx != -1 and self.cashback_slabs[idx+1].start_amount != self.cashback_slabs[idx].end_amount:
             raise InvalidSlabException(
                 "Slabs are not continuous")
