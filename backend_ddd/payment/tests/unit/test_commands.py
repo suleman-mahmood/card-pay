@@ -8,6 +8,8 @@ from ...entrypoint.commands import (
     generate_voucher,
     slow_execute_transaction,
 )
+from ...entrypoint.queries import get_wallet_from_wallet_id
+from ....authentication.tests.conftest import seed_verified_auth_user
 from ....entrypoint.uow import FakeUnitOfWork, UnitOfWork
 from ...domain.model import TransactionMode, TransactionType, TransactionStatus
 import threading
@@ -21,10 +23,14 @@ def test_create_wallet():
     assert wallet.balance == 0
 
 
-def test_execute_transaction():
-    with UnitOfWork() as uow:
-        sender_wallet = create_wallet(uow)
-        recipient_wallet = create_wallet(uow)
+def test_execute_transaction(seed_verified_auth_user):
+    uow = UnitOfWork()
+    sender = seed_verified_auth_user(uow)
+    recipient = seed_verified_auth_user(uow)
+
+    with uow:
+        sender_wallet = get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
+        recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient.wallet_id, uow=uow)
         # for testing purposes
         uow.transactions.add_1000_wallet(sender_wallet)
 
