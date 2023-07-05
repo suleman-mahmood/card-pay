@@ -22,7 +22,6 @@ class MarkteingUserAbstractRepository(ABC):
         pass
 
 
-
 class MarketingUserRepository(MarkteingUserAbstractRepository):
 
     def __init__(self, connection):
@@ -118,7 +117,7 @@ class WeightageRepository(WeightageAbstractRepository):
             weightage_type=TransactionType[row[0]],
             weightage_value=row[1],
         )
-    
+
     def save(self, weightage: Weightage):
         sql = """
             insert into weightages (weightage_type, weightage_value)

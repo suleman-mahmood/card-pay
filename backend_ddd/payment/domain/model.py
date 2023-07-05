@@ -46,9 +46,10 @@ class TransactionType(str, Enum):
     VIRTUAL_POS = 5
     PAYMENT_GATEWAY = 6
     CARD_PAY = 7  # source of tokens in cardpay
-    CASH_BACK = 8 # Marketing
-    REFERRAL = 9 # Marketing
-    
+    CASH_BACK = 8  # Marketing
+    REFERRAL = 9  # Marketing
+
+
 @dataclass
 class Transaction:
     """
@@ -93,14 +94,16 @@ class Transaction:
     def accept_p2p_pull_transaction(self):
         """for accepting a p2p pull transaction"""
         if self.transaction_type != TransactionType.P2P_PULL:
-            raise TransactionNotAllowedException("This is not a p2p pull transaction")
+            raise TransactionNotAllowedException(
+                "This is not a p2p pull transaction")
 
         self.execute_transaction()
 
     def decline_p2p_pull_transaction(self):
         """for declining a p2p pull transaction"""
         if self.transaction_type != TransactionType.P2P_PULL:
-            raise TransactionNotAllowedException("This is not a p2p pull transaction")
+            raise TransactionNotAllowedException(
+                "This is not a p2p pull transaction")
 
         self.status = TransactionStatus.DECLINED
 

@@ -4,10 +4,9 @@
 from dataclasses import dataclass, field
 from uuid import uuid4
 from enum import Enum
-from .exceptions import InvalidReferenceException, InvalidWeightageException, InvalidTransactionTypeException, InvalidCashbackTypeException, NegativeAmountException, InvalidAddingLoyaltyPointsException, InvalidSlabException, NotVerifiedException, negative_amount_exception, not_verified_exception, referee_not_verified_exception, user_already_referred_exception, cannot_refer_self, not_deposit_exception, invalid_transaction_type_exception, invalid_weightage_passed_exception, slab_ending_amount_lesser_than_or_equal_to_slab_starting_amount_exception, slab_cashback_value_is_negative_exception, slab_not_continuos_exception, empty_slabs_exception, negative_weightage_exception
+from .exceptions import InvalidSlabException, negative_amount_exception, not_verified_exception, referee_not_verified_exception, user_already_referred_exception, cannot_refer_self, not_deposit_exception, invalid_transaction_type_exception, invalid_weightage_passed_exception, slab_ending_amount_lesser_than_or_equal_to_slab_starting_amount_exception, slab_cashback_value_is_negative_exception, slab_not_continuos_exception, empty_slabs_exception, negative_weightage_exception
 from ...payment.domain.model import TransactionType
-from typing import List, Dict
-from itertools import filterfalse
+from typing import List
 from .utils import DEFAULT_UUID
 
 
@@ -119,9 +118,6 @@ class User():
 
     def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
         """Add loyalty points to user account for P transaction type"""
-
-        # self._not_verified_exception()
-        # self._referee_not_verified_exception(referee_verified)
 
         not_verified_exception(self.marketing_user_verified)
         referee_not_verified_exception(referee_verified)

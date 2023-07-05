@@ -76,12 +76,6 @@ def not_deposit_exception(transaction_type: str):
             "Transaction Type is not deposit"
         )
 
-# def invalid_weightage_passed_exception(weightage: Weightage):
-#     if weightage.weightage_type != TransactionType.REFERRAL:
-#         raise InvalidWeightageException(
-#             "Invalid weightage type passed. Weightage type should be REFERRAL"
-#         )
-
 
 def invalid_weightage_passed_exception(weightage_type: TransactionType):
     if weightage_type != TransactionType.REFERRAL:
@@ -97,8 +91,6 @@ def invalid_transaction_type_exception(transaction_type: TransactionType, weight
         )
 
 # AllCashbacks exceptions
-
-
 def slab_ending_amount_lesser_than_or_equal_to_slab_starting_amount_exception(slab_ending_amount: float, slab_starting_amount: float):
     if slab_ending_amount <= slab_starting_amount:
         raise InvalidSlabException(

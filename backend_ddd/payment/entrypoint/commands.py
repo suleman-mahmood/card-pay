@@ -44,7 +44,8 @@ def execute_cashback_transaction(
     tx.execute_transaction()
     uow.transactions.save(tx)
     return tx
-    
+
+
 def execute_transaction(
     sender_wallet_id: str,
     recipient_wallet_id: str,
@@ -124,7 +125,7 @@ def accept_p2p_pull_transaction(
         tx.accept_p2p_pull_transaction()
         marketing_commands.add_loyalty_points(
             sender_wallet_id=tx.sender_wallet.id,
-            recipient_wallet_id = tx.recipient_wallet.id,
+            recipient_wallet_id=tx.recipient_wallet.id,
             transaction_amount=tx.amount,
             transaction_type=tx.transaction_type,
             uow=uow,
