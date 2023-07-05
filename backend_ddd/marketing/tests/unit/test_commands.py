@@ -2,9 +2,10 @@ from ...entrypoint import commands as marketing_commands
 from ....entrypoint.uow import FakeUnitOfWork, UnitOfWork, AbstractUnitOfWork
 from ....payment.domain.model import TransactionType, TransactionMode, Wallet
 from ....payment.entrypoint import commands as payment_commands
+from ....payment.entrypoint import queries as payment_queries
 from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
 from ....authentication.entrypoint import commands as auth_commands
-from ...domain.model import User, Weightage, CashbackSlab, CashbackType 
+from ...domain.model import User, Weightage, CashbackSlab, CashbackType, AllCashbacks
 # User related commands are not tested because there is not a fake Marketing user repo
 
 
@@ -105,8 +106,8 @@ def test_add_and_set_cashback_slabs():
     )
 
     with uow:
-        fetched_cashback_slabs = uow.cashback_slabs.get_all()
-        assert fetched_cashback_slabs[0].cashback_value == 0.2
+        fetched_all_cashbacks = uow.cashback_slabs.get_all()
+        assert fetched_all_cashbacks.cashback_slabs[0].cashback_value == 0.2
 
 
     marketing_commands.set_cashback_slabs(
@@ -117,7 +118,8 @@ def test_add_and_set_cashback_slabs():
 
 
     with uow:
-        fetched_cashback_slabs = uow.cashback_slabs.get_all()
+        fetched_all_cashbacks = uow.cashback_slabs.get_all()
+        fetched_cashback_slabs = fetched_all_cashbacks.cashback_slabs
         assert fetched_cashback_slabs[0].start_amount == 0
         assert fetched_cashback_slabs[0].end_amount == 20
 
@@ -136,9 +138,10 @@ def test_cashback(seed_verified_auth_user):
         uow=uow,
     )
     recipient = seed_verified_auth_user(uow)
-    
+    pg = seed_verified_auth_user(uow)
+
     with uow:
-        pg_wallet = payment_commands.create_wallet(uow = uow)    
+        pg_wallet = payment_queries.get_wallet_from_wallet_id(wallet_id = pg.wallet_id, uow = uow)
         uow.transactions.add_1000_wallet(wallet = pg_wallet)
     
     payment_commands.execute_transaction(

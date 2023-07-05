@@ -2,7 +2,7 @@ import pytest
 
 from .conftest import (seed_user)
 from ....payment.domain.model import TransactionType
-from ...domain.exceptions import InvalidReferenceException, NotVerifiedException, InvalidAddingLoyaltyPointsException, NegativeAmountException, InvalidSlabException
+from ...domain.exceptions import InvalidTransactionTypeException, InvalidReferenceException, NotVerifiedException, InvalidAddingLoyaltyPointsException, NegativeAmountException, InvalidSlabException
 from ...domain.model import User, CashbackType, Weightage, CashbackSlab, AllCashbacks
 
 
@@ -178,11 +178,23 @@ def test_cashback_on_deposit(seed_user):
     all_cashbacks = AllCashbacks(cashback_slabs = [cashback_slab_1, cashback_slab_2])
 
     with pytest.raises(NotVerifiedException, match = "User is not verified"):
-        user.calculate_cashback(deposit_amount, all_cashbacks.cashback_slabs)
+        user.calculate_cashback(
+        deposit_amount=deposit_amount,
+        transaction_type=TransactionType.PAYMENT_GATEWAY,
+        all_cashbacks=all_cashbacks)
 
     user.verify_user()
 
     with pytest.raises(NegativeAmountException, match = "amount cannot be negative"):
-        user.calculate_cashback(-1 * deposit_amount, all_cashbacks.cashback_slabs)
+        user.calculate_cashback(
+        deposit_amount= -1 * deposit_amount,
+        transaction_type=TransactionType.PAYMENT_GATEWAY,
+        all_cashbacks=all_cashbacks)
 
-    assert user.calculate_cashback(deposit_amount, all_cashbacks) == cashback_slab_2.cashback_value
+    with pytest.raises(InvalidTransactionTypeException, match = "not deposit"):
+        user.calculate_cashback(deposit_amount=deposit_amount,transaction_type= TransactionType.P2P_PUSH,all_cashbacks= all_cashbacks)
+
+    assert user.calculate_cashback(
+        deposit_amount=deposit_amount,
+        transaction_type=TransactionType.PAYMENT_GATEWAY,
+        all_cashbacks=all_cashbacks) == cashback_slab_2.cashback_value

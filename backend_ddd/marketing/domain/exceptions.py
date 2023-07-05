@@ -1,5 +1,6 @@
 
 from ..domain.utils import DEFAULT_UUID
+from ...payment.domain.model import TransactionType
 
 class InvalidReferenceException(Exception):
     """exception raised for invalid reference"""
@@ -9,7 +10,7 @@ class InvalidWeightageException(Exception):
     """exception raised for invalid weightage"""
 
 
-class InvalidTrasnsactionTypeException(Exception):
+class InvalidTransactionTypeException(Exception):
     """exception raised for invalid transaction type"""
 
 
@@ -67,6 +68,11 @@ def cannot_refer_self(self_id: str, referral_id: str):
             "User cannot refer themselves"
         )
 
+def not_deposit_exception(transaction_type: str):
+    if transaction_type != TransactionType.PAYMENT_GATEWAY:
+        raise InvalidTransactionTypeException(
+            "Transaction Type is not deposit"
+        )
 
 # def invalid_weightage_passed_exception(weightage: Weightage):
 #     if weightage.weightage_type != TransactionType.REFERRAL:

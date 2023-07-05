@@ -4,7 +4,7 @@
 from dataclasses import dataclass, field
 from uuid import uuid4
 from enum import Enum
-from .exceptions import InvalidReferenceException, InvalidWeightageException, InvalidTrasnsactionTypeException, InvalidCashbackTypeException, NegativeAmountException, InvalidAddingLoyaltyPointsException, InvalidSlabException, NotVerifiedException, negative_amount_exception, not_verified_exception, referee_not_verified_exception, user_already_referred_exception, cannot_refer_self
+from .exceptions import InvalidReferenceException, InvalidWeightageException, InvalidTransactionTypeException, InvalidCashbackTypeException, NegativeAmountException, InvalidAddingLoyaltyPointsException, InvalidSlabException, NotVerifiedException, negative_amount_exception, not_verified_exception, referee_not_verified_exception, user_already_referred_exception, cannot_refer_self, not_deposit_exception
 from ...payment.domain.model import TransactionType
 from typing import List, Dict
 from itertools import filterfalse
@@ -80,7 +80,6 @@ class AllCashbacks:
         self._helper_handle_invalid_slabs(-1)
 
         for i in range(len(self.cashback_slabs) - 1):
-            print("ASJDHASKDGHAKSDHAKSJDHASKJDHASKJDH: ", i)
             self._helper_handle_invalid_slabs(i)
 
     def __post_init__(self):
@@ -162,12 +161,13 @@ class User():
 
         self.loyalty_points += transaction_amount * weightage.weightage_value
 
-    def calculate_cashback(self, deposit_amount: int, all_cashbacks: AllCashbacks) -> float:
+    def calculate_cashback(self, deposit_amount: int, transaction_type: TransactionType, all_cashbacks: AllCashbacks) -> float:
         """Calculate cashback for the passed deposit amount"""
 
         not_verified_exception(self.marketing_user_verified)
         negative_amount_exception(deposit_amount)
-        
+        not_deposit_exception(transaction_type)
+
         # If deposit amount is greater than the last slab, then the last slab will be used
         if (deposit_amount >= all_cashbacks.cashback_slabs[-1].end_amount):
             slab = all_cashbacks.cashback_slabs[-1]

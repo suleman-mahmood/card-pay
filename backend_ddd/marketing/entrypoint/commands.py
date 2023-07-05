@@ -27,12 +27,14 @@ def use_reference(
         uow.marketing_users.save(referral)
 
 
-def add_loyalty_points(
+def add_loyalty_points_to_user(
     user_id: str,
     transaction_amount: int,
     transaction_type: TransactionType,
     uow: AbstractUnitOfWork,
 ):
+    """Only called by add_loyalty_points()"""
+
     user = uow.marketing_users.get(user_id)
     weightage = uow.weightages.get(transaction_type)
 
@@ -40,22 +42,53 @@ def add_loyalty_points(
 
     uow.marketing_users.save(user)
 
+def add_loyalty_points(
+    sender_wallet_id: str,
+    recipient_wallet_id: str,
+    transaction_amount: int,
+    transaction_type: TransactionType,
+    uow: AbstractUnitOfWork,
+):
+    sender_user_id = get_user_id_from_wallet_id(
+        wallet_id=sender_wallet_id, uow=uow)
+    recipient_user_id = get_user_id_from_wallet_id(
+        wallet_id=recipient_wallet_id, uow=uow)
+
+    # selecting loyalty points recipient based on transaction type
+    if transaction_type == TransactionType.P2P_PUSH:
+        add_loyalty_points_to_user(
+            user_id=sender_user_id,
+            transaction_amount=transaction_amount,
+            transaction_type=transaction_type,
+            uow=uow,
+        )
+    elif transaction_type == TransactionType.PAYMENT_GATEWAY or transaction_type == TransactionType.P2P_PULL:
+        add_loyalty_points_to_user(
+            user_id=recipient_user_id,
+            transaction_amount=transaction_amount,
+            transaction_type=transaction_type,
+            uow=uow,
+        )
+
 
 def give_cashback(
     sender_wallet_id: str,
     recipient_wallet_id: str,
     deposited_amount: int,
+    transaction_type: TransactionType,
     uow: AbstractUnitOfWork,
 ):
+    if transaction_type != TransactionType.PAYMENT_GATEWAY:
+        return None
 
-    user_id = get_user_id_from_wallet_id(
+    recipient_user_id = get_user_id_from_wallet_id(
         wallet_id=recipient_wallet_id, uow=uow)
-    user = uow.marketing_users.get(user_id)
-    amount = user.calculate_cashback(
+    recipient = uow.marketing_users.get(recipient_user_id)
+    amount = recipient.calculate_cashback(
         deposit_amount=deposited_amount,
-        cashback_slabs=uow.cashback_slabs.get_all(),
+        transaction_type=transaction_type,
+        all_cashbacks=uow.cashback_slabs.get_all(),
     )
-
     payment_commands.execute_cashback_transaction(
         sender_wallet_id=sender_wallet_id,  # This will be a fixed cardpay wallet id
         recipient_wallet_id=recipient_wallet_id,
