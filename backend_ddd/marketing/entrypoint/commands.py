@@ -1,5 +1,5 @@
 
-from ..entrypoint.queries import get_user_id_from_wallet_id
+from ...payment.entrypoint.queries import get_user_id_from_wallet_id
 from ...entrypoint.uow import AbstractUnitOfWork
 from ...payment.entrypoint import commands as payment_commands
 from ..domain.model import Weightage, CashbackSlab, CashbackType, AllCashbacks
