@@ -125,3 +125,10 @@ def negative_weightage_exception(weightage_value: float):
         raise InvalidWeightageException(
             "Negative weightage value passed, weightage value cannot be negative"
         )
+
+def invalid_tx_type_for_loyalty_points_exception(tx_type: TransactionType):
+    if tx_type != TransactionType.PAYMENT_GATEWAY and tx_type != TransactionType.P2P_PULL and tx_type != TransactionType.P2P_PUSH:
+        raise InvalidAddingLoyaltyPointsException(
+            "Invalid transaction type passed for adding loyalty points"
+        )
+        

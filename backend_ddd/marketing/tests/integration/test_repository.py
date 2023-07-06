@@ -1,14 +1,8 @@
 import pytest
-from ....entrypoint.uow import UnitOfWork, AbstractUnitOfWork
-from ....authentication.entrypoint import commands as authentication_commands
+from ....entrypoint.uow import UnitOfWork
 from ...domain.model import (User, Weightage, CashbackSlab, CashbackType, AllCashbacks)
-from ....authentication.domain.model import Location, PersonalEmail, PhoneNumber, UserType
-from ....authentication.domain.model import User as AuthenticationUser
-from ....payment.entrypoint import commands as payment_commands
 from ....payment.domain.model import TransactionType
-from ...adapters.repository import (MarketingUserRepository, WeightageRepository, CashbackSlabRepository,)
 from ....authentication.tests.conftest import seed_auth_user
-from uuid import uuid4
 
 
 def test_marketing_user_repository_add_get_save(seed_auth_user):

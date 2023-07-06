@@ -1,5 +1,5 @@
 from ...entrypoint import commands as marketing_commands
-from ....entrypoint.uow import FakeUnitOfWork, UnitOfWork, AbstractUnitOfWork
+from ....entrypoint.uow import UnitOfWork, AbstractUnitOfWork
 from ....payment.domain.model import TransactionType, TransactionMode, Wallet
 from ....payment.entrypoint import commands as payment_commands
 from ....payment.entrypoint import queries as payment_queries
