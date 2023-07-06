@@ -4,7 +4,6 @@ from ...entrypoint.uow import AbstractUnitOfWork
 from ...payment.entrypoint import commands as payment_commands
 from ..domain.model import Weightage, CashbackSlab, CashbackType, AllCashbacks
 from ...payment.domain.model import TransactionType
-from ..domain.exceptions import invalid_tx_type_for_loyalty_points_exception
 # Every transaction will check if its a cashback transaction then it'll call the marketing command which will again call the transaction command.
 
 
@@ -64,7 +63,7 @@ def add_loyalty_points(
             transaction_type=transaction_type,
             uow=uow,
         )
-    else:
+    elif transaction_type == TransactionType.P2P_PUSH or transaction_type == TransactionType.P2P_PULL:
         add_loyalty_points_to_user(
             user_id=sender_user_id,
             transaction_amount=transaction_amount,
