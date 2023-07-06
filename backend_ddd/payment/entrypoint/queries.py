@@ -8,7 +8,6 @@ def get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
         select id, balance
         from wallets 
         where id = %s
-        for update
     """
     uow.cursor.execute(
         sql,
