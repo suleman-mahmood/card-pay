@@ -196,6 +196,11 @@ def test_cashback(seed_verified_auth_user):
     with uow:
         pg_wallet = payment_queries.get_wallet_from_wallet_id(wallet_id = pg.wallet_id, uow = uow)
         uow.transactions.add_1000_wallet(wallet = pg_wallet)
+
+        cardpay_wallet = payment_commands.create_wallet(uow=uow)
+        payment_queries.add_starred_wallet_id(wallet_id=cardpay_wallet.id, uow=uow)
+
+        uow.transactions.add_1000_wallet(wallet = cardpay_wallet)
     
     payment_commands.execute_transaction(
         sender_wallet_id = pg.wallet_id,

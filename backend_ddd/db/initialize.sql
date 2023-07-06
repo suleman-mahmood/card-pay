@@ -5,6 +5,7 @@ drop table if exists users CASCADE;
 drop table if exists user_closed_loops CASCADE;
 drop table if exists weightages CASCADE;
 drop table if exists cashback_slabs CASCADE;
+drop table if exists starred_wallet_id CASCADE;
 
 drop type if exists transaction_mode_enum CASCADE;
 drop type if exists transaction_type_enum CASCADE;
@@ -28,6 +29,10 @@ create table wallets (
     balance integer not null constraint  non_negative_integer check (balance >= 0),
     created_at timestamp not null default current_timestamp
 
+);
+
+create table starred_wallet_id (
+    wallet_id uuid references wallets(id)
 );
 
 create table transactions (

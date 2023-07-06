@@ -1,5 +1,5 @@
 
-from ...payment.entrypoint.queries import get_user_id_from_wallet_id
+from ...payment.entrypoint import queries as payment_queries
 from ...entrypoint.uow import AbstractUnitOfWork
 from ...payment.entrypoint import commands as payment_commands
 from ..domain.model import Weightage, CashbackSlab, CashbackType, AllCashbacks
@@ -50,9 +50,9 @@ def add_loyalty_points(
     transaction_type: TransactionType,
     uow: AbstractUnitOfWork,
 ):
-    sender_user_id = get_user_id_from_wallet_id(
+    sender_user_id = payment_queries.get_user_id_from_wallet_id(
         wallet_id=sender_wallet_id, uow=uow)
-    recipient_user_id = get_user_id_from_wallet_id(
+    recipient_user_id = payment_queries.get_user_id_from_wallet_id(
         wallet_id=recipient_wallet_id, uow=uow)
 
     # selecting loyalty points recipient based on transaction type
@@ -73,7 +73,6 @@ def add_loyalty_points(
 
 
 def give_cashback(
-    sender_wallet_id: str,
     recipient_wallet_id: str,
     deposited_amount: int,
     transaction_type: TransactionType,
@@ -82,7 +81,8 @@ def give_cashback(
     if transaction_type != TransactionType.PAYMENT_GATEWAY:
         return
 
-    recipient_user_id = get_user_id_from_wallet_id(
+    sender_wallet_id = payment_queries.get_starred_wallet_id(uow=uow)
+    recipient_user_id = payment_queries.get_user_id_from_wallet_id(
         wallet_id=recipient_wallet_id, uow=uow)
     recipient = uow.marketing_users.get(recipient_user_id)
     amount = recipient.calculate_cashback(

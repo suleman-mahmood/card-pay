@@ -7,7 +7,6 @@ from ..domain.model import (
     TransactionType,
 )
 from ...marketing.entrypoint import commands as marketing_commands
-from ...marketing.entrypoint import queries as marketing_queries
 from ...payment.domain.model import TransactionType, TransactionMode
 from time import sleep
 from queue import Queue
@@ -15,7 +14,6 @@ from uuid import uuid4
 # Features left:
 # -> Balance locking for fuel
 
-CARD_PAY_WALLET_ID = "d8f32ce7-1136-421e-bab2-68a94ac183e4"
 
 
 def create_wallet(uow: AbstractUnitOfWork) -> Wallet:
@@ -75,11 +73,8 @@ def execute_transaction(
             )
         uow.transactions.save(tx)
 
-        # for cashback test
-        # cardpay_wallet = create_wallet(uow=uow)
-        # uow.transactions.add_1000_wallet(wallet = cardpay_wallet)
+        
         marketing_commands.give_cashback(
-            sender_wallet_id=CARD_PAY_WALLET_ID,
             recipient_wallet_id=recipient_wallet_id,
             deposited_amount=amount,
             transaction_type=transaction_type,
