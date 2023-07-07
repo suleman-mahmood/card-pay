@@ -34,9 +34,10 @@ def test_execute_transaction(seed_verified_auth_user):
         uow=uow,
     )
 
+    sender_wallet = get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
+    recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient.wallet_id, uow=uow)
+    
     with uow:
-        sender_wallet = get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
-        recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient.wallet_id, uow=uow)
         # for testing purposes
         uow.transactions.add_1000_wallet(sender_wallet)
 
@@ -124,11 +125,10 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
         uow=uow,
     )
 
+    sender_wallet = get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
+    recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient.wallet_id, uow=uow)
+
     with uow:
-        sender_wallet = get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
-        recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient.wallet_id, uow=uow)
-
-
         # for testing purposes
         uow.transactions.add_1000_wallet(sender_wallet)
 
