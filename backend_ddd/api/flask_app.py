@@ -1,7 +1,7 @@
 from dataclasses import asdict
 
-import firebase_admin
-from firebase_admin import credentials, auth
+# import firebase_admin
+# from firebase_admin import credentials, auth
 from flask import Flask, request, jsonify
 
 from backend_ddd.api.utils import handle_exceptions  # authenticate_token
@@ -12,6 +12,7 @@ from backend_ddd.payment.domain.model import (
     TransactionType,
     TransactionStatus,
 )
+from backend_ddd.marketing.entrypoint import commands as marketing_commands
 
 app = Flask(__name__)
 PREFIX = "/api/v1"
@@ -152,10 +153,9 @@ def create_test_wallet():
 
 
 @app.route(PREFIX + "/execute-transaction", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
 def execute_transaction():
-    if request.json is None:
-        return jsonify({"success": False, "message": "payload missing in request"}), 400
-
     payment_commands.execute_transaction(
         sender_wallet_id=request.json["sender_wallet_id"],
         recipient_wallet_id=request.json["recipient_wallet_id"],
@@ -172,10 +172,8 @@ def execute_transaction():
 
 @app.route(PREFIX + "/accept-p2p-pull-transaction", methods=["POST"])
 @handle_exceptions
+@handle_missing_payload
 def accept_p2p_pull_transaction():
-    if request.json is None:
-        return jsonify({"success": False, "message": "payload missing in request"}), 400
-
     payment_commands.accept_p2p_pull_transaction(
         transaction_id=request.json["transaction_id"],
         uow=UnitOfWork(),
@@ -193,10 +191,8 @@ def accept_p2p_pull_transaction():
 
 @app.route(PREFIX + "/decline-p2p-pull-transaction", methods=["POST"])
 @handle_exceptions
+@handle_missing_payload
 def decline_p2p_pull_transaction():
-    if request.json is None:
-        return jsonify({"success": False, "message": "payload missing in request"}), 400
-
     payment_commands.decline_p2p_pull_transaction(
         transaction_id=request.json["transaction_id"],
         uow=UnitOfWork(),
@@ -214,10 +210,8 @@ def decline_p2p_pull_transaction():
 
 @app.route(PREFIX + "/generate-voucher", methods=["POST"])
 @handle_exceptions
+@handle_missing_payload
 def generate_voucher():
-    if request.json is None:
-        return jsonify({"success": False, "message": "payload missing in request"}), 400
-
     payment_commands.generate_voucher(
         sender_wallet_id=request.json["sender_wallet_id"],
         amount=request.json["amount"],
@@ -236,10 +230,8 @@ def generate_voucher():
 
 @app.route(PREFIX + "/redeem-voucher", methods=["POST"])
 @handle_exceptions
+@handle_missing_payload
 def redeem_voucher():
-    if request.json is None:
-        return jsonify({"success": False, "message": "payload missing in request"}), 400
-
     payment_commands.redeem_voucher(
         recipient_wallet_id=request.json["recipient_wallet_id"],
         transaction_id=request.json["transaction_id"],
@@ -253,4 +245,83 @@ def redeem_voucher():
             }
         ),
         200,
+    )
+
+@app.route(PREFIX + "/use-reference", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def use_reference(): 
+    marketing_commands.use_reference(
+        referee_id = request.json["referee_id"],
+        referral_id = request.json["referral_id"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "reference used successfully",
+            }
+        ),
+        200,
+    )
+
+# Admin Portal Routes
+
+@app.route(PREFIX + "/add-weightage", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def add_weightage():
+    marketing_commands.add_weightage(
+        weightage_type = request.json["weightage_type"],
+        weightage_value = request.json["weightage_value"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "weightage added successfully",
+            }
+        ),
+        200,
+    )
+
+@app.route(PREFIX + "/set-weightage", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def set_weightage():
+    marketing_commands.set_weightage(
+        weightage_type = request.json["weightage_type"],
+        weightage_value = request.json["weightage_value"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "weightage set successfully",
+            }
+        ),
+        200,
+    )
+
+@app.route(PREFIX + "/set-cashback-slabs", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def set_cashback_slabs():
+    cashback_slabs = request.json["cashback_slabs"]
+    
+    marketing_commands.set_cashback_slabs(
+        cashback_slabs = cashback_slabs,
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "cashback slabs set successfully",
+            }
+        ),
+        200
     )

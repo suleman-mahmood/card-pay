@@ -7,7 +7,6 @@ from uuid import uuid4
 from datetime import datetime
 
 
-
 def test_closed_loop_repository_add_get(seed_closed_loop):
     uow = UnitOfWork()
 

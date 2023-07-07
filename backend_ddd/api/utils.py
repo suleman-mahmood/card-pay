@@ -45,3 +45,13 @@ def handle_exceptions(func):
             return jsonify({"success": False, "message": str(e)}), 400
 
     return wrapper
+
+def handle_missing_payload(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if request.json is None:
+            return jsonify({"success": False, "message": "payload missing in request"}), 400
+        
+        return func(*args, **kwargs)
+
+    return wrapper
