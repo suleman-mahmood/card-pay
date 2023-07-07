@@ -1,4 +1,5 @@
 from ...entrypoint import commands as marketing_commands
+from ...entrypoint import queries as marketing_queries
 from ....entrypoint.uow import UnitOfWork, AbstractUnitOfWork
 from ....payment.domain.model import TransactionType, TransactionMode, Wallet
 from ....payment.entrypoint import commands as payment_commands
@@ -7,40 +8,7 @@ from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth
 from ....authentication.entrypoint import commands as auth_commands
 from ...domain.model import User, Weightage, CashbackSlab, CashbackType, AllCashbacks
 
-def get_marketing_user(
-    user_id: str,
-    uow: AbstractUnitOfWork,
-):
-    with uow:
-        return uow.marketing_users.get(user_id)
 
-
-def get_weightage(
-    weightage_type: str,
-    uow: AbstractUnitOfWork,
-):
-    with uow:
-        weightage_type = TransactionType[weightage_type]
-        return uow.weightages.get(weightage_type)
-
-def get_wallet_balance(
-    wallet_id: str,
-    uow: AbstractUnitOfWork,
-):
-    with uow:
-        sql = """
-            select balance
-            from wallets
-            where id = %s
-            """
-        uow.cursor.execute(
-            sql,
-            [
-                wallet_id
-            ]
-        )
-        row = uow.cursor.fetchone()
-        return row[0]
 
 def test_loyalty_points_for_p2p_push(seed_verified_auth_user):
     uow = UnitOfWork()
@@ -66,7 +34,7 @@ def test_loyalty_points_for_p2p_push(seed_verified_auth_user):
         uow=uow,
     )
 
-    fetched_sender = get_marketing_user(user_id=sender.id, uow=uow)
+    fetched_sender = marketing_queries.get_marketing_user(user_id=sender.id, uow=uow)
     assert fetched_sender.loyalty_points == 1000
 
 def test_loyalty_points_for_p2p_pull(seed_verified_auth_user):
@@ -96,7 +64,7 @@ def test_loyalty_points_for_p2p_pull(seed_verified_auth_user):
         uow=uow,
     )
 
-    fetched_requestee = get_marketing_user(user_id=requestee.id, uow=uow)
+    fetched_requestee = marketing_queries.get_marketing_user(user_id=requestee.id, uow=uow)
     assert fetched_requestee.loyalty_points == 1000
 
 def test_use_reference_and_add_referral_loyalty_points(seed_verified_auth_user):
@@ -115,10 +83,10 @@ def test_use_reference_and_add_referral_loyalty_points(seed_verified_auth_user):
         uow=uow,
     )
 
-    fetched_loyalty_points = get_weightage(
+    fetched_loyalty_points = marketing_queries.get_weightage(
         weightage_type="REFERRAL", uow=uow,).weightage_value
-    fetched_referee = get_marketing_user(user_id=referee.id, uow=uow)
-    fetched_referral = get_marketing_user(user_id=referral.id, uow=uow)
+    fetched_referee = marketing_queries.get_marketing_user(user_id=referee.id, uow=uow)
+    fetched_referral = marketing_queries.get_marketing_user(user_id=referral.id, uow=uow)
 
     assert fetched_referee.referral_id == referral.id
     assert fetched_referral.loyalty_points == fetched_loyalty_points
@@ -138,7 +106,7 @@ def test_add_and_set_weightage():
         uow=uow,
     )
 
-    fetched_weightage = get_weightage("PAYMENT_GATEWAY",uow)
+    fetched_weightage = marketing_queries.get_weightage("PAYMENT_GATEWAY",uow)
 
     assert fetched_weightage.weightage_value == 20
 
@@ -210,11 +178,11 @@ def test_cashback(seed_verified_auth_user):
         uow = uow,
     )
 
-    marketing_recipient = get_marketing_user(
+    marketing_recipient = marketing_queries.get_marketing_user(
         user_id = recipient.id,
         uow = uow,
     )
 
     assert marketing_recipient.loyalty_points == 10
-    assert get_wallet_balance(pg_wallet.id, uow) == 900
-    assert get_wallet_balance(recipient.wallet_id, uow) == (100*1.2)
+    assert payment_queries.get_wallet_balance(pg_wallet.id, uow) == 900
+    assert payment_queries.get_wallet_balance(recipient.wallet_id, uow) == (100*1.2)

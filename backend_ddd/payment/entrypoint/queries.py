@@ -2,6 +2,24 @@ from ..domain.model import Wallet
 from ...entrypoint.uow import AbstractUnitOfWork
 from ...authentication.domain.model import User
 
+def get_wallet_balance(
+    wallet_id: str,
+    uow: AbstractUnitOfWork,
+):
+    with uow:
+        sql = """
+            select balance
+            from wallets
+            where id = %s
+            """
+        uow.cursor.execute(
+            sql,
+            [
+                wallet_id
+            ]
+        )
+        row = uow.cursor.fetchone()
+        return row[0]
 
 def get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
     
