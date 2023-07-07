@@ -4,22 +4,24 @@ from ...authentication.domain.model import User
 
 
 def get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
-    sql = """
-        select id, balance
-        from wallets 
-        where id = %s
-    """
-    uow.cursor.execute(
-        sql,
-        [
-            wallet_id
-        ]
-    )
-    row = uow.cursor.fetchone()
-    return Wallet(
-        id=row[0],
-        balance=row[1],
-    )
+    
+    with uow:
+        sql = """
+            select id, balance
+            from wallets 
+            where id = %s
+        """
+        uow.cursor.execute(
+            sql,
+            [
+                wallet_id
+            ]
+        )
+        row = uow.cursor.fetchone()
+        return Wallet(
+            id=row[0],
+            balance=row[1],
+        )
 
 
 def get_user_id_from_wallet_id(
@@ -49,24 +51,25 @@ def add_starred_wallet_id(
     """
     keeping it here for now, will move it later after discussion
     """
-    delete_sql = """
-        delete from starred_wallet_id
-    """
-    uow.cursor.execute(
-        delete_sql
-    )
+    with uow:
+        delete_sql = """
+            delete from starred_wallet_id
+        """
+        uow.cursor.execute(
+            delete_sql
+        )
 
-    sql = """
-        insert into starred_wallet_id
-        values (%s)
-    """
-    uow.cursor.execute(
-        sql,
-        [
-            wallet_id
-        ]
-    )
-    uow.connection.commit()
+        sql = """
+            insert into starred_wallet_id
+            values (%s)
+        """
+        uow.cursor.execute(
+            sql,
+            [
+                wallet_id
+            ]
+        )
+        uow.connection.commit()
 
 
 def get_starred_wallet_id(

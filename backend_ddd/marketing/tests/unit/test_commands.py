@@ -51,10 +51,10 @@ def test_loyalty_points_for_p2p_push(seed_verified_auth_user):
         weightage_value=10,
         uow=uow,
     )
+    sender_wallet = payment_queries.get_wallet_from_wallet_id(
+        wallet_id=sender.wallet_id, uow=uow
+    )
     with uow:
-        sender_wallet = payment_queries.get_wallet_from_wallet_id(
-            wallet_id=sender.wallet_id, uow=uow
-        )
         uow.transactions.add_1000_wallet(sender_wallet)
     
     payment_commands.execute_transaction(
@@ -78,10 +78,10 @@ def test_loyalty_points_for_p2p_pull(seed_verified_auth_user):
         weightage_value=10,
         uow=uow,
     )
+    requestee_wallet = payment_queries.get_wallet_from_wallet_id(
+        wallet_id=requestee.wallet_id, uow=uow
+    )
     with uow:
-        requestee_wallet = payment_queries.get_wallet_from_wallet_id(
-            wallet_id=requestee.wallet_id, uow=uow
-        )
         uow.transactions.add_1000_wallet(requestee_wallet)
     tx = payment_commands.execute_transaction(
         sender_wallet_id=requestee.wallet_id,
@@ -192,15 +192,14 @@ def test_cashback(seed_verified_auth_user):
     )
     recipient = seed_verified_auth_user(uow)
     pg = seed_verified_auth_user(uow)
-
+    pg_wallet = payment_queries.get_wallet_from_wallet_id(wallet_id = pg.wallet_id, uow = uow)
+    
     with uow:
-        pg_wallet = payment_queries.get_wallet_from_wallet_id(wallet_id = pg.wallet_id, uow = uow)
         uow.transactions.add_1000_wallet(wallet = pg_wallet)
-
         cardpay_wallet = payment_commands.create_wallet(uow=uow)
-        payment_queries.add_starred_wallet_id(wallet_id=cardpay_wallet.id, uow=uow)
-
         uow.transactions.add_1000_wallet(wallet = cardpay_wallet)
+    
+    payment_queries.add_starred_wallet_id(wallet_id=cardpay_wallet.id, uow=uow)
     
     payment_commands.execute_transaction(
         sender_wallet_id = pg.wallet_id,
