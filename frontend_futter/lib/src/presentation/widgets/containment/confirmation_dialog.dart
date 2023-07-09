@@ -8,7 +8,7 @@ class ConfirmationContainer extends StatelessWidget {
   final String text1;
   final String text2;
 
-  ConfirmationContainer({
+  const ConfirmationContainer({super.key, 
     required this.title1,
     required this.text1,
     required this.title2,

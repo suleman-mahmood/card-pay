@@ -1,6 +1,13 @@
 import 'package:flutter/widgets.dart';
 
+// TODO: Keep it simple
 class ScreenUtil {
+  static double heightSlabOne = 8;
+  static double heightSlabTwo = 16;
+  static double heightSlabThree = 24;
+
+  static double widthTextBetween = 8;
+
   static double screenWidth(BuildContext context) {
     return MediaQuery.of(context).size.width;
   }

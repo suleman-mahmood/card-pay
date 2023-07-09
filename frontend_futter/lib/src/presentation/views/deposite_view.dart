@@ -24,7 +24,7 @@ class DepositView extends HookWidget {
       title: DepositViewConstants.title,
       buttonText: DepositViewConstants.buttonText,
       backgroundColor: AppColors.mediumBlueColor,
-      onButtonPressed: () => context.router.push(DashboardRoute()),
+      onButtonPressed: () => context.router.push(const DashboardRoute()),
     );
   }
 }

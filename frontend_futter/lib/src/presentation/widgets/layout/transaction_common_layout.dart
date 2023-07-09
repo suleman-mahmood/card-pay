@@ -13,13 +13,13 @@ class TransactionView extends HookWidget {
   final Color backgroundColor;
   final VoidCallback onButtonPressed;
 
-  const TransactionView({
+  const TransactionView({super.key, 
     required this.title,
     required this.buttonText,
     this.rollNumber,
     required this.backgroundColor,
     required this.onButtonPressed,
-  }) : super();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class TransactionView extends HookWidget {
               ),
               decoration: BoxDecoration(
                 color: AppColors.secondaryColor,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
                 ),
@@ -48,7 +48,7 @@ class TransactionView extends HookWidget {
                     color: AppColors.greyColor.withOpacity(0.5),
                     spreadRadius: 5,
                     blurRadius: 7,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -62,7 +62,7 @@ class TransactionView extends HookWidget {
                   if (rollNumber != null)
                     Container(
                       width: MediaQuery.of(context).size.width * 0.9,
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: AppColors.secondaryColor,
                         border: Border.all(
@@ -78,7 +78,7 @@ class TransactionView extends HookWidget {
                       ),
                     ),
                   PaymentEntry(controller: paymentController),
-                  CustomButton(
+                  PrimaryButton(
                     color: backgroundColor,
                     text: buttonText,
                     onPressed: onButtonPressed,

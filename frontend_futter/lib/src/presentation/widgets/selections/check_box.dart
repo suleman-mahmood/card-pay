@@ -6,7 +6,7 @@ class CheckBox extends HookWidget {
   final Function(bool value)? onChanged;
   final String text;
 
-  const CheckBox({
+  const CheckBox({super.key, 
     required this.text,
     this.onChanged,
   });
@@ -75,7 +75,7 @@ class CheckBox extends HookWidget {
     return Expanded(
       child: Text(
         text,
-        style: Theme.of(context).textTheme.subtitle1!.copyWith(
+        style: Theme.of(context).textTheme.titleMedium!.copyWith(
               color: AppColors.blackColor.withOpacity(0.8),
               fontSize: screenWidth * 0.045,
             ),

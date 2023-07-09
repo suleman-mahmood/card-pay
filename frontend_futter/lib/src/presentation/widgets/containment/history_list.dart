@@ -12,6 +12,8 @@ class TransactionList extends HookWidget {
     AppColors.redColor,
   ];
 
+  const TransactionList({super.key});
+
   Future<List<dynamic>> loadTransactions() async {
     try {
       String jsonString =

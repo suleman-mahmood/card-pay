@@ -47,7 +47,7 @@ class RegisterView extends HookWidget {
           SizedBox(
               height: ScreenUtil.heightMultiplier(context) *
                   1), // Leverage ScreenUtil
-          MainHeading(
+          const MainHeading(
             accountTitle: AppStrings.register,
             accountDescription: AppStrings.sign,
           ),
@@ -63,14 +63,14 @@ class RegisterView extends HookWidget {
             SizedBox(
                 height: ScreenUtil.heightMultiplier(context) *
                     0.5), // Leverage ScreenUtil
-          CustomInputField(
+          const CustomInputField(
             label: AppStrings.rollNumber,
             hint: AppStrings.enterRollNumber,
           ),
           SizedBox(
               height: ScreenUtil.heightMultiplier(context) *
                   1), // Leverage ScreenUtil
-          CustomButton(
+          PrimaryButton(
             text: AppStrings.create,
             onPressed: () => _showOTPBottomSheet(context),
           ),
@@ -81,11 +81,11 @@ class RegisterView extends HookWidget {
 
   Widget OTPBottomSheet(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          MainHeading(
+          const MainHeading(
             accountTitle: AppStrings.check,
             accountDescription: AppStrings.otpText,
           ),
@@ -100,7 +100,7 @@ class RegisterView extends HookWidget {
               height: ScreenUtil.heightMultiplier(context) *
                   1), // Leverage ScreenUtil
           Text(
-            AppStrings.confirmCode,
+            AppStrings.noOtp,
             style: AppTypography.headingFont.copyWith(
               color: AppColors.primaryColor,
               fontSize:
@@ -110,10 +110,10 @@ class RegisterView extends HookWidget {
           SizedBox(
               height: ScreenUtil.heightMultiplier(context) *
                   0.2), // Leverage ScreenUtil
-          CustomButton(
+          PrimaryButton(
             text: AppStrings.verify,
             onPressed: () {
-              context.router.push(AuthRoute());
+              context.router.push(const AuthRoute());
             },
           ),
         ],

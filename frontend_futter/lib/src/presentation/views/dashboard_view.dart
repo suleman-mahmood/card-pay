@@ -14,10 +14,10 @@ import 'package:frontend_futter/src/presentation/widgets/navigations/drawer_navi
 import 'package:frontend_futter/src/utils/constants/payment_string.dart';
 
 final pages = [
-  DashboardRoute(),
-  ConfirmationRoute(),
-  FilterHistoryRoute(),
-  HistroyRoute(),
+  const DashboardRoute(),
+  const ConfirmationRoute(),
+  const FilterHistoryRoute(),
+  const HistroyRoute(),
 ];
 
 @RoutePage()
@@ -31,7 +31,6 @@ class DashboardView extends HookWidget {
       body: Builder(
         builder: (BuildContext scaffoldContext) {
           return AuthLayout(
-            scrollable: false,
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: ScreenUtil.widthMultiplier(context) * 2,
@@ -39,17 +38,17 @@ class DashboardView extends HookWidget {
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(top: 8.0),
+                    padding: const EdgeInsets.only(top: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        GreetingRow(
+                        const GreetingRow(
                           greeting: PaymentStrings.greet,
                           name: PaymentStrings.name,
                           imagePath: 'assets/images/talha.jpg',
                         ),
                         IconButton(
-                          icon: Icon(Icons.menu),
+                          icon: const Icon(Icons.menu),
                           onPressed: () {
                             Scaffold.of(scaffoldContext).openEndDrawer();
                           },
@@ -66,7 +65,7 @@ class DashboardView extends HookWidget {
                   const VerticalSpace(1),
                   const RecentTransactionsTitle(),
                   const VerticalSpace(1),
-                  TransactionContainer(
+                  const TransactionContainer(
                     icon: Icons.send,
                     firstText: PaymentStrings.rollNumber,
                     secondText: PaymentStrings.pAmount,
@@ -74,7 +73,7 @@ class DashboardView extends HookWidget {
                     secondTextColor: AppColors.redColor,
                     iconColor: AppColors.primaryColor,
                   ),
-                  TransactionContainer(
+                  const TransactionContainer(
                     icon: Icons.money,
                     firstText: PaymentStrings.rollNumber,
                     secondText: PaymentStrings.nAmount,
@@ -83,7 +82,7 @@ class DashboardView extends HookWidget {
                     iconColor: AppColors.primaryColor,
                   ),
                   SizedBox(height: ScreenUtil.heightMultiplier(context) * 2),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CustomBox(
@@ -99,7 +98,7 @@ class DashboardView extends HookWidget {
                     ],
                   ),
                   SizedBox(height: ScreenUtil.heightMultiplier(context) * 2),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CustomBox(

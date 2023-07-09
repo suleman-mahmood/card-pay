@@ -14,13 +14,15 @@ class DrawerItem {
 
 class MyDrawer extends HookWidget {
   final List<DrawerItem> drawerItems = [
-    DrawerItem(icon: Icons.home, text: 'Home', route: SplashRoute()),
-    DrawerItem(icon: Icons.history, text: 'History', route: HistroyRoute()),
-    DrawerItem(icon: Icons.show_chart, text: 'Charts', route: DashboardRoute()),
-    DrawerItem(icon: Icons.person, text: 'Profile', route: ConfirmationRoute()),
+    DrawerItem(icon: Icons.home, text: 'Home', route: const SplashRoute()),
+    DrawerItem(icon: Icons.history, text: 'History', route: const HistroyRoute()),
+    DrawerItem(icon: Icons.show_chart, text: 'Charts', route: const DashboardRoute()),
+    DrawerItem(icon: Icons.person, text: 'Profile', route: const ConfirmationRoute()),
     DrawerItem(
-        icon: Icons.settings, text: 'Settings', route: FilterHistoryRoute()),
+        icon: Icons.settings, text: 'Settings', route: const FilterHistoryRoute()),
   ];
+
+  const MyDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class MyDrawer extends HookWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
             ),
             child: userInfo(context),
@@ -37,7 +39,7 @@ class MyDrawer extends HookWidget {
           for (var item in drawerItems)
             CustomListTile(
               leading: Icon(item.icon, color: Colors.black),
-              title: Text(item.text, style: TextStyle(color: Colors.black)),
+              title: Text(item.text, style: const TextStyle(color: Colors.black)),
               onTap: () => context.router.push(item.route),
             ),
           SizedBox(height: ScreenUtil.heightMultiplier(context) * 30),
@@ -67,7 +69,7 @@ class MyDrawer extends HookWidget {
                   color: Colors.black,
                   fontSize: ScreenUtil.textMultiplier(context) * 1.8),
             ),
-            Text(
+            const Text(
               '24100245example.com',
               style: TextStyle(color: Colors.black),
             ),

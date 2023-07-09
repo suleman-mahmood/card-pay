@@ -9,8 +9,8 @@ class PinEntry extends HookWidget {
   final int pinLength;
   final VoidCallback onPinEntered;
 
-  PinEntry(
-      {required this.controller,
+  const PinEntry(
+      {super.key, required this.controller,
       this.pinLength = 4,
       required this.onPinEntered});
 

@@ -10,7 +10,7 @@ class CustomCurvedBottomBar extends HookWidget {
   final List<IconData>? icons;
   final Duration animationDuration;
 
-  CustomCurvedBottomBar({
+  const CustomCurvedBottomBar({
     Key? key,
     required this.selectedIndex,
     required this.onItemTapped,

@@ -10,7 +10,7 @@ class NumPad extends HookWidget {
   final TextEditingController controller;
   final Color? buttonColor;
 
-  const NumPad({
+  const NumPad({super.key, 
     required this.controller,
     this.buttonColor,
   });
@@ -47,7 +47,7 @@ class NumberPadRow extends HookWidget {
   final Color? buttonColor;
   final double height;
 
-  const NumberPadRow({
+  const NumberPadRow({super.key, 
     required this.row,
     required this.controller,
     this.buttonColor,
@@ -56,7 +56,7 @@ class NumberPadRow extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: height,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -79,7 +79,7 @@ class NumberPadLastRow extends StatelessWidget {
   final Color? buttonColor;
   final double height;
 
-  const NumberPadLastRow({
+  const NumberPadLastRow({super.key, 
     required this.controller,
     this.buttonColor,
     required this.height,
@@ -87,7 +87,7 @@ class NumberPadLastRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: height,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

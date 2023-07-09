@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 abstract class BaseCubit<S, T> extends Cubit<S> {
   BaseCubit(S initialState, this._data) : super(initialState);
 
-  T _data;
+  final T _data;
 
   @protected
   T get data => _data;

@@ -6,7 +6,7 @@ import 'package:frontend_futter/src/presentation/widgets/actions/button/numpad_b
 class NumpadWithDisplay extends HookWidget {
   final Widget display;
   final TextEditingController controller;
-  NumpadWithDisplay({required this.display, required this.controller});
+  const NumpadWithDisplay({super.key, required this.display, required this.controller});
   @override
   Widget build(BuildContext context) {
     return Column(

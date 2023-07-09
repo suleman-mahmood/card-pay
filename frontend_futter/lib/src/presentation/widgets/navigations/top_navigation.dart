@@ -10,7 +10,7 @@ class Header extends HookWidget {
   final bool showMainHeading;
   final String? mainHeadingText;
 
-  const Header({
+  const Header({super.key, 
     required this.title,
     this.color = AppColors.secondaryColor,
     this.showMainHeading = false,
@@ -41,7 +41,7 @@ class Header extends HookWidget {
                   style: AppTypography.mainHeading.copyWith(color: color),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
             ],
           ),
         ),

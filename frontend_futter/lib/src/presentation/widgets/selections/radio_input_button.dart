@@ -5,13 +5,13 @@ import 'package:frontend_futter/src/config/themes/colors.dart';
 class RadioButton extends HookWidget {
   final bool filled;
 
-  const RadioButton({required this.filled});
+  const RadioButton({super.key, required this.filled});
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final borderWidth = 1.0;
+    const borderWidth = 1.0;
 
     return Padding(
       padding: EdgeInsets.all(screenWidth * 0.003),

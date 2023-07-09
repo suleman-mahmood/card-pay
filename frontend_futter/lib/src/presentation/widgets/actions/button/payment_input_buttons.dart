@@ -17,7 +17,7 @@ class PaymentEntry extends HookWidget {
     '5000'
   ];
 
-  PaymentEntry({required this.controller});
+  PaymentEntry({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class PaymentEntry extends HookWidget {
 class PaymentValueListenableBuilder extends HookWidget {
   final TextEditingController controller;
 
-  PaymentValueListenableBuilder({
+  const PaymentValueListenableBuilder({super.key, 
     required this.controller,
   });
 
@@ -65,7 +65,7 @@ class PaymentValueListenableBuilder extends HookWidget {
         valueListenable: controller,
         builder: (context, value, child) {
           final text = controller.text.isEmpty ? '____' : controller.text;
-          return Container(
+          return SizedBox(
             height: ScreenUtil.blockSizeVertical(context) * 5,
             child: ListView.separated(
               shrinkWrap: true,
@@ -94,15 +94,15 @@ class PaymentButton extends StatelessWidget {
   final ValueNotifier<String?> selectedButton;
   final TextEditingController controller;
 
-  PaymentButton(
-      this.context, this.amount, this.selectedButton, this.controller);
+  const PaymentButton(
+      this.context, this.amount, this.selectedButton, this.controller, {super.key});
 
   @override
   Widget build(BuildContext context) {
     final isSelected = selectedButton.value == amount;
     final buttonColor = isSelected
         ? AppColors.primaryColor
-        : Color.fromARGB(255, 224, 234, 246);
+        : const Color.fromARGB(255, 224, 234, 246);
     final textColor =
         isSelected ? AppColors.secondaryColor : AppColors.primaryColor;
 
@@ -111,12 +111,12 @@ class PaymentButton extends StatelessWidget {
         selectedButton.value = amount;
         controller.text = amount;
       },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
+      ),
       child: Text(
         amount,
         style: TextStyle(color: textColor),
-      ),
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
       ),
     );
   }

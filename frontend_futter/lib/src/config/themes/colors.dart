@@ -66,10 +66,32 @@ class AppColors {
 }
 
 class AppTypography {
+  static const TextStyle introHeading = TextStyle(
+    fontFamily: 'poppins',
+    fontSize: 48,
+    fontWeight: FontWeight.bold,
+  );
+
   static const TextStyle mainHeading = TextStyle(
     fontFamily: 'poppins',
     fontSize: 28,
     fontWeight: FontWeight.bold,
+  );
+
+  static const TextStyle bodyText = TextStyle(
+    color: AppColors.blackColor,
+    fontSize: 16,
+  );
+
+  static const TextStyle linkText = TextStyle(
+    color: AppColors.primaryColor,
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  );
+
+  static const TextStyle subHeading = TextStyle(
+    color: AppColors.greyColor,
+    fontSize: 16,
   );
 
   static const TextStyle inputFont = TextStyle(

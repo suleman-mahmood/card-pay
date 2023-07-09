@@ -8,7 +8,7 @@ class GreetingRow extends HookWidget {
   final String name;
   final String? imagePath;
 
-  const GreetingRow({
+  const GreetingRow({super.key, 
     required this.greeting,
     required this.name,
     this.imagePath,

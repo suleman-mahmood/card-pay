@@ -18,7 +18,7 @@ class SendViewConstants {
 class SendView extends HookWidget {
   final String rollNumber;
 
-  const SendView({required this.rollNumber}) : super();
+  const SendView({super.key, required this.rollNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class SendView extends HookWidget {
       buttonText: SendViewConstants.buttonText,
       rollNumber: rollNumberController.rollNumber,
       backgroundColor: AppColors.parrotColor,
-      onButtonPressed: () => context.router.push(DashboardRoute()),
+      onButtonPressed: () => context.router.push(const DashboardRoute()),
     );
   }
 }

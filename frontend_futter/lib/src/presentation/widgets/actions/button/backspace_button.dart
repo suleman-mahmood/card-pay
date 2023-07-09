@@ -9,7 +9,7 @@ class BackspaceButton extends HookWidget {
   final double heightFactor;
   final double iconFactor;
 
-  const BackspaceButton({
+  const BackspaceButton({super.key, 
     required this.controller,
     this.color = AppColors.secondaryColor,
     this.widthFactor = 0.15,
