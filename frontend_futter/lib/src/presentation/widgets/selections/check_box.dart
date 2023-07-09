@@ -18,38 +18,6 @@ class CheckBox extends HookWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return InkWell(
-<<<<<<< HEAD
-      onTap: () {
-        isChecked.value = !isChecked.value;
-        onChanged?.call(isChecked.value);
-      },
-      child: Container(
-        width: screenWidth * 0.9,
-        padding: EdgeInsets.symmetric(
-            vertical: screenHeight * 0.01, horizontal: screenWidth * 0.05),
-        decoration: BoxDecoration(
-          color: AppColors.greyColor.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: screenWidth * 0.06,
-              height: screenWidth * 0.06,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isChecked.value
-                    ? AppColors.primaryColor
-                    : AppColors.greyColor,
-              ),
-              child: isChecked.value
-                  ? Icon(
-                      Icons.check,
-                      color: AppColors.greyColor,
-                      size: screenWidth * 0.04,
-                    )
-                  : null,
-=======
       onTap: () => toggleCheckbox(isChecked),
       child: buildContainer(context, isChecked, screenHeight, screenWidth),
     );
@@ -110,7 +78,6 @@ class CheckBox extends HookWidget {
         style: Theme.of(context).textTheme.subtitle1!.copyWith(
               color: AppColors.blackColor.withOpacity(0.8),
               fontSize: screenWidth * 0.045,
->>>>>>> d9e110d (new refactor)
             ),
       ),
     );
