@@ -4,6 +4,13 @@ class AppColors {
   static const Color primaryColor = Colors.blue;
   static const Color secondaryColor = Colors.white;
   static const Color lightBlueColor = Color.fromRGBO(65, 160, 242, 1);
+  static const Color darkVlueColor = Color.fromRGBO(20, 94, 185, 0.998);
+  static const Color mediumBlueColor = Color.fromRGBO(6, 127, 205, 1);
+  static const Color skyColor = Color.fromRGBO(1, 204, 192, 1);
+  static const Color mediumGreenColor = Color.fromRGBO(1, 204, 136, 1);
+  static const Color parrotColor = Color.fromRGBO(1, 204, 136, 1);
+
+  static const Color purpleColor = Color.fromRGBO(90, 39, 200, 1);
 
   static const Color orangeColor = Colors.orange;
   static const Color redColor = Colors.red;
