@@ -7,42 +7,33 @@ class AuthLayout extends HookWidget {
 
   const AuthLayout({
     required this.child,
-    this.scrollable =
-        true, // default value is true, making it backward compatible
+    this.scrollable = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenPaddingTop = MediaQuery.of(context).padding.top;
+    final screenPaddingBottom = MediaQuery.of(context).padding.bottom;
 
-    final childToRender = scrollable
-        ? SingleChildScrollView(
-            child: Center(
-              child: Container(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height -
-                      MediaQuery.of(context).padding.top -
-                      MediaQuery.of(context).padding.bottom,
-                ),
-                child: child,
-              ),
-            ),
-          )
-        : Center(
-            child: Container(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height -
-                    MediaQuery.of(context).padding.top -
-                    MediaQuery.of(context).padding.bottom,
-              ),
-              child: child,
-            ),
-          );
+    Widget content = Center(
+      child: Container(
+        constraints: BoxConstraints(
+          minHeight: screenHeight - screenPaddingTop - screenPaddingBottom,
+        ),
+        child: child,
+      ),
+    );
+
+    final childToRender =
+        scrollable ? SingleChildScrollView(child: content) : content;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.088),
           child: childToRender,
         ),
       ),

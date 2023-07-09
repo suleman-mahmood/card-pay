@@ -14,7 +14,7 @@ import 'package:frontend_futter/src/presentation/widgets/navigations/drawer_navi
 import 'package:frontend_futter/src/utils/constants/payment_string.dart';
 
 final pages = [
-  HistroyRoute(),
+  DashboardRoute(),
   ConfirmationRoute(),
   FilterHistoryRoute(),
   HistroyRoute(),
