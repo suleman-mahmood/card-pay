@@ -9,7 +9,6 @@ class CustomButton extends HookWidget {
   final VoidCallback onPressed;
   final Color color;
   final Color textColor;
-
   const CustomButton({
     required this.text,
     required this.onPressed,
@@ -28,14 +27,6 @@ class CustomButton extends HookWidget {
       child: ElevatedButton(
         onPressed: () {
           onPressed();
-          currentColor.value = AppColors.purpleColor;
-
-          useEffect(() {
-            Future.delayed(Duration(milliseconds: 200)).then((_) {
-              currentColor.value = color;
-            });
-            return null;
-          }, const []);
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all<Color>(currentColor.value),

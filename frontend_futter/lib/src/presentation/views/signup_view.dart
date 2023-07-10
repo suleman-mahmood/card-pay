@@ -116,7 +116,6 @@ class SignupView extends HookWidget {
 
   Widget OTPBottomSheet(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -139,7 +138,7 @@ class SignupView extends HookWidget {
           ),
           SizedBox(height: 2),
           CustomButton(
-            text: AppStrings.verify, // from strings.dart
+            text: AppStrings.verify,
             onPressed: () {
               context.router.push(RegisterRoute());
             },
