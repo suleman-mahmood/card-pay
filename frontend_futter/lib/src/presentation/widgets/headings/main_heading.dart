@@ -6,29 +6,26 @@ class MainHeading extends HookWidget {
   final String accountTitle;
   final String? accountDescription;
 
-  const MainHeading({
+  const MainHeading({super.key, 
     required this.accountTitle,
     this.accountDescription,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(accountTitle, style: AppTypography.mainHeading),
-        SizedBox(height: screenHeight * 0.01),
+        Text(
+          accountTitle,
+          style: AppTypography.mainHeading,
+        ),
         (accountDescription != null)
             ? Text(
                 accountDescription!,
-                style: AppTypography.inputFont.copyWith(
-                  color: AppColors.blackColor,
-                  fontSize: screenWidth * 0.04, 
-                ),
+                style: AppTypography.subHeading,
               )
-            : SizedBox.shrink()
+            : const SizedBox.shrink()
       ],
     );
   }

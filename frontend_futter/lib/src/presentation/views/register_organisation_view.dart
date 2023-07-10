@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
+import 'package:frontend_futter/src/presentation/widgets/boxes/height_box.dart';
 import 'package:frontend_futter/src/presentation/widgets/containment/bottom_sheet_otp.dart';
 import 'package:frontend_futter/src/presentation/widgets/headings/main_heading.dart';
 import 'package:frontend_futter/src/presentation/widgets/layout/auth_layout.dart';
@@ -17,104 +18,86 @@ import 'package:frontend_futter/src/utils/constants/signUp_string.dart';
 class RegisterView extends HookWidget {
   const RegisterView({Key? key}) : super(key: key);
 
-  void _showOTPBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: SingleChildScrollView(
-            child: OTPBottomSheet(context),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final progress = useState<double>(1);
     final showRollNumberField = useState<bool>(false);
 
+    Widget OTPBottomSheet() {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const MainHeading(
+              accountTitle: AppStrings.check,
+              accountDescription: AppStrings.otpText,
+            ),
+            const HeightBox(slab: 1),
+            OTPInput(
+              digitCount: 4,
+              onCompleted: (String otp) {},
+            ),
+            const HeightBox(slab: 1),
+            Text(
+              AppStrings.noOtp,
+              style: AppTypography.headingFont.copyWith(
+                color: AppColors.primaryColor,
+                fontSize: ScreenUtil.textMultiplier(context) * 2,
+              ),
+            ),
+            const HeightBox(slab: 1),
+            PrimaryButton(
+              text: AppStrings.verify,
+              onPressed: () {
+                context.router.push(const AuthRoute());
+              },
+            ),
+          ],
+        ),
+      );
+    }
+
+    void _showOTPBottomSheet() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: SingleChildScrollView(
+              child: OTPBottomSheet(),
+            ),
+          );
+        },
+      );
+    }
+
     return AuthLayout(
       child: Column(
         children: [
-          SizedBox(
-              height: ScreenUtil.heightMultiplier(context) *
-                  1), // Leverage ScreenUtil
+          const HeightBox(slab: 3),
           CustomProgressBar(progress: progress.value),
-          SizedBox(
-              height: ScreenUtil.heightMultiplier(context) *
-                  1), // Leverage ScreenUtil
-          MainHeading(
+          const HeightBox(slab: 1),
+          const MainHeading(
             accountTitle: AppStrings.register,
             accountDescription: AppStrings.sign,
           ),
-          SizedBox(
-              height: ScreenUtil.heightMultiplier(context) *
-                  0.5), // Leverage ScreenUtil
+          const HeightBox(slab: 1),
           DropDown(
             onChanged: (String? value) {
               showRollNumberField.value = value != null;
             },
           ),
-          if (showRollNumberField.value)
-            SizedBox(
-                height: ScreenUtil.heightMultiplier(context) *
-                    0.5), // Leverage ScreenUtil
-          CustomInputField(
+          const HeightBox(slab: 1),
+          const CustomInputField(
             label: AppStrings.rollNumber,
             hint: AppStrings.enterRollNumber,
           ),
-          SizedBox(
-              height: ScreenUtil.heightMultiplier(context) *
-                  1), // Leverage ScreenUtil
-          CustomButton(
+          const HeightBox(slab: 1),
+          PrimaryButton(
             text: AppStrings.create,
-            onPressed: () => _showOTPBottomSheet(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget OTPBottomSheet(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          MainHeading(
-            accountTitle: AppStrings.check,
-            accountDescription: AppStrings.otpText,
-          ),
-          SizedBox(
-              height: ScreenUtil.heightMultiplier(context) *
-                  1), // Leverage ScreenUtil
-          OTPInput(
-            digitCount: 4,
-            onCompleted: (String otp) {},
-          ),
-          SizedBox(
-              height: ScreenUtil.heightMultiplier(context) *
-                  1), // Leverage ScreenUtil
-          Text(
-            AppStrings.confirmCode,
-            style: AppTypography.headingFont.copyWith(
-              color: AppColors.primaryColor,
-              fontSize:
-                  ScreenUtil.textMultiplier(context) * 2, // Leverage ScreenUtil
-            ),
-          ),
-          SizedBox(
-              height: ScreenUtil.heightMultiplier(context) *
-                  0.2), // Leverage ScreenUtil
-          CustomButton(
-            text: AppStrings.verify,
-            onPressed: () {
-              context.router.push(AuthRoute());
-            },
+            onPressed: () => _showOTPBottomSheet(),
           ),
         ],
       ),

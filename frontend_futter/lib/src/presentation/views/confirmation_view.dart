@@ -27,7 +27,7 @@ class ConfirmationView extends HookWidget {
   }
 
   Widget _buildHeader() {
-    return Header(
+    return const Header(
       title: PaymentStrings.receipt,
       color: Colors.black,
       showMainHeading: true,
@@ -87,7 +87,7 @@ class ConfirmationView extends HookWidget {
   }
 
   Widget _buildActionButton(BuildContext context) {
-    return CustomButton(
+    return PrimaryButton(
       text: PaymentStrings.done,
       onPressed: () => context.router.pop(),
     );

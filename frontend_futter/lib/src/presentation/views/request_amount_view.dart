@@ -16,7 +16,7 @@ class RequestAmountViewConstants {
 class RequestAmountView extends HookWidget {
   final String rollNumber;
 
-  const RequestAmountView({required this.rollNumber}) : super();
+  const RequestAmountView({super.key, required this.rollNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class RequestAmountView extends HookWidget {
       buttonText: RequestAmountViewConstants.buttonText,
       rollNumber: rollNumberController.rollNumber,
       backgroundColor: AppColors.purpleColor,
-      onButtonPressed: () => context.router.push(DashboardRoute()),
+      onButtonPressed: () => context.router.push(const DashboardRoute()),
     );
   }
 }

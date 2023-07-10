@@ -8,7 +8,7 @@ class CustomProgressBar extends HookWidget {
   final Color progressColor;
   final Color backgroundColor;
 
-  const CustomProgressBar({
+  const CustomProgressBar({super.key, 
     required this.progress,
     this.progressColor = AppColors.primaryColor,
     this.backgroundColor = AppColors.greyColor,
@@ -21,7 +21,7 @@ class CustomProgressBar extends HookWidget {
     final valueColor =
         useMemoized(() => AlwaysStoppedAnimation<Color>(progressColor));
 
-    return Container(
+    return SizedBox(
       height: height,
       child: LinearProgressIndicator(
         value: progress,

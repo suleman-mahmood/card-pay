@@ -7,7 +7,7 @@ class NumberButton extends HookWidget {
   final TextEditingController controller;
   final Color? buttonColor;
 
-  const NumberButton({
+  const NumberButton({super.key, 
     required this.digit,
     required this.controller,
     this.buttonColor,
@@ -35,7 +35,7 @@ class NumberButton extends HookWidget {
     return _InkWellButton(
       width: screenWidth * 0.15,
       height: screenHeight * 0.1,
-      child: Icon(Icons.close),
+      child: const Icon(Icons.close),
     );
   }
 

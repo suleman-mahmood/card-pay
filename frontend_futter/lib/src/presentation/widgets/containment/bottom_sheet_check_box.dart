@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
 import 'package:frontend_futter/src/presentation/widgets/actions/button/primary_button.dart';
 
 class CustomBottomSheet extends HookWidget {
@@ -28,7 +27,7 @@ class CustomBottomSheet extends HookWidget {
       ),
       child: Container(
         height: ScreenUtil.blockSizeVertical(context) * 40,
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -49,7 +48,7 @@ class CustomBottomSheet extends HookWidget {
   Text buildTitle(BuildContext context) {
     return Text(
       'BottomSheet',
-      style: Theme.of(context).textTheme.headline6,
+      style: Theme.of(context).textTheme.titleLarge,
     );
   }
 
@@ -66,8 +65,8 @@ class CustomBottomSheet extends HookWidget {
     );
   }
 
-  CustomButton buildButton(BuildContext context) {
-    return CustomButton(
+  PrimaryButton buildButton(BuildContext context) {
+    return PrimaryButton(
       color: Theme.of(context).primaryColor,
       text: 'Done',
       onPressed: () {

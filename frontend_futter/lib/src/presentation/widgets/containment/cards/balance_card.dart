@@ -8,7 +8,7 @@ class BalanceCard extends HookWidget {
   final String topRightImage;
   final String bottomLeftImage;
 
-  BalanceCard({
+  const BalanceCard({super.key, 
     required this.balance,
     required this.topRightImage,
     required this.bottomLeftImage,

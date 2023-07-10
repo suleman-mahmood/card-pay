@@ -26,7 +26,7 @@ class TransferView extends HookWidget {
                 minHeight: viewportConstraints.maxHeight,
               ),
               child: Padding(
-                padding: EdgeInsets.all(15.0),
+                padding: const EdgeInsets.all(15.0),
                 child: Column(
                   crossAxisAlignment:
                       CrossAxisAlignment.start, // updated this line
@@ -48,7 +48,7 @@ class TransferView extends HookWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: AppColors.secondaryColor,
           ),
@@ -60,7 +60,7 @@ class TransferView extends HookWidget {
             color: AppColors.secondaryColor,
           ),
         ),
-        IconButton(
+        const IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.transparent),
           onPressed: null,
           disabledColor: Colors.transparent,
@@ -73,7 +73,7 @@ class TransferView extends HookWidget {
       BuildContext context, TextEditingController rollNumberController) {
     return Column(
       children: [
-        SizedBox(height: 10.0),
+        const SizedBox(height: 10.0),
         CustomInputField(
           label: AppStrings.rollNumber,
           hint: '24xxxxxx',
@@ -89,8 +89,8 @@ class TransferView extends HookWidget {
             fontSize: 16,
           ),
         ),
-        SizedBox(height: 10.0),
-        CustomButton(
+        const SizedBox(height: 10.0),
+        PrimaryButton(
           text: PaymentStrings.next,
           color: AppColors.secondaryColor,
           textColor: AppColors.parrotColor,

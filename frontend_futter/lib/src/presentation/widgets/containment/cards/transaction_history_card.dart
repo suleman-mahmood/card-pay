@@ -11,7 +11,7 @@ class TransactionContainer extends HookWidget {
   final Color secondTextColor;
   final Color iconColor;
 
-  const TransactionContainer({
+  const TransactionContainer({super.key, 
     required this.icon,
     required this.firstText,
     required this.secondText,
@@ -55,7 +55,7 @@ class TransactionContainer extends HookWidget {
           children: [
             buildIcon(context),
             buildFirstText(context),
-            Spacer(),
+            const Spacer(),
             buildSecondText(context),
           ],
         ),
@@ -83,7 +83,7 @@ class TransactionContainer extends HookWidget {
         firstText,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.left,
-        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: firstTextColor,
               fontSize: ScreenUtil.textMultiplier(context) *
                   1.9, // 2.2% of screen height
@@ -103,7 +103,7 @@ class TransactionContainer extends HookWidget {
         secondText,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.left,
-        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: secondTextColor,
               fontSize: ScreenUtil.textMultiplier(context) *
                   2.2, // 2.2% of screen height

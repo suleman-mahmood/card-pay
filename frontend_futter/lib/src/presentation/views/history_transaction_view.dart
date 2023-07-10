@@ -13,7 +13,7 @@ List<BoxShadow> boxShadow = [
     color: AppColors.greyColor.withOpacity(0.5),
     spreadRadius: 5,
     blurRadius: 7,
-    offset: Offset(0, 3),
+    offset: const Offset(0, 3),
   ),
 ];
 
@@ -49,11 +49,11 @@ class HistroyView extends HookWidget {
                             height: MediaQuery.of(context).size.height * 0.01),
                         _buildRow(
                           context,
-                          Text(
+                          const Text(
                             PaymentStrings.transaction,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          Text(
+                          const Text(
                             PaymentStrings.seeAll,
                             style: TextStyle(color: AppColors.purpleColor),
                           ),
@@ -70,7 +70,7 @@ class HistroyView extends HookWidget {
               ),
             ),
           ),
-          Header(
+          const Header(
             title: PaymentStrings.history,
             showMainHeading: true,
             mainHeadingText: PaymentStrings.balance,
@@ -92,7 +92,7 @@ class HistroyView extends HookWidget {
 
   Padding _buildPadding(BuildContext context, Widget child) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: child,
     );
   }
@@ -100,7 +100,7 @@ class HistroyView extends HookWidget {
   BoxDecoration _getBoxDecoration() {
     return BoxDecoration(
       color: AppColors.secondaryColor,
-      borderRadius: BorderRadius.only(
+      borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(_borderRadiusValue),
         topRight: Radius.circular(_borderRadiusValue),
       ),

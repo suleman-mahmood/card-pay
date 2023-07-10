@@ -10,10 +10,10 @@ import 'package:frontend_futter/src/presentation/widgets/navigations/bottom_bar.
 import 'package:frontend_futter/src/utils/constants/payment_string.dart';
 
 final pages = [
-  DashboardRoute(),
-  ConfirmationRoute(),
-  FilterHistoryRoute(),
-  HistroyRoute(),
+  const DashboardRoute(),
+  const ConfirmationRoute(),
+  const FilterHistoryRoute(),
+  const HistroyRoute(),
 ];
 
 @RoutePage()
@@ -22,14 +22,14 @@ class FilterHistoryView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _checked1 = useState(false);
-    final _checked2 = useState(false);
-    final _checked3 = useState(false);
-    final _checked4 = useState(false);
+    final checked1 = useState(false);
+    final checked2 = useState(false);
+    final checked3 = useState(false);
+    final checked4 = useState(false);
     final selectedIndex = useState(0);
 
     return Scaffold(
-      body: _buildBody(context, _checked1, _checked2, _checked3, _checked4),
+      body: _buildBody(context, checked1, checked2, checked3, checked4),
       bottomNavigationBar: _buildBottomNavigationBar(context, selectedIndex),
     );
   }
@@ -121,7 +121,7 @@ class FilterHistoryView extends HookWidget {
   }
 
   Widget _buildTransactionList(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: ScreenUtil.blockSizeVertical(context) *
           100, // responsive container height
       child: TransactionList(),

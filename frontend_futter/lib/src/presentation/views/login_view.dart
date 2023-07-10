@@ -15,27 +15,27 @@ class LoginView extends HookWidget {
   const LoginView({Key? key}) : super(key: key);
 
   void handleLoginButtonPressed(BuildContext context) {
-    context.router.push(DashboardRoute());
+    context.router.push(const DashboardRoute());
   }
 
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
       child: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
                 height: ScreenUtil.heightMultiplier(context) *
                     22), // Leverage ScreenUtil
-            MainHeading(
+            const MainHeading(
               accountTitle: AppStrings.logIn,
             ),
             SizedBox(
                 height: ScreenUtil.heightMultiplier(context) *
                     0.5), // Leverage ScreenUtil
-            CustomInputField(
+            const CustomInputField(
               label: AppStrings.email,
               hint: AppStrings.enterEmail,
               obscureText: false,
@@ -43,7 +43,7 @@ class LoginView extends HookWidget {
             SizedBox(
                 height: ScreenUtil.heightMultiplier(context) *
                     1.5), // Leverage ScreenUtil
-            CustomInputField(
+            const CustomInputField(
               label: AppStrings.password,
               hint: AppStrings.enterPassword,
               obscureText: true,
@@ -59,7 +59,7 @@ class LoginView extends HookWidget {
                 color: AppColors.primaryColor,
               ),
             ),
-            CustomButton(
+            PrimaryButton(
               text: AppStrings.logIn,
               onPressed: () => handleLoginButtonPressed(context),
             ),

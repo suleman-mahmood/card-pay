@@ -9,6 +9,8 @@ import '../widgets/layout/pin_numpad_layout.dart';
 
 @RoutePage()
 class AuthView extends HookWidget {
+  const AuthView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final pinController = useMemoized(() => TextEditingController(), []);
@@ -16,7 +18,7 @@ class AuthView extends HookWidget {
 
     void handleLogin() {
       if (pinController.text.length == 4) {
-        context.router.push(DashboardRoute());
+        context.router.push(const DashboardRoute());
       } else {
         showErrorMessage.value = true;
       }
@@ -62,7 +64,7 @@ class AuthView extends HookWidget {
                   horizontal: ScreenUtil.widthMultiplier(context) *
                       4, // Leverage ScreenUtil
                 ),
-                child: Text(
+                child: const Text(
                   AppStrings.enterPin, // from strings.dart
                   style: TextStyle(
                     color: AppColors.orangeColor,

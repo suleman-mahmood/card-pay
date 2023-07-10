@@ -7,7 +7,8 @@ class OTPInput extends HookWidget {
   final int digitCount;
   final ValueChanged<String>? onCompleted;
 
-  OTPInput({
+  const OTPInput({
+    super.key,
     required this.digitCount,
     this.onCompleted,
   });

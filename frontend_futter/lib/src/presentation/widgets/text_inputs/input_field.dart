@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:frontend_futter/src/presentation/widgets/boxes/height_box.dart';
 
 class CustomInputField extends HookWidget {
   final String label;
@@ -14,7 +14,7 @@ class CustomInputField extends HookWidget {
   final Color color;
   final TextEditingController? controller;
 
-  const CustomInputField({
+  const CustomInputField({super.key, 
     required this.label,
     this.hint,
     this.obscureText = false,
@@ -29,8 +29,6 @@ class CustomInputField extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final passwordVisible = useState<bool>(false);
-    final padding = ScreenUtil.blockSizeHorizontal(context) * 2;
-    final verticalPadding = ScreenUtil.blockSizeVertical(context) * 2.0;
 
     void togglePasswordVisibility() {
       passwordVisible.value = !passwordVisible.value;
@@ -39,26 +37,18 @@ class CustomInputField extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: textcolor,
-            fontSize: ScreenUtil.blockSizeHorizontal(context) * 4,
-          ),
-        ),
-        SizedBox(height: ScreenUtil.blockSizeVertical(context) * 0.5),
+        Text(label, style: AppTypography.bodyText),
+        const HeightBox(slab: 1),
         Container(
-          width: double.infinity,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(19),
+            color: color.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: padding, vertical: verticalPadding),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Row(
+              children: [
+                Expanded(
                   child: TextFormField(
                     obscureText: obscureText && !passwordVisible.value,
                     controller: controller,
@@ -73,11 +63,8 @@ class CustomInputField extends HookWidget {
                     ),
                   ),
                 ),
-              ),
-              if (obscureText)
-                Padding(
-                  padding: EdgeInsets.only(right: padding),
-                  child: InkWell(
+                if (obscureText)
+                  InkWell(
                     onTap: togglePasswordVisibility,
                     child: Icon(
                       passwordVisible.value
@@ -86,8 +73,8 @@ class CustomInputField extends HookWidget {
                       color: AppColors.greyColor,
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

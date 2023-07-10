@@ -5,7 +5,7 @@ import 'package:frontend_futter/src/config/themes/colors.dart';
 class DropDown extends HookWidget {
   final void Function(String?) onChanged;
 
-  const DropDown({required this.onChanged});
+  const DropDown({super.key, required this.onChanged});
 
   static const organizations = ['None', 'LUMS', 'Nust', 'FAST', 'UET', 'IBA'];
 
@@ -25,7 +25,7 @@ class DropDown extends HookWidget {
         padding: EdgeInsets.symmetric(
             horizontal: screenWidth * 0.04, vertical: screenHeight * 0.003),
         child: DropdownButtonFormField<String>(
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'Select your organization',
             border: InputBorder.none,
           ),
@@ -51,7 +51,7 @@ class DropDown extends HookWidget {
         alignment: Alignment.center,
         child: Text(
           organization,
-          style: Theme.of(context).textTheme.subtitle1!.copyWith(
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
                 fontSize: screenWidth * 0.04,
                 color: AppColors.blackColor,
                 letterSpacing: 1.8, // increased letter spacing
