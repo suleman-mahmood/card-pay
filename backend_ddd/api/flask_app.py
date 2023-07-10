@@ -4,15 +4,15 @@ from dataclasses import asdict
 # from firebase_admin import credentials, auth
 from flask import Flask, request, jsonify
 
-from backend_ddd.api.utils import handle_exceptions  # authenticate_token
+from backend_ddd.api.utils import handle_exceptions, handle_missing_payload  # authenticate_token
 from backend_ddd.entrypoint.uow import UnitOfWork
 from backend_ddd.payment.entrypoint import commands as payment_commands
 from backend_ddd.payment.domain.model import (
     TransactionMode,
     TransactionType,
-    TransactionStatus,
 )
 from backend_ddd.marketing.entrypoint import commands as marketing_commands
+from backend_ddd.authentication.entrypoint import commands as authentication_commands
 
 app = Flask(__name__)
 PREFIX = "/api/v1"
@@ -60,33 +60,185 @@ def hello():
 
 @app.route(PREFIX + "/create-user", methods=["POST"])
 # @authenticate_token
-def create_user(uid):
+@handle_exceptions
+@handle_missing_payload
+def create_user():
     """Create a new user account"""
-    raise NotImplementedError
+    authentication_commands.create_user(
+        user_id=request.json["user_id"],
+        personal_email=request.json["personal_email"],
+        phone_number=request.json["phone_number"],
+        user_type=request.json["user_type"],
+        pin=request.json["pin"],
+        full_name=request.json["full_name"],
+        location=request.json["location"],
+        uow=UnitOfWork(), 
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "User created successfully",
+            }
+        ),
+        201,
+    )
 
-    # if request.json is None:
-    #     return_obj = {"message": "payload missing in request"}
-    #     return jsonify(return_obj), 400
+@app.route(PREFIX + "/create-closed-loop", methods=["POST"])
+@handle_missing_payload
+@handle_exceptions
+def create_closed_loop():
+    authentication_commands.create_closed_loop(
+            name=request.json["name"],
+            logo_url=request.json["logo_url"],
+            description=request.json["description"],
+            verification_type=request.json["verification_type"],
+            regex=request.json["regex"],
+            uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Closed loop created successfully",
+            }
+        ),
+        201,
+    )
 
-    # try:
-    #     user = commands.create_user(
-    #         id=uid,
-    #         full_name=request.json["full_name"],
-    #         user_name=request.json["user_name"],
-    #         email=request.json["email"],
-    #         phone_number=request.json["phone_number"],
-    #         profile_text=request.json["profile_text"],
-    #         location=tuple(request.json["location"]),
-    #         avatar_url=request.json["avatar_url"],
-    #         uow=unit_of_work.UnitOfWork(),
-    #     )
-    #     return_obj = {"message": "User created successfully!", "user_id": user.id}
-    #     return jsonify(return_obj), 201
+@app.route(PREFIX + "/change-name", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def change_name():
+    authentication_commands.change_name(
+        user_id=request.json["user_id"],
+        new_name=request.json["new_name"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Name changed successfully",
+            }
+        ),
+        200,
+    )
 
-    # except Exception as exception:
-    #     return_obj = {"message": str(exception)}
-    #     return jsonify(return_obj), 400
+@app.route(PREFIX + "/change-pin", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def change_pin():
+    authentication_commands.change_pin(
+        user_id=request.json["user_id"],
+        new_pin=request.json["new_pin"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Pin changed successfully",
+            }
+        ),
+        200,
+    )
 
+@app.route(PREFIX + "/user-toggle-active", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def user_toggle_active():
+    authentication_commands.user_toggle_active(
+        user_id=request.json["user_id"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "User toggled active successfully",
+            }
+        ),
+        200,
+    )
+
+@app.route(PREFIX + "/verify-otp", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def verify_otp():
+    authentication_commands.verify_otp(
+        user_id=request.json["user_id"],
+        otp=request.json["otp"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "OTP verified successfully",
+            }
+        ),
+        200,
+    )
+
+@app.route(PREFIX + "/verify-phone-number", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def verify_phone_number():
+    authentication_commands.verify_phone_number(
+        user_id=request.json["user_id"],
+        otp=request.json["otp"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Phone number verified successfully",
+            }
+        ),
+        200,
+    )
+
+@app.route(PREFIX + "/register-closed-loop", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def register_closed_loop():
+    authentication_commands.register_closed_loop(
+        user_id=request.json["user_id"],
+        closed_loop_id=request.json["closed_loop_id"],
+        unique_identifier=request.json["unique_identifier"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Closed loop registered successfully",
+            }
+        ),
+        200,
+    )
+
+@app.route(PREFIX + "/verify-closed-loop", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+def verify_closed_loop():
+    authentication_commands.verify_closed_loop(
+        user_id=request.json["user_id"],
+        closed_loop_id=request.json["closed_loop_id"],
+        unique_identifier_otp=request.json["unique_identifier_otp"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Closed loop verified successfully",
+            }
+        ),
+        200,
+    )
 
 # Get requests
 
