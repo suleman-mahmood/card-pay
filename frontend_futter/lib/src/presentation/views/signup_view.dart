@@ -24,6 +24,67 @@ class SignupView extends HookWidget {
     final acceptPrivacyTerms = useState<bool>(false);
     final phoneNumberController = useTextEditingController();
     final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
+
+    void onPhoneNumberChanged(String newValue) {
+      dropdownValue.value = newValue;
+    }
+
+    Widget _buildCustomInputField(String label, String hint,
+        {bool obscureText = false}) {
+      return CustomInputField(
+        label: label,
+        hint: hint,
+        obscureText: obscureText,
+      );
+    }
+
+    Widget OTPBottomSheet() {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const MainHeading(
+              accountTitle: AppStrings.check,
+              accountDescription: AppStrings.otpText,
+            ),
+            const HeightBox(slab: 2),
+            OTPInput(
+              digitCount: 4,
+              onCompleted: (String otp) {},
+            ),
+            const HeightBox(slab: 2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  AppStrings.noOtp,
+                  style: AppTypography.bodyText,
+                ),
+                const WidthBetween(),
+                GestureDetector(
+                  onTap: () {
+                    context.router.push(const LoginRoute());
+                  },
+                  child: const Text(
+                    AppStrings.resendCode,
+                    style: AppTypography.linkText,
+                  ),
+                ),
+              ],
+            ),
+            const HeightBox(slab: 2),
+            PrimaryButton(
+              text: AppStrings.verify,
+              onPressed: () {
+                context.router.push(const RegisterRoute());
+              },
+            ),
+          ],
+        ),
+      );
+    }
+
     void _showOTPBottomSheet() {
       showModalBottomSheet(
         context: context,
@@ -32,22 +93,40 @@ class SignupView extends HookWidget {
           return Padding(
             padding: MediaQuery.of(context).viewInsets,
             child: SingleChildScrollView(
-              child: OTPBottomSheet(context), // extracted widget
+              child: OTPBottomSheet(), // extracted widget
             ),
           );
         },
       );
     }
 
-    void onPhoneNumberChanged(String newValue) {
-      dropdownValue.value = newValue;
+    Widget _buildLoginText() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Text(
+            AppStrings.alreadyHaveAccount,
+            style: AppTypography.bodyText,
+          ),
+          const WidthBetween(),
+          GestureDetector(
+            onTap: () {
+              context.router.push(const LoginRoute());
+            },
+            child: const Text(
+              AppStrings.logIn,
+              style: AppTypography.linkText,
+            ),
+          ),
+        ],
+      );
     }
 
     return AuthLayout(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const HeightBox(slab: 1),
+          const HeightBox(slab: 3),
           const CustomProgressBar(
             progress: 0.5,
           ),
@@ -57,7 +136,7 @@ class SignupView extends HookWidget {
             accountDescription: AppStrings.createAccountDesc,
           ),
           const HeightBox(slab: 1),
-          _buildLoginText(context),
+          _buildLoginText(),
           const HeightBox(slab: 1),
           _buildCustomInputField(AppStrings.username, AppStrings.enterUsername),
           const HeightBox(slab: 1),
@@ -103,84 +182,6 @@ class SignupView extends HookWidget {
           const HeightBox(slab: 1),
         ],
       ),
-    );
-  }
-
-  Widget _buildCustomInputField(String label, String hint,
-      {bool obscureText = false}) {
-    return CustomInputField(
-      label: label,
-      hint: hint,
-      obscureText: obscureText,
-    );
-  }
-
-  Widget OTPBottomSheet(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const MainHeading(
-            accountTitle: AppStrings.check,
-            accountDescription: AppStrings.otpText,
-          ),
-          const HeightBox(slab: 2),
-          OTPInput(
-            digitCount: 4,
-            onCompleted: (String otp) {},
-          ),
-          const HeightBox(slab: 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                AppStrings.noOtp,
-                style: AppTypography.bodyText,
-              ),
-              const WidthBetween(),
-              GestureDetector(
-                onTap: () {
-                  context.router.push(const LoginRoute());
-                },
-                child: const Text(
-                  AppStrings.resendCode,
-                  style: AppTypography.linkText,
-                ),
-              ),
-            ],
-          ),
-          const HeightBox(slab: 2),
-          PrimaryButton(
-            text: AppStrings.verify,
-            onPressed: () {
-              context.router.push(const RegisterRoute());
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoginText(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        const Text(
-          AppStrings.alreadyHaveAccount,
-          style: AppTypography.bodyText,
-        ),
-        const WidthBetween(),
-        GestureDetector(
-          onTap: () {
-            context.router.push(const LoginRoute());
-          },
-          child: const Text(
-            AppStrings.logIn,
-            style: AppTypography.linkText,
-          ),
-        ),
-      ],
     );
   }
 }

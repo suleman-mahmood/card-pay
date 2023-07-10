@@ -12,7 +12,7 @@ class TransactionList extends HookWidget {
     AppColors.redColor,
   ];
 
-  const TransactionList({super.key});
+  TransactionList({super.key});
 
   Future<List<dynamic>> loadTransactions() async {
     try {

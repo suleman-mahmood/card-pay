@@ -13,6 +13,8 @@ class HeightBox extends StatelessWidget {
         return SizedBox(height: ScreenUtil.heightSlabOne);
       case 2:
         return SizedBox(height: ScreenUtil.heightSlabTwo);
+      case 3:
+        return SizedBox(height: ScreenUtil.heightSlabThree);
       default:
         return SizedBox(height: ScreenUtil.heightSlabOne);
     }
