@@ -15,6 +15,18 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
+    DashboardRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const DashboardView(),
+      );
+    },
+    DepositRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const DepositView(),
+      );
+    },
     IntroRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -27,10 +39,36 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const LoginView(),
       );
     },
+    AuthRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: AuthView(),
+      );
+    },
     RegisterRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const RegisterView(),
+      );
+    },
+    RequestAmountRoute.name: (routeData) {
+      final args = routeData.argsAs<RequestAmountRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: RequestAmountView(rollNumber: args.rollNumber),
+      );
+    },
+    RequestRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const RequestView(),
+      );
+    },
+    SendRoute.name: (routeData) {
+      final args = routeData.argsAs<SendRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: SendView(rollNumber: args.rollNumber),
       );
     },
     SignupRoute.name: (routeData) {
@@ -45,13 +83,59 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const SplashView(),
       );
     },
-    AuthRoute.name: (routeData) {
+    TransferRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: AuthView(),
+        child: const TransferView(),
+      );
+    },
+    HistroyRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const HistroyView(),
+      );
+    },
+    ConfirmationRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ConfirmationView(),
+      );
+    },
+    FilterHistoryRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const FilterHistoryView(),
       );
     },
   };
+}
+
+/// generated route for
+/// [DashboardView]
+class DashboardRoute extends PageRouteInfo<void> {
+  const DashboardRoute({List<PageRouteInfo>? children})
+      : super(
+          DashboardRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'DashboardRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [DepositView]
+class DepositRoute extends PageRouteInfo<void> {
+  const DepositRoute({List<PageRouteInfo>? children})
+      : super(
+          DepositRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'DepositRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -83,6 +167,20 @@ class LoginRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [AuthView]
+class AuthRoute extends PageRouteInfo<void> {
+  const AuthRoute({List<PageRouteInfo>? children})
+      : super(
+          AuthRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'AuthRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
 /// [RegisterView]
 class RegisterRoute extends PageRouteInfo<void> {
   const RegisterRoute({List<PageRouteInfo>? children})
@@ -97,17 +195,74 @@ class RegisterRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [RegisterrollView]
-class RegisterrollRoute extends PageRouteInfo<void> {
-  const RegisterrollRoute({List<PageRouteInfo>? children})
-      : super(
-          RegisterrollRoute.name,
+/// [RequestAmountView]
+class RequestAmountRoute extends PageRouteInfo<RequestAmountRouteArgs> {
+  RequestAmountRoute({
+    required String rollNumber,
+    List<PageRouteInfo>? children,
+  }) : super(
+          RequestAmountRoute.name,
+          args: RequestAmountRouteArgs(rollNumber: rollNumber),
           initialChildren: children,
         );
 
-  static const String name = 'RegisterrollRoute';
+  static const String name = 'RequestAmountRoute';
+
+  static const PageInfo<RequestAmountRouteArgs> page =
+      PageInfo<RequestAmountRouteArgs>(name);
+}
+
+class RequestAmountRouteArgs {
+  const RequestAmountRouteArgs({required this.rollNumber});
+
+  final String rollNumber;
+
+  @override
+  String toString() {
+    return 'RequestAmountRouteArgs{rollNumber: $rollNumber}';
+  }
+}
+
+/// generated route for
+/// [RequestView]
+class RequestRoute extends PageRouteInfo<void> {
+  const RequestRoute({List<PageRouteInfo>? children})
+      : super(
+          RequestRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RequestRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [SendView]
+class SendRoute extends PageRouteInfo<SendRouteArgs> {
+  SendRoute({
+    required String rollNumber,
+    List<PageRouteInfo>? children,
+  }) : super(
+          SendRoute.name,
+          args: SendRouteArgs(rollNumber: rollNumber),
+          initialChildren: children,
+        );
+
+  static const String name = 'SendRoute';
+
+  static const PageInfo<SendRouteArgs> page = PageInfo<SendRouteArgs>(name);
+}
+
+class SendRouteArgs {
+  const SendRouteArgs({required this.rollNumber});
+
+  final String rollNumber;
+
+  @override
+  String toString() {
+    return 'SendRouteArgs{rollNumber: $rollNumber}';
+  }
 }
 
 /// generated route for
@@ -139,15 +294,57 @@ class SplashRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [AuthView]
-class AuthRoute extends PageRouteInfo<void> {
-  const AuthRoute({List<PageRouteInfo>? children})
+/// [TransferView]
+class TransferRoute extends PageRouteInfo<void> {
+  const TransferRoute({List<PageRouteInfo>? children})
       : super(
-          AuthRoute.name,
+          TransferRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'AuthRoute';
+  static const String name = 'TransferRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [HistroyView]
+class HistroyRoute extends PageRouteInfo<void> {
+  const HistroyRoute({List<PageRouteInfo>? children})
+      : super(
+          HistroyRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'HistroyRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ConfirmationView]
+class ConfirmationRoute extends PageRouteInfo<void> {
+  const ConfirmationRoute({List<PageRouteInfo>? children})
+      : super(
+          ConfirmationRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ConfirmationRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [FilterHistoryView]
+class FilterHistoryRoute extends PageRouteInfo<void> {
+  const FilterHistoryRoute({List<PageRouteInfo>? children})
+      : super(
+          FilterHistoryRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'FilterHistoryRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

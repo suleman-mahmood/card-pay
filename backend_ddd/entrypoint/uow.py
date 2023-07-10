@@ -18,6 +18,16 @@ from ..authentication.adapters.repository import (
     ClosedLoopRepository,
     UserRepository,
 )
+from ..marketing.adapters.repository import (
+    MarkteingUserAbstractRepository,
+    MarketingUserRepository,
+    CashbackSlabAbstractRepository,
+    FakeCashbackSlabRepository,
+    CashbackSlabRepository,
+    WeightageAbstractRepository,
+    FakeWeightageRepository,
+    WeightageRepository,
+)
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -31,7 +41,10 @@ class AbstractUnitOfWork(ABC):
     users: UserAbstractRepository
     closed_loops: ClosedLoopAbstractRepository
     transactions: TransactionAbstractRepository
-
+    marketing_users: MarkteingUserAbstractRepository
+    cashback_slabs: CashbackSlabAbstractRepository
+    weightages: WeightageAbstractRepository
+    
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
 
@@ -53,6 +66,8 @@ class FakeUnitOfWork(AbstractUnitOfWork):
         self.users = FakeUserRepository()
         self.closed_loops = FakeClosedLoopRepository()
         self.transactions = FakeTransactionRepository()
+        self.cashback_slabs = FakeCashbackSlabRepository()
+        self.weightages = FakeWeightageRepository()
 
     def commit(self):
         pass
@@ -82,6 +97,9 @@ class UnitOfWork(AbstractUnitOfWork):
         self.transactions = TransactionRepository(self.connection)
         self.closed_loops = ClosedLoopRepository(self.connection)
         self.users = UserRepository(self.connection)
+        self.marketing_users = MarketingUserRepository(self.connection)
+        self.cashback_slabs = CashbackSlabRepository(self.connection)
+        self.weightages = WeightageRepository(self.connection)
 
         return super().__enter__()
 

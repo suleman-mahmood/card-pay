@@ -3,14 +3,17 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:frontend_futter/src/config/router/app_router.dart';
 import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/Widgets/layout/auth_layout.dart';
-import 'package:frontend_futter/src/presentation/Widgets/input_fields/input_field.dart';
-import 'package:frontend_futter/src/presentation/Widgets/button/primary_button.dart';
-import 'package:frontend_futter/src/presentation/Widgets/headings/main_heading.dart';
-import 'package:frontend_futter/src/presentation/Widgets/check_box/check_box.dart';
-import 'package:frontend_futter/src/presentation/Widgets/progress_bar/progress_bar.dart';
-import 'package:frontend_futter/src/presentation/Widgets/bottom_sheet/bottom_sheet_otp.dart';
-import 'package:frontend_futter/src/presentation/Widgets/drop_down/phone_input.dart';
+import 'package:frontend_futter/src/presentation/widgets/actions/button/primary_button.dart';
+import 'package:frontend_futter/src/presentation/widgets/boxes/height_box.dart';
+import 'package:frontend_futter/src/presentation/widgets/boxes/width_between.dart';
+import 'package:frontend_futter/src/presentation/widgets/communication/progress_bar/progress_bar.dart';
+import 'package:frontend_futter/src/presentation/widgets/containment/bottom_sheet_otp.dart';
+import 'package:frontend_futter/src/presentation/widgets/selections/check_box.dart';
+import 'package:frontend_futter/src/presentation/widgets/selections/phonenumber_drop_down.dart';
+import 'package:frontend_futter/src/presentation/widgets/layout/auth_layout.dart';
+import 'package:frontend_futter/src/presentation/widgets/headings/main_heading.dart';
+import 'package:frontend_futter/src/presentation/widgets/text_inputs/input_field.dart';
+import 'package:frontend_futter/src/utils/constants/signUp_string.dart';
 
 @RoutePage()
 class SignupView extends HookWidget {
@@ -18,11 +21,69 @@ class SignupView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
     final acceptPrivacyTerms = useState<bool>(false);
-
     final phoneNumberController = useTextEditingController();
-    final dropdownValue = useState<String>("+92");
+    final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
+
+    void onPhoneNumberChanged(String newValue) {
+      dropdownValue.value = newValue;
+    }
+
+    Widget _buildCustomInputField(String label, String hint,
+        {bool obscureText = false}) {
+      return CustomInputField(
+        label: label,
+        hint: hint,
+        obscureText: obscureText,
+      );
+    }
+
+    Widget OTPBottomSheet() {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const MainHeading(
+              accountTitle: AppStrings.check,
+              accountDescription: AppStrings.otpText,
+            ),
+            const HeightBox(slab: 2),
+            OTPInput(
+              digitCount: 4,
+              onCompleted: (String otp) {},
+            ),
+            const HeightBox(slab: 2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  AppStrings.noOtp,
+                  style: AppTypography.bodyText,
+                ),
+                const WidthBetween(),
+                GestureDetector(
+                  onTap: () {
+                    context.router.push(const LoginRoute());
+                  },
+                  child: const Text(
+                    AppStrings.resendCode,
+                    style: AppTypography.linkText,
+                  ),
+                ),
+              ],
+            ),
+            const HeightBox(slab: 2),
+            PrimaryButton(
+              text: AppStrings.verify,
+              onPressed: () {
+                context.router.push(const RegisterRoute());
+              },
+            ),
+          ],
+        ),
+      );
+    }
 
     void _showOTPBottomSheet() {
       showModalBottomSheet(
@@ -32,128 +93,93 @@ class SignupView extends HookWidget {
           return Padding(
             padding: MediaQuery.of(context).viewInsets,
             child: SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    MainHeading(
-                      accountTitle: 'Please check your mobile',
-                      accountDescription:
-                          'We send an otp at your number +923*****786',
-                    ),
-                    SizedBox(height: screenHeight * 0.01),
-                    OTPInput(
-                      digitCount: 4,
-                      onCompleted: (String otp) {
-                        // Handle completed OTP here
-                      },
-                    ),
-                    SizedBox(height: screenHeight * 0.01),
-                    Text(
-                      'Didn\'t receive the code? Resend',
-                      style: AppTypography.headingFont.copyWith(
-                        color: AppColors.primaryColor,
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.002),
-                    CustomButton(
-                      text: 'Verify',
-                      onPressed: () {
-                        context.router.push(RegisterRoute());
-                      },
-                    ),
-                  ],
-                ),
-              ),
+              child: OTPBottomSheet(), // extracted widget
             ),
           );
         },
       );
     }
 
+    Widget _buildLoginText() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Text(
+            AppStrings.alreadyHaveAccount,
+            style: AppTypography.bodyText,
+          ),
+          const WidthBetween(),
+          GestureDetector(
+            onTap: () {
+              context.router.push(const LoginRoute());
+            },
+            child: const Text(
+              AppStrings.logIn,
+              style: AppTypography.linkText,
+            ),
+          ),
+        ],
+      );
+    }
+
     return AuthLayout(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: screenHeight * 0.01),
-          CustomProgressBar(
+          const HeightBox(slab: 3),
+          const CustomProgressBar(
             progress: 0.5,
           ),
-          SizedBox(height: screenHeight * 0.01),
-          MainHeading(
-            accountTitle: 'Create Your Account',
-            accountDescription:
-                'Let\'s get you started. Help us create your account',
+          const HeightBox(slab: 1),
+          const MainHeading(
+            accountTitle: AppStrings.createAccount,
+            accountDescription: AppStrings.createAccountDesc,
           ),
-          SizedBox(height: screenHeight * 0.005),
-          CustomInputField(
-            label: 'Username',
-            hint: 'Enter your username',
+          const HeightBox(slab: 1),
+          _buildLoginText(),
+          const HeightBox(slab: 1),
+          _buildCustomInputField(AppStrings.username, AppStrings.enterUsername),
+          const HeightBox(slab: 1),
+          _buildCustomInputField(
+            AppStrings.email,
+            AppStrings.enterEmail,
+            obscureText: false,
           ),
-          SizedBox(height: screenHeight * 0.01),
-          CustomInputField(
-            label: 'Email',
-            hint: 'Enter your email',
-          ),
-          SizedBox(height: screenHeight * 0.01),
-          CustomInputField(
-            label: 'Password',
-            hint: 'Enter your password',
+          const HeightBox(slab: 1),
+          _buildCustomInputField(
+            AppStrings.password,
+            AppStrings.enterPassword,
             obscureText: true,
           ),
-          SizedBox(height: screenHeight * 0.01),
-          CustomInputField(
-            label: 'Password',
-            hint: 'Please re-enter your password',
+          const HeightBox(slab: 1),
+          _buildCustomInputField(
+            AppStrings.confirmPassword,
+            AppStrings.reEnterPassword,
             obscureText: true,
           ),
-          SizedBox(height: screenHeight * 0.015),
+          const HeightBox(slab: 1),
           PhoneNumberInput(
             controller: phoneNumberController,
-            dropdownItems: ['+92', '+91', '+7'],
+            dropdownItems: AppStrings.phoneCountryCodes,
             dropdownValue: dropdownValue.value,
-            onChanged: (String? newValue) {
-              if (newValue != null) {
-                dropdownValue.value = newValue;
-              }
-            },
+            onChanged: onPhoneNumberChanged,
           ),
-          SizedBox(height: screenHeight * 0.02),
+          const HeightBox(slab: 2),
+          // TODO: change this to make it coherent with the design
           CheckBox(
             onChanged: (bool value) {
               acceptPrivacyTerms.value = value;
             },
-            text: 'I accept the privacy terms and conditions. ',
+            text: AppStrings.acceptPrivacyTerms,
           ),
-          SizedBox(height: screenHeight * 0.01),
-          CustomButton(
-            text: 'Create Account',
-            onPressed: _showOTPBottomSheet,
-          ),
-          SizedBox(height: screenHeight * 0.02),
-          GestureDetector(
-            onTap: () {
-              context.router.push(LoginRoute());
-            },
-            child: RichText(
-              text: TextSpan(
-                text: 'Already have an account? ',
-                style: TextStyle(
-                  color: AppColors.blackColor,
-                ),
-                children: [
-                  TextSpan(
-                    text: 'Log In',
-                    style: TextStyle(
-                      color: AppColors.primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+          const HeightBox(slab: 1),
+          Center(
+            child: PrimaryButton(
+              text: AppStrings.createAccount,
+              onPressed: _showOTPBottomSheet,
             ),
           ),
+          const HeightBox(slab: 1),
         ],
       ),
     );
