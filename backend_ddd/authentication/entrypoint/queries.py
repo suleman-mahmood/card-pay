@@ -5,14 +5,15 @@
 3. Get user from user id
 4. Get user from email
 5. Get user from phone number
+6. Get user from closed_loop_id and unique_identifier
 
-6. Get all active users
-7. Get all inactive users
-8. Get all users of a user type
-9. Get all closed loops of a user
+7. Get all active users
+8. Get all inactive users
+9. Get all users of a user type
+10. Get all closed loops of a user
 
-10. Get all users of a closed loop
-11. Get all unique identifiers of a closed loop (ie all roll numbers of LUMS)
+11. Get all users of a closed loop
+12. Get all unique identifiers of a closed loop (ie all roll numbers of LUMS)
 """
 
 from ..domain import model as authentication_model
@@ -127,6 +128,41 @@ def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork):
         return user
 
 
+def get_user_from_closed_loop_id_and_unique_identifier(closed_loop_id: str, unique_identifier: str, uow: AbstractUnitOfWork):
+    """Get user from closed_loop_id and unique_identifier"""
+    with uow:
+        sql = """
+            select u.id, u.personal_email, u.phone_number, u.user_type, u.pin, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.otp, u.otp_generated_at, u.location, u.created_at
+            from users u
+            join user_closed_loops ucl on u.id = ucl.user_id
+            where ucl.closed_loop_id = %s and ucl.unique_identifier = %s
+            """
+        uow.cursor.execute(
+            sql,
+            [
+                closed_loop_id,
+                unique_identifier
+            ]
+        )
+        row = uow.cursor.fetchone()
+        user = authentication_model.User(
+            id=row[0],
+            personal_email=authentication_model.PersonalEmail(row[1]),
+            phone_number=authentication_model.PhoneNumber(row[2]),
+            user_type=authentication_model.UserType[row[3]],
+            pin=row[4],
+            full_name=row[5],
+            wallet_id=row[6],
+            is_active=row[7],
+            is_phone_number_verified=row[8],
+            otp=row[9],
+            otp_generated_at=row[10],
+            location=authentication_model.Location(latitude=float(
+                row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])),
+            created_at=row[12]
+        )
+    return user
+
 def get_all_active_users(uow: AbstractUnitOfWork):
     """Get all active users"""
     with uow:
@@ -232,10 +268,10 @@ def get_all_closed_loops_of_a_user(user_id: str, uow: AbstractUnitOfWork):
     """Get all closed loops of a user"""
     with uow:
         sql = """
-            SELECT cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at
-            FROM closed_loops cl
-            JOIN user_closed_loops ucl ON cl.id = ucl.closed_loop_id
-            WHERE ucl.user_id = %s
+            select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at
+            from closed_loops cl
+            join user_closed_loops ucl ON cl.id = ucl.closed_loop_id
+            where ucl.user_id = %s
         """
         uow.cursor.execute(sql, [user_id])
         rows = uow.cursor.fetchall()
