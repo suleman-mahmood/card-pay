@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_futter/src/config/router/app_router.dart';
-import 'package:frontend_futter/src/config/themes/app_themes.dart';
+import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/config/themes/app_themes.dart';
 
 void main() {
   runApp(MainApp());

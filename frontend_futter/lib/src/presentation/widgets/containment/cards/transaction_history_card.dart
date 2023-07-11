@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 
 class TransactionContainer extends HookWidget {
   final IconData icon;
@@ -11,7 +11,8 @@ class TransactionContainer extends HookWidget {
   final Color secondTextColor;
   final Color iconColor;
 
-  const TransactionContainer({super.key, 
+  const TransactionContainer({
+    super.key,
     required this.icon,
     required this.firstText,
     required this.secondText,

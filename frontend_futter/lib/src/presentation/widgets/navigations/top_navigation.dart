@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class Header extends HookWidget {
@@ -10,7 +10,8 @@ class Header extends HookWidget {
   final bool showMainHeading;
   final String? mainHeadingText;
 
-  const Header({super.key, 
+  const Header({
+    super.key,
     required this.title,
     this.color = AppColors.secondaryColor,
     this.showMainHeading = false,

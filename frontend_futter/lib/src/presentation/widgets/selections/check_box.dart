@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 
 class CheckBox extends HookWidget {
   final Function(bool value)? onChanged;
   final String text;
 
-  const CheckBox({super.key, 
+  const CheckBox({
+    super.key,
     required this.text,
     this.onChanged,
   });

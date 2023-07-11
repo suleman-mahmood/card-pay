@@ -1,19 +1,19 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:frontend_futter/src/presentation/views/splash_view.dart';
-import 'package:frontend_futter/src/presentation/views/intro_view.dart';
-import 'package:frontend_futter/src/presentation/views/signup_view.dart';
-import 'package:frontend_futter/src/presentation/views/register_organisation_view.dart';
-import 'package:frontend_futter/src/presentation/views/login_view.dart';
-import 'package:frontend_futter/src/presentation/views/pin_view.dart';
-import 'package:frontend_futter/src/presentation/views/dashboard_view.dart';
-import 'package:frontend_futter/src/presentation/views/deposite_view.dart';
-import 'package:frontend_futter/src/presentation/views/transfer_view.dart';
-import 'package:frontend_futter/src/presentation/views/request_view.dart';
-import 'package:frontend_futter/src/presentation/views/send_view.dart';
-import 'package:frontend_futter/src/presentation/views/history_transaction_view.dart';
-import 'package:frontend_futter/src/presentation/views/request_amount_view.dart';
-import 'package:frontend_futter/src/presentation/views/filtered_history_view.dart';
-import 'package:frontend_futter/src/presentation/views/confirmation_view.dart';
+import 'package:cardpay/src/presentation/views/splash_view.dart';
+import 'package:cardpay/src/presentation/views/intro_view.dart';
+import 'package:cardpay/src/presentation/views/signup_view.dart';
+import 'package:cardpay/src/presentation/views/register_organisation_view.dart';
+import 'package:cardpay/src/presentation/views/login_view.dart';
+import 'package:cardpay/src/presentation/views/pin_view.dart';
+import 'package:cardpay/src/presentation/views/dashboard_view.dart';
+import 'package:cardpay/src/presentation/views/deposite_view.dart';
+import 'package:cardpay/src/presentation/views/transfer_view.dart';
+import 'package:cardpay/src/presentation/views/request_view.dart';
+import 'package:cardpay/src/presentation/views/send_view.dart';
+import 'package:cardpay/src/presentation/views/history_transaction_view.dart';
+import 'package:cardpay/src/presentation/views/request_amount_view.dart';
+import 'package:cardpay/src/presentation/views/filtered_history_view.dart';
+import 'package:cardpay/src/presentation/views/confirmation_view.dart';
 
 part 'app_router.gr.dart';
 

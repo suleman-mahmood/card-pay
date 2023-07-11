@@ -1,7 +1,7 @@
-import 'package:frontend_futter/src/data/datasources/remote/python_api_service.dart';
-import 'package:frontend_futter/src/domain/models/requests/user_request.dart';
-import 'package:frontend_futter/src/domain/models/responses/user_response.dart';
-import 'package:frontend_futter/src/utils/data_state.dart';
+import 'package:cardpay/src/data/datasources/remote/python_api_service.dart';
+import 'package:cardpay/src/domain/models/requests/user_request.dart';
+import 'package:cardpay/src/domain/models/responses/user_response.dart';
+import 'package:cardpay/src/utils/data_state.dart';
 
 import '../../domain/repositories/api_repository.dart';
 import 'base/base_api_repository.dart';

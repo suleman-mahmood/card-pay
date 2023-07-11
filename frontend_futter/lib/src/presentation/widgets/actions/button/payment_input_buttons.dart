@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/widgets/actions/button/numpad_buttons.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/numpad_buttons.dart';
 
 class PaymentEntry extends HookWidget {
   final TextEditingController controller;
@@ -53,7 +53,8 @@ class PaymentEntry extends HookWidget {
 class PaymentValueListenableBuilder extends HookWidget {
   final TextEditingController controller;
 
-  const PaymentValueListenableBuilder({super.key, 
+  const PaymentValueListenableBuilder({
+    super.key,
     required this.controller,
   });
 
@@ -95,7 +96,8 @@ class PaymentButton extends StatelessWidget {
   final TextEditingController controller;
 
   const PaymentButton(
-      this.context, this.amount, this.selectedButton, this.controller, {super.key});
+      this.context, this.amount, this.selectedButton, this.controller,
+      {super.key});
 
   @override
   Widget build(BuildContext context) {

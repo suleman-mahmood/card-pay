@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:frontend_futter/src/config/router/app_router.dart';
-import 'package:frontend_futter/src/presentation/widgets/layout/auth_layout.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/presentation/widgets/containment/cards/balance_card.dart';
-import 'package:frontend_futter/src/presentation/widgets/containment/cards/transaction_history_card.dart';
-import 'package:frontend_futter/src/presentation/widgets/containment/cards/greeting_card.dart';
-import 'package:frontend_futter/src/presentation/widgets/containment/cards/services_card.dart';
-import 'package:frontend_futter/src/presentation/widgets/navigations/bottom_bar.dart';
-import 'package:frontend_futter/src/presentation/widgets/navigations/drawer_navigation.dart';
-import 'package:frontend_futter/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/presentation/widgets/containment/cards/balance_card.dart';
+import 'package:cardpay/src/presentation/widgets/containment/cards/transaction_history_card.dart';
+import 'package:cardpay/src/presentation/widgets/containment/cards/greeting_card.dart';
+import 'package:cardpay/src/presentation/widgets/containment/cards/services_card.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/bottom_bar.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
+import 'package:cardpay/src/utils/constants/payment_string.dart';
 
 final pages = [
   const DashboardRoute(),

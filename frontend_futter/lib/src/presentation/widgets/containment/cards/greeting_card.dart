@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 
 class GreetingRow extends HookWidget {
   final String greeting;
   final String name;
   final String? imagePath;
 
-  const GreetingRow({super.key, 
+  const GreetingRow({
+    super.key,
     required this.greeting,
     required this.name,
     this.imagePath,

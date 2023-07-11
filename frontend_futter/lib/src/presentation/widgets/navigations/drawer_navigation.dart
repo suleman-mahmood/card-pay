@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:frontend_futter/src/config/router/app_router.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class DrawerItem {

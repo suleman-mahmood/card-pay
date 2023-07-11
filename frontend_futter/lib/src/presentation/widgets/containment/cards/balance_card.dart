@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 
 class BalanceCard extends HookWidget {
   final String balance;
   final String topRightImage;
   final String bottomLeftImage;
 
-  const BalanceCard({super.key, 
+  const BalanceCard({
+    super.key,
     required this.balance,
     required this.topRightImage,
     required this.bottomLeftImage,

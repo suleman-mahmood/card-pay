@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_futter/src/config/router/app_router.dart';
+import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/presentation/widgets/containment/bottom_sheet_check_box.dart';
-import 'package:frontend_futter/src/presentation/widgets/containment/history_list.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/presentation/widgets/containment/bottom_sheet_check_box.dart';
+import 'package:cardpay/src/presentation/widgets/containment/history_list.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:frontend_futter/src/presentation/widgets/navigations/bottom_bar.dart';
-import 'package:frontend_futter/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/bottom_bar.dart';
+import 'package:cardpay/src/utils/constants/payment_string.dart';
 
 final pages = [
   const DashboardRoute(),

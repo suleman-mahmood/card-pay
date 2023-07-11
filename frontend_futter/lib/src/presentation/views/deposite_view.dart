@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-// import 'package:frontend_futter/src/presentation/widgets/transection_layout/transection_common_layout.dart';
-import 'package:frontend_futter/src/config/router/app_router.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
+// import 'package:cardpay/src/presentation/widgets/transection_layout/transection_common_layout.dart';
+import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 
-import 'package:frontend_futter/src/presentation/widgets/layout/transaction_common_layout.dart';
-import 'package:frontend_futter/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/presentation/widgets/layout/transaction_common_layout.dart';
+import 'package:cardpay/src/utils/constants/payment_string.dart';
 
 // DepositView Constants
 class DepositViewConstants {

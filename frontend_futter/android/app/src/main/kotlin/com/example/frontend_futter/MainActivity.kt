@@ -1,4 +1,4 @@
-package com.example.frontend_futter
+package com.payments.cardpay
 
 import io.flutter.embedding.android.FlutterActivity
 

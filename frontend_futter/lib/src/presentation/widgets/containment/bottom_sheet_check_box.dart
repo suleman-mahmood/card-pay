@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/presentation/widgets/actions/button/primary_button.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 
 class CustomBottomSheet extends HookWidget {
   const CustomBottomSheet({

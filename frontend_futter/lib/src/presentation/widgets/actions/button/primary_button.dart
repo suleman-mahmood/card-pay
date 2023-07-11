@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-// import 'package:frontend_futter/src/presentation/widgets/button/ui_helper.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+// import 'package:cardpay/src/presentation/widgets/button/ui_helper.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class PrimaryButton extends HookWidget {

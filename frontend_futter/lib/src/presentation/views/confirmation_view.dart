@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/widgets/actions/button/primary_button.dart';
-import 'package:frontend_futter/src/presentation/widgets/containment/confirmation_dialog.dart';
-import 'package:frontend_futter/src/presentation/widgets/layout/auth_layout.dart';
-import 'package:frontend_futter/src/presentation/widgets/navigations/top_navigation.dart';
-import 'package:frontend_futter/src/utils/constants/payment_string.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
+import 'package:cardpay/src/presentation/widgets/containment/confirmation_dialog.dart';
+import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
+import 'package:cardpay/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 
 @RoutePage()
 class ConfirmationView extends HookWidget {

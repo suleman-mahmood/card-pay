@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/widgets/boxes/height_box.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 
 class CustomInputField extends HookWidget {
   final String label;
@@ -14,7 +14,8 @@ class CustomInputField extends HookWidget {
   final Color color;
   final TextEditingController? controller;
 
-  const CustomInputField({super.key, 
+  const CustomInputField({
+    super.key,
     required this.label,
     this.hint,
     this.obscureText = false,

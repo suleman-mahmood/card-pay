@@ -2,15 +2,16 @@
 /// customization.
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/widgets/actions/button/backspace_button.dart';
-import 'package:frontend_futter/src/presentation/widgets/number_pad/numpad_controllers.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/backspace_button.dart';
+import 'package:cardpay/src/presentation/widgets/number_pad/numpad_controllers.dart';
 
 class NumPad extends HookWidget {
   final TextEditingController controller;
   final Color? buttonColor;
 
-  const NumPad({super.key, 
+  const NumPad({
+    super.key,
     required this.controller,
     this.buttonColor,
   });
@@ -47,7 +48,8 @@ class NumberPadRow extends HookWidget {
   final Color? buttonColor;
   final double height;
 
-  const NumberPadRow({super.key, 
+  const NumberPadRow({
+    super.key,
     required this.row,
     required this.controller,
     this.buttonColor,
@@ -79,7 +81,8 @@ class NumberPadLastRow extends StatelessWidget {
   final Color? buttonColor;
   final double height;
 
-  const NumberPadLastRow({super.key, 
+  const NumberPadLastRow({
+    super.key,
     required this.controller,
     this.buttonColor,
     required this.height,

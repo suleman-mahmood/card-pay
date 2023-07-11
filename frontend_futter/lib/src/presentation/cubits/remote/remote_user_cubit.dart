@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:frontend_futter/src/domain/models/requests/user_request.dart';
-import 'package:frontend_futter/src/domain/models/user.dart';
-import 'package:frontend_futter/src/domain/repositories/api_repository.dart';
-import 'package:frontend_futter/src/presentation/cubits/base/base_cubit.dart';
-import 'package:frontend_futter/src/utils/data_state.dart';
+import 'package:cardpay/src/domain/models/requests/user_request.dart';
+import 'package:cardpay/src/domain/models/user.dart';
+import 'package:cardpay/src/domain/repositories/api_repository.dart';
+import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
+import 'package:cardpay/src/utils/data_state.dart';
 
 part 'remote_user_state.dart';
 

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/config/router/app_router.dart';
-import 'package:frontend_futter/src/presentation/widgets/actions/button/primary_button.dart';
-import 'package:frontend_futter/src/presentation/widgets/headings/main_heading.dart';
-import 'package:frontend_futter/src/presentation/widgets/layout/auth_layout.dart';
-import 'package:frontend_futter/src/presentation/widgets/text_inputs/input_field.dart';
-import 'package:frontend_futter/src/utils/constants/signUp_string.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
+import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
+import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
+import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
+import 'package:cardpay/src/utils/constants/signUp_string.dart';
 
 @RoutePage()
 class LoginView extends HookWidget {

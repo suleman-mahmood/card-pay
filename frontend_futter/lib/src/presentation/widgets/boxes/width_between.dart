@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 
 class WidthBetween extends StatelessWidget {
   const WidthBetween({super.key});

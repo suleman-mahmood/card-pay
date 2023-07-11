@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 
 class CustomBox extends StatelessWidget {
   final String imagePath;

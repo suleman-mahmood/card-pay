@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'dart:convert';
-import 'package:frontend_futter/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:flutter/services.dart';
-import 'package:frontend_futter/src/presentation/widgets/containment/cards/transaction_history_card.dart';
+import 'package:cardpay/src/presentation/widgets/containment/cards/transaction_history_card.dart';
 
 class TransactionList extends HookWidget {
   final List<Color> colors = [

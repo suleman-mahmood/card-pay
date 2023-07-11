@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 
 class ConfirmationContainer extends StatelessWidget {
   final String title1;
@@ -8,7 +8,8 @@ class ConfirmationContainer extends StatelessWidget {
   final String text1;
   final String text2;
 
-  const ConfirmationContainer({super.key, 
+  const ConfirmationContainer({
+    super.key,
     required this.title1,
     required this.text1,
     required this.title2,

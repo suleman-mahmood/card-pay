@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/config/screen_utills/screen_util.dart';
-import 'package:frontend_futter/src/config/themes/colors.dart';
-import 'package:frontend_futter/src/presentation/widgets/actions/button/payment_input_buttons.dart';
-import 'package:frontend_futter/src/presentation/widgets/actions/button/primary_button.dart';
-import 'package:frontend_futter/src/presentation/widgets/navigations/top_navigation.dart';
+import 'package:cardpay/src/config/screen_utills/screen_util.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/payment_input_buttons.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 
 class TransactionView extends HookWidget {
   final String title;
@@ -13,7 +13,8 @@ class TransactionView extends HookWidget {
   final Color backgroundColor;
   final VoidCallback onButtonPressed;
 
-  const TransactionView({super.key, 
+  const TransactionView({
+    super.key,
     required this.title,
     required this.buttonText,
     this.rollNumber,

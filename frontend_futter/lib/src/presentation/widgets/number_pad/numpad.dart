@@ -1,12 +1,13 @@
 /// The NumpadWithDisplay class is a Flutter widget that displays a number pad and a display widget.
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:frontend_futter/src/presentation/widgets/actions/button/numpad_buttons.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/numpad_buttons.dart';
 
 class NumpadWithDisplay extends HookWidget {
   final Widget display;
   final TextEditingController controller;
-  const NumpadWithDisplay({super.key, required this.display, required this.controller});
+  const NumpadWithDisplay(
+      {super.key, required this.display, required this.controller});
   @override
   Widget build(BuildContext context) {
     return Column(
