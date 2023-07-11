@@ -1,4 +1,6 @@
 """Authentication commands"""
+import firebase_admin
+
 from typing import Optional, Tuple
 
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
@@ -41,6 +43,7 @@ def create_closed_loop(
 def create_user(
     user_id: str,
     personal_email: str,
+    password: str,
     phone_number: str,
     user_type: str,
     pin: str,
@@ -50,6 +53,13 @@ def create_user(
 ) -> User:
     """Create user"""
     location_object = Location(latitude=location[0], longitude=location[1])
+
+    firebase_create_user(
+        personal_email=personal_email,
+        phone_number=phone_number,
+        password=password,
+        full_name=full_name,
+    )
 
     with uow:
         wallet = payment_commands.create_wallet(uow)
@@ -160,3 +170,23 @@ def verify_closed_loop(
         uow.users.save(user)
 
     return user
+
+
+def firebase_create_user(
+    personal_email: str,
+    phone_number: str,
+    password: str,
+    full_name: str,
+):
+    # TODO: Remove this return in production
+    return
+
+    firebase_admin.auth.create_user(
+        email=personal_email,
+        email_verified=False,
+        phone_number=phone_number,
+        password=password,
+        display_name=full_name,
+        photo_url="",
+        disabled=False,
+    )

@@ -14,6 +14,7 @@ def authenticate_token(f):
         # Fetch the token from the request headers
         auth_header = request.headers.get("Authorization")
         if not auth_header:
+            print("No auth header provided")
             return "Unauthorized", 401
 
         # Extract the token from the Authorization header
@@ -31,6 +32,7 @@ def authenticate_token(f):
 
         except auth.InvalidIdTokenError:
             # Token is invalid or expired
+            print("Threw an exception when decoding the auth token")
             return "Unauthorized", 401
 
     return decorated_function
@@ -46,12 +48,16 @@ def handle_exceptions(func):
 
     return wrapper
 
+
 def handle_missing_payload(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if request.json is None:
-            return jsonify({"success": False, "message": "payload missing in request"}), 400
-        
+            return (
+                jsonify({"success": False, "message": "payload missing in request"}),
+                400,
+            )
+
         return func(*args, **kwargs)
 
     return wrapper

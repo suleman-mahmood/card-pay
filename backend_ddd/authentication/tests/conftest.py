@@ -7,7 +7,7 @@ from ..domain.model import (
     PhoneNumber,
     ClosedLoop,
     ClosedLoopVerificationType,
-    Location
+    Location,
 )
 from uuid import uuid4
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
@@ -40,7 +40,7 @@ def seed_closed_loop():
             logo_url="https://www.google.com",
             description="This is a test loop.",
             regex="No regex yet",
-            verification_type= ClosedLoopVerificationType.ROLLNUMBER,
+            verification_type=ClosedLoopVerificationType.ROLLNUMBER,
         )
 
     return _seed_closed_loop
@@ -51,36 +51,40 @@ def seed_auth_user():
     def _seed_auth_user(uow: AbstractUnitOfWork) -> User:
         return auth_commands.create_user(
             user_id=str(uuid4()),
-            personal_email= "mlkmoaz@gmail.com",
-            phone_number= "03034952255",
+            personal_email="mlkmoaz@gmail.com",
+            password="",
+            phone_number="03034952255",
             user_type="CUSTOMER",
             pin="1234",
             full_name="Malik Muhammad Moaz",
-            location=(0,0),
+            location=(0, 0),
             uow=uow,
         )
 
     return _seed_auth_user
 
+
 @pytest.fixture
 def seed_verified_auth_user():
     def _seed_auth_user(uow: AbstractUnitOfWork) -> User:
-        user =  auth_commands.create_user(
+        user = auth_commands.create_user(
             user_id=str(uuid4()),
-            personal_email= "mlkmoaz@gmail.com",
-            phone_number= "03034952255",
+            personal_email="mlkmoaz@gmail.com",
+            password="",
+            phone_number="03034952255",
             user_type="CUSTOMER",
             pin="1234",
             full_name="Malik Muhammad Moaz",
-            location=(0,0),
+            location=(0, 0),
             uow=uow,
         )
         auth_commands.verify_phone_number(
             user_id=user.id,
-            otp = user.otp,
+            otp=user.otp,
             uow=uow,
         )
         return user
+
     return _seed_auth_user
 
 

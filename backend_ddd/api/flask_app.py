@@ -1,10 +1,14 @@
-from dataclasses import asdict
+# from dataclasses import asdict
 
-# import firebase_admin
-# from firebase_admin import credentials, auth
+import firebase_admin
+
 from flask import Flask, request, jsonify
 
-from backend_ddd.api.utils import handle_exceptions, handle_missing_payload  # authenticate_token
+from backend_ddd.api.utils import (
+    handle_exceptions,
+    handle_missing_payload,
+    authenticate_token,
+)
 from backend_ddd.entrypoint.uow import UnitOfWork
 from backend_ddd.payment.entrypoint import commands as payment_commands
 from backend_ddd.payment.domain.model import (
@@ -17,9 +21,9 @@ from backend_ddd.authentication.entrypoint import commands as authentication_com
 app = Flask(__name__)
 PREFIX = "/api/v1"
 
-# TODO: add firebase admin credentials here
-# cred = credentials.Certificate("")
-# firebase_admin.initialize_app(cred)
+
+cred = firebase_admin.credentials.Certificate("credentials.json")
+default_app = firebase_admin.initialize_app(cred)
 
 # Or this in app engine
 # default_app = firebase_admin.initialize_app()
@@ -67,12 +71,13 @@ def create_user():
     authentication_commands.create_user(
         user_id=request.json["user_id"],
         personal_email=request.json["personal_email"],
+        password=request.json["password"],
         phone_number=request.json["phone_number"],
         user_type=request.json["user_type"],
         pin=request.json["pin"],
         full_name=request.json["full_name"],
         location=request.json["location"],
-        uow=UnitOfWork(), 
+        uow=UnitOfWork(),
     )
     return (
         jsonify(
@@ -84,17 +89,18 @@ def create_user():
         201,
     )
 
+
 @app.route(PREFIX + "/create-closed-loop", methods=["POST"])
 @handle_missing_payload
 @handle_exceptions
 def create_closed_loop():
     authentication_commands.create_closed_loop(
-            name=request.json["name"],
-            logo_url=request.json["logo_url"],
-            description=request.json["description"],
-            verification_type=request.json["verification_type"],
-            regex=request.json["regex"],
-            uow=UnitOfWork(),
+        name=request.json["name"],
+        logo_url=request.json["logo_url"],
+        description=request.json["description"],
+        verification_type=request.json["verification_type"],
+        regex=request.json["regex"],
+        uow=UnitOfWork(),
     )
     return (
         jsonify(
@@ -105,6 +111,7 @@ def create_closed_loop():
         ),
         201,
     )
+
 
 @app.route(PREFIX + "/change-name", methods=["POST"])
 @handle_exceptions
@@ -125,6 +132,7 @@ def change_name():
         200,
     )
 
+
 @app.route(PREFIX + "/change-pin", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
@@ -144,6 +152,7 @@ def change_pin():
         200,
     )
 
+
 @app.route(PREFIX + "/user-toggle-active", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
@@ -161,6 +170,7 @@ def user_toggle_active():
         ),
         200,
     )
+
 
 @app.route(PREFIX + "/verify-otp", methods=["POST"])
 @handle_exceptions
@@ -181,6 +191,7 @@ def verify_otp():
         200,
     )
 
+
 @app.route(PREFIX + "/verify-phone-number", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
@@ -199,6 +210,7 @@ def verify_phone_number():
         ),
         200,
     )
+
 
 @app.route(PREFIX + "/register-closed-loop", methods=["POST"])
 @handle_exceptions
@@ -220,6 +232,7 @@ def register_closed_loop():
         200,
     )
 
+
 @app.route(PREFIX + "/verify-closed-loop", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
@@ -240,28 +253,17 @@ def verify_closed_loop():
         200,
     )
 
+
 # Get requests
 
 
 @app.route(PREFIX + "/decode-access-token", methods=["GET"])
-def decode_access_token():
-    raise NotImplementedError
+@authenticate_token
+def decode_access_token(uid):
+    """Decode an access token"""
 
-    # """Decode an access token"""
-
-    # # Fetch the token from the request headers
-    # auth_header = request.headers.get("Authorization")
-    # if not auth_header:
-    #     return "Unauthorized", 401
-
-    # # Extract the token from the Authorization header
-    # token = auth_header.split("Bearer ")[1]
-
-    # decoded_token = auth.verify_id_token(token)
-    # uid = decoded_token["uid"]
-
-    # return_obj = {"decoded_token": decoded_token, "uid": uid}
-    # return jsonify(return_obj), 200
+    return_obj = {"uid": uid}
+    return jsonify(return_obj), 200
 
 
 @app.route(PREFIX + "/get-user", methods=["GET"])
@@ -399,13 +401,14 @@ def redeem_voucher():
         200,
     )
 
+
 @app.route(PREFIX + "/use-reference", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
-def use_reference(): 
+def use_reference():
     marketing_commands.use_reference(
-        referee_id = request.json["referee_id"],
-        referral_id = request.json["referral_id"],
+        referee_id=request.json["referee_id"],
+        referral_id=request.json["referral_id"],
         uow=UnitOfWork(),
     )
     return (
@@ -418,15 +421,17 @@ def use_reference():
         200,
     )
 
+
 # Admin Portal Routes
+
 
 @app.route(PREFIX + "/add-weightage", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
 def add_weightage():
     marketing_commands.add_weightage(
-        weightage_type = request.json["weightage_type"],
-        weightage_value = request.json["weightage_value"],
+        weightage_type=request.json["weightage_type"],
+        weightage_value=request.json["weightage_value"],
         uow=UnitOfWork(),
     )
     return (
@@ -439,13 +444,14 @@ def add_weightage():
         200,
     )
 
+
 @app.route(PREFIX + "/set-weightage", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
 def set_weightage():
     marketing_commands.set_weightage(
-        weightage_type = request.json["weightage_type"],
-        weightage_value = request.json["weightage_value"],
+        weightage_type=request.json["weightage_type"],
+        weightage_value=request.json["weightage_value"],
         uow=UnitOfWork(),
     )
     return (
@@ -458,14 +464,15 @@ def set_weightage():
         200,
     )
 
+
 @app.route(PREFIX + "/set-cashback-slabs", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
 def set_cashback_slabs():
     cashback_slabs = request.json["cashback_slabs"]
-    
+
     marketing_commands.set_cashback_slabs(
-        cashback_slabs = cashback_slabs,
+        cashback_slabs=cashback_slabs,
         uow=UnitOfWork(),
     )
     return (
@@ -475,5 +482,5 @@ def set_cashback_slabs():
                 "message": "cashback slabs set successfully",
             }
         ),
-        200
+        200,
     )
