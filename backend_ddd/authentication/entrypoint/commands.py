@@ -3,6 +3,7 @@ from typing import Optional, Tuple
 
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
 from backend_ddd.payment.entrypoint import commands as payment_commands
+from backend_ddd.comms.entrypoint import commands as comms_commands
 from ..domain.model import (
     ClosedLoopUser,
     ClosedLoopVerificationType,
@@ -62,8 +63,10 @@ def create_user(
             wallet_id=wallet.id,
             location=location_object,
         )
-        
+
         uow.users.add(user)
+
+    comms_commands.send_sms(content=user.otp, to=phone_number)
 
     return user
 
@@ -114,6 +117,12 @@ def verify_phone_number(user_id: str, otp: str, uow: AbstractUnitOfWork):
         user = uow.users.get(user_id=user_id)
         user.verify_phone_number(otp)
         uow.users.save(user)
+
+    comms_commands.send_email(
+        subject="Verify email | Otp",
+        text=user.otp,
+        to=user.personal_email,
+    )
 
     return user
 
