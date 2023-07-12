@@ -2,6 +2,7 @@
 from ..domain import model as payment_model
 from ...entrypoint.uow import AbstractUnitOfWork
 
+
 def usecases():
     """
     1. get wallet balance from wallet_id    || later update to get balance from user_id
@@ -12,16 +13,18 @@ def usecases():
 
     following transactions will be sorted by time with recent coming first
     5. get transaction by transaction id
-    6. get all transactions sorted 
-    7. get all transactions of passed type sorted 
+    6. get all transactions 
+    7. get all transactions of passed type 
 
-    8. get all transactions of a user sorted 
-    9. get all transactions of a user of passed type sorted
+    8. get all transactions of a user 
+    9. get all transactions of a user of passed type
 
-    10. get all cash inflow transactions of a user sorted 
-    11. get all cash outflow transactions of a user sorted 
-    12. get all transactions betweeen two specified users sorted 
-    13. get all transaction from specifies sender to receiver sorted 
+    10. get all cash inflow transactions of a user 
+    11. get all cash outflow transactions of a user 
+    12. get all transactions betweeen two specified users 
+    13. get all transaction from specifies sender to receiver 
+    14. get all beneficiaries of a user
+    15. get all benefactors of a user
     """
 
 
@@ -140,24 +143,42 @@ def get_transaction_by_transaction_id(
         return transaction
 
 
-def _helper_generate_list_of_transactions(rows):
-    """ helper function to create multiple transaction objects"""
+def _helper_generate_list_of_transactions_for_admin(rows):
+    """ for admin get functions | helper function to create multiple transaction objects"""
     transactions = [
-        payment_model.Transaction(
-            id=row[0],
-            amount=row[1],
-            mode=payment_model.TransactionMode[row[2]],
-            transaction_type=payment_model.TransactionType[row[3]],
-            status=payment_model.TransactionStatus[row[4]],
-            sender_wallet=payment_model.Wallet(
-                id=row[5], balance=row[10]
-            ),
-            recipient_wallet=payment_model.Wallet(
-                id=row[6], balance=row[12]
-            ),
-            created_at=row[7],
-            last_updated=row[8]
-        )
+        {
+            "id": row[0],
+            "amount": row[1],
+            "mode": row[2],
+            "transaction_type": row[3],
+            "status": row[4],
+            "created_at": row[5],
+            "last_updated": row[6],
+            "sender_id": row[7],
+            "sender_name": row[8],
+            "recipient_id": row[9],
+            "recipient_name": row[10]
+        }
+        for row in rows
+    ]
+
+    return transactions
+
+
+def _helper_generate_list_of_transactions_for_general_case(rows):
+    " for general get functions | helper function to create multiple transaction objects"
+    transactions = [
+        {
+            "id": row[0],
+            "amount": row[1],
+            "mode": row[2],
+            "transaction_type": row[3],
+            "status": row[4],
+            "created_at": row[5],
+            "last_updated": row[6],
+            "sender_name": row[7],
+            "recipient_name": row[8]
+        }
         for row in rows
     ]
 
@@ -165,37 +186,43 @@ def _helper_generate_list_of_transactions(rows):
 
 
 def get_all_transactions(uow: AbstractUnitOfWork):
-    """ Get all transactions sorted by time with recent coming first"""
+    """ admin function | Get all transactions"""
     with uow:
+
         sql = """
-            select t.id, t.amount, t.mode, t.transaction_type, t.status, t.sender_wallet_id, t.recipient_wallet_id, t.created_at, t.last_updated,
-            s.id AS sender_wallet_id, s.balance AS sender_balance, r.id AS recipient_wallet_id, r.balance AS recipient_balance
-            from transactions t
-            inner join wallets s on t.sender_wallet_id = s.id
-            inner join wallets r on t.recipient_wallet_id = r.id
-            order by created_at desc
+            select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
+            sender.id AS sender_id, sender.full_name AS sender_name,
+            recipient.id AS recipient_id, recipient.full_name AS recipient_name
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            order by txn.created_at desc
         """
 
         uow.cursor.execute(
             sql
         )
 
-        transactions = _helper_generate_list_of_transactions(
-            uow.cursor.fetchall())
+        rows = uow.cursor.fetchall()
+        transactions = _helper_generate_list_of_transactions_for_admin(
+            rows)
 
         return transactions
 
 
 def get_all_transactions_of_a_type(transaction_type: payment_model.TransactionType, uow: AbstractUnitOfWork):
+    """ admin function | Get all transactions of a type"""
+
     with uow:
         sql = """
-            select t.id, t.amount, t.mode, t.transaction_type, t.status, t.sender_wallet_id, t.recipient_wallet_id, t.created_at, t.last_updated,
-            s.id AS sender_wallet_id, s.balance AS sender_balance, r.id AS recipient_wallet_id, r.balance AS recipient_balance
-            from transactions t
-            inner join wallets s on t.sender_wallet_id = s.id
-            inner join wallets r on t.recipient_wallet_id = r.id
-            where t.transaction_type = %s
-            order by created_at desc
+            select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
+            sender.id AS sender_id, sender.full_name AS sender_name,
+            recipient.id AS recipient_id, recipient.full_name AS recipient_name
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            where txn.transaction_type = %s
+            order by txn.created_at desc
         """
 
         uow.cursor.execute(
@@ -205,21 +232,23 @@ def get_all_transactions_of_a_type(transaction_type: payment_model.TransactionTy
             ]
         )
         rows = uow.cursor.fetchall()
-        transactions = _helper_generate_list_of_transactions(rows)
+        transactions = _helper_generate_list_of_transactions_for_admin(rows)
 
         return transactions
 
 
 def get_all_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
+    """ generel fuction | Get all transactions of a user"""
     with uow:
         sql = """
-            select t.id, t.amount, t.mode, t.transaction_type, t.status, t.sender_wallet_id, t.recipient_wallet_id, t.created_at, t.last_updated,
-            s.id AS sender_wallet_id, s.balance AS sender_balance, r.id AS recipient_wallet_id, r.balance AS recipient_balance
-            from transactions t
-            inner join wallets s on t.sender_wallet_id = s.id
-            inner join wallets r on t.recipient_wallet_id = r.id
-            where sender_wallet_id = %s or recipient_wallet_id = %s
-            order by created_at desc
+            select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
+            sender.full_name AS sender_name,
+            recipient.full_name AS recipient_name
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            where txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s
+            order by txn.created_at desc
         """
         uow.cursor.execute(
             sql,
@@ -230,20 +259,23 @@ def get_all_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
         )
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions(rows)
+        transactions = _helper_generate_list_of_transactions_for_general_case(
+            rows)
         return transactions
 
 
 def get_all_transactions_of_a_user_of_a_type(user_id: str, transaction_type: payment_model.TransactionType, uow: AbstractUnitOfWork):
+    """ generel fuction | Get all transactions of a user of a type"""
     with uow:
         sql = """
-            select t.id, t.amount, t.mode, t.transaction_type, t.status, t.sender_wallet_id, t.recipient_wallet_id, t.created_at, t.last_updated,
-            s.id AS sender_wallet_id, s.balance AS sender_balance, r.id AS recipient_wallet_id, r.balance AS recipient_balance
-            from transactions t
-            inner join wallets s on t.sender_wallet_id = s.id
-            inner join wallets r on t.recipient_wallet_id = r.id
-            where (sender_wallet_id = %s or recipient_wallet_id = %s) and t.transaction_type = %s
-            order by created_at desc
+            select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
+            sender.full_name AS sender_name,
+            recipient.full_name AS recipient_name
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.transaction_type = %s
+            order by txn.created_at desc
         """
         uow.cursor.execute(
             sql,
@@ -255,20 +287,23 @@ def get_all_transactions_of_a_user_of_a_type(user_id: str, transaction_type: pay
         )
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions(rows)
+        transactions = _helper_generate_list_of_transactions_for_general_case(
+            rows)
         return transactions
 
 
 def get_all_cash_inflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
+    """ generel fuction | Get all cash inflow transactions of a user"""
     with uow:
         sql = """
-            select t.id, t.amount, t.mode, t.transaction_type, t.status, t.sender_wallet_id, t.recipient_wallet_id, t.created_at, t.last_updated,
-            s.id AS sender_wallet_id, s.balance AS sender_balance, r.id AS recipient_wallet_id, r.balance AS recipient_balance
-            from transactions t
-            inner join wallets s on t.sender_wallet_id = s.id
-            inner join wallets r on t.recipient_wallet_id = r.id
-            where recipient_wallet_id = %s
-            order by created_at desc
+            select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
+            sender.full_name AS sender_name,
+            recipient.full_name AS recipient_name
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            where txn.recipient_wallet_id = %s
+            order by txn.created_at desc
         """
         uow.cursor.execute(
             sql,
@@ -278,21 +313,24 @@ def get_all_cash_inflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOf
         )
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions(rows)
+        transactions = _helper_generate_list_of_transactions_for_general_case(
+            rows)
 
         return transactions
 
 
 def get_all_cash_outflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
+    """ generel fuction | Get all cash outflow transactions of a user"""
     with uow:
         sql = """
-            select t.id, t.amount, t.mode, t.transaction_type, t.status, t.sender_wallet_id, t.recipient_wallet_id, t.created_at, t.last_updated,
-            s.id AS sender_wallet_id, s.balance AS sender_balance, r.id AS recipient_wallet_id, r.balance AS recipient_balance
-            from transactions t
-            inner join wallets s on t.sender_wallet_id = s.id
-            inner join wallets r on t.recipient_wallet_id = r.id
-            where sender_wallet_id = %s
-            order by created_at desc
+            select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
+            sender.full_name AS sender_name,
+            recipient.full_name AS recipient_name
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            where txn.sender_wallet_id = %s
+            order by txn.created_at desc
         """
         uow.cursor.execute(
             sql,
@@ -302,21 +340,24 @@ def get_all_cash_outflow_transactions_of_a_user(user_id: str, uow: AbstractUnitO
         )
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions(rows)
+        transactions = _helper_generate_list_of_transactions_for_general_case(
+            rows)
 
         return transactions
 
 
 def get_all_transactions_between_two_users(user1_id: str, user2_id: str, uow: AbstractUnitOfWork):
+    """ admin fuction | Get all transactions between two users"""
     with uow:
         sql = """
-            select t.id, t.amount, t.mode, t.transaction_type, t.status, t.sender_wallet_id, t.recipient_wallet_id, t.created_at, t.last_updated,
-            s.id AS sender_wallet_id, s.balance AS sender_balance, r.id AS recipient_wallet_id, r.balance AS recipient_balance
-            from transactions t
-            inner join wallets s on t.sender_wallet_id = s.id
-            inner join wallets r on t.recipient_wallet_id = r.id
-            where (sender_wallet_id = %s and recipient_wallet_id = %s) or (sender_wallet_id = %s and recipient_wallet_id = %s)
-            order by created_at desc
+            select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
+            sender.id AS sender_id, sender.full_name AS sender_name,
+            recipient.id AS recipient_id, recipient.full_name AS recipient_name
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            where (txn.sender_wallet_id = %s and txn.recipient_wallet_id = %s) or (txn.sender_wallet_id = %s and txn.recipient_wallet_id = %s)
+            order by txn.created_at desc
         """
         uow.cursor.execute(
             sql,
@@ -329,20 +370,23 @@ def get_all_transactions_between_two_users(user1_id: str, user2_id: str, uow: Ab
         )
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions(rows)
+        transactions = _helper_generate_list_of_transactions_for_admin(rows)
 
         return transactions
 
+
 def get_all_transactions_from_sender_to_receiver(sender_id: str, receiver_id: str, uow: AbstractUnitOfWork):
+    """ generel fuction | Get all transactions from sender to receiver"""
     with uow:
         sql = """
-            select t.id, t.amount, t.mode, t.transaction_type, t.status, t.sender_wallet_id, t.recipient_wallet_id, t.created_at, t.last_updated,
-            s.id AS sender_wallet_id, s.balance AS sender_balance, r.id AS recipient_wallet_id, r.balance AS recipient_balance
-            from transactions t
-            inner join wallets s on t.sender_wallet_id = s.id
-            inner join wallets r on t.recipient_wallet_id = r.id
-            where sender_wallet_id = %s and recipient_wallet_id = %s
-            order by created_at desc
+            select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
+            sender.full_name AS sender_name,
+            recipient.full_name AS recipient_name
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            where txn.sender_wallet_id = %s and txn.recipient_wallet_id = %s
+            order by txn.created_at desc
         """
         uow.cursor.execute(
             sql,
@@ -353,6 +397,62 @@ def get_all_transactions_from_sender_to_receiver(sender_id: str, receiver_id: st
         )
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions(rows)
+        transactions = _helper_generate_list_of_transactions_for_general_case(
+            rows)
 
         return transactions
+
+
+def get_all_beneficiaries_of_passed_user(sender_id: str, uow: AbstractUnitOfWork):
+    """ generel fuction | Get all beneficiaries of a user"""
+    sql = """
+        select txn.recipient_wallet_id,
+        beneficiary.full_name AS beneficiary_name
+        from transactions txn
+        inner join users beneficiary on txn.recipient_wallet_id = beneficiary.id
+        where txn.sender_wallet_id = %s
+    """
+    uow.cursor.execute(
+        sql,
+        [
+            sender_id
+        ]
+    )
+    rows = uow.cursor.fetchall()
+
+    beneficiaries = [
+        {
+            "id": row[0],
+            "name": row[1]
+        }
+        for row in rows
+    ]
+
+    return beneficiaries
+
+def get_all_benefactors_of_passed_user(receiver_id: str, uow: AbstractUnitOfWork):
+    """ generel fuction | Get all benefactors of a user"""
+    sql = """
+        select txn.sender_wallet_id,
+        benefactor.full_name AS benefactor_name
+        from transactions txn
+        inner join users benefactor on txn.sender_wallet_id = benefactor.id
+        where txn.recipient_wallet_id = %s
+    """
+    uow.cursor.execute(
+        sql,
+        [
+            receiver_id
+        ]
+    )
+    rows = uow.cursor.fetchall()
+
+    benefactors = [
+        {
+            "id": row[0],
+            "name": row[1]
+        }
+        for row in rows
+    ]
+
+    return benefactors
