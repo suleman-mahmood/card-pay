@@ -9,21 +9,18 @@ class RadioButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     const borderWidth = 1.0;
 
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.003),
-      child: _buildRadioButton(screenWidth, screenHeight, borderWidth, context),
+      padding: EdgeInsets.all(5),
+      child: _buildRadioButton(borderWidth, context),
     );
   }
 
-  Container _buildRadioButton(double screenWidth, double screenHeight,
-      double borderWidth, BuildContext context) {
+  Container _buildRadioButton(double borderWidth, BuildContext context) {
     return Container(
-      width: screenWidth * 0.055,
-      height: screenHeight * 0.055,
+      width: 25,
+      height: 25,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: filled ? AppColors.secondaryColor : Colors.transparent,

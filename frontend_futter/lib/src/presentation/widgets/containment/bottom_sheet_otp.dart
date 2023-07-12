@@ -55,54 +55,48 @@ class OTPInput extends HookWidget {
       };
     }, []);
 
-    final boxSize = ScreenUtil.blockSizeHorizontal(context) * 8; // Updated size
-    final fontSize = ScreenUtil.textMultiplier(context) * 6; // Updated size
+    final boxSize = ScreenUtil.blockSizeHorizontal(context) * 11;
 
-    return Center(
-      child: Align(
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(digitCount, (index) {
-            return SizedBox(
-              width: boxSize,
-              height: boxSize,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: boxSize * 0.05),
-                child: TextField(
-                  controller: controllers[index],
-                  focusNode: focusNodes[index],
-                  keyboardType: TextInputType.number,
-                  maxLength: 1,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.inputFont.copyWith(
-                    fontSize: fontSize,
-                    color: AppColors.blackColor,
-                  ),
-                  decoration: InputDecoration(
-                    counterText: '',
-                    contentPadding: EdgeInsets.all(boxSize * 0.05),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(boxSize * 0.16),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor,
-                        width: 1.0,
-                      ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: boxSize * 0.8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(digitCount, (index) {
+          return SizedBox(
+            width: boxSize * 1.3,
+            height: boxSize,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: boxSize * 0.0005),
+              child: TextField(
+                controller: controllers[index],
+                focusNode: focusNodes[index],
+                keyboardType: TextInputType.number,
+                maxLength: 1,
+                textAlign: TextAlign.center,
+                style: AppTypography.inputFont,
+                decoration: InputDecoration(
+                  counterText: '',
+                  contentPadding: EdgeInsets.all(boxSize * 0.005),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(boxSize * 0.26),
+                    borderSide: BorderSide(
+                      color: AppColors.greyColor,
+                      width: 1.0,
                     ),
-                    fillColor: AppColors.secondaryColor,
-                    filled: true,
                   ),
-                  onChanged: (value) {
-                    if (value.length == 1) {
-                      _moveFocus(context, focusNodes, index);
-                    }
-                    _checkAndCallOnCompleted(controllers);
-                  },
+                  fillColor: AppColors.secondaryColor,
+                  filled: true,
                 ),
+                onChanged: (value) {
+                  if (value.length == 1) {
+                    _moveFocus(context, focusNodes, index);
+                  }
+                  _checkAndCallOnCompleted(controllers);
+                },
               ),
-            );
-          }),
-        ),
+            ),
+          );
+        }),
       ),
     );
   }

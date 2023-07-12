@@ -26,12 +26,10 @@ class TransactionView extends HookWidget {
   Widget build(BuildContext context) {
     final paymentController = useTextEditingController();
 
-    // Whole transaction view with background color
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(
         children: [
-          // Align payment info container to bottom of the screen
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -53,7 +51,6 @@ class TransactionView extends HookWidget {
                   ),
                 ],
               ),
-              // Column for payment info
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

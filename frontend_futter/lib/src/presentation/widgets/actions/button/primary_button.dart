@@ -19,14 +19,12 @@ class PrimaryButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentColor = useState<Color>(color);
-
     return SizedBox(
       width: MediaQuery.of(context).size.width * 5 / 7,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(currentColor.value),
+          backgroundColor: MaterialStateProperty.all<Color>(color),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),

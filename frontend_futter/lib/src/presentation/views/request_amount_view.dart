@@ -1,3 +1,4 @@
+import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
@@ -15,31 +16,17 @@ class RequestAmountViewConstants {
 @RoutePage()
 class RequestAmountView extends HookWidget {
   final String rollNumber;
-
-  const RequestAmountView({super.key, required this.rollNumber});
-
+  const RequestAmountView({Key? key, required this.rollNumber})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final rollNumberController = useRollNumberController(rollNumber);
-
+    final rollNumberController = useState<String>(rollNumber);
     return TransactionView(
-      title: RequestAmountViewConstants.title,
-      buttonText: RequestAmountViewConstants.buttonText,
-      rollNumber: rollNumberController.rollNumber,
+      title: PaymentStrings.requestMoney,
+      buttonText: PaymentStrings.continu,
+      rollNumber: rollNumberController.value,
       backgroundColor: AppColors.purpleColor,
       onButtonPressed: () => context.router.push(const DashboardRoute()),
     );
   }
-}
-
-RollNumberController useRollNumberController(String rollNumber) {
-  final rollNumberController =
-      useState<RollNumberController>(RollNumberController(rollNumber));
-  return rollNumberController.value;
-}
-
-class RollNumberController {
-  String rollNumber;
-
-  RollNumberController(this.rollNumber);
 }

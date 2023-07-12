@@ -45,8 +45,8 @@ class SignupView extends HookWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const MainHeading(
-              accountTitle: AppStrings.check,
-              accountDescription: AppStrings.otpText,
+              accountTitle: AppStrings.checkMobile,
+              accountDescription: AppStrings.otpMobileText,
             ),
             const HeightBox(slab: 2),
             OTPInput(
@@ -164,7 +164,7 @@ class SignupView extends HookWidget {
             dropdownValue: dropdownValue.value,
             onChanged: onPhoneNumberChanged,
           ),
-          const HeightBox(slab: 2),
+          const HeightBox(slab: 3),
           // TODO: change this to make it coherent with the design
           CheckBox(
             onChanged: (bool value) {
@@ -172,7 +172,7 @@ class SignupView extends HookWidget {
             },
             text: AppStrings.acceptPrivacyTerms,
           ),
-          const HeightBox(slab: 1),
+          const HeightBox(slab: 3),
           Center(
             child: PrimaryButton(
               text: AppStrings.createAccount,

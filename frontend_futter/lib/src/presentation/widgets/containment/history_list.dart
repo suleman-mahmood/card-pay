@@ -41,8 +41,7 @@ class TransactionList extends HookWidget {
         Color color = colors[transaction['colorIndex']];
 
         return Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * 0.04),
+          padding: EdgeInsets.symmetric(horizontal: 5),
           child: TransactionContainer(
             icon: Icons.send,
             firstText: transaction['id'],

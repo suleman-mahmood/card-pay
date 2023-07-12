@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -26,39 +27,25 @@ class LoginView extends HookWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-                height: ScreenUtil.heightMultiplier(context) *
-                    22), // Leverage ScreenUtil
+            SizedBox(height: ScreenUtil.heightMultiplier(context) * 22),
             const MainHeading(
               accountTitle: AppStrings.logIn,
             ),
-            SizedBox(
-                height: ScreenUtil.heightMultiplier(context) *
-                    0.5), // Leverage ScreenUtil
+            HeightBox(slab: 2),
             const CustomInputField(
               label: AppStrings.email,
               hint: AppStrings.enterEmail,
               obscureText: false,
             ),
-            SizedBox(
-                height: ScreenUtil.heightMultiplier(context) *
-                    1.5), // Leverage ScreenUtil
+            HeightBox(slab: 2),
             const CustomInputField(
               label: AppStrings.password,
               hint: AppStrings.enterPassword,
               obscureText: true,
             ),
-            SizedBox(
-                height: ScreenUtil.heightMultiplier(context) *
-                    0.5), // Leverage ScreenUtil
-            Text(
-              AppStrings.forgot,
-              style: AppTypography.headingFont.copyWith(
-                fontSize: ScreenUtil.textMultiplier(context) *
-                    2, // Leverage ScreenUtil
-                color: AppColors.primaryColor,
-              ),
-            ),
+            HeightBox(slab: 1),
+            Text(AppStrings.forgot, style: AppTypography.linkText),
+            HeightBox(slab: 3),
             PrimaryButton(
               text: AppStrings.logIn,
               onPressed: () => handleLoginButtonPressed(context),

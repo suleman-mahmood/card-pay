@@ -1,3 +1,4 @@
+import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 // import 'package:cardpay/src/presentation/widgets/transection_layout/transection_common_layout.dart';
@@ -17,31 +18,16 @@ class SendViewConstants {
 @RoutePage()
 class SendView extends HookWidget {
   final String rollNumber;
-
-  const SendView({super.key, required this.rollNumber});
-
+  const SendView({Key? key, required this.rollNumber}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final rollNumberController = useRollNumberController(rollNumber);
-
+    final rollNumberController = useState<String>(rollNumber);
     return TransactionView(
-      title: SendViewConstants.title,
-      buttonText: SendViewConstants.buttonText,
-      rollNumber: rollNumberController.rollNumber,
+      title: PaymentStrings.depositMoney,
+      buttonText: PaymentStrings.continu,
+      rollNumber: rollNumberController.value,
       backgroundColor: AppColors.parrotColor,
       onButtonPressed: () => context.router.push(const DashboardRoute()),
     );
   }
-}
-
-RollNumberController useRollNumberController(String rollNumber) {
-  final rollNumberController =
-      useState<RollNumberController>(RollNumberController(rollNumber));
-  return rollNumberController.value;
-}
-
-class RollNumberController {
-  String rollNumber;
-
-  RollNumberController(this.rollNumber);
 }

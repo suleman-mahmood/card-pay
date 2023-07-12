@@ -8,6 +8,8 @@ class PaymentStrings {
   static const String balance = '\$25,000.40';
   static const String username = 'Username';
   static const String rollNumber = '24100245';
+  static const String anyRollNumber = '24XXXXXX';
+
   static const String pAmount = '+250';
   static const String nAmount = '-250';
   static const String deposite = 'Deposit';

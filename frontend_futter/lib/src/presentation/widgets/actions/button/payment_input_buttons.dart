@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/screen_utills/screen_util.dart';
@@ -23,24 +24,67 @@ class PaymentEntry extends HookWidget {
   Widget build(BuildContext context) {
     final selectedButton = useState<String?>(null);
 
+    // Local PaymentButton widget
+    Widget PaymentButton(String amount) {
+      final isSelected = selectedButton.value == amount;
+      final buttonColor =
+          isSelected ? AppColors.primaryColor : AppColors.bluishColor;
+      final textColor =
+          isSelected ? AppColors.secondaryColor : AppColors.primaryColor;
+
+      return ElevatedButton(
+        onPressed: () {
+          selectedButton.value = amount;
+          controller.text = amount;
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
+        ),
+        child: Text(
+          amount,
+          style: TextStyle(color: textColor),
+        ),
+      );
+    }
+
+    // Local PaymentValueListenableBuilder widget
+    Widget PaymentValueListenableBuilder() {
+      return Padding(
+        padding: EdgeInsets.all(10),
+        child: ValueListenableBuilder(
+          valueListenable: controller,
+          builder: (context, value, child) {
+            final text = controller.text.isEmpty ? '____' : controller.text;
+            return SizedBox(
+              height: ScreenUtil.blockSizeVertical(context) * 5,
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: text.length,
+                separatorBuilder: (context, index) => HeightBox(slab: 2),
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  return Text(text[index],
+                      style: AppTypography.mainHeadingGrey);
+                },
+              ),
+            );
+          },
+        ),
+      );
+    }
+
     return Column(
       children: [
-        PaymentValueListenableBuilder(
-          controller: controller,
-        ),
-        SizedBox(height: ScreenUtil.blockSizeVertical(context) * 3),
+        PaymentValueListenableBuilder(),
+        HeightBox(slab: 3),
         Wrap(
-          spacing: ScreenUtil.blockSizeHorizontal(context) * 2,
-          runSpacing: ScreenUtil.blockSizeVertical(context) * 2,
+          spacing: 6,
+          runSpacing: 6,
           alignment: WrapAlignment.spaceEvenly,
           crossAxisAlignment: WrapCrossAlignment.center,
-          children: buttons
-              .map((amount) =>
-                  PaymentButton(context, amount, selectedButton, controller))
-              .toList(),
+          children: buttons.map((amount) => PaymentButton(amount)).toList(),
         ),
-        SizedBox(height: ScreenUtil.blockSizeVertical(context) * 2),
-        // NumPad
+        HeightBox(slab: 2), // NumPad
         NumPad(
           controller: controller,
           buttonColor: AppColors.greyColor,

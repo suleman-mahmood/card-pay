@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 
 class BalanceCard extends HookWidget {
@@ -17,86 +16,61 @@ class BalanceCard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final deviceHeight = MediaQuery.of(context).size.height;
+
+    Padding _cardContent() {
+      return Padding(
+        padding: EdgeInsets.all(15),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Total Balance", style: AppTypography.subHeading),
+                    Text(balance, style: AppTypography.mainHeadingWhite)
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    Positioned _topRightImage() {
+      return Positioned(
+        top: 0,
+        right: 0,
+        child: Image.asset(
+          topRightImage,
+        ),
+      );
+    }
+
+    Positioned _bottomLeftImage() {
+      return Positioned(
+        bottom: 0,
+        left: 0,
+        child: Image.asset(
+          bottomLeftImage,
+        ),
+      );
+    }
+
     return Container(
-      width: double.infinity,
+      height: deviceHeight * 0.19,
       decoration: BoxDecoration(
         color: AppColors.purpleColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Stack(
         children: [
-          _cardContent(context),
-          _topRightImage(context),
-          _bottomLeftImage(context),
+          _cardContent(),
+          _topRightImage(),
+          _bottomLeftImage(),
         ],
-      ),
-    );
-  }
-
-  Padding _cardContent(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(ScreenUtil.blockSizeVertical(context) * 4),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _balanceTitle(context),
-                  _balanceAmount(context),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Text _balanceTitle(BuildContext context) {
-    return Text(
-      "Total Balance",
-      style: AppTypography.headingFont.copyWith(
-        color: AppColors.secondaryColor,
-        fontSize: ScreenUtil.textMultiplier(context) * 1.9,
-      ),
-    );
-  }
-
-  Text _balanceAmount(BuildContext context) {
-    return Text(
-      balance,
-      style: AppTypography.mainHeading.copyWith(
-        color: AppColors.secondaryColor,
-        fontSize: ScreenUtil.textMultiplier(context) * 3.5,
-      ),
-    );
-  }
-
-  Positioned _topRightImage(BuildContext context) {
-    return Positioned(
-      top: 0,
-      right: 0,
-      child: Image.asset(
-        topRightImage,
-        width: ScreenUtil.widthMultiplier(context) * 18,
-        height: ScreenUtil.heightMultiplier(context) * 9,
-      ),
-    );
-  }
-
-  Positioned _bottomLeftImage(BuildContext context) {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      child: Image.asset(
-        bottomLeftImage,
-        width: ScreenUtil.widthMultiplier(context) * 13,
-        height: ScreenUtil.heightMultiplier(context) * 4.5,
       ),
     );
   }

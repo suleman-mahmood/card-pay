@@ -20,9 +20,6 @@ class PhoneNumberInput extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     final dropdownMenuItems = _buildDropdownMenuItems(dropdownItems);
 
     final selectedDropdownItem = useState<String>(dropdownValue);
@@ -43,12 +40,11 @@ class PhoneNumberInput extends HookWidget {
           child: Row(
             children: [
               _buildDropdown(
-                screenWidth: screenWidth,
                 selectedDropdownItem: selectedDropdownItem,
                 dropdownMenuItems: dropdownMenuItems,
               ),
               Expanded(
-                child: _buildTextField(screenHeight, screenWidth),
+                child: _buildTextField(),
               ),
             ],
           ),
@@ -57,7 +53,7 @@ class PhoneNumberInput extends HookWidget {
     );
   }
 
-  TextField _buildTextField(double screenHeight, double screenWidth) {
+  TextField _buildTextField() {
     return TextField(
       controller: controller,
       keyboardType: TextInputType.phone,
@@ -75,7 +71,6 @@ class PhoneNumberInput extends HookWidget {
   }
 
   Widget _buildDropdown({
-    required double screenWidth,
     required ValueNotifier<String> selectedDropdownItem,
     required List<DropdownMenuItem<String>> dropdownMenuItems,
   }) {

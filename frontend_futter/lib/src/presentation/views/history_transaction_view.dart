@@ -1,4 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
+import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -23,32 +26,26 @@ class HistroyView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final decoration = useMemoized(
-      () => _getBoxDecoration(),
-      [],
-    );
-
-    return Scaffold(
+    return PaymentLayout(
+      useHorizontalPadding: false,
       backgroundColor: AppColors.purpleColor,
-      body: Stack(
+      child: Stack(
         children: [
           Align(
             alignment: Alignment.bottomCenter,
-            child: Container(
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.75,
-                  ),
-                  child: DecoratedBox(
-                    decoration: decoration,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.01),
-                        _buildRow(
-                          context,
+            child: FractionallySizedBox(
+              heightFactor: 3 / 4,
+              child: DecoratedBox(
+                decoration: CustomBoxDecoration.getDecoration(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const HeightBox(slab: 3),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           const Text(
                             PaymentStrings.transaction,
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -57,15 +54,13 @@ class HistroyView extends HookWidget {
                             PaymentStrings.seeAll,
                             style: TextStyle(color: AppColors.purpleColor),
                           ),
-                        ),
-                        Expanded(
-                          child: TransactionList(),
-                        ),
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.02),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: TransactionList(),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -77,34 +72,6 @@ class HistroyView extends HookWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Row _buildRow(BuildContext context, Widget leftWidget, Widget rightWidget) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildPadding(context, leftWidget),
-        _buildPadding(context, rightWidget),
-      ],
-    );
-  }
-
-  Padding _buildPadding(BuildContext context, Widget child) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: child,
-    );
-  }
-
-  BoxDecoration _getBoxDecoration() {
-    return BoxDecoration(
-      color: AppColors.secondaryColor,
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(_borderRadiusValue),
-        topRight: Radius.circular(_borderRadiusValue),
-      ),
-      boxShadow: boxShadow,
     );
   }
 }

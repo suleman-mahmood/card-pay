@@ -6,7 +6,7 @@ class AppStrings {
   // Account creation
   static const String createAccount = 'Create Account';
   static const String createAccountDesc =
-      'Let\'s get you started. Help us create your account';
+      'Let\'s get you started by creating your account';
   static const String username = 'Username';
   static const String enterUsername = 'Enter your username';
   static const String email = 'Email';
@@ -25,14 +25,21 @@ class AppStrings {
   static const String alreadyHaveAccount = 'Already have an account?';
   static const String logIn = 'Log In';
   // Bottmsheet
-  static const String check = 'Please check your mobile';
-  static const String otpText = 'We send an otp at your number +923*****786';
+  static const String checkMobile = 'Please check your Phone';
+  static const String checkEmail = 'Please check your Email';
+
+  static const String otpMobileText =
+      'We send an otp at your number +923*****786';
+  static const String otpEmailText = 'We send an otp at talha****@example.com';
+
   static const String resendCode = 'Resend code';
   static const String noOtp = 'Didn\'t receive the code?';
   static const String verify = 'Verify';
   // Introduction
   static const String revolution = 'Revolutionize your transactions';
   static const String start = 'Get Started';
+  static const String organization = 'organization';
+
   // Registration
   static const String register = 'Register Organization';
   static const String sign = 'Sign in to your organization to get started';

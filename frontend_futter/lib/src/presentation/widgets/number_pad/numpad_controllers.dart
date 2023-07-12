@@ -12,67 +12,50 @@ class NumberButton extends HookWidget {
     required this.digit,
     required this.controller,
     this.buttonColor,
-  });
+  }) : super();
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.01), // make padding responsive
+      padding: EdgeInsets.all(2),
       child: InkWell(
         onTap: () {
           controller.text += digit;
         },
         child: digit == 'X'
-            ? _buildXButton(screenWidth, screenHeight)
-            : _buildDigitButton(screenWidth, screenHeight, context),
+            ? _buildXButton()
+            : _buildDigitButton(context, buttonColor),
       ),
     );
   }
 
-  Widget _buildXButton(double screenWidth, double screenHeight) {
+  Widget _buildXButton() {
     return _InkWellButton(
-      width: screenWidth * 0.15,
-      height: screenHeight * 0.1,
       child: const Icon(Icons.close),
     );
   }
 
-  Widget _buildDigitButton(
-      double screenWidth, double screenHeight, BuildContext context) {
+  Widget _buildDigitButton(BuildContext context, Color? color) {
     return _InkWellButton(
-      width: screenWidth * 0.15,
-      height: screenHeight * 0.1,
       child: Text(
         digit,
-        style: TextStyle(
-          color: buttonColor ?? AppColors.secondaryColor,
-          fontSize: screenHeight * 0.05,
-          fontFamily: 'popins',
-        ),
+        style: AppTypography.mainHeadingGrey
+            .copyWith(color: color ?? AppColors.secondaryColor),
       ),
     );
   }
 }
 
-class _InkWellButton extends StatelessWidget {
-  final double width;
-  final double height;
+class _InkWellButton extends HookWidget {
   final Widget child;
 
   const _InkWellButton({
-    required this.width,
-    required this.height,
     required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width,
-      height: height,
       alignment: Alignment.center,
       child: child,
     );

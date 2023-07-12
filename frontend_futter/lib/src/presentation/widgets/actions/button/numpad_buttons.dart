@@ -1,5 +1,3 @@
-/// The NumPad class is a widget that displays a numeric keypad with optional button color
-/// customization.
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -18,10 +16,8 @@ class NumPad extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Padding(
-      padding: EdgeInsets.only(top: screenHeight * 0.01),
+      padding: EdgeInsets.only(top: 5),
       child: Column(
         children: [
           for (int row = 0; row < 3; row++)
@@ -29,12 +25,12 @@ class NumPad extends HookWidget {
               row: row,
               controller: controller,
               buttonColor: buttonColor,
-              height: screenHeight * 0.1,
+              height: 80,
             ),
           NumberPadLastRow(
             controller: controller,
             buttonColor: buttonColor,
-            height: screenHeight * 0.1,
+            height: 80,
           ),
         ],
       ),

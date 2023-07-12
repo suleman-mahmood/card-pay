@@ -23,30 +23,20 @@ class TransactionContainer extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Align(
       alignment: Alignment.center,
       child: Container(
-        margin: EdgeInsets.all(
-            ScreenUtil.widthMultiplier(context) * 1), // 2% of screen width
-        padding: EdgeInsets.symmetric(
-            vertical: ScreenUtil.heightMultiplier(context) *
-                0.9, // 1% of screen height
-            horizontal:
-                ScreenUtil.widthMultiplier(context) * 3 // 3% of screen width
-            ),
+        margin: EdgeInsets.all(4),
+        padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
         decoration: BoxDecoration(
           color: AppColors.secondaryColor,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: AppColors.greyColor.withOpacity(0.4),
-              spreadRadius: ScreenUtil.widthMultiplier(context) *
-                  0.7, // 1% of screen width
-              blurRadius: ScreenUtil.widthMultiplier(context) *
-                  1.5, // 2% of screen width
-              offset: Offset(0,
-                  ScreenUtil.heightMultiplier(context)), // 1% of screen height
+              color: AppColors.greyColor.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 10,
+              offset: Offset(0, ScreenUtil.heightMultiplier(context)),
             ),
           ],
         ),
@@ -68,48 +58,28 @@ class TransactionContainer extends HookWidget {
     return Icon(
       icon,
       color: iconColor,
-      size: ScreenUtil.imageSizeMultiplier(context) * 4, // 7% of screen width
     );
   }
 
   Padding buildFirstText(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-          left: ScreenUtil.widthMultiplier(context) * 1.5, // 3% of screen width
-          top:
-              ScreenUtil.heightMultiplier(context) * 0.8, // 1% of screen height
+          left: ScreenUtil.widthMultiplier(context), // 3% of screen width
+          top: ScreenUtil.heightMultiplier(context), // 1% of screen height
           bottom: ScreenUtil.heightMultiplier(context) // 1% of screen height
           ),
-      child: Text(
-        firstText,
-        overflow: TextOverflow.ellipsis,
-        textAlign: TextAlign.left,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: firstTextColor,
-              fontSize: ScreenUtil.textMultiplier(context) *
-                  1.9, // 2.2% of screen height
-              fontWeight: FontWeight.w600,
-            ),
-      ),
+      child: Text(firstText, style: AppTypography.bodyText),
     );
   }
 
   Padding buildSecondText(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-          top: ScreenUtil.heightMultiplier(context), // 1% of screen height
-          bottom: ScreenUtil.heightMultiplier(context) // 1% of screen height
-          ),
+          top: ScreenUtil.heightMultiplier(context),
+          bottom: ScreenUtil.heightMultiplier(context)),
       child: Text(
         secondText,
-        overflow: TextOverflow.ellipsis,
-        textAlign: TextAlign.left,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: secondTextColor,
-              fontSize: ScreenUtil.textMultiplier(context) *
-                  2.2, // 2.2% of screen height
-              fontWeight: FontWeight.w600,
-            ),
+        style: AppTypography.bodyText.copyWith(color: secondTextColor),
       ),
     );
   }

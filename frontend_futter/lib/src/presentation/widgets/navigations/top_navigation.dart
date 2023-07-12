@@ -22,27 +22,29 @@ class Header extends HookWidget {
   Widget build(BuildContext context) {
     final double horizontalPadding = ScreenUtil.blockSizeHorizontal(context);
     final double verticalPadding = ScreenUtil.blockSizeVertical(context);
+    Widget BackButton(color) => IconButton(
+          icon: Icon(Icons.arrow_back, color: color),
+          onPressed: () => context.router.pop(),
+        );
 
     return Column(
       children: [
         Padding(
           padding: EdgeInsets.fromLTRB(
-            horizontalPadding, // left
-            verticalPadding * 2, // top
-            horizontalPadding * 9, // right
-            verticalPadding * 3, // bottom
+            horizontalPadding * 1,
+            verticalPadding * 2,
+            horizontalPadding * 9,
+            verticalPadding * 3,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _BackButton(color: color),
-              Center(
-                child: Text(
-                  title,
-                  style: AppTypography.mainHeading.copyWith(color: color),
-                ),
+              BackButton(color),
+              Text(
+                title,
+                style: AppTypography.mainHeading.copyWith(color: color),
               ),
-              const Spacer(),
+              BackButton(Colors.transparent),
             ],
           ),
         ),
@@ -54,20 +56,6 @@ class Header extends HookWidget {
             textAlign: TextAlign.center,
           ),
       ],
-    );
-  }
-}
-
-class _BackButton extends StatelessWidget {
-  final Color color;
-
-  const _BackButton({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.arrow_back, color: color),
-      onPressed: () => context.router.pop(),
     );
   }
 }

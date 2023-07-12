@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import '../widgets/layout/pin_numpad_layout.dart';
@@ -32,45 +31,23 @@ class AuthView extends HookWidget {
 
     return Scaffold(
       body: Container(
-        color: AppColors.darkVlueColor,
-        child: Column(
+        color: AppColors.darkBlueColor,
+        child: Flex(
+          direction: Axis.vertical,
           children: [
-            SizedBox(
-                height: ScreenUtil.heightMultiplier(context) *
-                    15), // Leverage ScreenUtil
-            Text(
-              AppStrings.enterPin, // from strings.dart
-              style: AppTypography.mainHeading.copyWith(
-                color: AppColors.secondaryColor,
-                fontSize: ScreenUtil.textMultiplier(context) * 3.0,
-              ),
-            ),
-            SizedBox(
-                height: ScreenUtil.heightMultiplier(context) *
-                    15), // Leverage ScreenUtil
-            Expanded(
-              child: SingleChildScrollView(
-                child: PinEntry(
-                  controller: pinController,
-                  onPinEntered: handleLogin,
-                ),
-              ),
+            Expanded(flex: 2, child: Container()),
+            Text(AppStrings.enterPin, style: AppTypography.mainHeadingWhite),
+            Expanded(flex: 2, child: Container()),
+            PinEntry(
+              controller: pinController,
+              onPinEntered: handleLogin,
             ),
             if (showErrorMessage.value)
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: ScreenUtil.heightMultiplier(context) *
-                      2, // Leverage ScreenUtil
-                  horizontal: ScreenUtil.widthMultiplier(context) *
-                      4, // Leverage ScreenUtil
-                ),
-                child: const Text(
-                  AppStrings.enterPin, // from strings.dart
-                  style: TextStyle(
-                    color: AppColors.orangeColor,
-                  ),
-                ),
+              Text(
+                AppStrings.enterPin,
+                style: AppTypography.inputFont,
               ),
+            Expanded(flex: 1, child: Container()),
           ],
         ),
       ),

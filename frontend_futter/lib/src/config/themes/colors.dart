@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const Color primaryColor = Colors.blue;
   static const Color secondaryColor = Colors.white;
+  static const Color bluishColor = Color.fromRGBO(224, 235, 255, 1);
+
   static const Color lightBlueColor = Color.fromRGBO(65, 160, 242, 1);
-  static const Color darkVlueColor = Color.fromRGBO(20, 94, 185, 0.998);
+  static const Color darkBlueColor = Color.fromRGBO(20, 94, 185, 0.998);
   static const Color mediumBlueColor = Color.fromRGBO(6, 127, 205, 1);
   static const Color skyColor = Color.fromRGBO(1, 204, 192, 1);
   static const Color mediumGreenColor = Color.fromRGBO(1, 204, 136, 1);
@@ -77,6 +79,18 @@ class AppTypography {
     fontSize: 28,
     fontWeight: FontWeight.bold,
   );
+  static const TextStyle mainHeadingWhite = TextStyle(
+    fontFamily: 'poppins',
+    color: AppColors.secondaryColor,
+    fontSize: 28,
+    fontWeight: FontWeight.bold,
+  );
+  static TextStyle mainHeadingGrey = TextStyle(
+    fontFamily: 'poppins',
+    color: AppColors.blackColor.withOpacity(0.8),
+    fontSize: 40,
+    fontWeight: FontWeight.bold,
+  );
 
   static const TextStyle bodyText = TextStyle(
     color: AppColors.blackColor,
@@ -97,13 +111,12 @@ class AppTypography {
   static const TextStyle inputFont = TextStyle(
     fontFamily: 'plus jakarta sans',
     fontSize: 16,
-    fontWeight: FontWeight.normal,
-    fontStyle: FontStyle.normal,
   );
 
   static const TextStyle headingFont = TextStyle(
     fontFamily: 'poppins',
     fontSize: 16,
+    color: AppColors.secondaryColor,
     fontWeight: FontWeight.bold,
     fontStyle: FontStyle.normal,
   );

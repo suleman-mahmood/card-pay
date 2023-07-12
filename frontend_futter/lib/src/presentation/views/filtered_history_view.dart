@@ -1,20 +1,12 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
+import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
 import 'package:flutter/material.dart';
-import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:cardpay/src/presentation/widgets/containment/bottom_sheet_check_box.dart';
 import 'package:cardpay/src/presentation/widgets/containment/history_list.dart';
-import 'package:auto_route/auto_route.dart';
-import 'package:cardpay/src/presentation/widgets/navigations/bottom_bar.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
-
-final pages = [
-  const DashboardRoute(),
-  const ConfirmationRoute(),
-  const FilterHistoryRoute(),
-  const HistroyRoute(),
-];
 
 @RoutePage()
 class FilterHistoryView extends HookWidget {
@@ -26,116 +18,56 @@ class FilterHistoryView extends HookWidget {
     final checked2 = useState(false);
     final checked3 = useState(false);
     final checked4 = useState(false);
-    final selectedIndex = useState(0);
 
-    return Scaffold(
-      body: _buildBody(context, checked1, checked2, checked3, checked4),
-      bottomNavigationBar: _buildBottomNavigationBar(context, selectedIndex),
-    );
-  }
-
-  Widget _buildBody(
-      BuildContext context,
-      ValueNotifier<bool> checked1,
-      ValueNotifier<bool> checked2,
-      ValueNotifier<bool> checked3,
-      ValueNotifier<bool> checked4) {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: ScreenUtil.blockSizeVertical(context) * 3),
-          _buildHeader(context, checked1, checked2, checked3, checked4),
-          SizedBox(height: ScreenUtil.blockSizeVertical(context) * 3),
-          _buildTransactionList(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(
-      BuildContext context,
-      ValueNotifier<bool> checked1,
-      ValueNotifier<bool> checked2,
-      ValueNotifier<bool> checked3,
-      ValueNotifier<bool> checked4) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: ScreenUtil.blockSizeHorizontal(context) * 5.5),
+    final header = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5.5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Text(
-              PaymentStrings.transactionHistory,
-              style: AppTypography.headingFont.copyWith(
-                  fontSize: ScreenUtil.textMultiplier(context) *
-                      2.5 // responsive font size
-                  ),
-            ),
+            child: Text(PaymentStrings.transactionHistory,
+                style: AppTypography.bodyText),
           ),
-          _buildFilterIcon(context, checked1, checked2, checked3, checked4)
+          Builder(
+            builder: (BuildContext innerContext) {
+              return InkWell(
+                onTap: () {
+                  Scaffold.of(innerContext).showBottomSheet<void>(
+                    (BuildContext context) {
+                      return FilterBottomSheet(
+                        checked1: checked1,
+                        checked2: checked2,
+                        checked3: checked3,
+                        checked4: checked4,
+                      );
+                    },
+                  );
+                },
+                child: Icon(
+                  Icons.filter_alt,
+                  color: AppColors.greyColor.withOpacity(0.35),
+                  size: 24,
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
-  }
 
-  Widget _buildFilterIcon(
-      BuildContext context,
-      ValueNotifier<bool> checked1,
-      ValueNotifier<bool> checked2,
-      ValueNotifier<bool> checked3,
-      ValueNotifier<bool> checked4) {
-    return Builder(builder: (BuildContext context) {
-      return InkWell(
-        onTap: () {
-          _showFilterBottomSheet(
-              context, checked1, checked2, checked3, checked4);
-        },
-        child: Icon(
-          Icons.filter_alt,
-          color: AppColors.greyColor,
-          size: ScreenUtil.blockSizeHorizontal(context) *
-              6, // responsive icon size
-        ),
-      );
-    });
-  }
-
-  void _showFilterBottomSheet(
-      BuildContext context,
-      ValueNotifier<bool> checked1,
-      ValueNotifier<bool> checked2,
-      ValueNotifier<bool> checked3,
-      ValueNotifier<bool> checked4) {
-    Scaffold.of(context).showBottomSheet<void>(
-      (BuildContext context) {
-        return CustomBottomSheet(
-            checked1: checked1,
-            checked2: checked2,
-            checked3: checked3,
-            checked4:
-                checked4); // using a separate widget for bottom sheet content
-      },
-    );
-  }
-
-  Widget _buildTransactionList(BuildContext context) {
-    return SizedBox(
-      height: ScreenUtil.blockSizeVertical(context) *
-          100, // responsive container height
+    final transactionList = Flexible(
+      flex: 1,
       child: TransactionList(),
     );
-  }
 
-  Widget _buildBottomNavigationBar(
-      BuildContext context, ValueNotifier<int> selectedIndex) {
-    return CustomCurvedBottomBar(
-      selectedIndex: selectedIndex.value,
-      onItemTapped: (index) {
-        selectedIndex.value = index;
-        context.router.push(pages[index]);
-      },
+    return PaymentLayout(
+      child: Column(
+        children: [
+          const HeightBox(slab: 3),
+          header,
+          const HeightBox(slab: 3),
+          transactionList,
+        ],
+      ),
     );
   }
 }
