@@ -41,7 +41,7 @@ class TransactionView extends HookWidget {
                   HeightBox(slab: 3),
                   if (rollNumber != null)
                     Container(
-                      width: MediaQuery.of(context).size.width * 0.9,
+                      width: MediaQuery.of(context).size.width * 0.8,
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: AppColors.secondaryColor,

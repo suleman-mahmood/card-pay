@@ -24,6 +24,8 @@ class SignupView extends HookWidget {
     final acceptPrivacyTerms = useState<bool>(false);
     final phoneNumberController = useTextEditingController();
     final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
+    final formKey =
+        useMemoized(() => GlobalKey<FormState>()); // 1. create a key for form
 
     void onPhoneNumberChanged(String newValue) {
       dropdownValue.value = newValue;
@@ -76,63 +78,71 @@ class SignupView extends HookWidget {
     }
 
     return AuthLayout(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const HeightBox(slab: 4),
-          const CustomProgressBar(
-            progress: 0.5,
-          ),
-          const HeightBox(slab: 4),
-          const MainHeading(
-            accountTitle: AppStrings.createAccount,
-            accountDescription: AppStrings.createAccountDesc,
-          ),
-          const HeightBox(slab: 1),
-          _buildLoginText(),
-          const HeightBox(slab: 4),
-          _buildCustomInputField(AppStrings.username, AppStrings.enterUsername),
-          const HeightBox(slab: 1),
-          _buildCustomInputField(
-            AppStrings.email,
-            AppStrings.enterEmail,
-            obscureText: false,
-          ),
-          const HeightBox(slab: 1),
-          _buildCustomInputField(
-            AppStrings.password,
-            AppStrings.enterPassword,
-            obscureText: true,
-          ),
-          const HeightBox(slab: 1),
-          _buildCustomInputField(
-            AppStrings.confirmPassword,
-            AppStrings.reEnterPassword,
-            obscureText: true,
-          ),
-          const HeightBox(slab: 1),
-          PhoneNumberInput(
-            controller: phoneNumberController,
-            dropdownItems: AppStrings.phoneCountryCodes,
-            dropdownValue: dropdownValue.value,
-            onChanged: onPhoneNumberChanged,
-          ),
-          const HeightBox(slab: 3),
-          CheckBox(
-            onChanged: (bool value) {
-              acceptPrivacyTerms.value = value;
-            },
-            text: AppStrings.acceptPrivacyTerms,
-          ),
-          const HeightBox(slab: 3),
-          Center(
-            child: PrimaryButton(
-              text: AppStrings.createAccount,
-              onPressed: _showOTPBottomSheet,
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const HeightBox(slab: 4),
+            const CustomProgressBar(
+              progress: 0.5,
             ),
-          ),
-          const HeightBox(slab: 1),
-        ],
+            const HeightBox(slab: 4),
+            const MainHeading(
+              accountTitle: AppStrings.createAccount,
+              accountDescription: AppStrings.createAccountDesc,
+            ),
+            const HeightBox(slab: 1),
+            _buildLoginText(),
+            const HeightBox(slab: 4),
+            _buildCustomInputField(
+                AppStrings.username, AppStrings.enterUsername),
+            const HeightBox(slab: 1),
+            _buildCustomInputField(
+              AppStrings.email,
+              AppStrings.enterEmail,
+              obscureText: false,
+            ),
+            const HeightBox(slab: 1),
+            _buildCustomInputField(
+              AppStrings.password,
+              AppStrings.enterPassword,
+              obscureText: true,
+            ),
+            const HeightBox(slab: 1),
+            _buildCustomInputField(
+              AppStrings.confirmPassword,
+              AppStrings.reEnterPassword,
+              obscureText: true,
+            ),
+            const HeightBox(slab: 1),
+            PhoneNumberInput(
+              controller: phoneNumberController,
+              dropdownItems: AppStrings.phoneCountryCodes,
+              dropdownValue: dropdownValue.value,
+              onChanged: onPhoneNumberChanged,
+            ),
+            const HeightBox(slab: 3),
+            CheckBox(
+              onChanged: (bool value) {
+                acceptPrivacyTerms.value = value;
+              },
+              text: AppStrings.acceptPrivacyTerms,
+            ),
+            const HeightBox(slab: 3),
+            Center(
+              child: PrimaryButton(
+                text: AppStrings.createAccount,
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    _showOTPBottomSheet();
+                  }
+                },
+              ),
+            ),
+            const HeightBox(slab: 1),
+          ],
+        ),
       ),
     );
   }

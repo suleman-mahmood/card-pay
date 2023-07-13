@@ -66,7 +66,7 @@ class BottomSheetOTP extends HookWidget {
                 context.router.push(route);
               },
             ),
-            const HeightBox(slab: 5),
+            const HeightBox(slab: 4),
           ],
         ),
       ),

@@ -1,7 +1,7 @@
 class AppStrings {
   static const String defaultCountryCode = '+92';
 
-  static const List<String> phoneCountryCodes = ['+92', '+91', '+7'];
+  static const List<String> phoneCountryCodes = ['+92'];
 
   // Account creation
   static const String createAccount = 'Create Account';
@@ -46,6 +46,10 @@ class AppStrings {
   static const String enterRollNumber = 'Enter your Roll Number';
   static const String rollNumber = 'Roll Number';
   static const String create = 'Create Account';
+  static const String phone = 'Phone Number';
+
+  static const String enterPhoneNUmber = '+92';
+
   // Pin
   static const String enterPin = 'Please enter a 4-digit PIN.';
 }

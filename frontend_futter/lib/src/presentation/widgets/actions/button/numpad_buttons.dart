@@ -17,11 +17,9 @@ class NumPad extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 15),
+    return Container(
       child: Column(
         children: [
-          HeightBox(slab: 5),
           for (int row = 0; row < 3; row++)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 1.0),
@@ -29,13 +27,13 @@ class NumPad extends HookWidget {
                 row: row,
                 controller: controller,
                 buttonColor: buttonColor,
-                height: 90,
+                height: 80,
               ),
             ),
           NumberPadLastRow(
             controller: controller,
             buttonColor: buttonColor,
-            height: 90,
+            height: 80,
           ),
         ],
       ),
@@ -67,7 +65,7 @@ class NumberPadRow extends HookWidget {
             if (digit <= 9)
               Expanded(
                 child: FractionallySizedBox(
-                  widthFactor: 0.33, // Adjust this value to control spacing
+                  widthFactor: 0.33,
                   child: NumberButton(
                     digit: digit.toString(),
                     controller: controller,

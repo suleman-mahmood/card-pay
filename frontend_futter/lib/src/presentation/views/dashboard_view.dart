@@ -33,13 +33,15 @@ class DashboardView extends HookWidget {
                       name: PaymentStrings.name,
                       imagePath: 'assets/images/talha.jpg',
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.menu),
-                      iconSize: 35,
-                      color: AppColors.greyColor,
-                      onPressed: () {
-                        Scaffold.of(scaffoldContext).openEndDrawer();
-                      },
+                    Transform.scale(
+                      scale: 1.75,
+                      child: IconButton(
+                        icon: const Icon(Icons.menu),
+                        color: AppColors.greyColor,
+                        onPressed: () {
+                          Scaffold.of(scaffoldContext).openEndDrawer();
+                        },
+                      ),
                     ),
                   ],
                 ),

@@ -5,7 +5,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
-import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
@@ -29,8 +28,9 @@ class LoginView extends HookWidget {
             HeightBox(slab: 4),
             Align(
               alignment: Alignment.centerLeft,
-              child: const MainHeading(
-                accountTitle: AppStrings.logIn,
+              child: const Text(
+                AppStrings.logIn,
+                style: AppTypography.introHeading,
               ),
             ),
             HeightBox(slab: 4),

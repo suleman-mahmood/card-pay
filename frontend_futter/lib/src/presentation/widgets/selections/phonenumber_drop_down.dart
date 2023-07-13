@@ -63,8 +63,8 @@ class PhoneNumberInput extends HookWidget {
         isCollapsed: true,
         contentPadding: EdgeInsets.only(
           right: 24,
-          top: 16,
-          bottom: 16,
+          top: 18,
+          bottom: 18,
         ),
       ),
     );

@@ -70,7 +70,7 @@ class PaymentEntry extends HookWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: buttons.map((amount) => PaymentButton(amount)).toList(),
         ),
-        HeightBox(slab: 2), // NumPad
+        HeightBox(slab: 2),
         NumPad(
           controller: controller,
           buttonColor: AppColors.greyColor,
