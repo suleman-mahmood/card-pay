@@ -24,8 +24,7 @@ class SignupView extends HookWidget {
     final acceptPrivacyTerms = useState<bool>(false);
     final phoneNumberController = useTextEditingController();
     final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
-    final formKey =
-        useMemoized(() => GlobalKey<FormState>()); // 1. create a key for form
+    final formKey = useMemoized(() => GlobalKey<FormState>());
 
     void onPhoneNumberChanged(String newValue) {
       dropdownValue.value = newValue;

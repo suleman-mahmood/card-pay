@@ -19,44 +19,53 @@ class LoginView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+
     return AuthLayout(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            HeightBox(slab: 4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: const Text(
-                AppStrings.logIn,
-                style: AppTypography.introHeading,
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HeightBox(slab: 4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: const Text(
+                  AppStrings.logIn,
+                  style: AppTypography.introHeading,
+                ),
               ),
-            ),
-            HeightBox(slab: 4),
-            const CustomInputField(
-              label: AppStrings.email,
-              hint: AppStrings.enterEmail,
-              obscureText: false,
-            ),
-            HeightBox(slab: 2),
-            const CustomInputField(
-              label: AppStrings.password,
-              hint: AppStrings.enterPassword,
-              obscureText: true,
-            ),
-            HeightBox(slab: 1),
-            Align(
-              alignment: Alignment.centerRight,
-              child:
-                  Text(AppStrings.forgot, style: AppTypography.subHeadingBold),
-            ),
-            HeightBox(slab: 3),
-            PrimaryButton(
-              text: AppStrings.logIn,
-              onPressed: () => handleLoginButtonPressed(context),
-            ),
-          ],
+              HeightBox(slab: 4),
+              const CustomInputField(
+                label: AppStrings.email,
+                hint: AppStrings.enterEmail,
+                obscureText: false,
+              ),
+              HeightBox(slab: 2),
+              const CustomInputField(
+                label: AppStrings.password,
+                hint: AppStrings.enterPassword,
+                obscureText: true,
+              ),
+              HeightBox(slab: 1),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(AppStrings.forgot,
+                    style: AppTypography.subHeadingBold),
+              ),
+              HeightBox(slab: 3),
+              PrimaryButton(
+                text: AppStrings.logIn,
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    handleLoginButtonPressed(context);
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
