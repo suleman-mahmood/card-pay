@@ -7,9 +7,9 @@ class AppStrings {
   static const String createAccount = 'Create Account';
   static const String createAccountDesc =
       'Let\'s get you started by creating your account';
-  static const String username = 'Username';
+  static const String username = 'Full name';
   static const String enterUsername = 'Enter your username';
-  static const String email = 'Email';
+  static const String email = 'Email address';
   static const String enterEmail = 'Enter your email';
   static const String password = 'Password';
   static const String enterPassword = 'Enter your password';
@@ -38,7 +38,7 @@ class AppStrings {
   // Introduction
   static const String revolution = 'Revolutionize your transactions';
   static const String start = 'Get Started';
-  static const String organization = 'organization';
+  static const String organization = 'Organization';
 
   // Registration
   static const String register = 'Register Organization';

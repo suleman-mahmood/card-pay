@@ -25,12 +25,14 @@ class ConfirmationView extends HookWidget {
         buildBalanceLabel(),
         const HeightBox(slab: 3),
         buildConfirmationContainer(),
-        const HeightBox(slab: 3),
+        const HeightBox(slab: 5),
+        const HeightBox(slab: 5),
         PrimaryButton(
           text: PaymentStrings.done,
           color: AppColors.parrotColor,
           onPressed: () => context.router.pop(),
         ),
+        const HeightBox(slab: 5),
       ],
     );
   }
@@ -56,17 +58,19 @@ class ConfirmationView extends HookWidget {
 
   Widget buildBalanceLabel() {
     return Text(
-      PaymentStrings.balance,
-      style: AppTypography.mainHeading,
+      PaymentStrings.balanceRupee,
+      style: AppTypography.introHeading,
     );
   }
 
   Widget buildConfirmationContainer() {
-    return ConfirmationContainer(
-      title1: PaymentStrings.send,
-      text1: PaymentStrings.rollNumber,
-      title2: PaymentStrings.send,
-      text2: PaymentStrings.rollNumber,
+    return Expanded(
+      child: ConfirmationContainer(
+        title1: PaymentStrings.send,
+        text1: PaymentStrings.rollNumber,
+        title2: PaymentStrings.send,
+        text2: PaymentStrings.rollNumber,
+      ),
     );
   }
 

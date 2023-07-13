@@ -21,6 +21,7 @@ class PrimaryButton extends HookWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 5 / 7,
+      height: MediaQuery.of(context).size.width * 13 / 100,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ButtonStyle(

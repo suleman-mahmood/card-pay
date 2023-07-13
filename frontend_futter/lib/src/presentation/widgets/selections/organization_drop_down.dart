@@ -25,7 +25,7 @@ class DropDown extends HookWidget {
         Container(
           decoration: BoxDecoration(
             color: AppColors.greyColor.withOpacity(0.25),
-            borderRadius: BorderRadius.circular(19),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 19),

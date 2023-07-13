@@ -11,15 +11,6 @@ import 'package:cardpay/src/utils/constants/payment_string.dart';
 
 const double _borderRadiusValue = 30.0;
 
-List<BoxShadow> boxShadow = [
-  BoxShadow(
-    color: AppColors.greyColor.withOpacity(0.5),
-    spreadRadius: 5,
-    blurRadius: 7,
-    offset: const Offset(0, 3),
-  ),
-];
-
 @RoutePage()
 class HistroyView extends HookWidget {
   const HistroyView({Key? key}) : super(key: key);
@@ -38,7 +29,6 @@ class HistroyView extends HookWidget {
               child: DecoratedBox(
                 decoration: CustomBoxDecoration.getDecoration(),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const HeightBox(slab: 3),
                     Padding(

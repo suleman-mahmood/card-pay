@@ -6,13 +6,15 @@ class PaymentStrings {
   // Dashboard creation
   static const String name = 'Talha';
   static const String balance = '\$25,000.40';
+  static const String balanceRupee = 'Rs.1000';
+
   static const String username = 'Username';
   static const String rollNumber = '24100245';
   static const String anyRollNumber = '24XXXXXX';
 
   static const String pAmount = '+250';
   static const String nAmount = '-250';
-  static const String deposite = 'Deposit';
+  static const String deposite = 'Deposit ';
   static const String request = 'Request';
   static const String transfer = 'Transfer';
   static const String faq = 'Faqs';

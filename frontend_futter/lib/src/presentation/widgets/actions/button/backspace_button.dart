@@ -22,9 +22,12 @@ class BackspaceButton extends HookWidget {
       },
       child: Container(
         alignment: Alignment.center,
-        child: Icon(
-          Icons.backspace,
-          color: color,
+        child: Transform.scale(
+          scale: 1.5,
+          child: Icon(
+            Icons.backspace,
+            color: color,
+          ),
         ),
       ),
     );

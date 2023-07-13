@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -17,20 +18,24 @@ class NumPad extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 5),
+      padding: EdgeInsets.only(top: 15),
       child: Column(
         children: [
+          HeightBox(slab: 5),
           for (int row = 0; row < 3; row++)
-            NumberPadRow(
-              row: row,
-              controller: controller,
-              buttonColor: buttonColor,
-              height: 80,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1.0),
+              child: NumberPadRow(
+                row: row,
+                controller: controller,
+                buttonColor: buttonColor,
+                height: 90,
+              ),
             ),
           NumberPadLastRow(
             controller: controller,
             buttonColor: buttonColor,
-            height: 80,
+            height: 90,
           ),
         ],
       ),
@@ -57,14 +62,18 @@ class NumberPadRow extends HookWidget {
     return SizedBox(
       height: height,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           for (int digit = 1 + row * 3; digit <= 3 + row * 3; digit++)
             if (digit <= 9)
-              NumberButton(
-                digit: digit.toString(),
-                controller: controller,
-                buttonColor: buttonColor,
+              Expanded(
+                child: FractionallySizedBox(
+                  widthFactor: 0.33, // Adjust this value to control spacing
+                  child: NumberButton(
+                    digit: digit.toString(),
+                    controller: controller,
+                    buttonColor: buttonColor,
+                  ),
+                ),
               ),
         ],
       ),
@@ -89,21 +98,35 @@ class NumberPadLastRow extends StatelessWidget {
     return SizedBox(
       height: height,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          NumberButton(
-            digit: '',
-            controller: controller,
-            buttonColor: buttonColor,
+          Expanded(
+            child: FractionallySizedBox(
+              widthFactor: 0.33, // Adjust this value to control spacing
+              child: NumberButton(
+                digit: '',
+                controller: controller,
+                buttonColor: buttonColor,
+              ),
+            ),
           ),
-          NumberButton(
-            digit: '0',
-            controller: controller,
-            buttonColor: buttonColor,
+          Expanded(
+            child: FractionallySizedBox(
+              widthFactor: 0.33,
+              child: NumberButton(
+                digit: '0',
+                controller: controller,
+                buttonColor: buttonColor,
+              ),
+            ),
           ),
-          BackspaceButton(
-            controller: controller,
-            color: AppColors.greyColor,
+          Expanded(
+            child: FractionallySizedBox(
+              widthFactor: 0.33,
+              child: BackspaceButton(
+                controller: controller,
+                color: AppColors.greyColor,
+              ),
+            ),
           ),
         ],
       ),

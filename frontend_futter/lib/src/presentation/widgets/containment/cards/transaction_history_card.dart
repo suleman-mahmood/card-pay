@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 
 class TransactionContainer extends HookWidget {
@@ -36,7 +35,7 @@ class TransactionContainer extends HookWidget {
               color: AppColors.greyColor.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 10,
-              offset: Offset(0, ScreenUtil.heightMultiplier(context)),
+              offset: Offset(0, 7),
             ),
           ],
         ),
@@ -63,20 +62,14 @@ class TransactionContainer extends HookWidget {
 
   Padding buildFirstText(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-          left: ScreenUtil.widthMultiplier(context), // 3% of screen width
-          top: ScreenUtil.heightMultiplier(context), // 1% of screen height
-          bottom: ScreenUtil.heightMultiplier(context) // 1% of screen height
-          ),
+      padding: EdgeInsets.only(top: 10, bottom: 10),
       child: Text(firstText, style: AppTypography.bodyText),
     );
   }
 
   Padding buildSecondText(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-          top: ScreenUtil.heightMultiplier(context),
-          bottom: ScreenUtil.heightMultiplier(context)),
+      padding: EdgeInsets.only(top: 10, bottom: 10),
       child: Text(
         secondText,
         style: AppTypography.bodyText.copyWith(color: secondTextColor),

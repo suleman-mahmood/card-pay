@@ -20,10 +20,6 @@ class CustomCurvedBottomBar extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = ScreenUtil.blockSizeVertical(context) * 6;
-    final iconSize = ScreenUtil.blockSizeHorizontal(context) * 5;
-
-    // Default icons to be used when not provided
     final defaultIcons = [
       Icons.home,
       Icons.history,
@@ -31,7 +27,6 @@ class CustomCurvedBottomBar extends HookWidget {
       Icons.person,
     ];
 
-    // If icons are not provided, use the default icons
     final iconsToUse = icons ?? defaultIcons;
 
     return CurvedNavigationBar(
@@ -39,11 +34,11 @@ class CustomCurvedBottomBar extends HookWidget {
       color: AppColors.secondaryColor,
       backgroundColor: AppColors.primaryColor,
       buttonBackgroundColor: AppColors.secondaryColor,
-      height: height,
+      height: 50,
       items: iconsToUse
           .asMap()
           .entries
-          .map((e) => _buildIcon(e.value, e.key, iconSize))
+          .map((e) => _buildIcon(e.value, e.key))
           .toList(),
       animationDuration: animationDuration,
       animationCurve: Curves.bounceInOut,
@@ -51,9 +46,9 @@ class CustomCurvedBottomBar extends HookWidget {
     );
   }
 
-  Widget _buildIcon(IconData iconData, int index, double size) {
+  Widget _buildIcon(IconData iconData, int index) {
     final color =
         index == selectedIndex ? AppColors.primaryColor : AppColors.greyColor;
-    return Icon(iconData, size: size, color: color);
+    return Icon(iconData, color: color);
   }
 }

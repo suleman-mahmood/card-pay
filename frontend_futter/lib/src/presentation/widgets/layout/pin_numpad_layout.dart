@@ -33,7 +33,7 @@ class PinEntry extends HookWidget {
     return List.generate(
       pinLength,
       (index) => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5),
+        padding: EdgeInsets.symmetric(horizontal: 10),
         child: RadioButton(filled: index < digits),
       ),
     );

@@ -45,7 +45,7 @@ class FilterHistoryView extends HookWidget {
                 child: Icon(
                   Icons.filter_alt,
                   color: AppColors.greyColor.withOpacity(0.35),
-                  size: 24,
+                  size: 34,
                 ),
               );
             },
@@ -62,7 +62,7 @@ class FilterHistoryView extends HookWidget {
     return PaymentLayout(
       child: Column(
         children: [
-          const HeightBox(slab: 3),
+          const HeightBox(slab: 5),
           header,
           const HeightBox(slab: 3),
           transactionList,

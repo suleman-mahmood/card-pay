@@ -15,16 +15,14 @@ class PaymentLayout extends HookWidget {
   final Widget child;
   final bool showBottomBar;
   final Color? backgroundColor;
-  final bool
-      useHorizontalPadding; // New parameter to control horizontal padding
+  final bool useHorizontalPadding;
 
   const PaymentLayout({
     Key? key,
     required this.child,
     this.showBottomBar = true,
     this.backgroundColor,
-    this.useHorizontalPadding =
-        true, // Default to true to maintain existing behavior
+    this.useHorizontalPadding = true,
   }) : super(key: key);
 
   @override
@@ -40,12 +38,10 @@ class PaymentLayout extends HookWidget {
               ? const EdgeInsets.symmetric(horizontal: 24)
               : EdgeInsets
                   .zero, // If useHorizontalPadding is false, use EdgeInsets.zero
-          child: SingleChildScrollView(
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top,
-              child: child,
-            ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height -
+                MediaQuery.of(context).padding.top,
+            child: child,
           ),
         ),
       ),

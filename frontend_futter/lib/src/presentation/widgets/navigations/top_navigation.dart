@@ -23,7 +23,7 @@ class Header extends HookWidget {
     final double horizontalPadding = ScreenUtil.blockSizeHorizontal(context);
     final double verticalPadding = ScreenUtil.blockSizeVertical(context);
     Widget BackButton(color) => IconButton(
-          icon: Icon(Icons.arrow_back, color: color),
+          icon: Icon(Icons.arrow_back, color: color, size: 40),
           onPressed: () => context.router.pop(),
         );
 
@@ -32,7 +32,7 @@ class Header extends HookWidget {
         Padding(
           padding: EdgeInsets.fromLTRB(
             horizontalPadding * 1,
-            verticalPadding * 2,
+            verticalPadding * 5,
             horizontalPadding * 9,
             verticalPadding * 3,
           ),

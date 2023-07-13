@@ -2,7 +2,6 @@ import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -27,11 +26,14 @@ class LoginView extends HookWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: ScreenUtil.heightMultiplier(context) * 22),
-            const MainHeading(
-              accountTitle: AppStrings.logIn,
+            HeightBox(slab: 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: const MainHeading(
+                accountTitle: AppStrings.logIn,
+              ),
             ),
-            HeightBox(slab: 2),
+            HeightBox(slab: 4),
             const CustomInputField(
               label: AppStrings.email,
               hint: AppStrings.enterEmail,
@@ -44,7 +46,11 @@ class LoginView extends HookWidget {
               obscureText: true,
             ),
             HeightBox(slab: 1),
-            Text(AppStrings.forgot, style: AppTypography.linkText),
+            Align(
+              alignment: Alignment.centerRight,
+              child:
+                  Text(AppStrings.forgot, style: AppTypography.subHeadingBold),
+            ),
             HeightBox(slab: 3),
             PrimaryButton(
               text: AppStrings.logIn,

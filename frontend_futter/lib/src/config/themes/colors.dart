@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color primaryColor = Colors.blue;
   static const Color secondaryColor = Colors.white;
   static const Color bluishColor = Color.fromRGBO(224, 235, 255, 1);
+  static const Color primaryColor = Color.fromRGBO(6, 127, 205, 1);
 
   static const Color lightBlueColor = Color.fromRGBO(65, 160, 242, 1);
   static const Color darkBlueColor = Color.fromRGBO(20, 94, 185, 0.998);
@@ -18,6 +18,7 @@ class AppColors {
   static const Color redColor = Colors.red;
   static const Color blueColor = Color(0xFF171582);
   static const Color greyColor = Colors.grey;
+  static const Color lightGreyColor = Color.fromARGB(255, 234, 233, 233);
 
   static const Color greenColor = Colors.lightGreen;
   static const Color blackColor = Colors.black;
@@ -96,6 +97,11 @@ class AppTypography {
     color: AppColors.blackColor,
     fontSize: 16,
   );
+  static const TextStyle bodyTextBold = TextStyle(
+    color: AppColors.blackColor,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  );
 
   static const TextStyle linkText = TextStyle(
     color: AppColors.primaryColor,
@@ -106,6 +112,11 @@ class AppTypography {
   static const TextStyle subHeading = TextStyle(
     color: AppColors.greyColor,
     fontSize: 16,
+  );
+  static const TextStyle subHeadingBold = TextStyle(
+    color: AppColors.greyColor,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
   );
 
   static const TextStyle inputFont = TextStyle(

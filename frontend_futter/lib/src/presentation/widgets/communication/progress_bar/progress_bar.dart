@@ -17,7 +17,7 @@ class CustomProgressBar extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = ScreenUtil.blockSizeVertical(context) * 0.5;
+    final height = ScreenUtil.blockSizeVertical(context) * 0.6;
 
     final valueColor =
         useMemoized(() => AlwaysStoppedAnimation<Color>(progressColor));

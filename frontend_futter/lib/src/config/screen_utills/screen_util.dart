@@ -5,6 +5,8 @@ class ScreenUtil {
   static double heightSlabOne = 8;
   static double heightSlabTwo = 16;
   static double heightSlabThree = 24;
+  static double heightSlabFour = 32;
+  static double heightSlabFive = 48;
 
   static double widthTextBetween = 8;
 

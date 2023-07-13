@@ -9,7 +9,6 @@ import '../widgets/layout/pin_numpad_layout.dart';
 @RoutePage()
 class AuthView extends HookWidget {
   const AuthView({super.key});
-
   @override
   Widget build(BuildContext context) {
     final pinController = useMemoized(() => TextEditingController(), []);

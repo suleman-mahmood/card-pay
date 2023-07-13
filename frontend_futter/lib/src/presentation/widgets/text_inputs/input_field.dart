@@ -13,9 +13,11 @@ class CustomInputField extends HookWidget {
   final Color textcolor;
   final Color color;
   final TextEditingController? controller;
+  final Color hintColor;
+  final Color labelColor;
 
   const CustomInputField({
-    super.key,
+    Key? key,
     required this.label,
     this.hint,
     this.obscureText = false,
@@ -23,9 +25,11 @@ class CustomInputField extends HookWidget {
     this.onChanged,
     this.keyboardType,
     this.textcolor = AppColors.blackColor,
-    this.color = AppColors.greyColor,
+    this.color = AppColors.lightGreyColor,
     this.controller,
-  });
+    this.hintColor = AppColors.greyColor,
+    this.labelColor = AppColors.blackColor,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +42,14 @@ class CustomInputField extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTypography.bodyText),
+        Text(label,
+            style: AppTypography.bodyText
+                .copyWith(color: labelColor)), // Using the labelColor
         const HeightBox(slab: 1),
         Container(
           decoration: BoxDecoration(
-            color: color.withOpacity(0.25),
-            borderRadius: BorderRadius.circular(16),
+            color: color,
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -59,6 +65,8 @@ class CustomInputField extends HookWidget {
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: hint,
+                      hintStyle:
+                          TextStyle(color: hintColor), // Using the hintColor
                       isCollapsed: true,
                       contentPadding: EdgeInsets.zero,
                     ),

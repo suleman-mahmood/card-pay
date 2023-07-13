@@ -18,12 +18,13 @@ class DashboardView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Builder(
         builder: (BuildContext scaffoldContext) {
           return PaymentLayout(
             child: Column(
               children: [
-                const HeightBox(slab: 3),
+                const HeightBox(slab: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -34,6 +35,8 @@ class DashboardView extends HookWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.menu),
+                      iconSize: 35,
+                      color: AppColors.greyColor,
                       onPressed: () {
                         Scaffold.of(scaffoldContext).openEndDrawer();
                       },
@@ -47,8 +50,11 @@ class DashboardView extends HookWidget {
                   bottomLeftImage: 'assets/images/balance_corner2.png',
                 ),
                 HeightBox(slab: 2),
-                Text(PaymentStrings.recentTransactions,
-                    style: AppTypography.bodyText),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(PaymentStrings.recentTransactions,
+                      style: AppTypography.bodyTextBold),
+                ),
                 const TransactionContainer(
                   icon: Icons.send,
                   firstText: PaymentStrings.rollNumber,

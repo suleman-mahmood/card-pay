@@ -38,62 +38,15 @@ class SignupView extends HookWidget {
       );
     }
 
-    Widget OTPBottomSheet() {
-      return Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const MainHeading(
-              accountTitle: AppStrings.checkMobile,
-              accountDescription: AppStrings.otpMobileText,
-            ),
-            const HeightBox(slab: 2),
-            OTPInput(
-              digitCount: 4,
-              onCompleted: (String otp) {},
-            ),
-            const HeightBox(slab: 2),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  AppStrings.noOtp,
-                  style: AppTypography.bodyText,
-                ),
-                const WidthBetween(),
-                GestureDetector(
-                  onTap: () {
-                    context.router.push(const LoginRoute());
-                  },
-                  child: const Text(
-                    AppStrings.resendCode,
-                    style: AppTypography.linkText,
-                  ),
-                ),
-              ],
-            ),
-            const HeightBox(slab: 2),
-            PrimaryButton(
-              text: AppStrings.verify,
-              onPressed: () {
-                context.router.push(const RegisterRoute());
-              },
-            ),
-          ],
-        ),
-      );
-    }
-
     void _showOTPBottomSheet() {
       showModalBottomSheet(
         context: context,
-        isScrollControlled: true,
         builder: (BuildContext context) {
-          return Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: SingleChildScrollView(
-              child: OTPBottomSheet(), // extracted widget
+          return SingleChildScrollView(
+            child: BottomSheetOTP(
+              deviceCheckHeading: AppStrings.checkMobile,
+              otpDeviceText: AppStrings.otpMobileText,
+              route: const RegisterRoute(),
             ),
           );
         },
@@ -126,18 +79,18 @@ class SignupView extends HookWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const HeightBox(slab: 3),
+          const HeightBox(slab: 4),
           const CustomProgressBar(
             progress: 0.5,
           ),
-          const HeightBox(slab: 1),
+          const HeightBox(slab: 4),
           const MainHeading(
             accountTitle: AppStrings.createAccount,
             accountDescription: AppStrings.createAccountDesc,
           ),
           const HeightBox(slab: 1),
           _buildLoginText(),
-          const HeightBox(slab: 1),
+          const HeightBox(slab: 4),
           _buildCustomInputField(AppStrings.username, AppStrings.enterUsername),
           const HeightBox(slab: 1),
           _buildCustomInputField(
@@ -165,7 +118,6 @@ class SignupView extends HookWidget {
             onChanged: onPhoneNumberChanged,
           ),
           const HeightBox(slab: 3),
-          // TODO: change this to make it coherent with the design
           CheckBox(
             onChanged: (bool value) {
               acceptPrivacyTerms.value = value;

@@ -24,9 +24,14 @@ class RequestView extends HookWidget {
           hint: PaymentStrings.anyRollNumber,
           controller: rollNumberController,
           keyboardType: TextInputType.number,
+          hintColor: AppColors.greyColor,
+          labelColor: AppColors.secondaryColor,
         ),
-        Text(PaymentStrings.enterAmount, style: AppTypography.headingFont),
-        HeightBox(slab: 3),
+        Align(
+            alignment: Alignment.centerLeft,
+            child: Text(PaymentStrings.enterAmount,
+                style: AppTypography.bodyText)),
+        HeightBox(slab: 5),
         PrimaryButton(
           text: PaymentStrings.next,
           color: AppColors.secondaryColor,

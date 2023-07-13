@@ -18,7 +18,7 @@ class FilterBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.35,
+      height: MediaQuery.of(context).size.height * 0.40,
       padding: EdgeInsets.only(top: 12, left: 12, right: 12, bottom: 20),
       decoration: BoxDecoration(
         color: AppColors.secondaryColor,

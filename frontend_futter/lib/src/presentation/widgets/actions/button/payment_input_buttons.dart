@@ -7,16 +7,7 @@ import 'package:cardpay/src/presentation/widgets/actions/button/numpad_buttons.d
 
 class PaymentEntry extends HookWidget {
   final TextEditingController controller;
-  final List<String> buttons = [
-    '100',
-    '10000',
-    '1500',
-    '50000',
-    '1000',
-    '15000',
-    '30000',
-    '5000'
-  ];
+  final List<String> buttons = ['1500', '3000', '1500', '1000', '7000', '5000'];
 
   PaymentEntry({super.key, required this.controller});
 
@@ -24,33 +15,28 @@ class PaymentEntry extends HookWidget {
   Widget build(BuildContext context) {
     final selectedButton = useState<String?>(null);
 
-    // Local PaymentButton widget
     Widget PaymentButton(String amount) {
-      final isSelected = selectedButton.value == amount;
-      final buttonColor =
-          isSelected ? AppColors.primaryColor : AppColors.bluishColor;
-      final textColor =
-          isSelected ? AppColors.secondaryColor : AppColors.primaryColor;
-
-      return ElevatedButton(
+      return OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: AppColors.greyColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
         onPressed: () {
           selectedButton.value = amount;
           controller.text = amount;
         },
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
-        ),
-        child: Text(
-          amount,
-          style: TextStyle(color: textColor),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(10, 12, 10, 12),
+          child: Text(amount, style: AppTypography.bodyText),
         ),
       );
     }
 
-    // Local PaymentValueListenableBuilder widget
     Widget PaymentValueListenableBuilder() {
       return Padding(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(5),
         child: ValueListenableBuilder(
           valueListenable: controller,
           builder: (context, value, child) {
@@ -78,8 +64,8 @@ class PaymentEntry extends HookWidget {
         PaymentValueListenableBuilder(),
         HeightBox(slab: 3),
         Wrap(
-          spacing: 6,
-          runSpacing: 6,
+          spacing: 9,
+          runSpacing: 9,
           alignment: WrapAlignment.spaceEvenly,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: buttons.map((amount) => PaymentButton(amount)).toList(),
@@ -104,66 +90,8 @@ class PaymentValueListenableBuilder extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(ScreenUtil.blockSizeHorizontal(context) * 2),
-      child: ValueListenableBuilder(
-        valueListenable: controller,
-        builder: (context, value, child) {
-          final text = controller.text.isEmpty ? '____' : controller.text;
-          return SizedBox(
-            height: ScreenUtil.blockSizeVertical(context) * 5,
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: text.length,
-              separatorBuilder: (context, index) =>
-                  SizedBox(width: ScreenUtil.blockSizeHorizontal(context) * 2),
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return Text(text[index],
-                    style: TextStyle(
-                        fontSize: ScreenUtil.blockSizeHorizontal(context) * 10,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'popins'));
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class PaymentButton extends StatelessWidget {
-  final BuildContext context;
-  final String amount;
-  final ValueNotifier<String?> selectedButton;
-  final TextEditingController controller;
-
-  const PaymentButton(
-      this.context, this.amount, this.selectedButton, this.controller,
-      {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final isSelected = selectedButton.value == amount;
-    final buttonColor = isSelected
-        ? AppColors.primaryColor
-        : const Color.fromARGB(255, 224, 234, 246);
-    final textColor =
-        isSelected ? AppColors.secondaryColor : AppColors.primaryColor;
-
-    return ElevatedButton(
-      onPressed: () {
-        selectedButton.value = amount;
-        controller.text = amount;
-      },
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
-      ),
-      child: Text(
-        amount,
-        style: TextStyle(color: textColor),
-      ),
+    return PaymentValueListenableBuilder(
+      controller: controller,
     );
   }
 }

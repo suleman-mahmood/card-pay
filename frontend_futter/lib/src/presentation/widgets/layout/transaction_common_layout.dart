@@ -1,6 +1,7 @@
+import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/payment_input_buttons.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -33,30 +34,11 @@ class TransactionView extends HookWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              margin: EdgeInsets.only(
-                bottom: ScreenUtil.blockSizeVertical(context) * 0.025,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.greyColor.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
+              decoration: CustomBoxDecoration.getDecoration(),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    height: ScreenUtil.blockSizeVertical(context) * 2,
-                  ),
+                  HeightBox(slab: 3),
                   if (rollNumber != null)
                     Container(
                       width: MediaQuery.of(context).size.width * 0.9,
@@ -76,19 +58,17 @@ class TransactionView extends HookWidget {
                       ),
                     ),
                   PaymentEntry(controller: paymentController),
+                  HeightBox(slab: 3),
                   PrimaryButton(
                     color: backgroundColor,
                     text: buttonText,
                     onPressed: onButtonPressed,
                   ),
-                  SizedBox(
-                    height: ScreenUtil.blockSizeVertical(context) * 2,
-                  ),
+                  HeightBox(slab: 5)
                 ],
               ),
             ),
           ),
-          // Header component with passed title
           Header(title: title),
         ],
       ),
