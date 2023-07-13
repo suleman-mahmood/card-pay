@@ -1,4 +1,4 @@
-package com.payments.cardpay
+package io.payment.cardpay
 
 import io.flutter.embedding.android.FlutterActivity
 
