@@ -26,7 +26,7 @@ const imagesMap = new Map<string, StaticImageData>([
 	['g6lwpLs9e5PkLGksluN8GMk3GLg2', ChopChopImage],
 	['7h2Oo2aLVBgcYF9u4PIsGZZkLYB2', JuiceZoneImage],
 	['2V2NmkCJyMd9AtQYg6q4ES51q1o1', FrootiImage],
-	['2BTm3kcTW6ar1WfVAWoUysHuAkn2',BaradariImage]
+	['2BTm3kcTW6ar1WfVAWoUysHuAkn2', BaradariImage]
 ]);
 
 const DigitalCard: NextPage = () => {
@@ -63,21 +63,24 @@ const DigitalCard: NextPage = () => {
 				</h1>
 
 				<div className='h-12'></div>
+
 				{restaurantList?.restaurant_list.map(
 					({ name, id, description }) => (
-						<div className='mb-4' key={id}>
-							<RestaurantCard
-								key={id}
-								id={id}
-								bgImage={
-									imagesMap.get(id) !== undefined
-										? imagesMap.get(id)!
-										: JJKitchenImage
-								}
-								title={name}
-								description={description}
-							/>
-						</div>
+						name!='Baradari' ? (
+							<div className='mb-4' key={id}>
+								<RestaurantCard
+									key={id}
+									id={id}
+									bgImage={
+										imagesMap.get(id) !== undefined
+											? imagesMap.get(id)!
+											: JJKitchenImage
+									}
+									title={name}
+									description={description}
+								/>
+							</div>
+						) : null
 					)
 				)}
 			</div>
