@@ -185,7 +185,7 @@ def _helper_generate_list_of_transactions_for_general_case(rows):
     return transactions
 
 
-def get_all_transactions(uow: AbstractUnitOfWork):
+def get_all_transactions(uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ admin function | Get all transactions"""
     with uow:
 
@@ -197,10 +197,15 @@ def get_all_transactions(uow: AbstractUnitOfWork):
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             order by txn.created_at desc
+            limit %s offset %s
         """
 
         uow.cursor.execute(
-            sql
+            sql,
+            [
+                page_size,
+                offset
+            ]
         )
 
         rows = uow.cursor.fetchall()
@@ -210,7 +215,7 @@ def get_all_transactions(uow: AbstractUnitOfWork):
         return transactions
 
 
-def get_all_transactions_of_a_type(transaction_type: payment_model.TransactionType, uow: AbstractUnitOfWork):
+def get_all_transactions_of_a_type(transaction_type: payment_model.TransactionType, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ admin function | Get all transactions of a type"""
 
     with uow:
@@ -223,12 +228,16 @@ def get_all_transactions_of_a_type(transaction_type: payment_model.TransactionTy
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             where txn.transaction_type = %s
             order by txn.created_at desc
+            limit %s offset %s
         """
 
         uow.cursor.execute(
             sql,
             [
-                transaction_type.name
+                transaction_type.name,
+                page_size,
+                offset
+
             ]
         )
         rows = uow.cursor.fetchall()
@@ -237,7 +246,7 @@ def get_all_transactions_of_a_type(transaction_type: payment_model.TransactionTy
         return transactions
 
 
-def get_all_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
+def get_all_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ generel fuction | Get all transactions of a user"""
     with uow:
         sql = """
@@ -249,12 +258,15 @@ def get_all_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             where txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s
             order by txn.created_at desc
+            limit %s offset %s
         """
         uow.cursor.execute(
             sql,
             [
                 user_id,
-                user_id
+                user_id,
+                page_size,
+                offset
             ]
         )
         rows = uow.cursor.fetchall()
@@ -264,7 +276,7 @@ def get_all_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
         return transactions
 
 
-def get_all_transactions_of_a_user_of_a_type(user_id: str, transaction_type: payment_model.TransactionType, uow: AbstractUnitOfWork):
+def get_all_transactions_of_a_user_of_a_type(user_id: str, transaction_type: payment_model.TransactionType, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ generel fuction | Get all transactions of a user of a type"""
     with uow:
         sql = """
@@ -276,13 +288,16 @@ def get_all_transactions_of_a_user_of_a_type(user_id: str, transaction_type: pay
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.transaction_type = %s
             order by txn.created_at desc
+            limit %s offset %s
         """
         uow.cursor.execute(
             sql,
             [
                 user_id,
                 user_id,
-                transaction_type.name
+                transaction_type.name,
+                page_size,
+                offset
             ]
         )
         rows = uow.cursor.fetchall()
@@ -292,7 +307,7 @@ def get_all_transactions_of_a_user_of_a_type(user_id: str, transaction_type: pay
         return transactions
 
 
-def get_all_cash_inflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
+def get_all_cash_inflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ generel fuction | Get all cash inflow transactions of a user"""
     with uow:
         sql = """
@@ -304,11 +319,14 @@ def get_all_cash_inflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOf
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             where txn.recipient_wallet_id = %s
             order by txn.created_at desc
+            limit %s offset %s
         """
         uow.cursor.execute(
             sql,
             [
-                user_id
+                user_id,
+                page_size,
+                offset
             ]
         )
         rows = uow.cursor.fetchall()
@@ -319,7 +337,7 @@ def get_all_cash_inflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOf
         return transactions
 
 
-def get_all_cash_outflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork):
+def get_all_cash_outflow_transactions_of_a_user(user_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ generel fuction | Get all cash outflow transactions of a user"""
     with uow:
         sql = """
@@ -331,11 +349,14 @@ def get_all_cash_outflow_transactions_of_a_user(user_id: str, uow: AbstractUnitO
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             where txn.sender_wallet_id = %s
             order by txn.created_at desc
+            limit %s offset %s
         """
         uow.cursor.execute(
             sql,
             [
-                user_id
+                user_id,
+                page_size,
+                offset
             ]
         )
         rows = uow.cursor.fetchall()
@@ -346,7 +367,7 @@ def get_all_cash_outflow_transactions_of_a_user(user_id: str, uow: AbstractUnitO
         return transactions
 
 
-def get_all_transactions_between_two_users(user1_id: str, user2_id: str, uow: AbstractUnitOfWork):
+def get_all_transactions_between_two_users(user1_id: str, user2_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ admin fuction | Get all transactions between two users"""
     with uow:
         sql = """
@@ -358,6 +379,7 @@ def get_all_transactions_between_two_users(user1_id: str, user2_id: str, uow: Ab
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             where (txn.sender_wallet_id = %s and txn.recipient_wallet_id = %s) or (txn.sender_wallet_id = %s and txn.recipient_wallet_id = %s)
             order by txn.created_at desc
+            limit %s offset %s
         """
         uow.cursor.execute(
             sql,
@@ -365,7 +387,9 @@ def get_all_transactions_between_two_users(user1_id: str, user2_id: str, uow: Ab
                 user1_id,
                 user2_id,
                 user2_id,
-                user1_id
+                user1_id,
+                page_size,
+                offset
             ]
         )
         rows = uow.cursor.fetchall()
@@ -375,7 +399,7 @@ def get_all_transactions_between_two_users(user1_id: str, user2_id: str, uow: Ab
         return transactions
 
 
-def get_all_transactions_from_sender_to_receiver(sender_id: str, receiver_id: str, uow: AbstractUnitOfWork):
+def get_all_transactions_from_sender_to_receiver(sender_id: str, receiver_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ generel fuction | Get all transactions from sender to receiver"""
     with uow:
         sql = """
@@ -387,12 +411,15 @@ def get_all_transactions_from_sender_to_receiver(sender_id: str, receiver_id: st
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             where txn.sender_wallet_id = %s and txn.recipient_wallet_id = %s
             order by txn.created_at desc
+            limit %s offset %s
         """
         uow.cursor.execute(
             sql,
             [
                 sender_id,
-                receiver_id
+                receiver_id,
+                page_size,
+                offset
             ]
         )
         rows = uow.cursor.fetchall()
@@ -403,7 +430,7 @@ def get_all_transactions_from_sender_to_receiver(sender_id: str, receiver_id: st
         return transactions
 
 
-def get_all_beneficiaries_of_passed_user(sender_id: str, uow: AbstractUnitOfWork):
+def get_all_beneficiaries_of_passed_user(sender_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ generel fuction | Get all beneficiaries of a user"""
     sql = """
         select txn.recipient_wallet_id,
@@ -411,11 +438,14 @@ def get_all_beneficiaries_of_passed_user(sender_id: str, uow: AbstractUnitOfWork
         from transactions txn
         inner join users beneficiary on txn.recipient_wallet_id = beneficiary.id
         where txn.sender_wallet_id = %s
+        limit %s offset %s
     """
     uow.cursor.execute(
         sql,
         [
-            sender_id
+            sender_id,
+            page_size,
+            offset
         ]
     )
     rows = uow.cursor.fetchall()
@@ -430,7 +460,7 @@ def get_all_beneficiaries_of_passed_user(sender_id: str, uow: AbstractUnitOfWork
 
     return beneficiaries
 
-def get_all_benefactors_of_passed_user(receiver_id: str, uow: AbstractUnitOfWork):
+def get_all_benefactors_of_passed_user(receiver_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int):
     """ generel fuction | Get all benefactors of a user"""
     sql = """
         select txn.sender_wallet_id,
@@ -438,11 +468,14 @@ def get_all_benefactors_of_passed_user(receiver_id: str, uow: AbstractUnitOfWork
         from transactions txn
         inner join users benefactor on txn.sender_wallet_id = benefactor.id
         where txn.recipient_wallet_id = %s
+        limit %s offset %s
     """
     uow.cursor.execute(
         sql,
         [
-            receiver_id
+            receiver_id,
+            page_size,
+            offset
         ]
     )
     rows = uow.cursor.fetchall()
