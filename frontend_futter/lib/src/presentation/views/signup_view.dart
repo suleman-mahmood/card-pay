@@ -77,6 +77,7 @@ class SignupView extends HookWidget {
     }
 
     return AuthLayout(
+<<<<<<< HEAD
       child: Form(
         key: formKey,
         child: Column(
@@ -85,6 +86,61 @@ class SignupView extends HookWidget {
             const HeightBox(slab: 4),
             const CustomProgressBar(
               progress: 0.5,
+=======
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const HeightBox(slab: 4),
+          const CustomProgressBar(
+            progress: 0.5,
+          ),
+          const HeightBox(slab: 4),
+          const MainHeading(
+            accountTitle: AppStrings.createAccount,
+            accountDescription: AppStrings.createAccountDesc,
+          ),
+          const HeightBox(slab: 1),
+          _buildLoginText(),
+          const HeightBox(slab: 4),
+          _buildCustomInputField(AppStrings.username, AppStrings.enterUsername),
+          const HeightBox(slab: 1),
+          _buildCustomInputField(
+            AppStrings.email,
+            AppStrings.enterEmail,
+            obscureText: false,
+          ),
+          const HeightBox(slab: 1),
+          _buildCustomInputField(
+            AppStrings.password,
+            AppStrings.enterPassword,
+            obscureText: true,
+          ),
+          const HeightBox(slab: 1),
+          _buildCustomInputField(
+            AppStrings.confirmPassword,
+            AppStrings.reEnterPassword,
+            obscureText: true,
+          ),
+          const HeightBox(slab: 1),
+          PhoneNumberInput(
+            controller: phoneNumberController,
+            dropdownItems: AppStrings.phoneCountryCodes,
+            dropdownValue: dropdownValue.value,
+            onChanged: onPhoneNumberChanged,
+          ),
+          const HeightBox(slab: 3),
+          CheckBox(
+            onChanged: (bool value) {
+              acceptPrivacyTerms.value = value;
+            },
+            text: AppStrings.acceptPrivacyTerms,
+          ),
+          const HeightBox(slab: 3),
+          Center(
+            child: PrimaryButton(
+              text: AppStrings.createAccount,
+              onPressed: _showOTPBottomSheet,
+>>>>>>> 6a44ce0 (improve the UI)
             ),
             const HeightBox(slab: 4),
             const MainHeading(

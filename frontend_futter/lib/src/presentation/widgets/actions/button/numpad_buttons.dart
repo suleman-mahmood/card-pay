@@ -1,4 +1,3 @@
-import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -17,7 +16,8 @@ class NumPad extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
+      padding: EdgeInsets.only(top: 15),
       child: Column(
         children: [
           for (int row = 0; row < 3; row++)
@@ -99,7 +99,7 @@ class NumberPadLastRow extends StatelessWidget {
         children: [
           Expanded(
             child: FractionallySizedBox(
-              widthFactor: 0.33, // Adjust this value to control spacing
+              widthFactor: 0.33,
               child: NumberButton(
                 digit: '',
                 controller: controller,

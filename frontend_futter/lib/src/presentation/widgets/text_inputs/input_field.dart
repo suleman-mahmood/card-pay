@@ -42,7 +42,9 @@ class CustomInputField extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTypography.bodyText.copyWith(color: labelColor)),
+        Text(label,
+            style: AppTypography.bodyText
+                .copyWith(color: labelColor)), // Using the labelColor
         const HeightBox(slab: 1),
         Container(
           decoration: BoxDecoration(
@@ -63,7 +65,8 @@ class CustomInputField extends HookWidget {
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: hint,
-                      hintStyle: TextStyle(color: hintColor),
+                      hintStyle:
+                          TextStyle(color: hintColor), // Using the hintColor
                       isCollapsed: true,
                       contentPadding: EdgeInsets.zero,
                     ),
