@@ -21,90 +21,92 @@ class DashboardView extends HookWidget {
       body: Builder(
         builder: (BuildContext scaffoldContext) {
           return PaymentLayout(
-            child: Column(
-              children: [
-                const HeightBox(slab: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const GreetingRow(
-                      greeting: PaymentStrings.greet,
-                      name: PaymentStrings.name,
-                      imagePath: 'assets/images/talha.jpg',
-                    ),
-                    Transform.scale(
-                      scale: 1.75,
-                      child: IconButton(
-                        icon: const Icon(Icons.menu),
-                        color: AppColors.greyColor,
-                        onPressed: () {
-                          Scaffold.of(scaffoldContext).openEndDrawer();
-                        },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const HeightBox(slab: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const GreetingRow(
+                        greeting: PaymentStrings.greet,
+                        name: PaymentStrings.name,
+                        imagePath: 'assets/images/talha.jpg',
                       ),
-                    ),
-                  ],
-                ),
-                const HeightBox(slab: 3),
-                BalanceCard(
-                  balance: PaymentStrings.balance,
-                  topRightImage: 'assets/images/balance_corner.png',
-                  bottomLeftImage: 'assets/images/balance_corner2.png',
-                ),
-                HeightBox(slab: 2),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(PaymentStrings.recentTransactions,
-                      style: AppTypography.bodyTextBold),
-                ),
-                const TransactionContainer(
-                  icon: Icons.send,
-                  firstText: PaymentStrings.rollNumber,
-                  secondText: PaymentStrings.pAmount,
-                  firstTextColor: AppColors.blackColor,
-                  secondTextColor: AppColors.redColor,
-                  iconColor: AppColors.primaryColor,
-                ),
-                const TransactionContainer(
-                  icon: Icons.money,
-                  firstText: PaymentStrings.rollNumber,
-                  secondText: PaymentStrings.nAmount,
-                  firstTextColor: AppColors.blackColor,
-                  secondTextColor: AppColors.greenColor,
-                  iconColor: AppColors.primaryColor,
-                ),
-                HeightBox(slab: 3),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomBox(
-                      imagePath: 'assets/images/Upwork-3.png',
-                      text: PaymentStrings.deposite,
-                      route: DepositRoute(),
-                    ),
-                    CustomBox(
-                      imagePath: 'assets/images/Upwork.png',
-                      text: PaymentStrings.transfer,
-                      route: TransferRoute(),
-                    )
-                  ],
-                ),
-                HeightBox(slab: 3),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomBox(
-                      imagePath: 'assets/images/Upwork-1.png',
-                      text: PaymentStrings.request,
-                      route: RequestRoute(),
-                    ),
-                    CustomBox(
-                      imagePath: 'assets/images/Upwork-2.png',
-                      text: PaymentStrings.faq,
-                      route: DashboardRoute(),
-                    )
-                  ],
-                ),
-              ],
+                      Transform.scale(
+                        scale: 1.75,
+                        child: IconButton(
+                          icon: const Icon(Icons.menu),
+                          color: AppColors.greyColor,
+                          onPressed: () {
+                            Scaffold.of(scaffoldContext).openEndDrawer();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const HeightBox(slab: 3),
+                  BalanceCard(
+                    balance: PaymentStrings.balance,
+                    topRightImage: 'assets/images/balance_corner.png',
+                    bottomLeftImage: 'assets/images/balance_corner2.png',
+                  ),
+                  HeightBox(slab: 2),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(PaymentStrings.recentTransactions,
+                        style: AppTypography.bodyTextBold),
+                  ),
+                  const TransactionContainer(
+                    icon: Icons.send,
+                    firstText: PaymentStrings.rollNumber,
+                    secondText: PaymentStrings.pAmount,
+                    firstTextColor: AppColors.blackColor,
+                    secondTextColor: AppColors.redColor,
+                    iconColor: AppColors.primaryColor,
+                  ),
+                  const TransactionContainer(
+                    icon: Icons.money,
+                    firstText: PaymentStrings.rollNumber,
+                    secondText: PaymentStrings.nAmount,
+                    firstTextColor: AppColors.blackColor,
+                    secondTextColor: AppColors.greenColor,
+                    iconColor: AppColors.primaryColor,
+                  ),
+                  HeightBox(slab: 3),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CustomBox(
+                        imagePath: 'assets/images/Upwork-3.png',
+                        text: PaymentStrings.deposite,
+                        route: DepositRoute(),
+                      ),
+                      CustomBox(
+                        imagePath: 'assets/images/Upwork.png',
+                        text: PaymentStrings.transfer,
+                        route: TransferRoute(),
+                      )
+                    ],
+                  ),
+                  HeightBox(slab: 3),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CustomBox(
+                        imagePath: 'assets/images/Upwork-1.png',
+                        text: PaymentStrings.request,
+                        route: RequestRoute(),
+                      ),
+                      CustomBox(
+                        imagePath: 'assets/images/Upwork-2.png',
+                        text: PaymentStrings.faq,
+                        route: DashboardRoute(),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },

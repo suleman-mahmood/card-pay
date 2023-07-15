@@ -1,50 +1,64 @@
-import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:cardpay/src/config/themes/colors.dart';
 
-class CustomCurvedBottomBar extends HookWidget {
-  final int selectedIndex;
-  final Function(int) onItemTapped;
-  final List<IconData>? icons;
-  final Duration animationDuration;
+class BottomBar extends HookWidget {
+  final ValueNotifier<int> selectedIndex;
+  final List<PageRouteInfo> pages;
 
-  const CustomCurvedBottomBar({
-    Key? key,
-    required this.selectedIndex,
-    required this.onItemTapped,
-    this.icons,
-    this.animationDuration = const Duration(milliseconds: 200),
-  }) : super(key: key);
+  BottomBar({required this.selectedIndex, required this.pages});
 
   @override
   Widget build(BuildContext context) {
-    final defaultIcons = [
-      Icons.home,
-      Icons.history,
-      Icons.show_chart,
-      Icons.person,
-    ];
-
-    final iconsToUse = icons ?? defaultIcons;
-
-    return AnimatedBottomNavigationBar(
-      activeIndex: selectedIndex,
-      onTap: onItemTapped,
-      icons: iconsToUse,
-      activeColor: AppColors.primaryColor,
-      inactiveColor: AppColors.greyColor,
-      splashColor: AppColors.secondaryColor,
-      notchAndCornersAnimation: CurvedAnimation(
-        parent: useAnimationController(
-          duration: animationDuration,
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.bottomCenter,
+      children: [
+        Container(
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: AppColors.secondaryColor,
+            selectedItemColor: AppColors.primaryColor,
+            unselectedItemColor: AppColors.greyColor,
+            currentIndex: selectedIndex.value,
+            onTap: (index) {
+              selectedIndex.value = index;
+              context.router.push(pages[index]);
+            },
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.history),
+                label: 'History',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.show_chart),
+                label: 'Chart',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+          ),
         ),
-        curve: Curves.easeOutCubic, // Adjust the curve as needed
-      ),
-      notchSmoothness: NotchSmoothness.verySmoothEdge,
-      leftCornerRadius: 32,
-      rightCornerRadius: 32,
-      gapLocation: GapLocation.center,
+        Positioned(
+          bottom: 25,
+          child: FloatingActionButton(
+            child: Image.asset(
+              'assets/images/tickbox.png',
+              height: 60,
+              width: 60,
+            ),
+            onPressed: () {},
+            backgroundColor: AppColors.secondaryColor,
+          ),
+        ),
+      ],
     );
   }
 }

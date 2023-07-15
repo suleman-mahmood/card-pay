@@ -11,24 +11,24 @@ class DrawerItem {
   final String text;
   final PageRouteInfo<dynamic> route;
 
-  DrawerItem({required this.icon, required this.text, required this.route});
+  const DrawerItem(
+      {required this.icon, required this.text, required this.route});
 }
 
-class MyDrawer extends HookWidget {
-  final List<DrawerItem> drawerItems = [
-    DrawerItem(icon: Icons.home, text: 'Home', route: const SplashRoute()),
-    DrawerItem(
-        icon: Icons.history, text: 'History', route: const HistroyRoute()),
-    DrawerItem(
-        icon: Icons.show_chart, text: 'Charts', route: const DashboardRoute()),
-    DrawerItem(
-        icon: Icons.person, text: 'Profile', route: const ConfirmationRoute()),
-    DrawerItem(
-        icon: Icons.settings,
-        text: 'Settings',
-        route: const FilterHistoryRoute()),
-  ];
+const drawerItems = <DrawerItem>[
+  DrawerItem(icon: Icons.home, text: 'Home', route: const SplashRoute()),
+  DrawerItem(icon: Icons.history, text: 'History', route: const HistroyRoute()),
+  DrawerItem(
+      icon: Icons.show_chart, text: 'Charts', route: const DashboardRoute()),
+  DrawerItem(
+      icon: Icons.person, text: 'Profile', route: const ConfirmationRoute()),
+  DrawerItem(
+      icon: Icons.settings,
+      text: 'Settings',
+      route: const FilterHistoryRoute()),
+];
 
+class MyDrawer extends HookWidget {
   MyDrawer({Key? key}) : super(key: key);
 
   @override
@@ -42,7 +42,7 @@ class MyDrawer extends HookWidget {
             height: 100,
             child: DrawerHeader(
               decoration: const BoxDecoration(
-                  color: Colors.white, shape: BoxShape.rectangle),
+                  color: AppColors.secondaryColor, shape: BoxShape.rectangle),
               child: userInfo(context),
             ),
           ),
@@ -60,16 +60,13 @@ class MyDrawer extends HookWidget {
               ),
             ),
           Expanded(
-              child:
-                  SizedBox()), // This Expanded widget pushes the "data" text to the bottom
+            child: SizedBox(),
+          ),
           Container(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
                 Icon(Icons.home, color: AppColors.greyColor),
-                SizedBox(
-                    width:
-                        8.0), // Give some space between the icon and the text
                 Text('Home', style: TextStyle(color: AppColors.greyColor)),
               ],
             ),
@@ -80,6 +77,8 @@ class MyDrawer extends HookWidget {
   }
 
   Widget userInfo(BuildContext context) {
+    const String userName = PaymentStrings.fName;
+    const String userEmail = PaymentStrings.email;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -92,8 +91,8 @@ class MyDrawer extends HookWidget {
           WidthBetween(),
           Column(
             children: [
-              Text(PaymentStrings.fName, style: AppTypography.bodyTextBold),
-              Text(PaymentStrings.email, style: AppTypography.subHeading),
+              Text(userName, style: AppTypography.bodyTextBold),
+              Text(userEmail, style: AppTypography.subHeading),
             ],
           ),
         ],
@@ -118,20 +117,20 @@ class CustomListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = selected ? AppColors.secondaryColor : AppColors.greyColor;
+    final decoration = BoxDecoration(
+      color: selected ? AppColors.primaryColor : null,
+      borderRadius: BorderRadius.circular(20.0),
+    );
+
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primaryColor : null,
-          borderRadius: BorderRadius.circular(20.0),
-        ),
+        decoration: decoration,
         child: ListTile(
-          leading:
-              Icon(icon, color: selected ? Colors.white : AppColors.greyColor),
-          title: Text(text,
-              style: TextStyle(
-                  color: selected ? Colors.white : AppColors.greyColor)),
+          leading: Icon(icon, color: color),
+          title: Text(text, style: TextStyle(color: color)),
         ),
       ),
     );

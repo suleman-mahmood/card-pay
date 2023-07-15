@@ -42,7 +42,7 @@ class PaymentEntry extends HookWidget {
           builder: (context, value, child) {
             final text = controller.text.isEmpty ? '____' : controller.text;
             return SizedBox(
-              height: ScreenUtil.blockSizeVertical(context) * 5,
+              height: 48,
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: text.length,

@@ -24,7 +24,6 @@ class LoginView extends HookWidget {
     return AuthLayout(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-<<<<<<< HEAD
         child: Form(
           key: formKey,
           child: Column(
@@ -67,43 +66,6 @@ class LoginView extends HookWidget {
               ),
             ],
           ),
-=======
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            HeightBox(slab: 4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: const Text(
-                AppStrings.logIn,
-                style: AppTypography.introHeading,
-              ),
-            ),
-            HeightBox(slab: 4),
-            const CustomInputField(
-              label: AppStrings.email,
-              hint: AppStrings.enterEmail,
-              obscureText: false,
-            ),
-            HeightBox(slab: 2),
-            const CustomInputField(
-              label: AppStrings.password,
-              hint: AppStrings.enterPassword,
-              obscureText: true,
-            ),
-            HeightBox(slab: 1),
-            Align(
-              alignment: Alignment.centerRight,
-              child:
-                  Text(AppStrings.forgot, style: AppTypography.subHeadingBold),
-            ),
-            HeightBox(slab: 3),
-            PrimaryButton(
-              text: AppStrings.logIn,
-              onPressed: () => handleLoginButtonPressed(context),
-            ),
-          ],
->>>>>>> 6a44ce0 (improve the UI)
         ),
       ),
     );

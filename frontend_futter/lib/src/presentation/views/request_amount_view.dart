@@ -6,8 +6,6 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/presentation/widgets/layout/transaction_common_layout.dart';
 
-// import '../widgets/layout/transection_common_layout.dart';
-
 class RequestAmountViewConstants {
   static const title = 'Request Money';
   static const buttonText = 'Continue';

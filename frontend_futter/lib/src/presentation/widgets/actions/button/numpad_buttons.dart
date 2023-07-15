@@ -21,14 +21,11 @@ class NumPad extends HookWidget {
       child: Column(
         children: [
           for (int row = 0; row < 3; row++)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 1.0),
-              child: NumberPadRow(
-                row: row,
-                controller: controller,
-                buttonColor: buttonColor,
-                height: 80,
-              ),
+            NumberPadRow(
+              row: row,
+              controller: controller,
+              buttonColor: buttonColor,
+              height: 80,
             ),
           NumberPadLastRow(
             controller: controller,
@@ -79,7 +76,7 @@ class NumberPadRow extends HookWidget {
   }
 }
 
-class NumberPadLastRow extends StatelessWidget {
+class NumberPadLastRow extends HookWidget {
   final TextEditingController controller;
   final Color? buttonColor;
   final double height;

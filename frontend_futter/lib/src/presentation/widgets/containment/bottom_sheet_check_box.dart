@@ -53,7 +53,7 @@ class FilterBottomSheet extends HookWidget {
             PaymentStrings.filterTransactions,
             style: AppTypography.bodyTextBold,
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 4),
           ..._buildCheckboxes(),
           Spacer(),
           PrimaryButton(
