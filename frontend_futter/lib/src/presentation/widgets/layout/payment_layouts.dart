@@ -36,12 +36,13 @@ class PaymentLayout extends HookWidget {
         child: Padding(
           padding: useHorizontalPadding
               ? const EdgeInsets.symmetric(horizontal: 24)
-              : EdgeInsets
-                  .zero, // If useHorizontalPadding is false, use EdgeInsets.zero
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top,
-            child: child,
+              : EdgeInsets.zero,
+          child: SingleChildScrollView(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top,
+              child: child,
+            ),
           ),
         ),
       ),

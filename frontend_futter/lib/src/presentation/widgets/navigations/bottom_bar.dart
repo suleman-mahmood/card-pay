@@ -1,8 +1,7 @@
+import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 
 class CustomCurvedBottomBar extends HookWidget {
   final int selectedIndex;
@@ -29,26 +28,23 @@ class CustomCurvedBottomBar extends HookWidget {
 
     final iconsToUse = icons ?? defaultIcons;
 
-    return CurvedNavigationBar(
-      index: selectedIndex,
-      color: AppColors.secondaryColor,
-      backgroundColor: AppColors.primaryColor,
-      buttonBackgroundColor: AppColors.secondaryColor,
-      height: 50,
-      items: iconsToUse
-          .asMap()
-          .entries
-          .map((e) => _buildIcon(e.value, e.key))
-          .toList(),
-      animationDuration: animationDuration,
-      animationCurve: Curves.bounceInOut,
+    return AnimatedBottomNavigationBar(
+      activeIndex: selectedIndex,
       onTap: onItemTapped,
+      icons: iconsToUse,
+      activeColor: AppColors.primaryColor,
+      inactiveColor: AppColors.greyColor,
+      splashColor: AppColors.secondaryColor,
+      notchAndCornersAnimation: CurvedAnimation(
+        parent: useAnimationController(
+          duration: animationDuration,
+        ),
+        curve: Curves.easeOutCubic, // Adjust the curve as needed
+      ),
+      notchSmoothness: NotchSmoothness.verySmoothEdge,
+      leftCornerRadius: 32,
+      rightCornerRadius: 32,
+      gapLocation: GapLocation.center,
     );
-  }
-
-  Widget _buildIcon(IconData iconData, int index) {
-    final color =
-        index == selectedIndex ? AppColors.primaryColor : AppColors.greyColor;
-    return Icon(iconData, color: color);
   }
 }

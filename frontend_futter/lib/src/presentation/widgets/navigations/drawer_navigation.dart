@@ -1,7 +1,9 @@
+import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
+import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class DrawerItem {
@@ -27,84 +29,110 @@ class MyDrawer extends HookWidget {
         route: const FilterHistoryRoute()),
   ];
 
-  MyDrawer({super.key});
+  MyDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var selectedRouteName = useState(drawerItems[0].route.routeName);
+
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: <Widget>[
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Colors.white,
+          Container(
+            height: 100,
+            child: DrawerHeader(
+              decoration: const BoxDecoration(
+                  color: Colors.white, shape: BoxShape.rectangle),
+              child: userInfo(context),
             ),
-            child: userInfo(context),
           ),
           for (var item in drawerItems)
-            CustomListTile(
-              leading: Icon(item.icon, color: Colors.black),
-              title:
-                  Text(item.text, style: const TextStyle(color: Colors.black)),
-              onTap: () => context.router.push(item.route),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: CustomListTile(
+                icon: item.icon,
+                text: item.text,
+                onTap: () {
+                  context.router.push(item.route);
+                  selectedRouteName.value = item.route.routeName;
+                },
+                selected: selectedRouteName.value == item.route.routeName,
+              ),
             ),
-          SizedBox(height: ScreenUtil.heightMultiplier(context) * 30),
+          Expanded(
+              child:
+                  SizedBox()), // This Expanded widget pushes the "data" text to the bottom
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Icon(Icons.home, color: AppColors.greyColor),
+                SizedBox(
+                    width:
+                        8.0), // Give some space between the icon and the text
+                Text('Home', style: TextStyle(color: AppColors.greyColor)),
+              ],
+            ),
+          )
         ],
       ),
     );
   }
 
   Widget userInfo(BuildContext context) {
-    return Row(
-      children: [
-        CircleAvatar(
-          backgroundColor: Colors.blue,
-          child: Text(
-            'T',
-            style: TextStyle(fontSize: ScreenUtil.textMultiplier(context) * 4),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundImage: AssetImage('assets/images/talha.jpg'),
+            radius: 30,
           ),
-        ),
-        SizedBox(width: ScreenUtil.widthMultiplier(context) * 2),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Talha',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: ScreenUtil.textMultiplier(context) * 1.8),
-            ),
-            const Text(
-              '24100245example.com',
-              style: TextStyle(color: Colors.black),
-            ),
-          ],
-        ),
-      ],
+          WidthBetween(),
+          Column(
+            children: [
+              Text(PaymentStrings.fName, style: AppTypography.bodyTextBold),
+              Text(PaymentStrings.email, style: AppTypography.subHeading),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
 class CustomListTile extends StatelessWidget {
-  final Widget leading;
-  final Widget title;
+  final IconData icon;
+  final String text;
   final Function()? onTap;
+  final bool selected;
 
   const CustomListTile({
     Key? key,
-    required this.leading,
-    required this.title,
+    required this.icon,
+    required this.text,
     this.onTap,
+    this.selected = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: ListTile(
-        leading: leading,
-        title: title,
+      child: Container(
+        padding: EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primaryColor : null,
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: ListTile(
+          leading:
+              Icon(icon, color: selected ? Colors.white : AppColors.greyColor),
+          title: Text(text,
+              style: TextStyle(
+                  color: selected ? Colors.white : AppColors.greyColor)),
+        ),
       ),
     );
   }

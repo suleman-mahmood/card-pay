@@ -9,6 +9,7 @@ class TransactionContainer extends HookWidget {
   final Color firstTextColor;
   final Color secondTextColor;
   final Color iconColor;
+  final bool display;
 
   const TransactionContainer({
     super.key,
@@ -18,6 +19,7 @@ class TransactionContainer extends HookWidget {
     this.firstTextColor = AppColors.blackColor,
     this.secondTextColor = AppColors.redColor,
     this.iconColor = AppColors.primaryColor,
+    this.display = false,
   });
 
   @override
@@ -34,8 +36,8 @@ class TransactionContainer extends HookWidget {
             BoxShadow(
               color: AppColors.greyColor.withOpacity(0.2),
               spreadRadius: 2,
-              blurRadius: 10,
-              offset: Offset(0, 7),
+              blurRadius: 5,
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -60,16 +62,21 @@ class TransactionContainer extends HookWidget {
     );
   }
 
-  Padding buildFirstText(BuildContext context) {
+  Widget buildFirstText(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 10, bottom: 10),
-      child: Text(firstText, style: AppTypography.bodyText),
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Text(firstText, style: AppTypography.bodyText),
+          if (display) Text('send', style: AppTypography.subHeadingBold),
+        ],
+      ),
     );
   }
 
   Padding buildSecondText(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 10, bottom: 10),
+      padding: EdgeInsets.all(10),
       child: Text(
         secondText,
         style: AppTypography.bodyText.copyWith(color: secondTextColor),

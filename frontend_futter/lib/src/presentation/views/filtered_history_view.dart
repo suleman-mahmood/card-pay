@@ -19,6 +19,15 @@ class FilterHistoryView extends HookWidget {
     final checked3 = useState(false);
     final checked4 = useState(false);
 
+    final checks = [checked1, checked2, checked3, checked4];
+    final labels = ["Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4"];
+    final icons = [
+      Icons.calendar_today,
+      null,
+      Icons.calendar_today,
+      Icons.calendar_today
+    ];
+
     final header = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5.5),
       child: Row(
@@ -34,10 +43,9 @@ class FilterHistoryView extends HookWidget {
                   Scaffold.of(innerContext).showBottomSheet<void>(
                     (BuildContext context) {
                       return FilterBottomSheet(
-                        checked1: checked1,
-                        checked2: checked2,
-                        checked3: checked3,
-                        checked4: checked4,
+                        checks: checks,
+                        labels: labels,
+                        icons: icons,
                       );
                     },
                   );

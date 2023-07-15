@@ -3,8 +3,11 @@ class PaymentStrings {
 
   static const List<String> phoneCountryCodes = ['+92', '+91', '+7'];
 
-  // Dashboard creation
   static const String name = 'Talha';
+  static const String fName = 'Talha husnain';
+
+  static const String email = '24100245@lums.edu.pk';
+
   static const String balance = '\$25,000.40';
   static const String balanceRupee = 'Rs.1000';
 
@@ -37,6 +40,10 @@ class PaymentStrings {
   static const String next = 'Next';
   static const String done = 'Done';
   static const String send = 'Send';
+  static const String apply = 'Apply';
+
+  static const String filterTransactions = 'Filtered Transactions';
+
   static const String enterAmount = 'Enter the amount you want to deposit';
   static const String enterPhone = 'Enter your phone number';
 }

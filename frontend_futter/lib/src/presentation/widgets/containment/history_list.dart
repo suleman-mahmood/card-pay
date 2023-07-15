@@ -49,6 +49,7 @@ class TransactionList extends HookWidget {
             firstTextColor: color,
             secondTextColor: color,
             iconColor: color,
+            display: true,
           ),
         );
       },

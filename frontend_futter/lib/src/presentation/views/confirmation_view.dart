@@ -1,5 +1,6 @@
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
+import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -21,12 +22,10 @@ class ConfirmationView extends HookWidget {
         buildSuccessImage(),
         const HeightBox(slab: 3),
         buildSuccessLabel(),
-        const HeightBox(slab: 3),
+        const HeightBox(slab: 2),
         buildBalanceLabel(),
-        const HeightBox(slab: 3),
+        const HeightBox(slab: 2),
         buildConfirmationContainer(),
-        const HeightBox(slab: 5),
-        const HeightBox(slab: 5),
         PrimaryButton(
           text: PaymentStrings.done,
           color: AppColors.parrotColor,
@@ -68,8 +67,8 @@ class ConfirmationView extends HookWidget {
       child: ConfirmationContainer(
         title1: PaymentStrings.send,
         text1: PaymentStrings.rollNumber,
-        title2: PaymentStrings.send,
-        text2: PaymentStrings.rollNumber,
+        title2: AppStrings.date,
+        text2: AppStrings.dateToday,
       ),
     );
   }

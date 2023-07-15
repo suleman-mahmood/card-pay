@@ -18,7 +18,6 @@ class DashboardView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       body: Builder(
         builder: (BuildContext scaffoldContext) {
           return PaymentLayout(

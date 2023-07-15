@@ -16,40 +16,34 @@ class AppStrings {
   static const String confirmPassword = 'Confirm Password';
   static const String reEnterPassword = 'Please re-enter your password';
   static const String forgot = 'Forgot password ?';
+  static const String date = 'Date';
 
-  // Privacy terms
+  static const String dateToday = '18 Nov 2002';
+  static const String sendSuccessful = 'Sent Successfully';
+  static const String requestSuccessful = 'Send Successfully';
+
   static const String acceptPrivacyTerms =
       'I accept the privacy terms and conditions.';
 
-  // Login
   static const String alreadyHaveAccount = 'Already have an account?';
   static const String logIn = 'Log In';
-  // Bottmsheet
   static const String checkMobile = 'Please check your Phone';
   static const String checkEmail = 'Please check your Email';
-
   static const String otpMobileText =
       'We send an otp at your number +923*****786';
   static const String otpEmailText = 'We send an otp at talha****@example.com';
-
   static const String resendCode = 'Resend code';
   static const String noOtp = 'Didn\'t receive the code?';
   static const String verify = 'Verify';
-  // Introduction
   static const String revolution = 'Revolutionize your transactions';
   static const String start = 'Get Started';
   static const String organization = 'Organization';
-
-  // Registration
   static const String register = 'Register Organization';
   static const String sign = 'Sign in to your organization to get started';
   static const String enterRollNumber = 'Enter your Roll Number';
   static const String rollNumber = 'Roll Number';
   static const String create = 'Create Account';
   static const String phone = 'Phone Number';
-
   static const String enterPhoneNUmber = '+92';
-
-  // Pin
   static const String enterPin = 'Please enter a 4-digit PIN.';
 }
