@@ -1,5 +1,6 @@
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -23,8 +24,8 @@ class BottomSheetOTP extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
+    return PaddingAll(
+      slab: 3,
       child: Container(
         color: AppColors.secondaryColor,
         child: Column(

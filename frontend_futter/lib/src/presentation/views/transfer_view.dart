@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
@@ -56,8 +57,8 @@ class TransferView extends HookWidget {
       showBottomBar: false,
       useHorizontalPadding: false,
       backgroundColor: AppColors.parrotColor,
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
+      child: PaddingAll(
+        slab: 2,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

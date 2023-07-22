@@ -7,8 +7,15 @@ class ScreenUtil {
   static double heightSlabThree = 24;
   static double heightSlabFour = 32;
   static double heightSlabFive = 48;
+  static double paddingSlabOne = 8;
+  static double paddingSlabTwo = 16;
+  static double paddingSlabThree = 24;
+  static double paddingSlabFour = 32;
+  static double paddingSlabFive = 40;
+  static double paddingSlabSix = 48;
 
   static double widthTextBetween = 8;
+  static double widthArrowBetween = 24;
 
   static double screenWidth(BuildContext context) {
     return MediaQuery.of(context).size.width;

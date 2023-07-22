@@ -1,7 +1,7 @@
+import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:cardpay/src/config/screen_utills/screen_util.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/numpad_buttons.dart';
 
@@ -28,19 +28,20 @@ class PaymentEntry extends HookWidget {
           controller.text = amount;
         },
         child: Padding(
-          padding: EdgeInsets.fromLTRB(10, 12, 10, 12),
+          padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
           child: Text(amount, style: AppTypography.bodyText),
         ),
       );
     }
 
     Widget PaymentValueListenableBuilder() {
-      return Padding(
-        padding: EdgeInsets.all(5),
+      return PaddingAll(
+        slab: 1,
         child: ValueListenableBuilder(
           valueListenable: controller,
           builder: (context, value, child) {
-            final text = controller.text.isEmpty ? '____' : controller.text;
+            final text = controller.text.isEmpty ? '_ _ _ _' : controller.text;
+
             return SizedBox(
               height: 48,
               child: ListView.separated(

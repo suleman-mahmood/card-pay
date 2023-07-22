@@ -1,5 +1,7 @@
 import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
+import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -8,7 +10,6 @@ import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
 import 'package:cardpay/src/presentation/widgets/selections/organization_drop_down.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
-import 'package:cardpay/src/presentation/widgets/communication/progress_bar/progress_bar.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 
@@ -18,7 +19,6 @@ class RegisterView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = useState<double>(1);
     final showRollNumberField = useState<bool>(false);
 
     void _showOTPBottomSheet() {
@@ -41,7 +41,26 @@ class RegisterView extends HookWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const HeightBox(slab: 4),
-          CustomProgressBar(progress: progress.value),
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: CustomDivider(
+                  indent: 50,
+                  color: AppColors.primaryColor,
+                  endIndent: 10,
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: CustomDivider(
+                  indent: 10,
+                  color: AppColors.primaryColor,
+                  endIndent: 50,
+                ),
+              ),
+            ],
+          ),
           const HeightBox(slab: 4),
           const MainHeading(
             accountTitle: AppStrings.register,

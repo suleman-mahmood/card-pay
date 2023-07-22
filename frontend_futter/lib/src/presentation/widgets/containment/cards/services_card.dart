@@ -1,4 +1,5 @@
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 
@@ -34,9 +35,9 @@ class CustomBox extends StatelessWidget {
       );
     }
 
-    Padding buildTextPadding() {
-      return Padding(
-        padding: EdgeInsets.all(8),
+    Widget buildTextPadding() {
+      return PaddingAll(
+        slab: 1,
         child: Text(text, style: AppTypography.mainHeadingWhite),
       );
     }

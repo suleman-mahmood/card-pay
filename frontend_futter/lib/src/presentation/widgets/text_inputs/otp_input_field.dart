@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -54,16 +55,16 @@ class OTPInput extends HookWidget {
       };
     }, []);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5),
+    return PaddingHorizontal(
+      slab: 1,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(digitCount, (index) {
           return SizedBox(
             width: 64,
             height: 40,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5),
+            child: PaddingHorizontal(
+              slab: 1,
               child: TextField(
                 controller: controllers[index],
                 focusNode: focusNodes[index],

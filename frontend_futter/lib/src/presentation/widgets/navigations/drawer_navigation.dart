@@ -1,4 +1,6 @@
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:flutter/material.dart';
@@ -47,8 +49,8 @@ class MyDrawer extends HookWidget {
             ),
           ),
           for (var item in drawerItems)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            PaddingHorizontal(
+              slab: 2,
               child: CustomListTile(
                 icon: item.icon,
                 text: item.text,
@@ -79,8 +81,8 @@ class MyDrawer extends HookWidget {
   Widget userInfo(BuildContext context) {
     const String userName = PaymentStrings.fName;
     const String userEmail = PaymentStrings.email;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return PaddingAll(
+      slab: 1,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

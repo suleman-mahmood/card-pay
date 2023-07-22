@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
 import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -31,8 +33,8 @@ class HistroyView extends HookWidget {
                 child: Column(
                   children: [
                     const HeightBox(slab: 3),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
+                    PaddingAll(
+                      slab: 2,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -55,10 +57,13 @@ class HistroyView extends HookWidget {
               ),
             ),
           ),
-          const Header(
-            title: PaymentStrings.history,
-            showMainHeading: true,
-            mainHeadingText: PaymentStrings.balance,
+          PaddingHorizontal(
+            slab: 2,
+            child: const Header(
+              title: PaymentStrings.history,
+              showMainHeading: true,
+              mainHeadingText: PaymentStrings.balance,
+            ),
           ),
         ],
       ),

@@ -1,3 +1,5 @@
+import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
+import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:auto_route/auto_route.dart';
@@ -6,7 +8,6 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
-import 'package:cardpay/src/presentation/widgets/communication/progress_bar/progress_bar.dart';
 import 'package:cardpay/src/presentation/widgets/containment/bottom_sheet_otp.dart';
 import 'package:cardpay/src/presentation/widgets/selections/check_box.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
@@ -44,10 +45,13 @@ class SignupView extends HookWidget {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            child: BottomSheetOTP(
-              deviceCheckHeading: AppStrings.checkMobile,
-              otpDeviceText: AppStrings.otpMobileText,
-              route: const RegisterRoute(),
+            child: Container(
+              decoration: CustomBoxDecoration.getDecoration(),
+              child: BottomSheetOTP(
+                deviceCheckHeading: AppStrings.checkMobile,
+                otpDeviceText: AppStrings.otpMobileText,
+                route: const RegisterRoute(),
+              ),
             ),
           );
         },
@@ -83,8 +87,25 @@ class SignupView extends HookWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const HeightBox(slab: 4),
-            const CustomProgressBar(
-              progress: 0.5,
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: CustomDivider(
+                    indent: 50,
+                    color: AppColors.primaryColor,
+                    endIndent: 10,
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: CustomDivider(
+                    indent: 10,
+                    color: AppColors.greyColor,
+                    endIndent: 50,
+                  ),
+                ),
+              ],
             ),
             const HeightBox(slab: 4),
             const MainHeading(

@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'dart:convert';
@@ -40,8 +41,8 @@ class TransactionList extends HookWidget {
         Map<String, dynamic> transaction = transactions.value[index];
         Color color = colors[transaction['colorIndex']];
 
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5),
+        return PaddingHorizontal(
+          slab: 1,
           child: TransactionContainer(
             icon: Icons.send,
             firstText: transaction['id'],

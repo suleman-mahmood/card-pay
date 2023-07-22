@@ -1,3 +1,5 @@
+import 'package:cardpay/src/presentation/widgets/boxes/Arrow.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/screen_utills/screen_util.dart';
@@ -37,14 +39,15 @@ class Header extends HookWidget {
             verticalPadding * 3,
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               BackButton(color),
+              WidthArrowBetween(),
               Text(
                 title,
                 style: AppTypography.mainHeading.copyWith(color: color),
               ),
-              BackButton(Colors.transparent),
+              // BackButton(Colors.transparent),
             ],
           ),
         ),

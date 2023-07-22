@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
@@ -16,24 +17,27 @@ class PinEntry extends HookWidget {
     required this.onPinEntered,
   }) : super(key: key);
 
-  Widget _buildDisplay(BuildContext context, double paddingSize, int digits) {
+  Widget _buildDisplay(BuildContext context, int digits) {
     return Column(
-      children: [_radioButtonRow(paddingSize, digits), HeightBox(slab: 3)],
+      children: [_radioButtonRow(digits), HeightBox(slab: 5)],
     );
   }
 
-  Widget _radioButtonRow(double paddingSize, int digits) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: _buildRadioButtons(paddingSize, digits),
+  Widget _radioButtonRow(int digits) {
+    return PaddingHorizontal(
+      slab: 6,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: _buildRadioButtons(digits),
+      ),
     );
   }
 
-  List<Widget> _buildRadioButtons(double paddingSize, int digits) {
+  List<Widget> _buildRadioButtons(int digits) {
     return List.generate(
       pinLength,
-      (index) => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
+      (index) => PaddingHorizontal(
+        slab: 1,
         child: RadioButton(filled: index < digits),
       ),
     );
@@ -60,7 +64,7 @@ class PinEntry extends HookWidget {
     }, []);
 
     return NumpadWithDisplay(
-        display: _buildDisplay(context, 2, enteredDigits.value),
+        display: _buildDisplay(context, enteredDigits.value),
         controller: controller);
   }
 }
