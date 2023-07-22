@@ -35,7 +35,7 @@ class PaymentLayout extends HookWidget {
       body: SafeArea(
         child: Padding(
           padding: useHorizontalPadding
-              ? const EdgeInsets.symmetric(horizontal: 24)
+              ? const EdgeInsets.symmetric(horizontal: 18)
               : EdgeInsets.zero,
           child: SizedBox(
             height: MediaQuery.of(context).size.height -

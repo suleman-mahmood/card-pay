@@ -54,19 +54,16 @@ class RequestView extends HookWidget {
     final rollNumberController = useTextEditingController();
     return PaymentLayout(
       showBottomBar: false,
-      useHorizontalPadding: false,
+      useHorizontalPadding: true,
       backgroundColor: AppColors.purpleColor,
-      child: PaddingAll(
-        slab: 2,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Header(
-              title: PaymentStrings.requestMoney,
-            ),
-            buildTransferForm(context, rollNumberController),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Header(
+            title: PaymentStrings.requestMoney,
+          ),
+          buildTransferForm(context, rollNumberController),
+        ],
       ),
     );
   }

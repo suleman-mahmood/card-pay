@@ -16,8 +16,7 @@ class NumberButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(2),
+    return Container(
       child: InkWell(
         onTap: () {
           controller.text += digit;

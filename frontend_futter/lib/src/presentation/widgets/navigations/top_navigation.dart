@@ -1,4 +1,3 @@
-import 'package:cardpay/src/presentation/widgets/boxes/Arrow.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';

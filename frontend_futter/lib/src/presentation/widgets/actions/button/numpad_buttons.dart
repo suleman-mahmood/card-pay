@@ -17,7 +17,7 @@ class NumPad extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 15),
+      padding: EdgeInsets.only(top: 16),
       child: Column(
         children: [
           for (int row = 0; row < 3; row++)
@@ -98,8 +98,8 @@ class NumberPadLastRow extends HookWidget {
             child: FractionallySizedBox(
               widthFactor: 0.33,
               child: NumberButton(
-                digit: '',
                 controller: controller,
+                digit: '',
                 buttonColor: buttonColor,
               ),
             ),

@@ -1,4 +1,3 @@
-/// The NumpadWithDisplay class is a Flutter widget that displays a number pad and a display widget.
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/numpad_buttons.dart';
