@@ -7,7 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/presentation/widgets/layout/transaction_common_layout.dart';
 
 class SendViewConstants {
-  static const title = 'Send Money';
+  static const title = 'Transfer Money';
   static const buttonText = 'Continue';
 }
 

@@ -11,11 +11,8 @@ class FilterBottomSheet extends HookWidget {
   final List<String> labels;
   final List<IconData?> icons;
 
-  const FilterBottomSheet({
-    required this.checks,
-    required this.labels,
-    required this.icons,
-  });
+  const FilterBottomSheet(
+      {required this.checks, required this.labels, required this.icons});
 
   @override
   Widget build(BuildContext context) {

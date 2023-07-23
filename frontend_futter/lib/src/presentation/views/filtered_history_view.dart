@@ -41,8 +41,10 @@ class FilterHistoryView extends HookWidget {
             builder: (BuildContext innerContext) {
               return InkWell(
                 onTap: () {
-                  Scaffold.of(innerContext).showBottomSheet<void>(
-                    (BuildContext context) {
+                  showModalBottomSheet<void>(
+                    context: innerContext,
+                    // showDragHandle: true,
+                    builder: (BuildContext context) {
                       return FilterBottomSheet(
                         checks: checks,
                         labels: labels,

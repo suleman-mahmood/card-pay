@@ -8,19 +8,21 @@ class NumberButton extends HookWidget {
   final Color? buttonColor;
 
   const NumberButton({
-    super.key,
+    Key? key,
     required this.digit,
     required this.controller,
     this.buttonColor,
-  }) : super();
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: InkWell(
-        onTap: () {
-          controller.text += digit;
-        },
+    return GestureDetector(
+      onTap: () {
+        controller.text += digit;
+      },
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        alignment: Alignment.center,
         child: digit == 'X'
             ? _buildXButton()
             : _buildDigitButton(context, buttonColor),
@@ -29,13 +31,13 @@ class NumberButton extends HookWidget {
   }
 
   Widget _buildXButton() {
-    return _InkWellButton(
+    return _GestureDetectorButton(
       child: const Icon(Icons.close),
     );
   }
 
   Widget _buildDigitButton(BuildContext context, Color? color) {
-    return _InkWellButton(
+    return _GestureDetectorButton(
       child: Text(
         digit,
         style: AppTypography.mainHeadingGrey
@@ -45,10 +47,10 @@ class NumberButton extends HookWidget {
   }
 }
 
-class _InkWellButton extends HookWidget {
+class _GestureDetectorButton extends HookWidget {
   final Widget child;
 
-  const _InkWellButton({
+  const _GestureDetectorButton({
     required this.child,
   });
 

@@ -28,49 +28,51 @@ class IntroView extends HookWidget {
     );
 
     return AuthLayout(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SlideTransition(
-            position: imageAnimationOffset,
-            child: Image.asset('assets/images/transection.png'),
-          ),
-          const Text(
-            AppStrings.revolution,
-            textAlign: TextAlign.center,
-            style: AppTypography.introHeading,
-          ),
-          const HeightBox(slab: 2),
-          FadeTransition(
-            opacity: fadeAnimation,
-            child: PrimaryButton(
-              text: AppStrings.start,
-              onPressed: () {
-                context.router.push(const SignupRoute());
-              },
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SlideTransition(
+              position: imageAnimationOffset,
+              child: Image.asset('assets/images/transection.png'),
             ),
-          ),
-          const HeightBox(slab: 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                AppStrings.alreadyHaveAccount,
-                style: AppTypography.bodyText,
-              ),
-              const WidthBetween(),
-              GestureDetector(
-                onTap: () {
-                  context.router.push(const LoginRoute());
+            const Text(
+              AppStrings.revolution,
+              textAlign: TextAlign.center,
+              style: AppTypography.introHeading,
+            ),
+            const HeightBox(slab: 2),
+            FadeTransition(
+              opacity: fadeAnimation,
+              child: PrimaryButton(
+                text: AppStrings.start,
+                onPressed: () {
+                  context.router.push(const SignupRoute());
                 },
-                child: const Text(
-                  AppStrings.logIn,
-                  style: AppTypography.linkText,
-                ),
               ),
-            ],
-          ),
-        ],
+            ),
+            const HeightBox(slab: 2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  AppStrings.alreadyHaveAccount,
+                  style: AppTypography.bodyText,
+                ),
+                const WidthBetween(),
+                GestureDetector(
+                  onTap: () {
+                    context.router.push(const LoginRoute());
+                  },
+                  child: const Text(
+                    AppStrings.logIn,
+                    style: AppTypography.linkText,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
