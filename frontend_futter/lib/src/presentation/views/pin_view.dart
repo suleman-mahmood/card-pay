@@ -11,14 +11,33 @@ class AuthView extends HookWidget {
   const AuthView({super.key});
   @override
   Widget build(BuildContext context) {
-    final pinController = useMemoized(() => TextEditingController(), []);
+    final pinController = useTextEditingController();
     final showErrorMessage = useState(false);
+    final isPinConfirmed = useState(false);
+    String enteredPin = '';
 
     void handleLogin() {
-      if (pinController.text.length == 4) {
-        context.router.push(const DashboardRoute());
+      if (isPinConfirmed.value) {
+        String confirmPin = pinController.text;
+
+        if (confirmPin.length == 4 && confirmPin == enteredPin) {
+          context.router.push(const DashboardRoute());
+        } else {
+          showErrorMessage.value = true;
+          isPinConfirmed.value = false;
+          enteredPin = '';
+          pinController.clear();
+        }
       } else {
-        showErrorMessage.value = true;
+        String entered = pinController.text;
+        if (entered.length == 4) {
+          isPinConfirmed.value = true;
+          enteredPin = entered;
+          pinController.clear();
+        } else {
+          showErrorMessage.value = true;
+          pinController.clear();
+        }
       }
     }
 
@@ -35,17 +54,23 @@ class AuthView extends HookWidget {
           direction: Axis.vertical,
           children: [
             Expanded(flex: 2, child: Container()),
-            Text(AppStrings.enterPin, style: AppTypography.mainHeadingWhite),
+            Text(
+              isPinConfirmed.value
+                  ? AppStrings.confirmPin
+                  : AppStrings.enterPin,
+              style: AppTypography.mainHeadingWhite,
+            ),
+            Expanded(flex: 1, child: Container()),
+            if (showErrorMessage.value)
+              Text(
+                AppStrings.error,
+                style: AppTypography.errorText,
+              ),
             Expanded(flex: 2, child: Container()),
             PinEntry(
               controller: pinController,
               onPinEntered: handleLogin,
             ),
-            if (showErrorMessage.value)
-              Text(
-                AppStrings.enterPin,
-                style: AppTypography.inputFont,
-              ),
             Expanded(flex: 1, child: Container()),
           ],
         ),

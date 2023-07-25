@@ -15,6 +15,8 @@ class AppColors {
   static const Color purpleColor = Color.fromRGBO(90, 39, 200, 1);
 
   static const Color orangeColor = Colors.orange;
+  static const Color darkOrangeColor = Color.fromRGBO(237, 117, 4, 1);
+
   static const Color redColor = Colors.red;
   static const Color blueColor = Color(0xFF171582);
   static const Color greyColor = Colors.grey;
@@ -105,6 +107,11 @@ class AppTypography {
 
   static const TextStyle linkText = TextStyle(
     color: AppColors.primaryColor,
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  );
+  static const TextStyle errorText = TextStyle(
+    color: AppColors.darkOrangeColor,
     fontWeight: FontWeight.bold,
     fontSize: 16,
   );

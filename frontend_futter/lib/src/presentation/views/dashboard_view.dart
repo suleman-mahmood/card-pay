@@ -1,5 +1,8 @@
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/card_list_item_loading.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:auto_route/auto_route.dart';
@@ -15,8 +18,11 @@ import 'package:cardpay/src/utils/constants/payment_string.dart';
 @RoutePage()
 class DashboardView extends HookWidget {
   const DashboardView({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final isLoading = true;
+
     return Scaffold(
       body: Builder(
         builder: (BuildContext scaffoldContext) {
@@ -28,11 +34,16 @@ class DashboardView extends HookWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const GreetingRow(
-                        greeting: PaymentStrings.greet,
-                        name: PaymentStrings.name,
-                        imagePath: 'assets/images/talha.jpg',
-                      ),
+                      isLoading
+                          ? ShimmerLoading(
+                              isLoading: isLoading,
+                              child: CircleListItemLoading(),
+                            )
+                          : GreetingRow(
+                              greeting: PaymentStrings.greet,
+                              name: PaymentStrings.name,
+                              imagePath: 'assets/images/talha.jpg',
+                            ),
                       Transform.scale(
                         scale: 1.75,
                         child: IconButton(
@@ -46,35 +57,47 @@ class DashboardView extends HookWidget {
                     ],
                   ),
                   const HeightBox(slab: 3),
-                  BalanceCard(
-                    balance: PaymentStrings.balance,
-                    topRightImage: 'assets/images/balance_corner.png',
-                    bottomLeftImage: 'assets/images/balance_corner2.png',
-                  ),
-                  HeightBox(slab: 2),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(PaymentStrings.recentTransactions,
-                        style: AppTypography.bodyTextBold),
-                  ),
-                  const TransactionContainer(
-                    icon: Icons.send,
-                    firstText: PaymentStrings.rollNumber,
-                    secondText: PaymentStrings.pAmount,
-                    firstTextColor: AppColors.blackColor,
-                    secondTextColor: AppColors.redColor,
-                    iconColor: AppColors.primaryColor,
-                  ),
-                  const TransactionContainer(
-                    icon: Icons.money,
-                    firstText: PaymentStrings.rollNumber,
-                    secondText: PaymentStrings.nAmount,
-                    firstTextColor: AppColors.blackColor,
-                    secondTextColor: AppColors.greenColor,
-                    iconColor: AppColors.primaryColor,
-                  ),
+                  isLoading
+                      ? ShimmerLoading(
+                          isLoading: isLoading,
+                          child: CardListItemLoading(),
+                        )
+                      : Column(
+                          children: [
+                            BalanceCard(
+                              balance: PaymentStrings.balance,
+                              topRightImage: 'assets/images/balance_corner.png',
+                              bottomLeftImage:
+                                  'assets/images/balance_corner2.png',
+                            ),
+                            HeightBox(slab: 2),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                PaymentStrings.recentTransactions,
+                                style: AppTypography.bodyTextBold,
+                              ),
+                            ),
+                            TransactionContainer(
+                              icon: Icons.send,
+                              firstText: PaymentStrings.rollNumber,
+                              secondText: PaymentStrings.pAmount,
+                              firstTextColor: AppColors.blackColor,
+                              secondTextColor: AppColors.redColor,
+                              iconColor: AppColors.primaryColor,
+                            ),
+                            TransactionContainer(
+                              icon: Icons.money,
+                              firstText: PaymentStrings.rollNumber,
+                              secondText: PaymentStrings.nAmount,
+                              firstTextColor: AppColors.blackColor,
+                              secondTextColor: AppColors.greenColor,
+                              iconColor: AppColors.primaryColor,
+                            ),
+                          ],
+                        ),
                   HeightBox(slab: 3),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CustomBox(
@@ -90,7 +113,7 @@ class DashboardView extends HookWidget {
                     ],
                   ),
                   HeightBox(slab: 3),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CustomBox(
