@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
-import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -21,7 +20,12 @@ class FilterHistoryView extends HookWidget {
     final checked4 = useState(false);
 
     final checks = [checked1, checked2, checked3, checked4];
-    final labels = ["Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4"];
+    final labels = [
+      PaymentStrings.checkbox1,
+      PaymentStrings.checkbox2,
+      PaymentStrings.checkbox3,
+      PaymentStrings.checkbox4
+    ];
     final icons = [
       Icons.calendar_today,
       null,
@@ -53,10 +57,12 @@ class FilterHistoryView extends HookWidget {
                     },
                   );
                 },
-                child: Icon(
-                  Icons.filter_alt,
-                  color: AppColors.greyColor.withOpacity(0.35),
-                  size: 34,
+                child: Transform.scale(
+                  scale: 1.75,
+                  child: Icon(
+                    Icons.filter_alt,
+                    color: AppColors.greyColor.withOpacity(0.35),
+                  ),
                 ),
               );
             },
@@ -70,15 +76,13 @@ class FilterHistoryView extends HookWidget {
       child: TransactionList(),
     );
 
-    return PaymentLayout(
-      child: Column(
-        children: [
-          const HeightBox(slab: 5),
-          header,
-          const HeightBox(slab: 3),
-          transactionList,
-        ],
-      ),
+    return Column(
+      children: [
+        const HeightBox(slab: 5),
+        header,
+        const HeightBox(slab: 3),
+        transactionList,
+      ],
     );
   }
 }

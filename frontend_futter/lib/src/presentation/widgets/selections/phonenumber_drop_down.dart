@@ -7,6 +7,8 @@ import 'package:cardpay/src/utils/constants/payment_string.dart';
 class PhoneNumberInput extends HookWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onPhoneNumberChanged;
+  final FormFieldValidator<String>? validator;
   final List<String> dropdownItems;
   final String dropdownValue;
 
@@ -16,6 +18,8 @@ class PhoneNumberInput extends HookWidget {
     required this.dropdownItems,
     required this.dropdownValue,
     this.onChanged,
+    this.onPhoneNumberChanged,
+    this.validator,
   });
 
   @override
@@ -53,11 +57,13 @@ class PhoneNumberInput extends HookWidget {
     );
   }
 
-  TextField _buildTextField() {
-    return TextField(
+  TextFormField _buildTextField() {
+    return TextFormField(
       controller: controller,
+      validator: validator,
       keyboardType: TextInputType.phone,
-      decoration: const InputDecoration(
+      onChanged: onPhoneNumberChanged,
+      decoration: InputDecoration(
         border: InputBorder.none,
         hintText: PaymentStrings.enterPhone,
         isCollapsed: true,

@@ -1,11 +1,14 @@
 """Authentication commands"""
 import firebase_admin
 
+from firebase_admin import auth
 from typing import Optional, Tuple
 
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
 from backend_ddd.payment.entrypoint import commands as payment_commands
 from backend_ddd.comms.entrypoint import commands as comms_commands
+from backend_ddd.api import utils
+from backend_ddd.api.event_codes import EventCode
 from ..domain.model import (
     ClosedLoopUser,
     ClosedLoopVerificationType,
@@ -16,6 +19,8 @@ from ..domain.model import (
     PhoneNumber,
     Location,
 )
+
+PK_CODE = "92"
 
 
 def create_closed_loop(
@@ -41,44 +46,66 @@ def create_closed_loop(
 
 
 def create_user(
-    user_id: str,
     personal_email: str,
     password: str,
     phone_number: str,
     user_type: str,
-    pin: str,
     full_name: str,
     location: Tuple[float, float],
     uow: AbstractUnitOfWork,
-) -> User:
+) -> Tuple[EventCode, str]:
     """Create user"""
     location_object = Location(latitude=location[0], longitude=location[1])
 
-    firebase_create_user(
-        personal_email=personal_email,
-        phone_number=phone_number,
-        password=password,
-        full_name=full_name,
-    )
+    phone_email = PK_CODE + phone_number + "@cardpay.com.pk"
+    phone_number_with_country_code = "+" + PK_CODE + phone_number
 
-    with uow:
-        wallet = payment_commands.create_wallet(uow)
-        user = User(
-            id=user_id,
-            personal_email=PersonalEmail(value=personal_email),
-            phone_number=PhoneNumber(value=phone_number),
-            user_type=UserType.__members__[user_type],
-            pin=pin,
+    user_already_exists = False
+    try:
+        firebase_uid = firebase_create_user(
+            phone_email=phone_email,
+            phone_number=phone_number_with_country_code,
+            password=password,
             full_name=full_name,
-            wallet_id=wallet.id,
-            location=location_object,
         )
+    except:
+        user_already_exists = True
 
-        uow.users.add(user)
+    if not user_already_exists:
+        user_id = utils.firebaseUidToUUID(firebase_uid)
 
-    comms_commands.send_sms(content=user.otp, to=phone_number)
+        with uow:
+            wallet = payment_commands.create_wallet(uow)
+            user = User(
+                id=user_id,
+                personal_email=PersonalEmail(value=personal_email),
+                phone_number=PhoneNumber(value=phone_number_with_country_code),
+                user_type=UserType.__members__[user_type],
+                pin="0000",  # TODO: fix this
+                full_name=full_name,
+                wallet_id=wallet.id,
+                location=location_object,
+            )
 
-    return user
+            uow.users.add(user)
+
+        comms_commands.send_sms(content=user.otp, to=phone_number_with_country_code)
+
+        return EventCode.OTP_SENT, user_id
+    else:
+        with uow:
+            firebase_uid = firebase_get_user(email=phone_email)
+            user_id = utils.firebaseUidToUUID(firebase_uid)
+            fetched_user = uow.users.get(user_id=user_id)
+
+            if fetched_user.is_phone_number_verified:
+                return EventCode.USER_VERIFIED, user_id
+            else:
+                comms_commands.send_sms(
+                    content=fetched_user.otp,
+                    to=phone_number_with_country_code,
+                )
+                return EventCode.OTP_SENT, user_id
 
 
 def change_name(user_id: str, new_name: str, uow: AbstractUnitOfWork):
@@ -128,12 +155,6 @@ def verify_phone_number(user_id: str, otp: str, uow: AbstractUnitOfWork):
         user.verify_phone_number(otp)
         uow.users.save(user)
 
-    comms_commands.send_email(
-        subject="Verify email | Otp",
-        text=user.otp,
-        to=user.personal_email,
-    )
-
     return user
 
 
@@ -151,6 +172,12 @@ def register_closed_loop(
         )
         user.register_closed_loop(closed_loop_user=closed_loop_user)
         uow.users.save(user)
+
+    comms_commands.send_email(
+        subject="Verify closed loop | Otp",
+        text=user.otp,
+        to=user.personal_email.value,
+    )
 
     return user
 
@@ -173,20 +200,24 @@ def verify_closed_loop(
 
 
 def firebase_create_user(
-    personal_email: str,
+    phone_email: str,
     phone_number: str,
     password: str,
     full_name: str,
-):
-    # TODO: Remove this return in production
-    return
-
-    firebase_admin.auth.create_user(
-        email=personal_email,
+) -> str:
+    user_record = firebase_admin.auth.create_user(
+        email=phone_email,
         email_verified=False,
         phone_number=phone_number,
         password=password,
         display_name=full_name,
-        photo_url="",
         disabled=False,
     )
+
+    return user_record.uid
+
+
+def firebase_get_user(email: str) -> str:
+    user_record = auth.get_user_by_email(email=email)
+
+    return user_record.uid

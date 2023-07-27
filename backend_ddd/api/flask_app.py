@@ -15,15 +15,18 @@ from backend_ddd.payment.domain.model import (
     TransactionMode,
     TransactionType,
 )
+from backend_ddd.authentication.entrypoint import queries as authentication_queries
 from backend_ddd.marketing.entrypoint import commands as marketing_commands
 from backend_ddd.authentication.entrypoint import commands as authentication_commands
+from backend_ddd.payment.entrypoint import queries as payment_queries
 
 app = Flask(__name__)
+app.config["PROPAGATE_EXCEPTIONS"] = True
 PREFIX = "/api/v1"
 
 
-cred = firebase_admin.credentials.Certificate("credentials.json")
-default_app = firebase_admin.initialize_app(cred)
+cred = firebase_admin.credentials.Certificate("credentials-dev.json")
+firebase_admin.initialize_app(cred)
 
 # Or this in app engine
 # default_app = firebase_admin.initialize_app()
@@ -69,12 +72,10 @@ def hello():
 def create_user():
     """Create a new user account"""
     authentication_commands.create_user(
-        user_id=request.json["user_id"],
         personal_email=request.json["personal_email"],
         password=request.json["password"],
         phone_number=request.json["phone_number"],
         user_type=request.json["user_type"],
-        pin=request.json["pin"],
         full_name=request.json["full_name"],
         location=request.json["location"],
         uow=UnitOfWork(),
@@ -84,6 +85,39 @@ def create_user():
             {
                 "success": True,
                 "message": "User created successfully",
+            }
+        ),
+        201,
+    )
+
+
+@app.route(PREFIX + "/create-customer", methods=["POST"])
+# @authenticate_token
+@handle_exceptions
+@handle_missing_payload
+def create_customer():
+    """
+    Create a new user account of type customer
+
+    phone_number = '03333462677'
+    """
+
+    event_code, user_id = authentication_commands.create_user(
+        personal_email=request.json["personal_email"],
+        password=request.json["password"],
+        phone_number=request.json["phone_number"],
+        user_type="CUSTOMER",
+        full_name=request.json["full_name"],
+        location=request.json["location"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "User created successfully",
+                "event_code": event_code.name,
+                "user_id": user_id,
             }
         ),
         201,
@@ -257,6 +291,25 @@ def verify_closed_loop():
 # Get requests
 
 
+@app.route(PREFIX + "/get-all-closed-loops", methods=["GET"])
+@handle_exceptions
+def get_all_closed_loops():
+    """ """
+
+    closed_loops = authentication_queries.get_all_closed_loops(uow=UnitOfWork())
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "All closed loops returned successfully",
+                "closed_loops": closed_loops,
+            }
+        ),
+        201,
+    )
+
+
 @app.route(PREFIX + "/decode-access-token", methods=["GET"])
 @authenticate_token
 def decode_access_token(uid):
@@ -267,31 +320,68 @@ def decode_access_token(uid):
 
 
 @app.route(PREFIX + "/get-user", methods=["GET"])
-# @authenticate_token
+@handle_exceptions
+@authenticate_token
 def get_user(uid):
-    raise NotImplementedError
+    user = authentication_queries.get_user_from_user_id(
+        user_id=uid,
+        uow=UnitOfWork(),
+    )
 
-    # """Get a user"""
+    user.closed_loops = [c for c in user.closed_loops.values()]
 
-    # user = queries.get_user(
-    #     user_id=uid,
-    #     uow=unit_of_work.UnitOfWork(),
-    # )
-
-    # user_dict = asdict(user)
-    # for attr, value in user_dict.items():
-    #     if isinstance(value, set):
-    #         user_dict[attr] = list(value)
-
-    # user_dict["followers"] = len(user_dict["followers"])
-    # user_dict["following"] = len(user_dict["following"])
-
-    # return_obj = {"user": user_dict}
-    # return jsonify(return_obj), 200
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "User returned successfully",
+                "user": user,
+            }
+        ),
+        200,
+    )
 
 
-# post requests
-# flask --app ./api/flask_app.py run --debug
+@app.route(PREFIX + "/get-user-balance", methods=["GET"])
+@handle_exceptions
+@authenticate_token
+def get_user_balance(uid):
+    balance = authentication_queries.get_user_balance(
+        user_id=uid,
+        uow=UnitOfWork(),
+    )
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "User balance returned successfully",
+                "balance": balance,
+            }
+        ),
+        200,
+    )
+
+
+@app.route(PREFIX + "/get-user-recent-transactions", methods=["GET"])
+@handle_exceptions
+@authenticate_token
+def get_user_recent_transactions(uid):
+    txs = payment_queries.get_user_recent_transactions(
+        user_id=uid,
+        uow=UnitOfWork(),
+    )
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "User recent transactions returned successfully",
+                "recent_transactions": txs,
+            }
+        ),
+        200,
+    )
 
 
 # for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)
@@ -304,6 +394,93 @@ def create_test_wallet():
         "success": True,
         "message": "test wallet created successfully (only call me from create_user though)",
     }, 200
+
+
+@app.route(PREFIX + "/create-deposit-request", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+@authenticate_token
+def create_deposit_request(uid):
+    checkout_url = payment_commands.create_deposit_request(
+        user_id=uid,
+        amount=request.json["amount"],
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "deposit request created successfully",
+                "checkout_url": checkout_url,
+            }
+        ),
+        201,
+    )
+
+
+@app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
+def pay_pro_callback():
+    payment_commands.pay_pro_callback(
+        uow=UnitOfWork(),
+        data=request.json[""],  # TODO: fill these later
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "callback processed successfully",
+            }
+        ),
+        201,
+    )
+
+
+@app.route(PREFIX + "/execute-p2p-push-transaction", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+@authenticate_token
+def execute_p2p_push_transaction(uid):
+    payment_commands.execute_transaction_unique_identifier(
+        sender_wallet_id=uid,
+        recipient_wallet_id=request.json["recipient_unique_identifier"],
+        amount=request.json["amount"],
+        transaction_mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.P2P_PUSH,
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "p2p push transaction executed successfully",
+            }
+        ),
+        201,
+    )
+
+
+@app.route(PREFIX + "/create-p2p-pull-transaction", methods=["POST"])
+@handle_exceptions
+@handle_missing_payload
+@authenticate_token
+def create_p2p_pull_transaction(uid):
+    payment_commands.execute_transaction_unique_identifier(
+        sender_wallet_id=request.json["sender_unique_identifier"],
+        recipient_wallet_id=uid,
+        amount=request.json["amount"],
+        transaction_mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.P2P_PULL,
+        uow=UnitOfWork(),
+    )
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "p2p pull transaction created successfully",
+            }
+        ),
+        201,
+    )
 
 
 @app.route(PREFIX + "/execute-transaction", methods=["POST"])

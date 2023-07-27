@@ -10,31 +10,34 @@ class SplashView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _navigateToIntroRoute(context),
-      child: _buildBackground(),
-    );
-  }
+    void _navigateToIntroRoute(BuildContext context) {
+      context.router.push(const IntroRoute());
+    }
 
-  Widget _buildBackground() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.animationHomeGradient.colors,
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: AppColors.animationHomeGradient.stops,
-        ),
-      ),
-      child: Center(
-        child: Image.asset(
-          'assets/images/logo.png',
-        ),
-      ),
-    );
-  }
+    useEffect(() {
+      Future.delayed(const Duration(seconds: 1), () {
+        _navigateToIntroRoute(context);
+      });
+    }, []);
 
-  void _navigateToIntroRoute(BuildContext context) {
-    context.router.push(const IntroRoute());
+    _buildBackground() {
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.animationHomeGradient.colors,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: AppColors.animationHomeGradient.stops,
+          ),
+        ),
+        child: Center(
+          child: Image.asset(
+            'assets/images/logo.png',
+          ),
+        ),
+      );
+    }
+
+    return _buildBackground();
   }
 }

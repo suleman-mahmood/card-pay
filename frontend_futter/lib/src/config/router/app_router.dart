@@ -1,4 +1,6 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cardpay/src/presentation/views/faqs_view.dart';
+import 'package:cardpay/src/presentation/views/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/views/splash_view.dart';
 import 'package:cardpay/src/presentation/views/intro_view.dart';
 import 'package:cardpay/src/presentation/views/signup_view.dart';
@@ -14,6 +16,7 @@ import 'package:cardpay/src/presentation/views/history_transaction_view.dart';
 import 'package:cardpay/src/presentation/views/request_amount_view.dart';
 import 'package:cardpay/src/presentation/views/filtered_history_view.dart';
 import 'package:cardpay/src/presentation/views/confirmation_view.dart';
+import 'package:flutter/material.dart';
 
 part 'app_router.gr.dart';
 
@@ -77,6 +80,14 @@ class AppRouter extends _$AppRouter {
         CustomRoute(
           page: ConfirmationRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
-        )
+        ),
+        CustomRoute(
+          page: PaymentDashboardRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: FaqsRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
       ];
 }

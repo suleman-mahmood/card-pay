@@ -1,5 +1,5 @@
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
+import 'package:cardpay/src/presentation/views/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -15,54 +15,62 @@ import 'package:cardpay/src/utils/constants/signUp_string.dart';
 class RequestView extends HookWidget {
   const RequestView({Key? key}) : super(key: key);
 
-  Widget buildTransferForm(
-      BuildContext context, TextEditingController rollNumberController) {
-    return Column(
-      children: [
-        HeightBox(slab: 3),
-        CustomInputField(
-          label: AppStrings.rollNumber,
-          hint: PaymentStrings.anyRollNumber,
-          controller: rollNumberController,
-          keyboardType: TextInputType.number,
-          hintColor: AppColors.greyColor,
-          labelColor: AppColors.secondaryColor,
-        ),
-        HeightBox(slab: 1),
-        Align(
-            alignment: Alignment.centerLeft,
-            child: Text(PaymentStrings.enterAmount,
-                style: AppTypography.headingFont)),
-        HeightBox(slab: 5),
-        PrimaryButton(
-          text: PaymentStrings.next,
-          color: AppColors.secondaryColor,
-          textColor: AppColors.purpleColor,
-          onPressed: () {
-            String rollNumber = rollNumberController.text;
-
-            context.router.push(RequestAmountRoute(rollNumber: rollNumber));
-          },
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final rollNumberController = useTextEditingController();
-    return PaymentLayout(
-      showBottomBar: false,
-      useHorizontalPadding: true,
-      backgroundColor: AppColors.purpleColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+
+    Widget buildTransferForm() {
+      return Column(
         children: [
-          const Header(
-            title: PaymentStrings.requestMoney,
+          HeightBox(slab: 3),
+          CustomInputField(
+            label: AppStrings.rollNumber,
+            hint: PaymentStrings.anyRollNumber,
+            controller: rollNumberController,
+            keyboardType: TextInputType.number,
+            hintColor: AppColors.greyColor,
+            labelColor: AppColors.secondaryColor,
           ),
-          buildTransferForm(context, rollNumberController),
+          HeightBox(slab: 1),
+          Align(
+              alignment: Alignment.centerLeft,
+              child: Text(PaymentStrings.enterAmount,
+                  style: AppTypography.headingFont)),
+          HeightBox(slab: 5),
+          PrimaryButton(
+            text: PaymentStrings.next,
+            color: AppColors.secondaryColor,
+            textColor: AppColors.purpleColor,
+            onPressed: () {
+              String uniqueIdentifier = rollNumberController.text;
+
+              context.router
+                  .push(RequestAmountRoute(uniqueIdentifier: uniqueIdentifier));
+            },
+          ),
         ],
+      );
+    }
+
+    // return PaymentLayout(
+    //   showBottomBar: false,
+    //   useHorizontalPadding: true,
+    //   backgroundColor: AppColors.purpleColor,
+    return Scaffold(
+      backgroundColor: AppColors.purpleColor,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Header(
+                title: PaymentStrings.requestMoney,
+              ),
+              buildTransferForm(),
+            ],
+          ),
+        ),
       ),
     );
   }

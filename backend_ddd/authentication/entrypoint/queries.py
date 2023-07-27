@@ -17,6 +17,7 @@
 """
 
 from ..domain import model as authentication_model
+
 # from ..adapters import repository as authentication_repository
 from ...entrypoint.uow import AbstractUnitOfWork
 
@@ -68,12 +69,7 @@ def get_user_from_email(user_email: str, uow: AbstractUnitOfWork):
             from users
             where personal_email = %s
         """
-        uow.cursor.execute(
-            sql,
-            [
-                user_email
-            ]
-        )
+        uow.cursor.execute(sql, [user_email])
         row = uow.cursor.fetchone()
         user = authentication_model.User(
             id=row[0],
@@ -87,27 +83,24 @@ def get_user_from_email(user_email: str, uow: AbstractUnitOfWork):
             is_phone_number_verified=row[8],
             otp=row[9],
             otp_generated_at=row[10],
-            location=authentication_model.Location(latitude=float(
-                row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])),
-            created_at=row[12]
+            location=authentication_model.Location(
+                latitude=float(row[11][1:-1].split(",")[0]),
+                longitude=float(row[11][1:-1].split(",")[0]),
+            ),
+            created_at=row[12],
         )
     return user
 
 
 def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork):
-    """ Get user from phone number"""
+    """Get user from phone number"""
     with uow:
         sql = """
             select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
             from users
             where phone_number = %s
         """
-        uow.cursor.execute(
-            sql,
-            [
-                phone_number
-            ]
-        )
+        uow.cursor.execute(sql, [phone_number])
         row = uow.cursor.fetchone()
         user = authentication_model.User(
             id=row[0],
@@ -121,14 +114,18 @@ def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork):
             is_phone_number_verified=row[8],
             otp=row[9],
             otp_generated_at=row[10],
-            location=authentication_model.Location(latitude=float(
-                row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])),
-            created_at=row[12]
+            location=authentication_model.Location(
+                latitude=float(row[11][1:-1].split(",")[0]),
+                longitude=float(row[11][1:-1].split(",")[0]),
+            ),
+            created_at=row[12],
         )
         return user
 
 
-def get_user_from_closed_loop_id_and_unique_identifier(closed_loop_id: str, unique_identifier: str, uow: AbstractUnitOfWork):
+def get_user_from_closed_loop_id_and_unique_identifier(
+    closed_loop_id: str, unique_identifier: str, uow: AbstractUnitOfWork
+):
     """Get user from closed_loop_id and unique_identifier"""
     with uow:
         sql = """
@@ -137,13 +134,7 @@ def get_user_from_closed_loop_id_and_unique_identifier(closed_loop_id: str, uniq
             join user_closed_loops ucl on u.id = ucl.user_id
             where ucl.closed_loop_id = %s and ucl.unique_identifier = %s
             """
-        uow.cursor.execute(
-            sql,
-            [
-                closed_loop_id,
-                unique_identifier
-            ]
-        )
+        uow.cursor.execute(sql, [closed_loop_id, unique_identifier])
         row = uow.cursor.fetchone()
         user = authentication_model.User(
             id=row[0],
@@ -157,11 +148,14 @@ def get_user_from_closed_loop_id_and_unique_identifier(closed_loop_id: str, uniq
             is_phone_number_verified=row[8],
             otp=row[9],
             otp_generated_at=row[10],
-            location=authentication_model.Location(latitude=float(
-                row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])),
-            created_at=row[12]
+            location=authentication_model.Location(
+                latitude=float(row[11][1:-1].split(",")[0]),
+                longitude=float(row[11][1:-1].split(",")[0]),
+            ),
+            created_at=row[12],
         )
     return user
+
 
 def get_all_active_users(uow: AbstractUnitOfWork):
     """Get all active users"""
@@ -186,9 +180,11 @@ def get_all_active_users(uow: AbstractUnitOfWork):
                 is_phone_number_verified=row[8],
                 otp=row[9],
                 otp_generated_at=row[10],
-                location=authentication_model.Location(latitude=float(
-                    row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])),
-                created_at=row[12]
+                location=authentication_model.Location(
+                    latitude=float(row[11][1:-1].split(",")[0]),
+                    longitude=float(row[11][1:-1].split(",")[0]),
+                ),
+                created_at=row[12],
             )
             for row in rows
         ]
@@ -218,16 +214,20 @@ def get_all_inactive_users(uow: AbstractUnitOfWork):
                 is_phone_number_verified=row[8],
                 otp=row[9],
                 otp_generated_at=row[10],
-                location=authentication_model.Location(latitude=float(
-                    row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])),
-                created_at=row[12]
+                location=authentication_model.Location(
+                    latitude=float(row[11][1:-1].split(",")[0]),
+                    longitude=float(row[11][1:-1].split(",")[0]),
+                ),
+                created_at=row[12],
             )
             for row in rows
         ]
     return users
 
 
-def get_all_users_of_a_user_type(uow: AbstractUnitOfWork, user_type: authentication_model.UserType):
+def get_all_users_of_a_user_type(
+    uow: AbstractUnitOfWork, user_type: authentication_model.UserType
+):
     """Get all users of a user type"""
     with uow:
         sql = """
@@ -235,12 +235,7 @@ def get_all_users_of_a_user_type(uow: AbstractUnitOfWork, user_type: authenticat
             from users 
             where user_type = %s
         """
-        uow.cursor.execute(
-            sql,
-            [
-                user_type.name
-            ]
-        )
+        uow.cursor.execute(sql, [user_type.name])
         rows = uow.cursor.fetchall()
         users = [
             authentication_model.User(
@@ -255,9 +250,11 @@ def get_all_users_of_a_user_type(uow: AbstractUnitOfWork, user_type: authenticat
                 is_phone_number_verified=row[8],
                 otp=row[9],
                 otp_generated_at=row[10],
-                location=authentication_model.Location(latitude=float(
-                    row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])),
-                created_at=row[12]
+                location=authentication_model.Location(
+                    latitude=float(row[11][1:-1].split(",")[0]),
+                    longitude=float(row[11][1:-1].split(",")[0]),
+                ),
+                created_at=row[12],
             )
             for row in rows
         ]
@@ -340,12 +337,7 @@ def get_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork)
             join user_closed_loops ucl on u.id = ucl.user_id
             where ucl.closed_loop_id = %s
         """
-        uow.cursor.execute(
-            sql,
-            [
-                closed_loop_id
-            ]
-        )
+        uow.cursor.execute(sql, [closed_loop_id])
         rows = uow.cursor.fetchall()
         users = [
             authentication_model.User(
@@ -360,16 +352,20 @@ def get_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork)
                 is_phone_number_verified=row[8],
                 otp=row[9],
                 otp_generated_at=row[10],
-                location=authentication_model.Location(latitude=float(
-                    row[11][1:-1].split(",")[0]), longitude=float(row[11][1:-1].split(",")[0])),
-                created_at=row[12]
+                location=authentication_model.Location(
+                    latitude=float(row[11][1:-1].split(",")[0]),
+                    longitude=float(row[11][1:-1].split(",")[0]),
+                ),
+                created_at=row[12],
             )
             for row in rows
         ]
     return users
 
 
-def get_all_unique_identifier_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork):
+def get_all_unique_identifier_of_a_closed_loop(
+    closed_loop_id: str, uow: AbstractUnitOfWork
+):
     """Get all unique identifiers of a closed loop (all roll numbers of LUMS)"""
     with uow:
         sql = """
@@ -377,12 +373,27 @@ def get_all_unique_identifier_of_a_closed_loop(closed_loop_id: str, uow: Abstrac
             from user_closed_loops
             where closed_loop_id = %s
         """
-        uow.cursor.execute(
-            sql,
-            [
-                closed_loop_id
-            ]
-        )
+        uow.cursor.execute(sql, [closed_loop_id])
         rows = uow.cursor.fetchall()
         unique_identifiers = [row[0] for row in rows]
     return unique_identifiers
+
+
+def get_user_balance(user_id: str, uow: AbstractUnitOfWork):
+    """Get user from user id"""
+    with uow:
+        # TODO: fix this to user user id as wallet id
+        sql = """
+            select balance
+            from wallets
+            where id = (
+                select wallet_id
+                from users
+                where id = %s
+            )        
+        """
+        uow.cursor.execute(sql, [user_id])
+        row = uow.cursor.fetchone()
+        balance = row[0]
+
+    return balance

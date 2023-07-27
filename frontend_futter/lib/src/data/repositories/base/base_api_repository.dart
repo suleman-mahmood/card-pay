@@ -20,7 +20,8 @@ abstract class BaseApiRepository {
   }) async {
     try {
       final httpResponse = await request();
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (httpResponse.response.statusCode == HttpStatus.ok ||
+          httpResponse.response.statusCode == HttpStatus.created) {
         return DataSuccess(httpResponse.data);
       } else {
         throw DioError(

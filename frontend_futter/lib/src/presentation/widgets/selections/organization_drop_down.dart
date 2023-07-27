@@ -1,20 +1,23 @@
+import 'package:cardpay/src/domain/models/closed_loop.dart';
+import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 
 class DropDown extends HookWidget {
-  final void Function(String?) onChanged;
+  final void Function(String, ClosedLoop) onChanged;
 
   const DropDown({Key? key, required this.onChanged}) : super(key: key);
 
-  static const organizations = ['None', 'LUMS', 'Nust', 'FAST', 'UET', 'IBA'];
+  // static const organizations = ['None', 'LUMS', 'Nust', 'FAST', 'UET', 'IBA'];
 
   @override
   Widget build(BuildContext context) {
-    final selectedOrganization = useState<String?>('None');
+    final selectedOrganization = useState<String>('None');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -30,19 +33,50 @@ class DropDown extends HookWidget {
           ),
           child: PaddingHorizontal(
             slab: 2,
-            child: DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                  hintText: 'Select your organization',
-                  border: InputBorder.none),
-              value: selectedOrganization.value,
-              dropdownColor: AppColors.lightGreyColor,
-              items: organizations.map((String organization) {
-                return _buildDropdownMenuItem(context, organization);
-              }).toList(),
-              onChanged: (value) {
-                onChanged(value);
-                selectedOrganization.value = value;
-              },
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 19),
+              child: BlocBuilder<ClosedLoopCubit, ClosedLoopState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case ClosedLoopSuccess:
+                      return DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          hintText: 'Select your organization',
+                          border: InputBorder.none,
+                        ),
+                        value: selectedOrganization.value,
+                        dropdownColor: AppColors.greyColor,
+                        items: [
+                          _buildDropdownMenuItem(
+                            context,
+                            'None',
+                          ),
+                          ...state.closedLoops.map((ClosedLoop closedLoops) {
+                            return _buildDropdownMenuItem(
+                              context,
+                              closedLoops.name,
+                            );
+                          }).toList(),
+                        ],
+                        onChanged: (value) {
+                          if (value == null) {
+                            return;
+                          }
+                          onChanged(
+                            value,
+                            state.closedLoops
+                                .firstWhere((e) => e.name == value),
+                          );
+                          selectedOrganization.value = value;
+                        },
+                      );
+                    case ClosedLoopLoading:
+                      return const CircularProgressIndicator();
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
             ),
           ),
         ),
@@ -51,7 +85,9 @@ class DropDown extends HookWidget {
   }
 
   DropdownMenuItem<String> _buildDropdownMenuItem(
-      BuildContext context, String organization) {
+    BuildContext context,
+    String organization,
+  ) {
     return DropdownMenuItem<String>(
       value: organization,
       child: Align(

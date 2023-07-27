@@ -8,7 +8,7 @@ class CustomInputField extends HookWidget {
   final String? hint;
   final bool obscureText;
   final FormFieldValidator<String>? validator;
-  final ValueChanged<String?>? onChanged;
+  final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
   final Color textcolor;
   final Color color;

@@ -60,18 +60,22 @@ class BalanceCard extends HookWidget {
       );
     }
 
-    return Container(
-      height: deviceHeight * 0.19,
-      decoration: BoxDecoration(
-        color: AppColors.purpleColor,
+    return Card(
+      color: AppColors.purpleColor,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Stack(
-        children: [
-          _cardContent(),
-          _topRightImage(),
-          _bottomLeftImage(),
-        ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: deviceHeight * 0.19,
+        ),
+        child: Stack(
+          children: [
+            _cardContent(),
+            _topRightImage(),
+            _bottomLeftImage(),
+          ],
+        ),
       ),
     );
   }

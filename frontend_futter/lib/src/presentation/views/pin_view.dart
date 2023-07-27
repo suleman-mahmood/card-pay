@@ -1,5 +1,8 @@
+import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -16,12 +19,14 @@ class AuthView extends HookWidget {
     final isPinConfirmed = useState(false);
     String enteredPin = '';
 
+    final userCubit = BlocProvider.of<UserCubit>(context);
+
     void handleLogin() {
       if (isPinConfirmed.value) {
         String confirmPin = pinController.text;
 
         if (confirmPin.length == 4 && confirmPin == enteredPin) {
-          context.router.push(const DashboardRoute());
+          userCubit.changePin(pinController.text);
         } else {
           showErrorMessage.value = true;
           isPinConfirmed.value = false;
@@ -53,6 +58,19 @@ class AuthView extends HookWidget {
         child: Flex(
           direction: Axis.vertical,
           children: [
+            BlocBuilder<UserCubit, UserState>(builder: (_, state) {
+              switch (state.runtimeType) {
+                case UserSuccess:
+                  if (state.eventCodes == EventCodes.PIN_REGISTERED) {
+                    context.router.push(DashboardRoute());
+                  }
+                  return const SizedBox.shrink();
+                case UserLoading:
+                  return const CircularProgressIndicator();
+                default:
+                  return const SizedBox.shrink();
+              }
+            }),
             Expanded(flex: 2, child: Container()),
             Text(
               isPinConfirmed.value

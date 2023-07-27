@@ -5,12 +5,12 @@ import 'package:cardpay/src/config/themes/colors.dart';
 
 class OTPInput extends HookWidget {
   final int digitCount;
-  final ValueChanged<String>? onCompleted;
+  final ValueChanged<String> onCompleted;
 
   const OTPInput({
     super.key,
     required this.digitCount,
-    this.onCompleted,
+    required this.onCompleted,
   });
 
   bool _isInputComplete(List<TextEditingController> controllers) {
@@ -35,7 +35,7 @@ class OTPInput extends HookWidget {
       for (var controller in controllers) {
         otp += controller.text;
       }
-      onCompleted?.call(otp);
+      onCompleted(otp);
     }
   }
 

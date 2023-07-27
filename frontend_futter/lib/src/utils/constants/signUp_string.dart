@@ -30,6 +30,7 @@ class AppStrings {
 
   static const String alreadyHaveAccount = 'Already have an account?';
   static const String logIn = 'Log In';
+  static const String logInDescription = 'User your phone number to login';
   static const String checkMobile = 'Please check your Phone';
   static const String checkEmail = 'Please check your Email';
   static const String otpMobileText =

@@ -13,7 +13,7 @@ class TransactionView extends HookWidget {
   final String buttonText;
   final String? rollNumber;
   final Color backgroundColor;
-  final VoidCallback onButtonPressed;
+  final void Function(double) onButtonPressed;
 
   const TransactionView({
     super.key,
@@ -26,54 +26,54 @@ class TransactionView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paymentController = useTextEditingController();
+    final paymentController = useTextEditingController(text: '0');
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                decoration: CustomBoxDecoration.getDecoration(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    HeightBox(slab: 3),
-                    if (rollNumber != null)
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondaryColor,
-                          border: Border.all(
-                            color: AppColors.greyColor,
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              decoration: CustomBoxDecoration.getDecoration(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  HeightBox(slab: 3),
+                  if (rollNumber != null)
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryColor,
+                        border: Border.all(
+                          color: AppColors.greyColor,
+                          width: 2,
                         ),
-                        child: Text(
-                          '$rollNumber',
-                          style: AppTypography.mainHeading,
-                          textAlign: TextAlign.center,
-                        ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    PaymentEntry(controller: paymentController),
-                    HeightBox(slab: 3),
-                    PrimaryButton(
-                      color: backgroundColor,
-                      text: buttonText,
-                      onPressed: onButtonPressed,
+                      child: Text(
+                        '$rollNumber',
+                        style: AppTypography.mainHeading,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    HeightBox(slab: 5)
-                  ],
-                ),
+                  PaymentEntry(controller: paymentController),
+                  HeightBox(slab: 3),
+                  PrimaryButton(
+                    color: backgroundColor,
+                    text: buttonText,
+                    onPressed: () => onButtonPressed(
+                      double.parse(paymentController.text),
+                    ),
+                  ),
+                  HeightBox(slab: 5),
+                ],
               ),
             ),
-            PaddingHorizontal(slab: 2, child: Header(title: title)),
-          ],
-        ),
+          ),
+          PaddingHorizontal(slab: 2, child: Header(title: title)),
+        ],
       ),
     );
   }

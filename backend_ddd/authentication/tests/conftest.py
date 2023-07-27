@@ -10,6 +10,7 @@ from ..domain.model import (
     Location,
 )
 from uuid import uuid4
+from backend_ddd.payment.domain import model as payment_model
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
 from backend_ddd.authentication.entrypoint import commands as auth_commands
 
@@ -49,35 +50,31 @@ def seed_closed_loop():
 @pytest.fixture
 def seed_auth_user():
     def _seed_auth_user(uow: AbstractUnitOfWork) -> User:
-        return auth_commands.create_user(
-            user_id=str(uuid4()),
-            personal_email="mlkmoaz@gmail.com",
-            password="",
-            phone_number="03034952255",
-            user_type="CUSTOMER",
+        user_id = str(uuid4())
+        user = User(
+            id=user_id,
+            personal_email=PersonalEmail(value="mlkmoaz@gmail.com"),
+            phone_number=PhoneNumber(value="03034952255"),
+            user_type=UserType.CUSTOMER,
             pin="1234",
             full_name="Malik Muhammad Moaz",
-            location=(0, 0),
-            uow=uow,
+            location=Location(latitude=0, longitude=0),
+            wallet_id=user_id,
         )
+
+        with uow:
+            uow.transactions.add_wallet(wallet=payment_model.Wallet(id=user_id))
+            uow.users.add(user)
+
+        return user
 
     return _seed_auth_user
 
 
 @pytest.fixture
-def seed_verified_auth_user():
+def seed_verified_auth_user(seed_auth_user):
     def _seed_auth_user(uow: AbstractUnitOfWork) -> User:
-        user = auth_commands.create_user(
-            user_id=str(uuid4()),
-            personal_email="mlkmoaz@gmail.com",
-            password="",
-            phone_number="03034952255",
-            user_type="CUSTOMER",
-            pin="1234",
-            full_name="Malik Muhammad Moaz",
-            location=(0, 0),
-            uow=uow,
-        )
+        user = seed_auth_user(uow)
         auth_commands.verify_phone_number(
             user_id=user.id,
             otp=user.otp,

@@ -1,7 +1,9 @@
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
+import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomBox extends StatelessWidget {
   final String imagePath;
@@ -19,6 +21,8 @@ class CustomBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final deviceHeight = MediaQuery.of(context).size.height;
     final deviceWidth = MediaQuery.of(context).size.width;
+
+    final userCubit = BlocProvider.of<UserCubit>(context);
 
     ClipRRect buildClipRRect() {
       return ClipRRect(
@@ -52,11 +56,16 @@ class CustomBox extends StatelessWidget {
       );
     }
 
+    onTap() {
+      userCubit.initialize();
+      context.router.push(route);
+    }
+
     return Material(
       elevation: 8.0,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
-        onTap: () => context.router.push(route),
+        onTap: onTap,
         child: buildStack(),
       ),
     );

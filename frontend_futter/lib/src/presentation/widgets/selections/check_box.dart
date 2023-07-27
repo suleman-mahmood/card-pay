@@ -5,12 +5,14 @@ import 'package:cardpay/src/config/themes/colors.dart';
 
 class CheckBox extends HookWidget {
   final Function(bool value)? onChanged;
+  final Function()? onTap;
   final String text;
 
   const CheckBox({
     super.key,
     required this.text,
     this.onChanged,
+    this.onTap,
   }) : super();
 
   @override
@@ -33,7 +35,10 @@ class CheckBox extends HookWidget {
       children: [
         buildCheckbox(isChecked),
         WidthBetween(),
-        Text(text, style: AppTypography.bodyText),
+        GestureDetector(
+          onTap: onTap,
+          child: Text(text, style: AppTypography.linkText),
+        ),
       ],
     );
   }
@@ -48,10 +53,7 @@ class CheckBox extends HookWidget {
             : null,
       ),
       child: isChecked.value
-          ? Icon(
-              Icons.check,
-              color: AppColors.secondaryColor,
-            )
+          ? Icon(Icons.check, color: AppColors.secondaryColor)
           : null,
     );
   }

@@ -1,5 +1,6 @@
+import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
+import 'package:cardpay/src/presentation/views/payment_dashboard_view.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -29,7 +30,7 @@ class ConfirmationView extends HookWidget {
         PrimaryButton(
           text: PaymentStrings.done,
           color: AppColors.parrotColor,
-          onPressed: () => context.router.pop(),
+          onPressed: () => context.router.push(PaymentDashboardRoute()),
         ),
         const HeightBox(slab: 5),
       ],
@@ -75,9 +76,10 @@ class ConfirmationView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PaymentLayout(
-      showBottomBar: false,
-      child: buildConfirmationViewContent(context),
+    // return PaymentLayout(
+    //   showBottomBar: false,
+    return Scaffold(
+      body: buildConfirmationViewContent(context),
     );
   }
 }

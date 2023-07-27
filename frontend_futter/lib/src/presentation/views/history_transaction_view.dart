@@ -3,7 +3,7 @@ import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
-import 'package:cardpay/src/presentation/widgets/layout/payment_layouts.dart';
+import 'package:cardpay/src/presentation/views/payment_dashboard_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -19,54 +19,53 @@ class HistroyView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PaymentLayout(
-      useHorizontalPadding: false,
-      backgroundColor: AppColors.purpleColor,
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: FractionallySizedBox(
-              heightFactor: 3 / 4,
-              child: DecoratedBox(
-                decoration: CustomBoxDecoration.getDecoration(),
-                child: Column(
-                  children: [
-                    const HeightBox(slab: 3),
-                    PaddingAll(
-                      slab: 2,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            PaymentStrings.transaction,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          const Text(
-                            PaymentStrings.seeAll,
-                            style: TextStyle(color: AppColors.purpleColor),
-                          ),
-                        ],
-                      ),
+    // return PaymentLayout(
+    // useHorizontalPadding: false,
+    // backgroundColor: AppColors.purpleColor,
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: FractionallySizedBox(
+            heightFactor: 3 / 4,
+            child: DecoratedBox(
+              decoration: CustomBoxDecoration.getDecoration(),
+              child: Column(
+                children: [
+                  const HeightBox(slab: 3),
+                  const PaddingAll(
+                    slab: 2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          PaymentStrings.transaction,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          PaymentStrings.seeAll,
+                          style: TextStyle(color: AppColors.purpleColor),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child: TransactionList(),
-                    ),
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    child: TransactionList(),
+                  ),
+                ],
               ),
             ),
           ),
-          PaddingHorizontal(
-            slab: 2,
-            child: const Header(
-              title: PaymentStrings.history,
-              showMainHeading: true,
-              mainHeadingText: PaymentStrings.balance,
-            ),
+        ),
+        const PaddingHorizontal(
+          slab: 2,
+          child: Header(
+            title: PaymentStrings.history,
+            showMainHeading: true,
+            mainHeadingText: PaymentStrings.balance,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

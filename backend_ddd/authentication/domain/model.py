@@ -75,7 +75,7 @@ class ClosedLoopUser:
             raise VerificationException("User is already in closed loop")
 
         if self.unique_identifier_otp != otp:
-            raise InvalidOtpException("Unique identifier doesn't match")
+            raise InvalidOtpException("Unique identifier otp doesn't match")
 
         self.status = ClosedLoopUserState.VERIFIED
 
@@ -103,12 +103,14 @@ class PhoneNumber:
 
     value: str
 
+
 @dataclass
 class Location:
     """Location value object"""
 
     latitude: float
     longitude: float
+
 
 @dataclass
 class User:
@@ -124,7 +126,7 @@ class User:
     full_name: str
     wallet_id: str
     location: Location
-    
+
     is_active: bool = True
     is_phone_number_verified: bool = False
     closed_loops: Dict[str, ClosedLoopUser] = field(default_factory=dict)

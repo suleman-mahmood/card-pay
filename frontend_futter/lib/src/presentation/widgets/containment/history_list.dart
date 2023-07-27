@@ -1,5 +1,9 @@
 import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
+import 'dart:math';
+
+import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'dart:convert';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -15,44 +19,60 @@ class TransactionList extends HookWidget {
 
   TransactionList({super.key});
 
-  Future<List<dynamic>> loadTransactions() async {
-    try {
-      String jsonString =
-          await rootBundle.loadString('assets/files/catalog.json');
-      return jsonDecode(jsonString);
-    } catch (e) {
-      print("Error loading transactions: $e");
-      return [];
-    }
-  }
+  // Future<List<dynamic>> loadTransactions() async {
+  //   try {
+  //     String jsonString =
+  //         await rootBundle.loadString('assets/files/catalog.json');
+  //     return jsonDecode(jsonString);
+  //   } catch (e) {
+  //     print("Error loading transactions: $e");
+  //     return [];
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final transactions = useState(<dynamic>[]);
+    // final transactions = useState(<dynamic>[]);
+
+    // useEffect(() {
+    //   loadTransactions().then((value) => transactions.value = value);
+    //   return () {};
+    // }, []);
+
+    final userCubit = BlocProvider.of<UserCubit>(context);
 
     useEffect(() {
-      loadTransactions().then((value) => transactions.value = value);
-      return () {};
+      // userCubit.getUserRecentTransactions();
     }, []);
 
-    return ListView.builder(
-      itemCount: transactions.value.length,
-      itemBuilder: (context, index) {
-        Map<String, dynamic> transaction = transactions.value[index];
-        Color color = colors[transaction['colorIndex']];
+    return BlocBuilder<UserCubit, UserState>(
+      builder: (_, state) {
+        switch (state.runtimeType) {
+          case UserSuccess:
+            return ListView.builder(
+              itemCount: state.transactions.length,
+              itemBuilder: (context, index) {
+                final transaction = state.transactions[index];
+                // generate a random number between 0 and 2
+                final randomNumber = Random().nextInt(3);
+                Color color = colors[randomNumber];
 
-        return PaddingHorizontal(
-          slab: 1,
-          child: TransactionContainer(
-            icon: Icons.send,
-            firstText: transaction['id'],
-            secondText: transaction['amount'],
-            firstTextColor: color,
-            secondTextColor: color,
-            iconColor: color,
-            display: true,
-          ),
-        );
+                return PaddingHorizontal(
+                  slab: 1,
+                  child: TransactionContainer(
+                    icon: Icons.send,
+                    firstText: transaction.id,
+                    secondText: transaction.amount.toString(),
+                    firstTextColor: color,
+                    secondTextColor: color,
+                    iconColor: color,
+                  ),
+                );
+              },
+            );
+          default:
+            return const SizedBox.shrink();
+        }
       },
     );
   }

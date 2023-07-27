@@ -10,7 +10,7 @@ from ...entrypoint.commands import (
 )
 from ....marketing.entrypoint import commands as marketing_commands
 from ...entrypoint.queries import get_wallet_from_wallet_id
-from ....authentication.tests.conftest import seed_verified_auth_user
+from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
 from ....entrypoint.uow import FakeUnitOfWork, UnitOfWork
 from ...domain.model import TransactionMode, TransactionType, TransactionStatus
 import threading
@@ -29,14 +29,14 @@ def test_execute_transaction(seed_verified_auth_user):
     sender = seed_verified_auth_user(uow)
     recipient = seed_verified_auth_user(uow)
     marketing_commands.add_weightage(
-        weightage_type= "P2P_PUSH",
+        weightage_type="P2P_PUSH",
         weightage_value=10,
         uow=uow,
     )
 
     sender_wallet = get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
     recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient.wallet_id, uow=uow)
-    
+
     with uow:
         # for testing purposes
         uow.transactions.add_1000_wallet(sender_wallet)
@@ -62,7 +62,6 @@ def test_execute_transaction(seed_verified_auth_user):
 
 
 def test_slow_execute_transaction():
-    
     with UnitOfWork() as uow:
         sender_wallet = create_wallet(uow)
 
@@ -120,7 +119,7 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
     sender = seed_verified_auth_user(uow)
     recipient = seed_verified_auth_user(uow)
     marketing_commands.add_weightage(
-        weightage_type= "P2P_PULL",
+        weightage_type="P2P_PULL",
         weightage_value=10,
         uow=uow,
     )
