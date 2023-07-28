@@ -13,10 +13,10 @@ class AnimatedBottomBar extends HookWidget {
   Widget build(BuildContext context) {
     final iconList = [
       Icons.home,
-      Icons.history,
-      // Icons.compare_arrows,
-      // Icons.bar_chart,
-      // Icons.person_outlined,
+      // Icons.history,
+      Icons.compare_arrows,
+      Icons.bar_chart,
+      Icons.person_outlined,
     ];
 
     return AnimatedBottomNavigationBar(

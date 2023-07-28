@@ -23,6 +23,11 @@ class MyDrawer extends HookWidget {
 
   final List<DrawerItem> drawerItems = [
     DrawerItem(icon: Icons.home, text: 'Home', route: PaymentDashboardRoute()),
+    DrawerItem(
+      icon: Icons.phone_outlined,
+      text: 'Help',
+      route: PaymentDashboardRoute(),
+    ),
     // DrawerItem(
     //     icon: Icons.history, text: 'History', route: const HistroyRoute()),
     // DrawerItem(icon: Icons.show_chart, text: 'Charts', route: DashboardRoute()),
@@ -45,7 +50,9 @@ class MyDrawer extends HookWidget {
             height: 150,
             child: DrawerHeader(
               decoration: const BoxDecoration(
-                  color: AppColors.secondaryColor, shape: BoxShape.rectangle),
+                color: AppColors.secondaryColor,
+                shape: BoxShape.rectangle,
+              ),
               child: userInfo(context),
             ),
           ),
@@ -65,22 +72,25 @@ class MyDrawer extends HookWidget {
           Expanded(
             child: SizedBox(),
           ),
-          // Container(
-          //   padding: const EdgeInsets.all(16.0),
-          //   child: Row(
-          //     children: [
-          //       Icon(
-          //         Icons.add_circle_outlined,
-          //         color: AppColors.greyColor,
-          //       ),
-          //       WidthBetween(),
-          //       Text(
-          //         'Register loop',
-          //         style: TextStyle(color: AppColors.greyColor),
-          //       ),
-          //     ],
-          //   ),
-          // )
+          GestureDetector(
+            onTap: () => {context.router.push(const RegisterRoute())},
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.add_circle_outlined,
+                    color: AppColors.greyColor,
+                  ),
+                  WidthBetween(),
+                  Text(
+                    'Register loop',
+                    style: TextStyle(color: AppColors.greyColor),
+                  ),
+                ],
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -142,6 +152,7 @@ class CustomListTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
+        margin: EdgeInsets.symmetric(vertical: 5.0),
         padding: EdgeInsets.all(8.0),
         decoration: decoration,
         child: ListTile(

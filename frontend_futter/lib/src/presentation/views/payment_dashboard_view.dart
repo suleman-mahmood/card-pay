@@ -67,10 +67,10 @@ class PaymentDashboardView extends HookWidget {
           ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {},
-      //   child: const Icon(Icons.qr_code),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.qr_code),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: showBottomBar
           ? AnimatedBottomBar(selectedIndex: selectedIndex)

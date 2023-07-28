@@ -137,6 +137,12 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const FaqsView(),
       );
     },
+    HelpRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const HelpView(),
+      );
+    },
   };
 }
 
@@ -479,6 +485,20 @@ class FaqsRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'FaqsRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [HelpView]
+class HelpRoute extends PageRouteInfo<void> {
+  const HelpRoute({List<PageRouteInfo>? children})
+      : super(
+          HelpRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'HelpRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

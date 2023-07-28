@@ -28,7 +28,7 @@ class TransactionContainer extends HookWidget {
     return Align(
       alignment: Alignment.center,
       child: Container(
-        margin: EdgeInsets.all(4),
+        margin: EdgeInsets.symmetric(vertical: 4),
         padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
         decoration: BoxDecoration(
           color: AppColors.secondaryColor,

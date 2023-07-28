@@ -30,7 +30,7 @@ class CustomBox extends StatelessWidget {
         child: Container(
           color: Colors.transparent,
           height: deviceHeight * 0.165,
-          width: deviceWidth * 0.41,
+          width: deviceWidth * 0.42,
           child: Image.asset(
             imagePath,
             fit: BoxFit.cover,
