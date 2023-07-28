@@ -44,7 +44,7 @@ function MyCarousel() {
     return (
         <div className='mt-6'>
             <h1 className='text-blue-500 font-semibold text-3xl mb-4 text-left px-6'>Our Partners</h1>
-            <div className='flex flex-row pl-6 '>
+                <div className='flex flex-row pl-6 '>
                 {imageElement(0)}
                 {imageElement(1)}
                 {imageElement(2)}
