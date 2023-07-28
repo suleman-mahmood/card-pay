@@ -4,7 +4,7 @@ function Features() {
             <div className="hero-content text-center flex flex-col">
 
                 {/* Pay at vendors one */}
-                <div className="card w-full bg-inherit shadow-sm">
+                <div className="card w-full bg-inherit shadow-md rounded-sm">
                     <div className="card-body text-black p-2">
                         <div className="flex flex-row">
                             <h2 className="card-title mr-2">Pay at vendors</h2>
@@ -21,7 +21,7 @@ function Features() {
                 </div>
 
                 {/* Features Event Registeration */}
-                <div className="card w-full bg-inherit shadow-sm mt-4 rounded-sm">
+                <div className="card w-full bg-inherit shadow-md mt-4 rounded-sm">
                     <figure><img src="./assets/eventRegisteration.png" alt="events" /></figure>
                     <h3 className="card-title text-black w-max px-2 mt-2 font-medium text-base">Event Registerations</h3>
                     <div className="card-body p-2">
@@ -35,7 +35,7 @@ function Features() {
 
 
                 {/* Features Fees Collection */}
-                <div className="card w-full bg-inherit shadow-sm mt-4 rounded-sm ">
+                <div className="card w-full bg-inherit shadow-md mt-4 rounded-sm ">
                     <figure><img src="./assets/maskeenSchool.png" alt="events" /></figure>
                     <h3 className="card-title text-black w-max px-2 mt-2 font-medium text-base">Fees Payment</h3>
                     <div className="card-body p-2">
@@ -47,7 +47,7 @@ function Features() {
                 </div>
 
                 {/* Features Pre Order */}
-                <div className="card w-full bg-inherit shadow-sm mt-20 rounded-sm">
+                <div className="card w-full bg-inherit shadow-md mt-20 rounded-sm">
                     <figure className="bg-lightBlue overflow-visible rounded-md"><img src="./assets/preOrder.png" style={{  maxWidth: '65%', height: 'auto', marginTop:'-100px' }}  alt="events" /></figure>
                     <h3 className="card-title text-black w-max px-2 mt-2 font-medium text-base">Pre Order Food</h3>
                     <div className="card-body p-2">
@@ -59,7 +59,7 @@ function Features() {
                 </div>
 
                 {/* Features Discount Deals */}
-                <div className="card w-full bg-inherit shadow-sm mt-4 rounded-sm">
+                <div className="card w-full bg-inherit shadow-md mt-4 rounded-sm">
                     <figure><img src="./assets/discountDeals.png" style={{  maxWidth: '65%', height: 'auto' }}  alt="events" /></figure>
                     <h3 className="card-title text-black w-max px-2 mt-2 font-medium text-base">Exclusive Discounts</h3>
                     <div className="card-body p-2">
