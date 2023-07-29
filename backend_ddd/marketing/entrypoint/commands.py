@@ -1,9 +1,9 @@
-
 from ...payment.entrypoint import queries as payment_queries
 from ...entrypoint.uow import AbstractUnitOfWork
 from ...payment.entrypoint import commands as payment_commands
 from ..domain.model import Weightage, CashbackSlab, CashbackType, AllCashbacks
 from ...payment.domain.model import TransactionType
+
 # Every transaction will check if its a cashback transaction then it'll call the marketing command which will again call the transaction command.
 
 
@@ -19,15 +19,14 @@ def use_reference(
 
         referee.use_reference(referral.id)
         referral.add_referral_loyalty_points(
-            weightage=weightage,
-            referee_verified=referee.marketing_user_verified
+            weightage=weightage, referee_verified=referee.marketing_user_verified
         )
 
         uow.marketing_users.save(referee)
         uow.marketing_users.save(referral)
 
 
-def add_loyalty_points_to_user(
+def _add_loyalty_points_to_user(
     user_id: str,
     transaction_amount: int,
     transaction_type: TransactionType,
@@ -51,25 +50,28 @@ def add_loyalty_points(
     uow: AbstractUnitOfWork,
 ):
     sender_user_id = payment_queries.get_user_id_from_wallet_id(
-        wallet_id=sender_wallet_id, uow=uow)
+        wallet_id=sender_wallet_id, uow=uow
+    )
     recipient_user_id = payment_queries.get_user_id_from_wallet_id(
-        wallet_id=recipient_wallet_id, uow=uow)
+        wallet_id=recipient_wallet_id, uow=uow
+    )
 
-    # selecting loyalty points recipient based on transaction type
+    # different recipient on Payment Gateway transaction
     if transaction_type == TransactionType.PAYMENT_GATEWAY:
-        add_loyalty_points_to_user(
+        _add_loyalty_points_to_user(
             user_id=recipient_user_id,
             transaction_amount=transaction_amount,
             transaction_type=transaction_type,
             uow=uow,
         )
-    elif transaction_type == TransactionType.P2P_PUSH or transaction_type == TransactionType.P2P_PULL:
-        add_loyalty_points_to_user(
-            user_id=sender_user_id,
-            transaction_amount=transaction_amount,
-            transaction_type=transaction_type,
-            uow=uow,
-        )
+        return
+
+    _add_loyalty_points_to_user(
+        user_id=sender_user_id,
+        transaction_amount=transaction_amount,
+        transaction_type=transaction_type,
+        uow=uow,
+    )
 
 
 def give_cashback(
@@ -83,7 +85,8 @@ def give_cashback(
 
     sender_wallet_id = payment_queries.get_starred_wallet_id(uow=uow)
     recipient_user_id = payment_queries.get_user_id_from_wallet_id(
-        wallet_id=recipient_wallet_id, uow=uow)
+        wallet_id=recipient_wallet_id, uow=uow
+    )
     recipient = uow.marketing_users.get(recipient_user_id)
     amount = recipient.calculate_cashback(
         deposit_amount=deposited_amount,
@@ -103,13 +106,11 @@ def add_weightage(
     weightage_value: float,
     uow: AbstractUnitOfWork,
 ):
-
     weightage_type = TransactionType[weightage_type]
 
     with uow:
         weightage = Weightage(
-            weightage_type=weightage_type,
-            weightage_value=weightage_value
+            weightage_type=weightage_type, weightage_value=weightage_value
         )
         uow.weightages.save(weightage)
 
@@ -119,7 +120,6 @@ def set_weightage(
     weightage_value: float,
     uow: AbstractUnitOfWork,
 ):
-
     weightage_type = TransactionType[weightage_type]
 
     with uow:
@@ -134,7 +134,6 @@ def set_cashback_slabs(
     cashback_slabs: list,
     uow: AbstractUnitOfWork,
 ):
-
     with uow:
         slab_list = []
         for slab in cashback_slabs:
@@ -147,7 +146,4 @@ def set_cashback_slabs(
                 )
             )
 
-        uow.cashback_slabs.save_all(AllCashbacks(
-            cashback_slabs=slab_list
-        )
-        )
+        uow.cashback_slabs.save_all(AllCashbacks(cashback_slabs=slab_list))

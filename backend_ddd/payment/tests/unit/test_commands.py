@@ -30,8 +30,10 @@ def test_create_wallet():
 
 def test_execute_transaction(seed_verified_auth_user):
     uow = UnitOfWork()
+
     sender = seed_verified_auth_user(uow)
     recipient = seed_verified_auth_user(uow)
+
     marketing_commands.add_weightage(
         weightage_type="P2P_PUSH",
         weightage_value=10,
@@ -51,10 +53,10 @@ def test_execute_transaction(seed_verified_auth_user):
         amount=1000,
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
-        uow=UnitOfWork(),
+        uow=uow,
     )
 
-    with UnitOfWork() as uow:
+    with uow:
         fetched_tx = uow.transactions.get(transaction_id=tx.id)
 
         assert fetched_tx.amount == 1000

@@ -15,6 +15,7 @@ from ..domain.model import (
 )
 from ...marketing.entrypoint import commands as marketing_commands
 from ...payment.domain.model import TransactionType, TransactionMode
+from . import utils
 from time import sleep
 from queue import Queue
 from uuid import uuid4
@@ -39,7 +40,6 @@ def execute_cashback_transaction(
     amount: int,
     uow: AbstractUnitOfWork,
 ) -> Transaction:
-    # using wallet id as txn does not exist yet
     tx = uow.transactions.get_wallets_create_transaction(
         amount=amount,
         mode=TransactionMode.APP_TRANSFER,
@@ -49,6 +49,7 @@ def execute_cashback_transaction(
     )
     tx.execute_transaction()
     uow.transactions.save(tx)
+
     return tx
 
 
@@ -61,7 +62,6 @@ def execute_transaction(
     uow: AbstractUnitOfWork,
 ) -> Transaction:
     with uow:
-        # using wallet id as txn does not exist yet
         tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
             mode=transaction_mode,
@@ -70,8 +70,10 @@ def execute_transaction(
             recipient_wallet_id=recipient_wallet_id,
         )
 
-        if transaction_type != TransactionType.P2P_PULL:
+        if utils.is_instant_transaction(transaction_type=transaction_type):
             tx.execute_transaction()
+            uow.transactions.save(tx)
+
             marketing_commands.add_loyalty_points(
                 sender_wallet_id=sender_wallet_id,
                 recipient_wallet_id=recipient_wallet_id,
@@ -79,14 +81,14 @@ def execute_transaction(
                 transaction_type=transaction_type,
                 uow=uow,
             )
-        uow.transactions.save(tx)
+            marketing_commands.give_cashback(
+                recipient_wallet_id=recipient_wallet_id,
+                deposited_amount=amount,
+                transaction_type=transaction_type,
+                uow=uow,
+            )
 
-        marketing_commands.give_cashback(
-            recipient_wallet_id=recipient_wallet_id,
-            deposited_amount=amount,
-            transaction_type=transaction_type,
-            uow=uow,
-        )
+        uow.transactions.save(tx)
 
     return tx
 
@@ -111,7 +113,7 @@ def slow_execute_transaction(
             recipient_wallet_id=recipient_wallet_id,
         )
         sleep(1)
-        if transaction_type != TransactionType.P2P_PULL:
+        if utils.is_instant_transaction(transaction_type=transaction_type):
             tx.execute_transaction()
 
         uow.transactions.save(tx)
@@ -125,6 +127,8 @@ def accept_p2p_pull_transaction(
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
         tx.accept_p2p_pull_transaction()
+        uow.transactions.save(tx)
+
         marketing_commands.add_loyalty_points(
             sender_wallet_id=tx.sender_wallet.id,
             recipient_wallet_id=tx.recipient_wallet.id,
@@ -132,8 +136,37 @@ def accept_p2p_pull_transaction(
             transaction_type=tx.transaction_type,
             uow=uow,
         )
+        marketing_commands.give_cashback(
+            recipient_wallet_id=tx.recipient_wallet.id,
+            deposited_amount=tx.amount,
+            transaction_type=tx.transaction_type,
+            uow=uow,
+        )
 
+    return tx
+
+
+def accept_payment_gateway_transaction(
+    transaction_id: str, uow: AbstractUnitOfWork
+) -> Transaction:
+    with uow:
+        tx = uow.transactions.get(transaction_id=transaction_id)
+        tx.execute_transaction()
         uow.transactions.save(tx)
+
+        marketing_commands.add_loyalty_points(
+            sender_wallet_id=tx.sender_wallet.id,
+            recipient_wallet_id=tx.recipient_wallet.id,
+            transaction_amount=tx.amount,
+            transaction_type=tx.transaction_type,
+            uow=uow,
+        )
+        marketing_commands.give_cashback(
+            recipient_wallet_id=tx.recipient_wallet.id,
+            deposited_amount=tx.amount,
+            transaction_type=tx.transaction_type,
+            uow=uow,
+        )
 
     return tx
 
@@ -161,7 +194,6 @@ def generate_voucher(
             sender_wallet_id=sender_wallet_id,
             recipient_wallet_id=sender_wallet_id,
         )
-
         uow.transactions.save(tx)
 
     return tx
