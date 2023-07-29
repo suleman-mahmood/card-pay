@@ -1,13 +1,10 @@
-import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
 import 'dart:math';
-
+import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'dart:convert';
 import 'package:cardpay/src/config/themes/colors.dart';
-import 'package:flutter/services.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/transaction_history_card.dart';
 
 class TransactionList extends HookWidget {
@@ -19,26 +16,8 @@ class TransactionList extends HookWidget {
 
   TransactionList({super.key});
 
-  Future<List<dynamic>> loadTransactions() async {
-    try {
-      String jsonString =
-          await rootBundle.loadString('assets/files/catalog.json');
-      return jsonDecode(jsonString);
-    } catch (e) {
-      print("Error loading transactions: $e");
-      return [];
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final transactions = useState(<dynamic>[]);
-
-    useEffect(() {
-      loadTransactions().then((value) => transactions.value = value);
-      return () {};
-    }, []);
-
     final userCubit = BlocProvider.of<UserCubit>(context);
 
     useEffect(() {
@@ -48,11 +27,13 @@ class TransactionList extends HookWidget {
     return BlocBuilder<UserCubit, UserState>(
       builder: (_, state) {
         switch (state.runtimeType) {
+          case UserLoading:
+            return const Center(child: CircularProgressIndicator());
           case UserSuccess:
             return ListView.builder(
-              itemCount: state.transactions.length,
+              itemCount: state.user.recentTransactions.length,
               itemBuilder: (context, index) {
-                final transaction = state.transactions[index];
+                final transaction = state.user.recentTransactions[index];
                 // generate a random number between 0 and 2
                 final randomNumber = Random().nextInt(3);
                 Color color = colors[randomNumber];

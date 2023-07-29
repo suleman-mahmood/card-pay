@@ -187,8 +187,10 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      data.fullName = "Suleman";
-      emit(UserSuccess(user: data));
+      Future.delayed(const Duration(seconds: 1), () {
+        data.fullName = "Suleman";
+        emit(UserSuccess(user: data));
+      });
 
       // TODO: uncomment in production
       // final token =
@@ -215,9 +217,10 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      data.balance = 500;
-
-      emit(UserSuccess(user: data));
+      Future.delayed(const Duration(seconds: 1), () {
+        data.balance = 500;
+        emit(UserSuccess(user: data));
+      });
 
       // TODO: uncomment in production
       // final token =
@@ -244,19 +247,48 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      final token =
-          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-              '';
-      final response = await _apiRepository.getUserRecentTransactions(token);
+      Future.delayed(const Duration(seconds: 1), () {
+        final recentTransactions = [
+          Transaction(
+            id: '',
+            amount: 251,
+            mode: TransactionMode.APP_TRANSFER,
+            transactionType: TransactionType.P2P_PUSH,
+            status: TransactionStatus.SUCCESSFUL,
+            createdAt: DateTime.now(),
+            lastUpdated: DateTime.now(),
+            senderWalletId: 'Suleman',
+            recipientWalletId: 'Namelus',
+          ),
+          Transaction(
+            id: '',
+            amount: 501,
+            mode: TransactionMode.APP_TRANSFER,
+            transactionType: TransactionType.P2P_PUSH,
+            status: TransactionStatus.SUCCESSFUL,
+            createdAt: DateTime.now(),
+            lastUpdated: DateTime.now(),
+            senderWalletId: 'Suleman',
+            recipientWalletId: 'Namelus',
+          )
+        ];
+        data.recentTransactions = recentTransactions;
+        emit(UserSuccess(user: data));
+      });
 
-      if (response is DataSuccess) {
-        emit(UserSuccess(
-          message: response.data!.message,
-          transactions: response.data!.recentTransactions,
-        ));
-      } else if (response is DataFailed) {
-        emit(UserFailed(error: response.error));
-      }
+      // final token =
+      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+      //         '';
+      // final response = await _apiRepository.getUserRecentTransactions(token);
+
+      // if (response is DataSuccess) {
+      //   emit(UserSuccess(
+      //     message: response.data!.message,
+      //     transactions: response.data!.recentTransactions,
+      //   ));
+      // } else if (response is DataFailed) {
+      //   emit(UserFailed(error: response.error));
+      // }
     });
   }
 
@@ -266,12 +298,14 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      emit(
-        UserSuccess(
-          checkoutUrl:
-              'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d',
-        ),
-      );
+      Future.delayed(const Duration(seconds: 1), () {
+        emit(
+          UserSuccess(
+            checkoutUrl:
+                'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d',
+          ),
+        );
+      });
 
       // TODO: uncomment in production
       // final response = await _apiRepository.createDepositRequest(
@@ -296,9 +330,11 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      emit(
-        UserSuccess(eventCodes: EventCodes.TRANSFER_SUCCESSFUL),
-      );
+      Future.delayed(const Duration(seconds: 1), () {
+        emit(
+          UserSuccess(eventCodes: EventCodes.TRANSFER_SUCCESSFUL),
+        );
+      });
       // TODO: uncomment in production
       // final response = await _apiRepository.executeP2PPushTransaction(
       //   request: ExecuteP2PPushTransactionRequest(

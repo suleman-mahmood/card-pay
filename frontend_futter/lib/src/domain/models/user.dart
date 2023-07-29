@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:cardpay/src/domain/models/closed_loop.dart';
+import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 
@@ -20,6 +21,7 @@ class User {
   bool isActive;
   List<ClosedLoop> closedLoops;
   DateTime createdAt;
+  List<Transaction> recentTransactions;
 
   User({
     Location? location,
@@ -35,6 +37,7 @@ class User {
     this.fullName = '',
     this.isActive = true,
     this.closedLoops = const [],
+    this.recentTransactions = const [],
   })  : location = location ?? Location(),
         createdAt = createdAt ?? DateTime(9999, 12, 31, 23, 59, 59, 999, 999);
 
@@ -52,6 +55,7 @@ class User {
     bool? isActive,
     List<ClosedLoop>? closedLoops,
     DateTime? createdAt,
+    List<Transaction>? recentTransactions,
   }) {
     return User(
       id: id ?? this.id,
@@ -68,6 +72,7 @@ class User {
       isActive: isActive ?? this.isActive,
       closedLoops: closedLoops ?? this.closedLoops,
       createdAt: createdAt ?? this.createdAt,
+      recentTransactions: recentTransactions ?? this.recentTransactions,
     );
   }
 
@@ -85,6 +90,7 @@ class User {
       'location': location.toMap(),
       'is_active': isActive,
       'closed_loops': closedLoops.map((x) => x.toMap()).toList(),
+      'recent_transactions': recentTransactions.map((x) => x.toMap()).toList(),
       'created_at': createdAt.millisecondsSinceEpoch,
     };
   }
@@ -107,6 +113,11 @@ class User {
           (x) => ClosedLoop.fromMap(x as Map<String, dynamic>),
         ),
       ),
+      recentTransactions: List<Transaction>.from(
+        (map['recent_transactions'] as List<int>).map<Transaction>(
+          (x) => Transaction.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
       createdAt: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
           .parse(map['created_at']),
     );
@@ -119,7 +130,7 @@ class User {
 
   @override
   String toString() {
-    return 'User(id: $id, balance: $balance, isPhoneNumberVerified: $isPhoneNumberVerified, closedLoopVerified: $closedLoopVerified, pinSetup: $pinSetup, personalEmail: $personalEmail, phoneNumber: $phoneNumber, userType: $userType, fullName: $fullName, location: $location, isActive: $isActive, closedLoops: $closedLoops, createdAt: $createdAt)';
+    return 'User(id: $id, balance: $balance, isPhoneNumberVerified: $isPhoneNumberVerified, closedLoopVerified: $closedLoopVerified, pinSetup: $pinSetup, personalEmail: $personalEmail, phoneNumber: $phoneNumber, userType: $userType, fullName: $fullName, location: $location, isActive: $isActive, closedLoops: $closedLoops, createdAt: $createdAt, recentTransactions: $recentTransactions)';
   }
 
   @override
@@ -139,6 +150,7 @@ class User {
         other.location == location &&
         other.isActive == isActive &&
         listEquals(other.closedLoops, closedLoops) &&
+        listEquals(other.recentTransactions, recentTransactions) &&
         other.createdAt == createdAt;
   }
 
@@ -156,6 +168,7 @@ class User {
         location.hashCode ^
         isActive.hashCode ^
         closedLoops.hashCode ^
+        recentTransactions.hashCode ^
         createdAt.hashCode;
   }
 }

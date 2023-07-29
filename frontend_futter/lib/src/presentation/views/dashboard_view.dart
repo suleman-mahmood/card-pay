@@ -1,7 +1,8 @@
+import 'dart:math';
+
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/views/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/card_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
@@ -15,7 +16,6 @@ import 'package:cardpay/src/presentation/widgets/containment/cards/balance_card.
 import 'package:cardpay/src/presentation/widgets/containment/cards/transaction_history_card.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/greeting_card.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/services_card.dart';
-import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
 
 @RoutePage()
@@ -42,7 +42,7 @@ class DashboardView extends HookWidget {
       someFunction() async {
         await userCubit.getUser();
         await userCubit.getUserBalance();
-        // await userCubit.getUserRecentTransactions();
+        await userCubit.getUserRecentTransactions();
       }
 
       someFunction();
@@ -71,12 +71,11 @@ class DashboardView extends HookWidget {
                         name: state.user.fullName,
                         imagePath: 'assets/images/talha.jpg',
                       );
-                    case UserFailed:
-                      return const SizedBox.shrink();
-                      return Text(
-                        state.error!.response!.data['message'],
-                        style: const TextStyle(color: Colors.red),
-                      );
+                    // case UserFailed:
+                    //   return Text(
+                    //     state.error!.response!.data['message'],
+                    //     style: const TextStyle(color: Colors.red),
+                    //   );
                     default:
                       return const SizedBox.shrink();
                   }
@@ -89,7 +88,6 @@ class DashboardView extends HookWidget {
                   color: AppColors.greyColor,
                   onPressed: () {
                     scaffoldKey?.currentState!.openEndDrawer();
-                    // Scaffold.of(context).openEndDrawer();
                   },
                 ),
               ),
@@ -134,58 +132,43 @@ class DashboardView extends HookWidget {
             ),
           ),
           HeightBox(slab: 1),
-          TransactionContainer(
-            icon: Icons.send,
-            firstText: PaymentStrings.rollNumber,
-            secondText: PaymentStrings.pAmount,
-            firstTextColor: AppColors.blackColor,
-            secondTextColor: AppColors.redColor,
-            iconColor: AppColors.primaryColor,
+          BlocBuilder<UserCubit, UserState>(
+            builder: (_, state) {
+              switch (state.runtimeType) {
+                case UserLoading:
+                  return const CircularProgressIndicator();
+                case UserSuccess || UserInitial:
+                  return SizedBox(
+                    height: 100,
+                    child: ListView.builder(
+                      itemCount: min(
+                        2,
+                        state.user.recentTransactions.length,
+                      ),
+                      itemBuilder: (_, index) {
+                        return TransactionContainer(
+                          icon: Icons.send,
+                          firstText: PaymentStrings.rollNumber,
+                          secondText: state
+                              .user.recentTransactions[index].amount
+                              .toString(),
+                          firstTextColor: AppColors.blackColor,
+                          secondTextColor: AppColors.redColor,
+                          iconColor: AppColors.primaryColor,
+                        );
+                      },
+                    ),
+                  );
+                case UserFailed:
+                  return Text(
+                    state.error!.response!.data['message'],
+                    style: const TextStyle(color: Colors.red),
+                  );
+                default:
+                  return const SizedBox.shrink();
+              }
+            },
           ),
-          TransactionContainer(
-            icon: Icons.money,
-            firstText: PaymentStrings.rollNumber,
-            secondText: PaymentStrings.nAmount,
-            firstTextColor: AppColors.blackColor,
-            secondTextColor: AppColors.greenColor,
-            iconColor: AppColors.primaryColor,
-          ),
-
-          // BlocBuilder<UserCubit, UserState>(
-          //   builder: (_, state) {
-          //     switch (state.runtimeType) {
-          //       case UserLoading:
-          //         return const CircularProgressIndicator();
-          //       case UserSuccess:
-          //         return ListView.builder(
-          //           itemCount:
-          //               min(2, state.transactions.length),
-          //           itemBuilder: (_, index) {
-          //             return TransactionContainer(
-          //               icon: Icons.send,
-          //               firstText:
-          //                   PaymentStrings.rollNumber,
-          //               secondText: state
-          //                   .transactions[index].amount
-          //                   .toString(),
-          //               firstTextColor:
-          //                   AppColors.blackColor,
-          //               secondTextColor: AppColors.redColor,
-          //               iconColor: AppColors.primaryColor,
-          //             );
-          //           },
-          //         );
-          //       case UserFailed:
-          //         return Text(
-          //           state.error!.response!.data['message'],
-          //           style:
-          //               const TextStyle(color: Colors.red),
-          //         );
-          //       default:
-          //         return const SizedBox.shrink();
-          //     }
-          //   },
-          // ),
 
           HeightBox(slab: 3),
           Row(

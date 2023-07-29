@@ -35,25 +35,19 @@ class AuthLayout extends HookWidget {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: PaddingHorizontal(
-          slab: 1,
-          child: SingleChildScrollView(
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: child,
-                ),
-                BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-                  switch (state.runtimeType) {
-                    case UserLoading:
-                      return _buildLoader();
-                    default:
-                      return const SizedBox();
-                  }
-                }),
-              ],
-            ),
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              PaddingHorizontal(slab: 3, child: child),
+              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
+                switch (state.runtimeType) {
+                  case UserLoading:
+                    return _buildLoader();
+                  default:
+                    return const SizedBox();
+                }
+              }),
+            ],
           ),
         ),
       ),
