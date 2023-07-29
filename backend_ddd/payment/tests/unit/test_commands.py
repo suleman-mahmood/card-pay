@@ -1,4 +1,6 @@
-import pytest
+import threading
+from time import sleep
+
 from ...entrypoint.commands import (
     create_wallet,
     execute_transaction,
@@ -7,14 +9,16 @@ from ...entrypoint.commands import (
     redeem_voucher,
     generate_voucher,
     slow_execute_transaction,
+    _get_paypro_auth_token,
+    add_deposit_request,
 )
 from ....marketing.entrypoint import commands as marketing_commands
 from ...entrypoint.queries import get_wallet_from_wallet_id
 from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
 from ....entrypoint.uow import FakeUnitOfWork, UnitOfWork
 from ...domain.model import TransactionMode, TransactionType, TransactionStatus
-import threading
 from queue import Queue
+from uuid import uuid4
 
 
 def test_create_wallet():
@@ -237,3 +241,26 @@ def test_redeem_voucher():
         assert fetched_tx.sender_wallet.balance == 0
         assert fetched_tx.transaction_type == TransactionType.VOUCHER
         assert fetched_tx.status == TransactionStatus.SUCCESSFUL
+
+
+# Keep these commented, only for testing at certain times
+
+# def test_get_paypro_token():
+#     token = _get_paypro_auth_token(uow=UnitOfWork())
+#     sleep(1)
+#     token_2 = _get_paypro_auth_token(uow=UnitOfWork())
+
+#     assert token == token_2
+
+
+# def test_add_deposit_request():
+#     payment_url = add_deposit_request(
+#         amount=500,
+#         transaction_id=str(uuid4()),
+#         email="test@tdd.com",
+#         full_name="TDD test case",
+#         phone_number="03333333333",
+#         uow=UnitOfWork(),
+#     )
+
+#     assert payment_url is not None

@@ -32,10 +32,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def adapt_point(point: Location):
     lat = adapt(point.latitude)
     lng = adapt(point.longitude)
     return AsIs("'(%s, %s)'" % (lat, lng))
+
 
 class AbstractUnitOfWork(ABC):
     users: UserAbstractRepository
@@ -44,8 +46,9 @@ class AbstractUnitOfWork(ABC):
     marketing_users: MarkteingUserAbstractRepository
     cashback_slabs: CashbackSlabAbstractRepository
     weightages: WeightageAbstractRepository
-    
+
     def __enter__(self) -> "AbstractUnitOfWork":
+        self.cursor: psycopg2.cursor
         return self
 
     def __exit__(self, *args):
@@ -77,10 +80,8 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 
 class UnitOfWork(AbstractUnitOfWork):
-
     def __init__(self):
         register_adapter(Location, adapt_point)
-
 
     def __enter__(self):
         self.connection = psycopg2.connect(

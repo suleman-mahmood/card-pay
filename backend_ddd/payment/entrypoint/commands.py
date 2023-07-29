@@ -1,4 +1,11 @@
 """Payments micro-service commands"""
+import requests
+import os
+import logging
+import json
+
+from datetime import datetime, timedelta
+
 from backend_ddd.entrypoint.uow import AbstractUnitOfWork
 from ..domain.model import (
     Transaction,
@@ -11,9 +18,10 @@ from ...payment.domain.model import TransactionType, TransactionMode
 from time import sleep
 from queue import Queue
 from uuid import uuid4
-# Features left:
-# -> Balance locking for fuel
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def create_wallet(uow: AbstractUnitOfWork) -> Wallet:
@@ -73,7 +81,6 @@ def execute_transaction(
             )
         uow.transactions.save(tx)
 
-        
         marketing_commands.give_cashback(
             recipient_wallet_id=recipient_wallet_id,
             deposited_amount=amount,
@@ -172,3 +179,160 @@ def redeem_voucher(
         uow.transactions.save(tx)
 
     return tx
+
+
+def _payment_gateway_use_cases():
+    """
+    Payment Gateway integration
+    PayPro
+    """
+
+
+def add_deposit_request(
+    amount: int,
+    transaction_id: str,
+    full_name: str,
+    phone_number: str,
+    email: str,
+    uow: AbstractUnitOfWork,
+) -> str:
+    # TODO: remove in production
+    return "123"
+
+    auth_token = _get_paypro_auth_token(uow=uow)
+
+    now = datetime.now()
+    date_hour_later = now + timedelta(hours=1)
+
+    config = {
+        "method": "post",
+        "url": f"{os.environ.get('PAYPRO_BASE_URL')}/v2/ppro/co",
+        "headers": {
+            "token": auth_token,
+        },
+        "data": [
+            {
+                "MerchantId": os.environ.get("USERNAME"),
+            },
+            {
+                "OrderNumber": transaction_id,
+                "OrderAmount": amount,
+                "OrderDueDate": date_hour_later.isoformat(),
+                "OrderType": "Service",
+                "IssueDate": now.isoformat(),
+                "OrderExpireAfterSeconds": 60 * 60,
+                "CustomerName": full_name,
+                "CustomerMobile": phone_number,
+                "CustomerEmail": email,
+                "CustomerAddress": "",
+            },
+        ],
+    }
+
+    # pp_order_res = requests.request(**config)
+    pp_order_res = requests.post(
+        config["url"],
+        headers=config["headers"],
+        data=json.dumps(
+            config["data"],
+        ),
+    )
+    pp_order_res.raise_for_status()
+
+    response_data = pp_order_res.json()[1]
+    payment_url = response_data["Click2Pay"]
+
+    return payment_url
+
+
+def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
+    # TODO: remove in production
+    return "123"
+
+    with uow:
+        sql = """
+            select token, last_updated
+            from payment_gateway_tokens
+            where id = %s
+            for update
+        """
+        uow.cursor.execute(
+            sql,
+            [os.environ.get("CLIENT_ID")],
+        )
+        row = uow.cursor.fetchone()
+
+    if row is not None:
+        last_updated: datetime = row[1]
+        now = datetime.now()
+        time_difference = now - last_updated
+
+        token_validity = os.environ.get("TOKEN_VALIDITY")
+        if token_validity is None:
+            token_validity = 5 * 60 * 1000
+
+        if time_difference < timedelta(milliseconds=float(token_validity)):
+            logging.info(
+                {
+                    "message": "Using an already generated token from database",
+                    "token": row[0],
+                    "time_difference (mins:secs)": _get_min_sec_repr_of_timedelta(
+                        time_difference
+                    ),
+                },
+            )
+            return row[0]
+
+    # Generate new token
+
+    config = {
+        "method": "post",
+        "url": f"{os.environ.get('PAYPRO_BASE_URL')}/v2/ppro/auth",
+        "headers": {},
+        "data": {
+            "clientid": os.environ.get("CLIENT_ID"),
+            "clientsecret": os.environ.get("CLIENT_SECRET"),
+        },
+    }
+
+    pp_auth_res = requests.request(**config)
+    pp_auth_res.raise_for_status()
+
+    auth_token = pp_auth_res.headers.get("token")
+    if auth_token is None:
+        raise Exception("No auth token returned from PayPro's api")
+
+    with uow:
+        sql = """
+            insert into payment_gateway_tokens (id, token, last_updated)
+            values (%s, %s, %s)
+            on conflict (id) do update set
+                id = excluded.id,
+                token = excluded.token,
+                last_updated = excluded.last_updated
+        """
+        uow.cursor.execute(
+            sql,
+            [
+                os.environ.get("CLIENT_ID"),
+                auth_token,
+                datetime.now(),
+            ],
+        )
+
+    logging.info(
+        {
+            "message": "PayPro new token generated and persisted in db",
+            "token": auth_token,
+            "metadata": pp_auth_res.json(),
+        },
+    )
+
+    return auth_token
+
+
+def _get_min_sec_repr_of_timedelta(td: timedelta):
+    total_seconds = int(td.total_seconds())
+    minutes, seconds = divmod(total_seconds, 60)
+
+    return f"{minutes}:{seconds:02d}"

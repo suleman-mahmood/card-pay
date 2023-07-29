@@ -32,9 +32,9 @@ class TransactionAbstractRepository(ABC):
         self,
         amount: int,
         mode: TransactionMode,
-        transaction_type=TransactionStatus,
-        sender_wallet_id=str,
-        recipient_wallet_id=str,
+        transaction_type: TransactionType,
+        sender_wallet_id: str,
+        recipient_wallet_id: str,
     ) -> Transaction:
         pass
 
@@ -46,6 +46,10 @@ class TransactionAbstractRepository(ABC):
 
     @abstractmethod
     def save(self, transaction: Transaction):
+        pass
+
+    @abstractmethod
+    def add_1000_wallet(self, wallet: Wallet):
         pass
 
 
@@ -74,12 +78,12 @@ class FakeTransactionRepository(TransactionAbstractRepository):
         self,
         amount: int,
         mode: TransactionMode,
-        transaction_type=TransactionStatus,
-        sender_wallet_id=str,
-        recipient_wallet_id=str,
+        transaction_type: TransactionType,
+        sender_wallet_id: str,
+        recipient_wallet_id: str,
     ) -> Transaction:
-        sender_wallet = self.wallets[sender_wallet_id]
-        recipient_wallet = self.wallets[recipient_wallet_id]
+        sender_wallet = self.wallets[str(sender_wallet_id)]
+        recipient_wallet = self.wallets[str(recipient_wallet_id)]
         return Transaction(
             amount=amount,
             mode=mode,
@@ -214,9 +218,9 @@ class TransactionRepository(TransactionAbstractRepository):
         self,
         amount: int,
         mode: TransactionMode,
-        transaction_type=TransactionStatus,
-        sender_wallet_id=str,
-        recipient_wallet_id=str,
+        transaction_type: TransactionType,
+        sender_wallet_id: str,
+        recipient_wallet_id: str,
     ) -> Transaction:
         sql = """
             select id, balance 

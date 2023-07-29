@@ -103,5 +103,10 @@ create table cashback_slabs (
     cashback_type cashback_type_enum not null,
     cashback_value float not null,
     id uuid primary key
-)
+);
   
+create table payment_gateway_tokens (
+    id varchar(255) primary key,
+    token varchar(255) not null,
+    last_updated timestamp not null default current_timestamp
+);

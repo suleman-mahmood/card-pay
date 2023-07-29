@@ -3,6 +3,6 @@ psycopg2-binary
 pytest
 requests
 gunicorn
-python-dotenv
 firebase-admin
 python-dotenv
+pylint
