@@ -2,7 +2,7 @@
 import 'dart:convert';
 
 import 'package:cardpay/src/domain/models/closed_loop.dart';
-import 'package:cardpay/src/domain/models/transaction.dart';
+import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 
@@ -21,7 +21,7 @@ class User {
   bool isActive;
   List<ClosedLoop> closedLoops;
   DateTime createdAt;
-  List<Transaction> recentTransactions;
+  List<TransactionResponse> recentTransactions;
 
   User({
     Location? location,
@@ -55,7 +55,7 @@ class User {
     bool? isActive,
     List<ClosedLoop>? closedLoops,
     DateTime? createdAt,
-    List<Transaction>? recentTransactions,
+    List<TransactionResponse>? recentTransactions,
   }) {
     return User(
       id: id ?? this.id,
@@ -113,9 +113,9 @@ class User {
           (x) => ClosedLoop.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      recentTransactions: List<Transaction>.from(
-        (map['recent_transactions'] as List<int>).map<Transaction>(
-          (x) => Transaction.fromMap(x as Map<String, dynamic>),
+      recentTransactions: List<TransactionResponse>.from(
+        (map['recent_transactions'] as List<int>).map<TransactionResponse>(
+          (x) => TransactionResponse.fromMap(x as Map<String, dynamic>),
         ),
       ),
       createdAt: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")

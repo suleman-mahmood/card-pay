@@ -367,8 +367,10 @@ def get_user_balance(uid):
 @handle_exceptions
 @authenticate_token
 def get_user_recent_transactions(uid):
-    txs = payment_queries.get_user_recent_transactions(
+    txs = payment_queries.get_all_transactions_of_a_user(
         user_id=uid,
+        offset=0,
+        page_size=50,
         uow=UnitOfWork(),
     )
 

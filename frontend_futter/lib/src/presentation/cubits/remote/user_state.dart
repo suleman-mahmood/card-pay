@@ -7,7 +7,7 @@ abstract class UserState {
   final EventCodes eventCodes;
   final User user;
   final String errorMessage;
-  final List<Transaction> transactions;
+  final List<TransactionResponse> transactions;
   final DioError? error;
 
   UserState({

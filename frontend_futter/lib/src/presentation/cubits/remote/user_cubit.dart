@@ -6,6 +6,7 @@ import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
+import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:cardpay/src/domain/models/user.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
@@ -249,7 +250,7 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       Future.delayed(const Duration(seconds: 1), () {
         final recentTransactions = [
-          Transaction(
+          TransactionResponse(
             id: '',
             amount: 251,
             mode: TransactionMode.APP_TRANSFER,
@@ -257,10 +258,10 @@ class UserCubit extends BaseCubit<UserState, User> {
             status: TransactionStatus.SUCCESSFUL,
             createdAt: DateTime.now(),
             lastUpdated: DateTime.now(),
-            senderWalletId: 'Suleman',
-            recipientWalletId: 'Namelus',
+            senderName: 'Suleman',
+            recipientName: 'Namelus',
           ),
-          Transaction(
+          TransactionResponse(
             id: '',
             amount: 501,
             mode: TransactionMode.APP_TRANSFER,
@@ -268,8 +269,8 @@ class UserCubit extends BaseCubit<UserState, User> {
             status: TransactionStatus.SUCCESSFUL,
             createdAt: DateTime.now(),
             lastUpdated: DateTime.now(),
-            senderWalletId: 'Suleman',
-            recipientWalletId: 'Namelus',
+            senderName: 'Suleman',
+            recipientName: 'Namelus',
           )
         ];
         data.recentTransactions = recentTransactions;

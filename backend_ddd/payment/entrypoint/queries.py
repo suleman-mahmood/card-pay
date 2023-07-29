@@ -389,7 +389,3 @@ def get_all_benefactors_of_passed_user(
 
     benefactors = [{"id": row[0], "name": row[1]} for row in rows]
     return benefactors
-
-
-def get_user_recent_transactions(user_id: str, uow: AbstractUnitOfWork):
-    raise NotImplementedError
