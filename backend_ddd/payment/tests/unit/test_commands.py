@@ -10,7 +10,7 @@ from ...entrypoint.commands import (
     generate_voucher,
     slow_execute_transaction,
     _get_paypro_auth_token,
-    add_deposit_request,
+    get_deposit_checkout_url,
 )
 from ....marketing.entrypoint import commands as marketing_commands
 from ...entrypoint.queries import get_wallet_from_wallet_id
@@ -255,8 +255,8 @@ def test_redeem_voucher():
 #     assert token == token_2
 
 
-# def test_add_deposit_request():
-#     payment_url = add_deposit_request(
+# def test_get_deposit_checkout_url():
+#     payment_url = get_deposit_checkout_url(
 #         amount=500,
 #         transaction_id=str(uuid4()),
 #         email="test@tdd.com",

@@ -213,6 +213,35 @@ def redeem_voucher(
     return tx
 
 
+def create_deposit_request(
+    user_id: str,
+    amount: int,
+    uow: AbstractUnitOfWork,
+) -> str:
+    with uow:
+        user = uow.users.get(user_id=user_id)
+
+    tx = execute_transaction(
+        sender_wallet_id=user_id,
+        recipient_wallet_id=user_id,
+        amount=amount,
+        transaction_mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.PAYMENT_GATEWAY,
+        uow=uow,
+    )
+
+    checkout_url = get_deposit_checkout_url(
+        amount=amount,
+        transaction_id=tx.id,
+        full_name=user.full_name,
+        phone_number=user.phone_number.value,
+        email=user.personal_email.value,
+        uow=uow,
+    )
+
+    return checkout_url
+
+
 def _payment_gateway_use_cases():
     """
     Payment Gateway integration
@@ -220,7 +249,7 @@ def _payment_gateway_use_cases():
     """
 
 
-def add_deposit_request(
+def get_deposit_checkout_url(
     amount: int,
     transaction_id: str,
     full_name: str,
