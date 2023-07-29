@@ -27,7 +27,10 @@ class SendView extends HookWidget {
     return BlocBuilder<UserCubit, UserState>(builder: (_, state) {
       switch (state.runtimeType) {
         case UserLoading:
-          return const CircularProgressIndicator();
+          return const Scaffold(
+            backgroundColor: AppColors.parrotColor,
+            body: Center(child: CircularProgressIndicator()),
+          );
         case UserSuccess:
           // TODO: fix this and pass data
           if (state.eventCodes == EventCodes.TRANSFER_SUCCESSFUL) {

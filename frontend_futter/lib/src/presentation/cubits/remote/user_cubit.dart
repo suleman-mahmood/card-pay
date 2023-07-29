@@ -303,6 +303,7 @@ class UserCubit extends BaseCubit<UserState, User> {
           UserSuccess(
             checkoutUrl:
                 'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d',
+            user: data,
           ),
         );
       });
@@ -362,9 +363,11 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      emit(
-        UserSuccess(eventCodes: EventCodes.REQUEST_SUCCESSFUL),
-      );
+      Future.delayed(const Duration(seconds: 1), () {
+        emit(
+          UserSuccess(eventCodes: EventCodes.REQUEST_SUCCESSFUL),
+        );
+      });
 
       // TODO: uncomment in production
       // final response = await _apiRepository.createP2PPullTransaction(

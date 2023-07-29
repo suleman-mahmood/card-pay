@@ -41,7 +41,10 @@ class RequestAmountView extends HookWidget {
             },
           );
         case UserLoading:
-          return const CircularProgressIndicator();
+          return const Scaffold(
+            backgroundColor: AppColors.purpleColor,
+            body: Center(child: CircularProgressIndicator()),
+          );
         case UserSuccess:
           // TODO: fix this and pass data
           if (state.eventCodes == EventCodes.REQUEST_SUCCESSFUL) {

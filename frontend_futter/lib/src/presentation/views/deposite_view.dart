@@ -1,4 +1,6 @@
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,16 +39,30 @@ class DepositView extends HookWidget {
         case UserLoading:
           return const Scaffold(
             backgroundColor: AppColors.mediumBlueColor,
-            body: Center(child: CircularProgressIndicator()),
+            body: Column(
+              children: [
+                PaddingHorizontal(
+                    slab: 2,
+                    child: Header(
+                      title: DepositViewConstants.title,
+                    )),
+                Center(child: CircularProgressIndicator()),
+              ],
+            ),
           );
         case UserSuccess:
           launchUrl(Uri.parse(state.checkoutUrl));
           return const Scaffold(
             backgroundColor: AppColors.mediumBlueColor,
-            body: Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-              ),
+            body: Column(
+              children: [
+                PaddingHorizontal(
+                    slab: 2,
+                    child: Header(
+                      title: DepositViewConstants.title,
+                    )),
+                Center(child: CircularProgressIndicator()),
+              ],
             ),
           );
         default:
