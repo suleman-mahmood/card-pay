@@ -8,7 +8,7 @@
 PRODUCT_NAME = cardpay
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.payments.frontendFutter
+PRODUCT_BUNDLE_IDENTIFIER = io.payment.cardpay
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2023 com.payments. All rights reserved.
