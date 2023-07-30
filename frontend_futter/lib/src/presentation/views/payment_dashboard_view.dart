@@ -3,6 +3,7 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/views/dashboard_view.dart';
 import 'package:cardpay/src/presentation/views/filtered_history_view.dart';
 import 'package:cardpay/src/presentation/views/history_transaction_view.dart';
+import 'package:cardpay/src/presentation/views/profile_view.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/animated_bottom_bar.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
 import 'package:flutter/material.dart';
@@ -34,15 +35,16 @@ class PaymentDashboardView extends HookWidget {
       DashboardView(scaffoldKey: scaffoldKey),
       HistroyView(),
       FilterHistoryView(),
-      HistroyView(),
+      ProfileView(),
+      // HistroyView(),
     ];
 
     useEffect(() {
       switch (selectedIndex.value) {
-        case 1 || 3:
+        case 1:
           backgroundColor.value = AppColors.purpleColor;
           horizontalPadding.value = false;
-        case 2:
+        case 2 || 3:
           horizontalPadding.value = true;
           backgroundColor.value = AppColors.secondaryColor;
         default:

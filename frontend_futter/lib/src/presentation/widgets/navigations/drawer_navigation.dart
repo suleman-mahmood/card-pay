@@ -1,7 +1,7 @@
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -57,9 +57,12 @@ class MyDrawer extends HookWidget {
             ),
           ),
           for (var item in drawerItems)
-            PaddingHorizontal(
+            PaddingAll(
               slab: 2,
               child: CustomListTile(
+                backgroundColor: AppColors.primaryColor,
+                textColor: AppColors.secondaryColor,
+                iconColor: AppColors.greyColor,
                 icon: item.icon,
                 text: item.text,
                 onTap: () {
@@ -127,37 +130,70 @@ class MyDrawer extends HookWidget {
   }
 }
 
-class CustomListTile extends StatelessWidget {
+class CustomListTile extends HookWidget {
   final IconData icon;
   final String text;
+  final String? subText;
+  final IconData? iconEnd;
+
   final Function()? onTap;
   final bool selected;
+
+  final Color iconColor;
+  final Color textColor;
+  final Color backgroundColor;
+  final Color subTextColor;
 
   const CustomListTile({
     Key? key,
     required this.icon,
     required this.text,
+    this.iconEnd,
+    this.subText,
     this.onTap,
     this.selected = false,
+    this.iconColor = AppColors.primaryColor,
+    this.textColor = AppColors.blackColor,
+    this.backgroundColor = AppColors.greyColor,
+    this.subTextColor = AppColors.greyColor,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.secondaryColor : AppColors.greyColor;
+    final color = selected ? subTextColor : textColor;
     final decoration = BoxDecoration(
-      color: selected ? AppColors.primaryColor : null,
+      color: selected ? backgroundColor : null,
       borderRadius: BorderRadius.circular(20.0),
     );
 
     return InkWell(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 5.0),
+        // margin: EdgeInsets.symmetric(vertical: 2.0),
         padding: EdgeInsets.all(8.0),
         decoration: decoration,
         child: ListTile(
-          leading: Icon(icon, color: color),
-          title: Text(text, style: TextStyle(color: color)),
+          leading: Icon(
+            icon,
+            color: iconColor,
+          ),
+          title: Text(
+            text,
+            style: AppTypography.mainHeading
+                .copyWith(fontSize: 20, color: textColor),
+          ),
+          subtitle: subText != null
+              ? Text(
+                  subText!,
+                  style: TextStyle(color: color),
+                )
+              : null,
+          trailing: iconEnd != null
+              ? Icon(
+                  iconEnd,
+                  color: AppColors.greyColor,
+                )
+              : null,
         ),
       ),
     );

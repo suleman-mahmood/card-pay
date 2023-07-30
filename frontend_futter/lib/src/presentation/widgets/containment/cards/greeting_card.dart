@@ -4,15 +4,17 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 
 class GreetingRow extends HookWidget {
-  final String greeting;
+  final String? greeting;
   final String name;
   final String? imagePath;
+  final Color? textColor;
 
   const GreetingRow({
     super.key,
-    required this.greeting,
+    this.greeting,
     required this.name,
     this.imagePath,
+    this.textColor,
   });
 
   @override
@@ -28,8 +30,10 @@ class GreetingRow extends HookWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(greeting, style: AppTypography.inputFont),
-          Text(name, style: AppTypography.mainHeading)
+          if (greeting != null && greeting!.isNotEmpty)
+            Text(greeting!, style: AppTypography.inputFont),
+          Text(name,
+              style: AppTypography.mainHeading.copyWith(color: textColor)),
         ],
       );
     }

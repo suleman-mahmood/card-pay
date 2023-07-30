@@ -401,13 +401,29 @@ class UserCubit extends BaseCubit<UserState, User> {
           email: emailAddress,
           password: password,
         );
-        print("Sign in was successful");
         emit(UserSuccess(
           message: "Sign in was successful",
           eventCodes: EventCodes.USER_AUTHENTICATED,
         ));
       } on firebase_auth.FirebaseAuthException catch (e) {
-        print(e);
+        emit(UserFailed(errorMessage: e.message ?? ''));
+      }
+    });
+  }
+
+  Future<void> logout() async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(UserLoading());
+
+      try {
+        await firebase_auth.FirebaseAuth.instance.signOut();
+        emit(UserSuccess(
+          message: "Log out was successful",
+          eventCodes: EventCodes.LOGOUT_SUCCESSFUL,
+        ));
+      } on firebase_auth.FirebaseAuthException catch (e) {
         emit(UserFailed(errorMessage: e.message ?? ''));
       }
     });

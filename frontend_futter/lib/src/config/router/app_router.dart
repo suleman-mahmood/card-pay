@@ -3,6 +3,7 @@ import 'package:cardpay/src/presentation/views/faqs_view.dart';
 import 'package:cardpay/src/presentation/views/help_view.dart';
 import 'package:cardpay/src/presentation/views/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/views/qr_view.dart';
+import 'package:cardpay/src/presentation/views/profile_view.dart';
 import 'package:cardpay/src/presentation/views/splash_view.dart';
 import 'package:cardpay/src/presentation/views/intro_view.dart';
 import 'package:cardpay/src/presentation/views/signup_view.dart';
@@ -93,6 +94,10 @@ class AppRouter extends _$AppRouter {
         ),
         CustomRoute(
           page: HelpRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: ProfileRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(

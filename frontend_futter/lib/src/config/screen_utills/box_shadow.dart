@@ -17,8 +17,8 @@ class CustomBoxDecoration {
           blurRadius: 10.0,
           spreadRadius: 5.0,
           offset: Offset(
-            5.0,
-            5.0,
+            3.0,
+            3.0,
           ),
         )
       ],

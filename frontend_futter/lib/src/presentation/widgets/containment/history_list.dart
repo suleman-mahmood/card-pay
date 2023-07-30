@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
