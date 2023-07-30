@@ -58,7 +58,7 @@ class MyDrawer extends HookWidget {
           ),
           for (var item in drawerItems)
             PaddingAll(
-              slab: 2,
+              slab: 1,
               child: CustomListTile(
                 backgroundColor: AppColors.primaryColor,
                 textColor: AppColors.secondaryColor,
