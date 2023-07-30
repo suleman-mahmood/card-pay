@@ -15,6 +15,12 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
+    FaqsRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const FaqsView(),
+      );
+    },
     ConfirmationRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -37,6 +43,18 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const RegisterView(),
+      );
+    },
+    QrRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const QrView(),
+      );
+    },
+    HelpRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const HelpView(),
       );
     },
     TransferRoute.name: (routeData) {
@@ -122,7 +140,8 @@ abstract class _$AppRouter extends RootStackRouter {
       );
     },
     SendRoute.name: (routeData) {
-      final args = routeData.argsAs<SendRouteArgs>();
+      final args =
+          routeData.argsAs<SendRouteArgs>(orElse: () => const SendRouteArgs());
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: SendView(
@@ -131,19 +150,21 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
-    FaqsRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const FaqsView(),
-      );
-    },
-    HelpRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const HelpView(),
-      );
-    },
   };
+}
+
+/// generated route for
+/// [FaqsView]
+class FaqsRoute extends PageRouteInfo<void> {
+  const FaqsRoute({List<PageRouteInfo>? children})
+      : super(
+          FaqsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'FaqsRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -198,6 +219,34 @@ class RegisterRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'RegisterRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [QrView]
+class QrRoute extends PageRouteInfo<void> {
+  const QrRoute({List<PageRouteInfo>? children})
+      : super(
+          QrRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'QrRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [HelpView]
+class HelpRoute extends PageRouteInfo<void> {
+  const HelpRoute({List<PageRouteInfo>? children})
+      : super(
+          HelpRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'HelpRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -443,7 +492,7 @@ class LoginRoute extends PageRouteInfo<void> {
 class SendRoute extends PageRouteInfo<SendRouteArgs> {
   SendRoute({
     Key? key,
-    required String uniqueIdentifier,
+    String? uniqueIdentifier,
     List<PageRouteInfo>? children,
   }) : super(
           SendRoute.name,
@@ -462,43 +511,15 @@ class SendRoute extends PageRouteInfo<SendRouteArgs> {
 class SendRouteArgs {
   const SendRouteArgs({
     this.key,
-    required this.uniqueIdentifier,
+    this.uniqueIdentifier,
   });
 
   final Key? key;
 
-  final String uniqueIdentifier;
+  final String? uniqueIdentifier;
 
   @override
   String toString() {
     return 'SendRouteArgs{key: $key, uniqueIdentifier: $uniqueIdentifier}';
   }
-}
-
-/// generated route for
-/// [FaqsView]
-class FaqsRoute extends PageRouteInfo<void> {
-  const FaqsRoute({List<PageRouteInfo>? children})
-      : super(
-          FaqsRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'FaqsRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
-/// [HelpView]
-class HelpRoute extends PageRouteInfo<void> {
-  const HelpRoute({List<PageRouteInfo>? children})
-      : super(
-          HelpRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'HelpRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
 }

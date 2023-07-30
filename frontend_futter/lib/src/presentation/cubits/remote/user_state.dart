@@ -4,6 +4,7 @@ part of 'user_cubit.dart';
 abstract class UserState {
   final String message;
   final String checkoutUrl;
+  final String qrTitle;
   final EventCodes eventCodes;
   final User user;
   final String errorMessage;
@@ -14,6 +15,7 @@ abstract class UserState {
     this.message = '',
     this.checkoutUrl = '',
     this.errorMessage = '',
+    this.qrTitle = '',
     this.eventCodes = EventCodes.DEFAULT_EVENT,
     this.error,
     this.transactions = const [],
@@ -39,6 +41,7 @@ class UserSuccess extends UserState {
     super.user,
     super.transactions,
     super.checkoutUrl,
+    super.qrTitle,
   });
 }
 

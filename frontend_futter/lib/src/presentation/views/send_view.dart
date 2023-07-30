@@ -16,12 +16,12 @@ class SendViewConstants {
 
 @RoutePage()
 class SendView extends HookWidget {
-  final String uniqueIdentifier;
-  const SendView({Key? key, required this.uniqueIdentifier}) : super(key: key);
+  final String? uniqueIdentifier;
+  const SendView({Key? key, this.uniqueIdentifier}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final recipientUniqueIdentifier = useState<String>(uniqueIdentifier);
+    final recipientUniqueIdentifier = useState<String>(uniqueIdentifier ?? '');
     final userCubit = BlocProvider.of<UserCubit>(context);
 
     return BlocBuilder<UserCubit, UserState>(builder: (_, state) {

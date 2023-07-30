@@ -420,4 +420,25 @@ class UserCubit extends BaseCubit<UserState, User> {
       emit(UserInitial(user: data));
     });
   }
+
+  Future<void> fetchQrInfo(
+    String qrData,
+  ) async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(UserLoading());
+
+      Future.delayed(const Duration(seconds: 1), () {
+        emit(
+          UserSuccess(
+            qrTitle: 'The Bunker',
+            eventCodes: EventCodes.QR_DATA_FETCHED,
+          ),
+        );
+      });
+
+      // TODO: Proper API implementation
+    });
+  }
 }

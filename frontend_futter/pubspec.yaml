@@ -27,6 +27,7 @@ dependencies:
   firebase_auth: ^4.7.1
   url_launcher: ^6.1.12
   animated_bottom_navigation_bar: ^1.2.0
+  qr_code_dart_scan: ^0.7.1
 
 dev_dependencies:
   flutter_test:
