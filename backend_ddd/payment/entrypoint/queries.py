@@ -389,3 +389,16 @@ def get_all_benefactors_of_passed_user(
 
     benefactors = [{"id": row[0], "name": row[1]} for row in rows]
     return benefactors
+
+
+def get_wallet_id_from_unique_identifier(
+    unique_identifier: str, uow: AbstractUnitOfWork
+) -> str:
+    """generel fuction | Get wallet id from unique identifier"""
+    sql = """
+        select wallet_id from users where id = %s
+    """
+    uow.cursor.execute(sql, [unique_identifier])
+    row = uow.cursor.fetchone()
+
+    return row[0]
