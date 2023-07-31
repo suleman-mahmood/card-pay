@@ -14,6 +14,10 @@
 
 11. Get all users of a closed loop
 12. Get all unique identifiers of a closed loop (ie all roll numbers of LUMS)
+
+
+13. update closed loop
+14. get information of all users of a closed loop
 """
 
 from ..domain import model as authentication_model
@@ -397,3 +401,47 @@ def get_user_balance(user_id: str, uow: AbstractUnitOfWork):
         balance = row[0]
 
     return balance
+
+
+def update_closed_loop(
+    closed_loop_id: str,
+    name: str,
+    logo_url: str,
+    description: str,
+    regex: str,
+    verification_type: str,
+    uow: AbstractUnitOfWork,
+):
+    """Update closed loop"""
+    with uow:
+        sql = """
+            update closed_loops
+            set name = %s, logo_url = %s, description = %s, regex = %s, verification_type = %s
+            where id = %s
+        """
+        uow.cursor.execute(
+            sql,
+            [
+                name,
+                logo_url,
+                description,
+                regex,
+                verification_type,
+                closed_loop_id,
+            ],
+        )
+
+
+def get_information_of_all_users_of_a_closed_loop(
+        closed_loop_id: str, uow: AbstractUnitOfWork
+):
+    """Get information of all users of a closed loop"""
+    with uow:
+        sql = """
+            select
+            u.id, u.personal_email, u.phone_number, u.user_type, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.otp, u.otp_generated_at, u.location, u.created_at, u.loyalty_points, u.referral_id
+            ucl.unique_identifier, ucl.closed_loop_user_id, ucl.unique_identifier, ucl.created_at 
+            from users u
+            join user_closed_loops ucl on u.id = ucl.user_id
+            where ucl.closed_loop_id = %s
+        """

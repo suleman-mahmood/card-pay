@@ -296,7 +296,8 @@ def verify_closed_loop():
 def get_all_closed_loops():
     """ """
 
-    closed_loops = authentication_queries.get_all_closed_loops(uow=UnitOfWork())
+    closed_loops = authentication_queries.get_all_closed_loops(
+        uow=UnitOfWork())
 
     return (
         jsonify(
@@ -493,8 +494,10 @@ def execute_transaction():
         sender_wallet_id=request.json["sender_wallet_id"],
         recipient_wallet_id=request.json["recipient_wallet_id"],
         amount=request.json["amount"],
-        transaction_mode=TransactionMode.__members__[request.json["transaction_mode"]],
-        transaction_type=TransactionType.__members__[request.json["transaction_type"]],
+        transaction_mode=TransactionMode.__members__[
+            request.json["transaction_mode"]],
+        transaction_type=TransactionType.__members__[
+            request.json["transaction_type"]],
         uow=UnitOfWork(),
     )
     return (
@@ -659,6 +662,35 @@ def set_cashback_slabs():
             {
                 "success": True,
                 "message": "cashback slabs set successfully",
+            }
+        ),
+        200,
+    )
+
+
+# PUT requests
+
+
+@app.route(PREFIX + "/update-closed-loop", methods=["PUT"])
+@handle_exceptions
+@handle_missing_payload
+def update_closed_loop():
+
+    authentication_queries.update_closed_loop(
+        closed_loop_id=request.json["id"],
+        name=request.json["name"],
+        logo_url=request.json["logo_url"],
+        description=request.json["description"],
+        verification_type=request.json["verification_type"],
+        regex=request.json["regex"],
+        uow=UnitOfWork(),
+    )
+    # print("hello")
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "closed loop updated successfully",
             }
         ),
         200,
