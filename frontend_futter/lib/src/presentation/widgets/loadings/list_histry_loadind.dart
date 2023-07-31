@@ -20,7 +20,7 @@ class ListItemLoading extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Container(  
+          Container(
             width: 250,
             height: 24,
             decoration: BoxDecoration(
