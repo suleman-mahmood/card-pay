@@ -52,14 +52,17 @@ abstract class ApiRepository {
 
   Future<DataState<CreateDepositResponse>> createDepositRequest({
     required CreateDepositRequest request,
+    required String token,
   });
 
   Future<DataState<ExecuteP2PPushTransactionResponse>>
       executeP2PPushTransaction({
     required ExecuteP2PPushTransactionRequest request,
+    required String token,
   });
 
   Future<DataState<CreateP2PPullTransactionResponse>> createP2PPullTransaction({
     required CreateP2PPullTransactionRequest request,
+    required String token,
   });
 }

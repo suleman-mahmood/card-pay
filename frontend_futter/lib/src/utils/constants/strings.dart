@@ -2,7 +2,7 @@
 const String appTitle = 'CardPay';
 
 // Networking and APIs
-const String ngrokUrl = 'https://0a56-58-27-202-37.ngrok-free.app';
+const String ngrokUrl = 'https://2ea6-111-68-103-169.ngrok-free.app';
 const String baseUrl = '$ngrokUrl/api/v1';
 
 // Storage and Databases
