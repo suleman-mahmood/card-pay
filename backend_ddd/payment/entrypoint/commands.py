@@ -69,14 +69,15 @@ def execute_transaction_unique_identifier(
         recipient_wallet_id = get_wallet_id_from_unique_identifier(
             recipient_unique_identifier, uow
         )
-        tx = uow.transactions.get_wallets_create_transaction(
-            amount=amount,
-            mode=transaction_mode,
-            transaction_type=transaction_type,
-            sender_wallet_id=sender_wallet_id,
-            recipient_wallet_id=recipient_wallet_id,
-        )
-        uow.transactions.save(tx)
+
+    tx = execute_transaction(
+        sender_wallet_id=sender_wallet_id,
+        recipient_wallet_id=recipient_wallet_id,
+        amount=amount,
+        transaction_mode=transaction_mode,
+        transaction_type=transaction_type,
+        uow=uow,
+    )
 
     return tx
 

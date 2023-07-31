@@ -467,7 +467,7 @@ def execute_p2p_push_transaction(uid):
 # @authenticate_token
 # def create_p2p_pull_transaction(uid):
 def create_p2p_pull_transaction():
-    payment_commands.execute_transaction_unique_identifier(
+    tx = payment_commands.execute_transaction_unique_identifier(
         sender_unique_identifier=request.json["sender_unique_identifier"],
         recipient_unique_identifier=request.json["recipient_unique_identifier"],
         amount=request.json["amount"],
