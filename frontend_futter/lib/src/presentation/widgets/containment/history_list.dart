@@ -1,6 +1,12 @@
+<<<<<<< HEAD
+import 'package:cardpay/src/presentation/widgets/boxes/padding_box.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/list_histry_loadind.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
+=======
 import 'dart:math';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+>>>>>>> e554f655c7510d87ec59cf81541630b65a359dc0
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -18,7 +24,12 @@ class TransactionList extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
+    final transactions = useState(<dynamic>[]);
+    final isLoading = true;
+=======
     final userCubit = BlocProvider.of<UserCubit>(context);
+>>>>>>> e554f655c7510d87ec59cf81541630b65a359dc0
 
     useEffect(() {
       userCubit.getUserRecentTransactions();
@@ -38,6 +49,25 @@ class TransactionList extends HookWidget {
                 final randomNumber = Random().nextInt(3);
                 Color color = colors[randomNumber];
 
+<<<<<<< HEAD
+        return PaddingHorizontal(
+          slab: 1,
+          child: isLoading
+              ? ShimmerLoading(
+                  isLoading: isLoading,
+                  child: ListItemLoading(),
+                )
+              : TransactionContainer(
+                  icon: Icons.send,
+                  firstText: transaction['id'],
+                  secondText: transaction['amount'],
+                  firstTextColor: color,
+                  secondTextColor: color,
+                  iconColor: color,
+                  display: true,
+                ),
+        );
+=======
                 return PaddingHorizontal(
                   slab: 1,
                   child: TransactionContainer(
@@ -54,6 +84,7 @@ class TransactionList extends HookWidget {
           default:
             return const SizedBox.shrink();
         }
+>>>>>>> e554f655c7510d87ec59cf81541630b65a359dc0
       },
     );
   }

@@ -13,12 +13,21 @@ class ListItemLoading extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            height: 70,
+            height: 24,
             decoration: BoxDecoration(
               color: AppColors.lightGreyColor,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(16),
             ),
-          )
+          ),
+          const SizedBox(height: 16),
+          Container(  
+            width: 250,
+            height: 24,
+            decoration: BoxDecoration(
+              color: AppColors.lightGreyColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
         ],
       ),
     );

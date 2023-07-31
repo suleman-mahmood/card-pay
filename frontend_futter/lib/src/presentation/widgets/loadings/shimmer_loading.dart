@@ -2,8 +2,11 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:flutter/material.dart';
 
 class ShimmerLoading extends StatefulWidget {
-  const ShimmerLoading(
-      {Key? key, required this.isLoading, required this.child});
+  const ShimmerLoading({
+    Key? key,
+    required this.isLoading,
+    required this.child,
+  });
 
   final bool isLoading;
   final Widget child;
@@ -47,11 +50,11 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
             return LinearGradient(
               colors: [
                 AppColors.lightGreyColor,
-                Color.fromARGB(255, 195, 193, 193),
+                Color.fromARGB(255, 213, 212, 212),
                 AppColors.lightGreyColor,
               ],
-              stops: [0.2, 0.5 + progress * 0.2, 0.5 + progress * 0.2],
-              begin: Alignment(-1.0 - progress * 2.0, -0.3),
+              stops: [-0.2, 0.5 + progress * 0.2, 0.5 + progress * 0.2],
+              begin: Alignment(0.5 - progress * 2.0, -0.3),
               end: Alignment(1.0, 0.3),
               tileMode: TileMode.clamp,
             ).createShader(bounds);
