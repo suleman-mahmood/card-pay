@@ -19,6 +19,8 @@ import 'package:cardpay/src/presentation/views/history_transaction_view.dart';
 import 'package:cardpay/src/presentation/views/request_amount_view.dart';
 import 'package:cardpay/src/presentation/views/filtered_history_view.dart';
 import 'package:cardpay/src/presentation/views/confirmation_view.dart';
+import 'package:cardpay/src/presentation/views/edit_profile_view.dart';
+
 import 'package:flutter/material.dart';
 
 part 'app_router.gr.dart';
@@ -102,6 +104,10 @@ class AppRouter extends _$AppRouter {
         ),
         CustomRoute(
           page: QrRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: EditProfileRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
       ];

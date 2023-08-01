@@ -135,6 +135,7 @@ class CustomListTile extends HookWidget {
   final String text;
   final String? subText;
   final IconData? iconEnd;
+  final Color suffixIconColor;
 
   final Function()? onTap;
   final bool selected;
@@ -156,6 +157,7 @@ class CustomListTile extends HookWidget {
     this.textColor = AppColors.blackColor,
     this.backgroundColor = AppColors.greyColor,
     this.subTextColor = AppColors.greyColor,
+    this.suffixIconColor = AppColors.greyColor,
   }) : super(key: key);
 
   @override
@@ -191,7 +193,7 @@ class CustomListTile extends HookWidget {
           trailing: iconEnd != null
               ? Icon(
                   iconEnd,
-                  color: AppColors.greyColor,
+                  color: suffixIconColor,
                 )
               : null,
         ),
