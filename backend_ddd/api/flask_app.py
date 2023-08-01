@@ -290,7 +290,6 @@ def verify_closed_loop():
 
 # Get requests
 
-
 @app.route(PREFIX + "/get-all-closed-loops", methods=["GET"])
 @handle_exceptions
 def get_all_closed_loops():
@@ -668,7 +667,26 @@ def set_cashback_slabs():
     )
 
 
-# PUT requests
+# retool auth admin routes
+
+
+@app.route(PREFIX + "/get-all-closed-loops-with-user-counts", methods=["GET"])
+@handle_exceptions
+def get_all_closed_loops_with_user_counts():
+
+    closed_loops = authentication_queries.get_all_closed_loops_with_user_counts(
+        uow=UnitOfWork())
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "All closed loops returned successfully",
+                "closed_loops": closed_loops,
+            }
+        ),
+        201,
+    )
 
 
 @app.route(PREFIX + "/update-closed-loop", methods=["PUT"])
@@ -694,4 +712,48 @@ def update_closed_loop():
             }
         ),
         200,
+    )
+
+
+@app.route(PREFIX + "/get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
+@handle_exceptions
+@handle_missing_payload
+def get_active_inactive_counts_of_a_closed_loop():
+
+    counts = authentication_queries.get_active_inactive_counts_of_a_closed_loop(
+        closed_loop_id=request.json["closed_loop_id"],
+        uow=UnitOfWork(),
+    )
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "All counts returned successfully",
+                "counts": counts,
+            }
+        ),
+        201,
+    )
+
+
+@app.route(PREFIX + "/get-all-users-of-a-closed-loop", methods=["GET"])
+@handle_exceptions
+@handle_missing_payload
+def get_information_of_all_users_of_a_closed_loop():
+
+    users = authentication_queries.get_information_of_all_users_of_a_closed_loop(
+        closed_loop_id=request.json["closed_loop_id"],
+        uow=UnitOfWork(),
+    )
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "All users returned successfully",
+                "users": users,
+            }
+        ),
+        201,
     )
