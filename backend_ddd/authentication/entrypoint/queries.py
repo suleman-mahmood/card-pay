@@ -14,6 +14,10 @@
 
 11. Get all users of a closed loop
 12. Get all unique identifiers of a closed loop (ie all roll numbers of LUMS)
+
+
+13. update closed loop
+14. get information of all users of a closed loop
 """
 
 from ..domain import model as authentication_model
@@ -46,6 +50,32 @@ def get_all_closed_loops(uow: AbstractUnitOfWork):
 
     return closed_loops
 
+def get_all_closed_loops_with_user_counts(uow: AbstractUnitOfWork):
+
+    with uow:
+        sql = """
+            select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at, count(ucl.user_id)
+            from closed_loops cl
+            left join user_closed_loops ucl on cl.id = ucl.closed_loop_id
+            group by cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at
+        """
+        uow.cursor.execute(sql)
+        rows = uow.cursor.fetchall()
+        closed_loops = [
+            {
+                "id": row[0],
+                "name": row[1],
+                "logo_url": row[2],
+                "description": row[3],
+                "regex": row[4],
+                "verification_type": row[5],
+                "created_at": row[6],
+                "user_count": row[7],
+            }
+            for row in rows
+        ]
+
+    return closed_loops
 
 def get_closed_loop_from_closed_loop_id(closed_loop_id: str, uow: AbstractUnitOfWork):
     """Get closed loop from closed loop id"""
@@ -397,3 +427,130 @@ def get_user_balance(user_id: str, uow: AbstractUnitOfWork):
         balance = row[0]
 
     return balance
+
+
+def update_closed_loop(
+    closed_loop_id: str,
+    name: str,
+    logo_url: str,
+    description: str,
+    regex: str,
+    verification_type: str,
+    uow: AbstractUnitOfWork,
+):
+    """Update closed loop"""
+    with uow:
+        sql = """
+            update closed_loops
+            set name = %s, logo_url = %s, description = %s, regex = %s, verification_type = %s
+            where id = %s
+        """
+        uow.cursor.execute(
+            sql,
+            [
+                name,
+                logo_url,
+                description,
+                regex,
+                verification_type,
+                closed_loop_id,
+            ],
+        )
+
+
+def get_user_count_of_all_closed_loops(uow: AbstractUnitOfWork):
+
+    with uow:
+        sql = """
+            select cl.id, cl.name, count(ucl.user_id)
+            from closed_loops cl
+            join user_closed_loops ucl on cl.id = ucl.closed_loop_id
+            group by cl.id, cl.name
+        """
+        uow.cursor.execute(sql)
+        rows = uow.cursor.fetchall()
+        closed_loops_user_count = [
+            {
+                "id": row[0],
+                "name": row[1],
+                "user_count": row[2],
+            }
+            for row in rows
+        ]
+    return closed_loops_user_count
+
+
+def get_information_of_all_users_of_a_closed_loop(
+        closed_loop_id: str, uow: AbstractUnitOfWork
+):
+    """Get information of all users of a closed loop"""
+    with uow:
+        sql = """
+            select
+            u.id, u.personal_email, u.phone_number, u.user_type, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.location, u.loyalty_points, u.referral_id, u.created_at,
+            ucl.unique_identifier, ucl.closed_loop_user_id, ucl.created_at 
+            from users u
+            join user_closed_loops ucl on u.id = ucl.user_id
+            where ucl.closed_loop_id = %s
+        """
+        uow.cursor.execute(sql, [closed_loop_id])
+
+        rows = uow.cursor.fetchall()
+        users = [
+            {
+                "id": row[0],
+                "personal_email": row[1],
+                "phone_number": row[2],
+                "user_type": row[3],
+                "full_name": row[4],
+                "wallet_id": row[5],
+                "is_active": row[6],
+                "is_phone_number_verified": row[7],
+                "location": row[8],
+                "loyalty_points": row[9],
+                "referral_id": row[10],
+                "card_pay_joining_date": row[11],
+                "closed_loop_unique_identifier": row[12],
+                "closed_loop_user_id": row[13],
+                "closed_loop_joining_date": row[14],
+            }
+
+            for row in rows
+        ]
+    return users
+
+def get_active_inactive_counts_of_a_closed_loop(
+        closed_loop_id: str, uow: AbstractUnitOfWork
+):
+    """Get active inactive counts of a closed loop"""
+    with uow:
+        active_sql = """
+            select
+            count(u.id)
+            from users u
+            join user_closed_loops ucl on u.id = ucl.user_id
+            where ucl.closed_loop_id = %s and u.is_active = true
+        """
+        uow.cursor.execute(active_sql, [closed_loop_id])
+        active_count = uow.cursor.fetchone()[0]
+
+        inactive_sql = """
+            select
+            count(u.id)
+            from users u
+            join user_closed_loops ucl on u.id = ucl.user_id
+            where ucl.closed_loop_id = %s and u.is_active = false
+        """
+        uow.cursor.execute(inactive_sql, [closed_loop_id])
+        inactive_count = uow.cursor.fetchone()[0]
+
+    return [
+        {
+            "label":"active",
+            "count": active_count,
+        },
+        {
+            "label":"inactive",
+            "count": inactive_count,
+        }
+    ]

@@ -290,13 +290,13 @@ def verify_closed_loop():
 
 # Get requests
 
-
 @app.route(PREFIX + "/get-all-closed-loops", methods=["GET"])
 @handle_exceptions
 def get_all_closed_loops():
     """ """
 
-    closed_loops = authentication_queries.get_all_closed_loops(uow=UnitOfWork())
+    closed_loops = authentication_queries.get_all_closed_loops(
+        uow=UnitOfWork())
 
     return (
         jsonify(
@@ -495,8 +495,10 @@ def execute_transaction():
         sender_wallet_id=request.json["sender_wallet_id"],
         recipient_wallet_id=request.json["recipient_wallet_id"],
         amount=request.json["amount"],
-        transaction_mode=TransactionMode.__members__[request.json["transaction_mode"]],
-        transaction_type=TransactionType.__members__[request.json["transaction_type"]],
+        transaction_mode=TransactionMode.__members__[
+            request.json["transaction_mode"]],
+        transaction_type=TransactionType.__members__[
+            request.json["transaction_type"]],
         uow=UnitOfWork(),
     )
     return (
@@ -664,4 +666,96 @@ def set_cashback_slabs():
             }
         ),
         200,
+    )
+
+
+# retool auth admin routes
+
+
+@app.route(PREFIX + "/get-all-closed-loops-with-user-counts", methods=["GET"])
+@handle_exceptions
+def get_all_closed_loops_with_user_counts():
+
+    closed_loops = authentication_queries.get_all_closed_loops_with_user_counts(
+        uow=UnitOfWork())
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "All closed loops returned successfully",
+                "closed_loops": closed_loops,
+            }
+        ),
+        201,
+    )
+
+
+@app.route(PREFIX + "/update-closed-loop", methods=["PUT"])
+@handle_exceptions
+@handle_missing_payload
+def update_closed_loop():
+
+    authentication_queries.update_closed_loop(
+        closed_loop_id=request.json["id"],
+        name=request.json["name"],
+        logo_url=request.json["logo_url"],
+        description=request.json["description"],
+        verification_type=request.json["verification_type"],
+        regex=request.json["regex"],
+        uow=UnitOfWork(),
+    )
+    # print("hello")
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "closed loop updated successfully",
+            }
+        ),
+        200,
+    )
+
+
+@app.route(PREFIX + "/get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
+@handle_exceptions
+@handle_missing_payload
+def get_active_inactive_counts_of_a_closed_loop():
+
+    counts = authentication_queries.get_active_inactive_counts_of_a_closed_loop(
+        closed_loop_id=request.json["closed_loop_id"],
+        uow=UnitOfWork(),
+    )
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "All counts returned successfully",
+                "counts": counts,
+            }
+        ),
+        201,
+    )
+
+
+@app.route(PREFIX + "/get-all-users-of-a-closed-loop", methods=["GET"])
+@handle_exceptions
+@handle_missing_payload
+def get_information_of_all_users_of_a_closed_loop():
+
+    users = authentication_queries.get_information_of_all_users_of_a_closed_loop(
+        closed_loop_id=request.json["closed_loop_id"],
+        uow=UnitOfWork(),
+    )
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "All users returned successfully",
+                "users": users,
+            }
+        ),
+        201,
     )

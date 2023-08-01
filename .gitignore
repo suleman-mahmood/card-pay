@@ -1,3 +1,4 @@
 .vscode
 /admin
 .env
+backend_ddd/api/credentials-dev.json
