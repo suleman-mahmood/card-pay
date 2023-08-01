@@ -59,10 +59,10 @@ firebase_admin.initialize_app(cred)
 
 
 @app.route(PREFIX)
-def hello():
-    """Simple hello world endpoint"""
+def base():
+    """base endpoint"""
 
-    return "Welcome to the MySpots api!", 200
+    return jsonify({"success": True, "message": "Welcome to the backend"}), 200
 
 
 @app.route(PREFIX + "/create-user", methods=["POST"])
@@ -260,7 +260,7 @@ def register_closed_loop():
         jsonify(
             {
                 "success": True,
-                "message": "Closed loop registered successfully",
+                "message": "User registered into loop successfully",
             }
         ),
         200,
@@ -464,11 +464,13 @@ def execute_p2p_push_transaction(uid):
 @app.route(PREFIX + "/create-p2p-pull-transaction", methods=["POST"])
 @handle_exceptions
 @handle_missing_payload
-@authenticate_token
-def create_p2p_pull_transaction(uid):
-    payment_commands.execute_transaction_unique_identifier(
-        sender_wallet_id=request.json["sender_unique_identifier"],
-        recipient_wallet_id=uid,
+# @authenticate_token
+# def create_p2p_pull_transaction(uid):
+def create_p2p_pull_transaction():
+    tx = payment_commands.execute_transaction_unique_identifier(
+        sender_unique_identifier=request.json["sender_unique_identifier"],
+        recipient_unique_identifier=request.json["recipient_unique_identifier"],
+        closed_loop_id=request.json["closed_loop_id"],
         amount=request.json["amount"],
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PULL,
