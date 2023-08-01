@@ -260,7 +260,7 @@ def register_closed_loop():
         jsonify(
             {
                 "success": True,
-                "message": "Closed loop registered successfully",
+                "message": "User registered into loop successfully",
             }
         ),
         200,
@@ -470,6 +470,7 @@ def create_p2p_pull_transaction():
     tx = payment_commands.execute_transaction_unique_identifier(
         sender_unique_identifier=request.json["sender_unique_identifier"],
         recipient_unique_identifier=request.json["recipient_unique_identifier"],
+        closed_loop_id=request.json["closed_loop_id"],
         amount=request.json["amount"],
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PULL,

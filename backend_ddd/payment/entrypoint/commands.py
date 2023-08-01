@@ -57,6 +57,7 @@ def execute_cashback_transaction(
 def execute_transaction_unique_identifier(
     sender_unique_identifier: str,
     recipient_unique_identifier: str,
+    closed_loop_id: str,
     amount: int,
     transaction_mode: TransactionMode,
     transaction_type: TransactionType,
@@ -64,10 +65,14 @@ def execute_transaction_unique_identifier(
 ) -> Transaction:
     with uow:
         sender_wallet_id = get_wallet_id_from_unique_identifier(
-            sender_unique_identifier, uow
+            unique_identifier=sender_unique_identifier,
+            closed_loop_id=closed_loop_id,
+            uow=uow,
         )
         recipient_wallet_id = get_wallet_id_from_unique_identifier(
-            recipient_unique_identifier, uow
+            unique_identifier=recipient_unique_identifier,
+            closed_loop_id=closed_loop_id,
+            uow=uow,
         )
 
     tx = execute_transaction(
@@ -78,7 +83,7 @@ def execute_transaction_unique_identifier(
         transaction_type=transaction_type,
         uow=uow,
     )
-
+    # where do transactions saves take place?
     return tx
 
 
