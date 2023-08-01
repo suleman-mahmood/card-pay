@@ -114,10 +114,12 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
 
   Future<DataState<CreateDepositResponse>> createDepositRequest({
     required CreateDepositRequest request,
+    required String token,
   }) {
     return getStateOf<CreateDepositResponse>(
       request: () => _pythonApiService.createDepositRequest(
         createDepositRequest: request,
+        token: 'Bearer $token',
       ),
     );
   }
@@ -125,20 +127,24 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   Future<DataState<ExecuteP2PPushTransactionResponse>>
       executeP2PPushTransaction({
     required ExecuteP2PPushTransactionRequest request,
+    required String token,
   }) {
     return getStateOf<ExecuteP2PPushTransactionResponse>(
       request: () => _pythonApiService.executeP2PPushTransaction(
         executeP2PPushTransactionRequest: request,
+        token: 'Bearer $token',
       ),
     );
   }
 
   Future<DataState<CreateP2PPullTransactionResponse>> createP2PPullTransaction({
     required CreateP2PPullTransactionRequest request,
+    required String token,
   }) {
     return getStateOf<CreateP2PPullTransactionResponse>(
       request: () => _pythonApiService.createP2PPullTransaction(
         createP2PPullTransactionRequest: request,
+        token: 'Bearer $token',
       ),
     );
   }

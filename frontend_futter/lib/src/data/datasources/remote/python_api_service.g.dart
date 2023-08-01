@@ -13,7 +13,7 @@ class _PythonApiService implements PythonApiService {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'https://0a56-58-27-202-37.ngrok-free.app/api/v1';
+    baseUrl ??= 'https://2ea6-111-68-103-169.ngrok-free.app/api/v1';
   }
 
   final Dio _dio;
@@ -243,7 +243,7 @@ class _PythonApiService implements PythonApiService {
     final Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<HttpResponse<GetUserRecentTransactionsResponse>>(Options(
-      method: 'POST',
+      method: 'GET',
       headers: _headers,
       extra: _extra,
     )
@@ -260,12 +260,15 @@ class _PythonApiService implements PythonApiService {
   }
 
   @override
-  Future<HttpResponse<CreateDepositResponse>> createDepositRequest(
-      {CreateDepositRequest? createDepositRequest}) async {
+  Future<HttpResponse<CreateDepositResponse>> createDepositRequest({
+    CreateDepositRequest? createDepositRequest,
+    String? token,
+  }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(createDepositRequest?.toMap() ?? <String, dynamic>{});
     final _result = await _dio.fetch<Map<String, dynamic>>(
@@ -288,13 +291,15 @@ class _PythonApiService implements PythonApiService {
 
   @override
   Future<HttpResponse<ExecuteP2PPushTransactionResponse>>
-      executeP2PPushTransaction(
-          {ExecuteP2PPushTransactionRequest?
-              executeP2PPushTransactionRequest}) async {
+      executeP2PPushTransaction({
+    ExecuteP2PPushTransactionRequest? executeP2PPushTransactionRequest,
+    String? token,
+  }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(
         executeP2PPushTransactionRequest?.toMap() ?? <String, dynamic>{});
@@ -318,13 +323,15 @@ class _PythonApiService implements PythonApiService {
 
   @override
   Future<HttpResponse<CreateP2PPullTransactionResponse>>
-      createP2PPullTransaction(
-          {CreateP2PPullTransactionRequest?
-              createP2PPullTransactionRequest}) async {
+      createP2PPullTransaction({
+    CreateP2PPullTransactionRequest? createP2PPullTransactionRequest,
+    String? token,
+  }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(
         createP2PPullTransactionRequest?.toMap() ?? <String, dynamic>{});

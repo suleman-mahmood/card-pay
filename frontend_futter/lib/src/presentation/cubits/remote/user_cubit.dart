@@ -277,6 +277,7 @@ class UserCubit extends BaseCubit<UserState, User> {
         emit(UserSuccess(user: data));
       });
 
+      // TODO: uncomment in production
       // final token =
       //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
       //         '';
@@ -284,6 +285,7 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       // if (response is DataSuccess) {
       //   emit(UserSuccess(
+      //     user: data,
       //     message: response.data!.message,
       //     transactions: response.data!.recentTransactions,
       //   ));
@@ -310,8 +312,12 @@ class UserCubit extends BaseCubit<UserState, User> {
       });
 
       // TODO: uncomment in production
+      // final token =
+      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+      //         '';
       // final response = await _apiRepository.createDepositRequest(
       //   request: CreateDepositRequest(userId: data.id, amount: amount),
+      //   token: token,
       // );
 
       // if (response is DataSuccess) {
@@ -337,12 +343,17 @@ class UserCubit extends BaseCubit<UserState, User> {
           UserSuccess(eventCodes: EventCodes.TRANSFER_SUCCESSFUL),
         );
       });
+
       // TODO: uncomment in production
+      // final token =
+      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+      //         '';
       // final response = await _apiRepository.executeP2PPushTransaction(
       //   request: ExecuteP2PPushTransactionRequest(
       //     recipientUniqueIdentifier: recipientUniqueIdentifier,
       //     amount: amount,
       //   ),
+      //   token: token,
       // );
 
       // if (response is DataSuccess) {
@@ -371,11 +382,15 @@ class UserCubit extends BaseCubit<UserState, User> {
       });
 
       // TODO: uncomment in production
+      // final token =
+      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+      //         '';
       // final response = await _apiRepository.createP2PPullTransaction(
       //   request: CreateP2PPullTransactionRequest(
       //     senderUniqueIdentifier: senderUniqueIdentifier,
       //     amount: amount,
       //   ),
+      //   token: token,
       // );
 
       // if (response is DataSuccess) {
