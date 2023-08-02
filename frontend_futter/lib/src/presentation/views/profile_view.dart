@@ -1,6 +1,7 @@
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/screen_utills/box_decoration_all.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/greeting_card.dart';
@@ -45,6 +46,46 @@ class ProfileView extends HookWidget {
       await userCubit.logout();
     }
 
+    void _showBottomSheetDelete() {
+      showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            child: PaddingAll(
+              slab: 2,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Delete Account',
+                    style: AppTypography.mainHeading,
+                    textAlign: TextAlign.center,
+                  ),
+                  HeightBox(slab: 2),
+                  Text(
+                    'Are you sure you want to delete your account Permanently? This action cannot be undone.',
+                    textAlign: TextAlign.center,
+                  ),
+                  HeightBox(slab: 2),
+                  Container(
+                    child: Center(
+                      child: PrimaryButton(
+                        color: AppColors.redColor,
+                        text: 'Delete Account',
+                        onPressed: () {
+                          handleLogout();
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const HeightBox(slab: 5),
@@ -70,10 +111,17 @@ class ProfileView extends HookWidget {
                           child: CircleListItemLoading(),
                         );
                       case UserSuccess || UserInitial:
-                        return GreetingRow(
-                          textColor: AppColors.secondaryColor,
-                          name: state.user.fullName,
-                          imagePath: 'assets/images/talha.jpg',
+                        return GestureDetector(
+                          // onTap: () {
+                          //   context.router.push(
+                          //     EditProfileRoute(),
+                          //   );
+                          // },
+                          child: GreetingRow(
+                            textColor: AppColors.secondaryColor,
+                            name: state.user.fullName,
+                            imagePath: 'assets/images/talha.jpg',
+                          ),
                         );
                       case UserFailed:
                         return Text(
@@ -119,6 +167,23 @@ class ProfileView extends HookWidget {
                 subText: 'Secure Your Account for safety',
                 iconEnd: Icons.arrow_forward_ios,
                 onTap: handleLogout,
+              ),
+            ),
+            const HeightBox(slab: 2),
+            Container(
+              width: double.infinity,
+              decoration: CustomBoxDecorationAll.getDecoration(
+                color: AppColors.redColor,
+              ),
+              child: CustomListTile(
+                icon: Icons.logout,
+                text: 'Delete Account',
+                subText: 'Permanently delete your data',
+                iconEnd: Icons.arrow_forward_ios,
+                onTap: _showBottomSheetDelete,
+                textColor: AppColors.secondaryColor,
+                iconColor: AppColors.secondaryColor,
+                suffixIconColor: AppColors.secondaryColor,
               ),
             ),
           ],

@@ -13,6 +13,7 @@ from ..domain.model import (
     TransactionMode,
     TransactionType,
 )
+from ..entrypoint.queries import get_wallet_id_from_unique_identifier
 from ...marketing.entrypoint import commands as marketing_commands
 from ...payment.domain.model import TransactionType, TransactionMode
 from . import utils
@@ -50,6 +51,39 @@ def execute_cashback_transaction(
     tx.execute_transaction()
     uow.transactions.save(tx)
 
+    return tx
+
+
+def execute_transaction_unique_identifier(
+    sender_unique_identifier: str,
+    recipient_unique_identifier: str,
+    closed_loop_id: str,
+    amount: int,
+    transaction_mode: TransactionMode,
+    transaction_type: TransactionType,
+    uow: AbstractUnitOfWork,
+) -> Transaction:
+    with uow:
+        sender_wallet_id = get_wallet_id_from_unique_identifier(
+            unique_identifier=sender_unique_identifier,
+            closed_loop_id=closed_loop_id,
+            uow=uow,
+        )
+        recipient_wallet_id = get_wallet_id_from_unique_identifier(
+            unique_identifier=recipient_unique_identifier,
+            closed_loop_id=closed_loop_id,
+            uow=uow,
+        )
+
+    tx = execute_transaction(
+        sender_wallet_id=sender_wallet_id,
+        recipient_wallet_id=recipient_wallet_id,
+        amount=amount,
+        transaction_mode=transaction_mode,
+        transaction_type=transaction_type,
+        uow=uow,
+    )
+    # where do transactions saves take place?
     return tx
 
 

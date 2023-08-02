@@ -49,6 +49,8 @@ class PaymentStrings {
   static const String apply = 'Apply';
   static const String home = 'Home';
   static const String profile = 'Profile';
+  static const String profileEdit = 'Edit Profile';
+
   static const String chat = 'chat';
 
   static const String filterTransactions = 'Filtered Transactions';

@@ -15,52 +15,21 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
-    FaqsRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const FaqsView(),
-      );
-    },
     ConfirmationRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const ConfirmationView(),
       );
     },
-    HistroyRoute.name: (routeData) {
+    DashboardRoute.name: (routeData) {
+      final args = routeData.argsAs<DashboardRouteArgs>(
+          orElse: () => const DashboardRouteArgs());
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const HistroyView(),
-      );
-    },
-    AuthRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const AuthView(),
-      );
-    },
-    RegisterRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const RegisterView(),
-      );
-    },
-    QrRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const QrView(),
-      );
-    },
-    HelpRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const HelpView(),
-      );
-    },
-    TransferRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const TransferView(),
+        child: DashboardView(
+          key: args.key,
+          scaffoldKey: args.scaffoldKey,
+        ),
       );
     },
     DepositRoute.name: (routeData) {
@@ -69,16 +38,46 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const DepositView(),
       );
     },
-    SplashRoute.name: (routeData) {
+    EditProfileRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const SplashView(),
+        child: const EditProfileView(),
       );
     },
-    SignupRoute.name: (routeData) {
+    FaqsRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const SignupView(),
+        child: const FaqsView(),
+      );
+    },
+    FilterHistoryRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const FilterHistoryView(),
+      );
+    },
+    HelpRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const HelpView(),
+      );
+    },
+    HistroyRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const HistroyView(),
+      );
+    },
+    IntroRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const IntroView(),
+      );
+    },
+    LoginRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const LoginView(),
       );
     },
     PaymentDashboardRoute.name: (routeData) {
@@ -94,27 +93,30 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
-    FilterHistoryRoute.name: (routeData) {
+    AuthRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const FilterHistoryView(),
+        child: const AuthView(),
       );
     },
-    DashboardRoute.name: (routeData) {
-      final args = routeData.argsAs<DashboardRouteArgs>(
-          orElse: () => const DashboardRouteArgs());
+    ProfileRoute.name: (routeData) {
+      final args = routeData.argsAs<ProfileRouteArgs>(
+          orElse: () => const ProfileRouteArgs());
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: DashboardView(
-          key: args.key,
-          scaffoldKey: args.scaffoldKey,
-        ),
+        child: ProfileView(key: args.key),
       );
     },
-    RequestRoute.name: (routeData) {
+    QrRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const RequestView(),
+        child: const QrView(),
+      );
+    },
+    RegisterRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const RegisterView(),
       );
     },
     RequestAmountRoute.name: (routeData) {
@@ -127,16 +129,10 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
-    IntroRoute.name: (routeData) {
+    RequestRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const IntroView(),
-      );
-    },
-    LoginRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const LoginView(),
+        child: const RequestView(),
       );
     },
     SendRoute.name: (routeData) {
@@ -150,29 +146,25 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
-    ProfileRoute.name: (routeData) {
-      final args = routeData.argsAs<ProfileRouteArgs>(
-          orElse: () => const ProfileRouteArgs());
+    SignupRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: ProfileView(key: args.key),
+        child: const SignupView(),
+      );
+    },
+    SplashRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const SplashView(),
+      );
+    },
+    TransferRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const TransferView(),
       );
     },
   };
-}
-
-/// generated route for
-/// [FaqsView]
-class FaqsRoute extends PageRouteInfo<void> {
-  const FaqsRoute({List<PageRouteInfo>? children})
-      : super(
-          FaqsRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'FaqsRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -190,57 +182,95 @@ class ConfirmationRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [HistroyView]
-class HistroyRoute extends PageRouteInfo<void> {
-  const HistroyRoute({List<PageRouteInfo>? children})
-      : super(
-          HistroyRoute.name,
+/// [DashboardView]
+class DashboardRoute extends PageRouteInfo<DashboardRouteArgs> {
+  DashboardRoute({
+    Key? key,
+    GlobalKey<ScaffoldState>? scaffoldKey,
+    List<PageRouteInfo>? children,
+  }) : super(
+          DashboardRoute.name,
+          args: DashboardRouteArgs(
+            key: key,
+            scaffoldKey: scaffoldKey,
+          ),
           initialChildren: children,
         );
 
-  static const String name = 'HistroyRoute';
+  static const String name = 'DashboardRoute';
+
+  static const PageInfo<DashboardRouteArgs> page =
+      PageInfo<DashboardRouteArgs>(name);
+}
+
+class DashboardRouteArgs {
+  const DashboardRouteArgs({
+    this.key,
+    this.scaffoldKey,
+  });
+
+  final Key? key;
+
+  final GlobalKey<ScaffoldState>? scaffoldKey;
+
+  @override
+  String toString() {
+    return 'DashboardRouteArgs{key: $key, scaffoldKey: $scaffoldKey}';
+  }
+}
+
+/// generated route for
+/// [DepositView]
+class DepositRoute extends PageRouteInfo<void> {
+  const DepositRoute({List<PageRouteInfo>? children})
+      : super(
+          DepositRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'DepositRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [AuthView]
-class AuthRoute extends PageRouteInfo<void> {
-  const AuthRoute({List<PageRouteInfo>? children})
+/// [EditProfileView]
+class EditProfileRoute extends PageRouteInfo<void> {
+  const EditProfileRoute({List<PageRouteInfo>? children})
       : super(
-          AuthRoute.name,
+          EditProfileRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'AuthRoute';
+  static const String name = 'EditProfileRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [RegisterView]
-class RegisterRoute extends PageRouteInfo<void> {
-  const RegisterRoute({List<PageRouteInfo>? children})
+/// [FaqsView]
+class FaqsRoute extends PageRouteInfo<void> {
+  const FaqsRoute({List<PageRouteInfo>? children})
       : super(
-          RegisterRoute.name,
+          FaqsRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'RegisterRoute';
+  static const String name = 'FaqsRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [QrView]
-class QrRoute extends PageRouteInfo<void> {
-  const QrRoute({List<PageRouteInfo>? children})
+/// [FilterHistoryView]
+class FilterHistoryRoute extends PageRouteInfo<void> {
+  const FilterHistoryRoute({List<PageRouteInfo>? children})
       : super(
-          QrRoute.name,
+          FilterHistoryRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'QrRoute';
+  static const String name = 'FilterHistoryRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -260,57 +290,43 @@ class HelpRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [TransferView]
-class TransferRoute extends PageRouteInfo<void> {
-  const TransferRoute({List<PageRouteInfo>? children})
+/// [HistroyView]
+class HistroyRoute extends PageRouteInfo<void> {
+  const HistroyRoute({List<PageRouteInfo>? children})
       : super(
-          TransferRoute.name,
+          HistroyRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'TransferRoute';
+  static const String name = 'HistroyRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [DepositView]
-class DepositRoute extends PageRouteInfo<void> {
-  const DepositRoute({List<PageRouteInfo>? children})
+/// [IntroView]
+class IntroRoute extends PageRouteInfo<void> {
+  const IntroRoute({List<PageRouteInfo>? children})
       : super(
-          DepositRoute.name,
+          IntroRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'DepositRoute';
+  static const String name = 'IntroRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [SplashView]
-class SplashRoute extends PageRouteInfo<void> {
-  const SplashRoute({List<PageRouteInfo>? children})
+/// [LoginView]
+class LoginRoute extends PageRouteInfo<void> {
+  const LoginRoute({List<PageRouteInfo>? children})
       : super(
-          SplashRoute.name,
+          LoginRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'SplashRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
-/// [SignupView]
-class SignupRoute extends PageRouteInfo<void> {
-  const SignupRoute({List<PageRouteInfo>? children})
-      : super(
-          SignupRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'SignupRoute';
+  static const String name = 'LoginRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -364,67 +380,72 @@ class PaymentDashboardRouteArgs {
 }
 
 /// generated route for
-/// [FilterHistoryView]
-class FilterHistoryRoute extends PageRouteInfo<void> {
-  const FilterHistoryRoute({List<PageRouteInfo>? children})
+/// [AuthView]
+class AuthRoute extends PageRouteInfo<void> {
+  const AuthRoute({List<PageRouteInfo>? children})
       : super(
-          FilterHistoryRoute.name,
+          AuthRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'FilterHistoryRoute';
+  static const String name = 'AuthRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [DashboardView]
-class DashboardRoute extends PageRouteInfo<DashboardRouteArgs> {
-  DashboardRoute({
+/// [ProfileView]
+class ProfileRoute extends PageRouteInfo<ProfileRouteArgs> {
+  ProfileRoute({
     Key? key,
-    GlobalKey<ScaffoldState>? scaffoldKey,
     List<PageRouteInfo>? children,
   }) : super(
-          DashboardRoute.name,
-          args: DashboardRouteArgs(
-            key: key,
-            scaffoldKey: scaffoldKey,
-          ),
+          ProfileRoute.name,
+          args: ProfileRouteArgs(key: key),
           initialChildren: children,
         );
 
-  static const String name = 'DashboardRoute';
+  static const String name = 'ProfileRoute';
 
-  static const PageInfo<DashboardRouteArgs> page =
-      PageInfo<DashboardRouteArgs>(name);
+  static const PageInfo<ProfileRouteArgs> page =
+      PageInfo<ProfileRouteArgs>(name);
 }
 
-class DashboardRouteArgs {
-  const DashboardRouteArgs({
-    this.key,
-    this.scaffoldKey,
-  });
+class ProfileRouteArgs {
+  const ProfileRouteArgs({this.key});
 
   final Key? key;
 
-  final GlobalKey<ScaffoldState>? scaffoldKey;
-
   @override
   String toString() {
-    return 'DashboardRouteArgs{key: $key, scaffoldKey: $scaffoldKey}';
+    return 'ProfileRouteArgs{key: $key}';
   }
 }
 
 /// generated route for
-/// [RequestView]
-class RequestRoute extends PageRouteInfo<void> {
-  const RequestRoute({List<PageRouteInfo>? children})
+/// [QrView]
+class QrRoute extends PageRouteInfo<void> {
+  const QrRoute({List<PageRouteInfo>? children})
       : super(
-          RequestRoute.name,
+          QrRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'RequestRoute';
+  static const String name = 'QrRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [RegisterView]
+class RegisterRoute extends PageRouteInfo<void> {
+  const RegisterRoute({List<PageRouteInfo>? children})
+      : super(
+          RegisterRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RegisterRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -468,29 +489,15 @@ class RequestAmountRouteArgs {
 }
 
 /// generated route for
-/// [IntroView]
-class IntroRoute extends PageRouteInfo<void> {
-  const IntroRoute({List<PageRouteInfo>? children})
+/// [RequestView]
+class RequestRoute extends PageRouteInfo<void> {
+  const RequestRoute({List<PageRouteInfo>? children})
       : super(
-          IntroRoute.name,
+          RequestRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'IntroRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
-/// [LoginView]
-class LoginRoute extends PageRouteInfo<void> {
-  const LoginRoute({List<PageRouteInfo>? children})
-      : super(
-          LoginRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'LoginRoute';
+  static const String name = 'RequestRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -533,30 +540,43 @@ class SendRouteArgs {
 }
 
 /// generated route for
-/// [ProfileView]
-class ProfileRoute extends PageRouteInfo<ProfileRouteArgs> {
-  ProfileRoute({
-    Key? key,
-    List<PageRouteInfo>? children,
-  }) : super(
-          ProfileRoute.name,
-          args: ProfileRouteArgs(key: key),
+/// [SignupView]
+class SignupRoute extends PageRouteInfo<void> {
+  const SignupRoute({List<PageRouteInfo>? children})
+      : super(
+          SignupRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'ProfileRoute';
+  static const String name = 'SignupRoute';
 
-  static const PageInfo<ProfileRouteArgs> page =
-      PageInfo<ProfileRouteArgs>(name);
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
-class ProfileRouteArgs {
-  const ProfileRouteArgs({this.key});
+/// generated route for
+/// [SplashView]
+class SplashRoute extends PageRouteInfo<void> {
+  const SplashRoute({List<PageRouteInfo>? children})
+      : super(
+          SplashRoute.name,
+          initialChildren: children,
+        );
 
-  final Key? key;
+  static const String name = 'SplashRoute';
 
-  @override
-  String toString() {
-    return 'ProfileRouteArgs{key: $key}';
-  }
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [TransferView]
+class TransferRoute extends PageRouteInfo<void> {
+  const TransferRoute({List<PageRouteInfo>? children})
+      : super(
+          TransferRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'TransferRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
