@@ -5,6 +5,7 @@ import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.d
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/greeting_card.dart';
+import 'package:cardpay/src/presentation/widgets/layout/profile_layout.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
@@ -112,11 +113,11 @@ class ProfileView extends HookWidget {
                         );
                       case UserSuccess || UserInitial:
                         return GestureDetector(
-                          // onTap: () {
-                          //   context.router.push(
-                          //     EditProfileRoute(),
-                          //   );
-                          // },
+                          onTap: () {
+                            context.router.push(
+                              EditProfileRoute(),
+                            );
+                          },
                           child: GreetingRow(
                             textColor: AppColors.secondaryColor,
                             name: state.user.fullName,
