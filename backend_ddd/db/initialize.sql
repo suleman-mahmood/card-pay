@@ -6,6 +6,8 @@ drop table if exists user_closed_loops CASCADE;
 drop table if exists weightages CASCADE;
 drop table if exists cashback_slabs CASCADE;
 drop table if exists starred_wallet_id CASCADE;
+drop table if exists payment_gateway_tokens CASCADE;
+
 
 drop type if exists transaction_mode_enum CASCADE;
 drop type if exists transaction_type_enum CASCADE;
