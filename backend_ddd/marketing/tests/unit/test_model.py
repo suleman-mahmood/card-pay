@@ -1,6 +1,6 @@
 import pytest
 
-from .conftest import (seed_user)
+from ..conftest import (seed_user)
 from ....payment.domain.model import TransactionType
 from ...domain.exceptions import InvalidTransactionTypeException, InvalidReferenceException, NotVerifiedException, InvalidAddingLoyaltyPointsException, NegativeAmountException, InvalidSlabException
 from ...domain.model import User, CashbackType, Weightage, CashbackSlab, AllCashbacks

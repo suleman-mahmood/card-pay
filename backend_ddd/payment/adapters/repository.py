@@ -49,7 +49,7 @@ class TransactionAbstractRepository(ABC):
         pass
 
     @abstractmethod
-    def add_1000_wallet(self, wallet: Wallet):
+    def add_1000_wallet(self, wallet_id: str):
         pass
 
 
@@ -336,7 +336,7 @@ class TransactionRepository(TransactionAbstractRepository):
             ],
         )
 
-    def add_1000_wallet(self, wallet: Wallet):
+    def add_1000_wallet(self, wallet_id: str):
         # update wallet balance
         sql = """
             update wallets
@@ -347,6 +347,6 @@ class TransactionRepository(TransactionAbstractRepository):
             sql,
             [
                 1000,
-                wallet.id,
+                wallet_id,
             ],
         )

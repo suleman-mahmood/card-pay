@@ -69,22 +69,22 @@ def get_user_id_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork) -> str:
     return row[0]
 
 
-def add_starred_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
-    """
-    keeping it here for now, will move it later after discussion
-    """
-    with uow:
-        delete_sql = """
-            delete from starred_wallet_id
-        """
-        uow.cursor.execute(delete_sql)
+# def add_starred_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
+#     """
+#     keeping it here for now, will move it later after discussion
+#     """
+#     with uow:
+#         delete_sql = """
+#             delete from starred_wallet_id
+#         """
+#         uow.cursor.execute(delete_sql)
 
-        sql = """
-            insert into starred_wallet_id
-            values (%s)
-        """
-        uow.cursor.execute(sql, [wallet_id])
-        uow.connection.commit()
+#         sql = """
+#             insert into starred_wallet_id
+#             values (%s)
+#         """
+#         uow.cursor.execute(sql, [wallet_id])
+#         uow.connection.commit()
 
 
 def get_starred_wallet_id(uow: AbstractUnitOfWork):

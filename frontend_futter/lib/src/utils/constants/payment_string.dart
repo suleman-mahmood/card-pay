@@ -19,7 +19,6 @@ class PaymentStrings {
   static const String checkbox3 = 'Checkbox 3';
   static const String checkbox4 = 'Checkbox 4';
   static const String carry = 'Continue';
-
   static const String pAmount = '+250';
   static const String nAmount = '-250';
   static const String deposite = 'Deposit ';
@@ -52,10 +51,12 @@ class PaymentStrings {
   static const String profileEdit = 'Edit Profile';
 
   static const String chat = 'chat';
-
   static const String filterTransactions = 'Filtered Transactions';
-
   static const String enterAmount = 'Enter the amount you want to deposit';
   static const String enterPhone = 'Enter your phone number';
   static const String org = 'Select your organization';
+  // Profile Strings
+  static const String choiceAvatar = 'Choose profile avatar';
+  static const String selectDescription =
+      'Select an avatar to set as your profile picture. ';
 }

@@ -8,12 +8,14 @@ class GreetingRow extends HookWidget {
   final String name;
   final String? imagePath;
   final Color? textColor;
+  final int? radius;
 
   const GreetingRow({
     super.key,
     this.greeting,
     required this.name,
     this.imagePath,
+    this.radius,
     this.textColor,
   });
 
@@ -21,7 +23,8 @@ class GreetingRow extends HookWidget {
   Widget build(BuildContext context) {
     CircleAvatar buildCircleAvatar() {
       return CircleAvatar(
-        radius: 30,
+        // radius: 30,
+        radius: radius != null ? radius!.toDouble() : 30,
         backgroundImage: imagePath != null ? AssetImage(imagePath!) : null,
       );
     }

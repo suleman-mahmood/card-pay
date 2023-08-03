@@ -26,7 +26,7 @@ class MyDrawer extends HookWidget {
     DrawerItem(
       icon: Icons.phone_outlined,
       text: 'Help',
-      route: PaymentDashboardRoute(),
+      route: HelpRoute(),
     ),
     // DrawerItem(
     //     icon: Icons.history, text: 'History', route: const HistroyRoute()),
