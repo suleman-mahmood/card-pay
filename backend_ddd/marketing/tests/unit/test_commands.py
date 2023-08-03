@@ -5,6 +5,7 @@ from ....payment.domain.model import TransactionType, TransactionMode
 from ....payment.entrypoint import commands as payment_commands
 from ....payment.entrypoint import queries as payment_queries
 from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
+from ....marketing.tests.conftest import seed_starred_wallet
 from uuid import uuid4
 
 
@@ -21,7 +22,7 @@ def test_loyalty_points_for_p2p_push(seed_verified_auth_user):
         wallet_id=sender.wallet_id, uow=uow
     )
     with uow:
-        uow.transactions.add_1000_wallet(sender_wallet)
+        uow.transactions.add_1000_wallet(sender_wallet.id)
 
     payment_commands.execute_transaction(
         sender_wallet_id=sender.wallet_id,
@@ -52,7 +53,7 @@ def test_loyalty_points_for_p2p_pull(seed_verified_auth_user):
     )
 
     with uow:
-        uow.transactions.add_1000_wallet(sender_wallet)
+        uow.transactions.add_1000_wallet(sender_wallet.id)
 
     tx = payment_commands.execute_transaction(
         sender_wallet_id=sender.wallet_id,
@@ -144,8 +145,9 @@ def test_add_and_set_cashback_slabs():
         assert fetched_cashback_slabs[0].end_amount == 20
 
 
-def test_cashback(seed_verified_auth_user):
+def test_cashback(seed_verified_auth_user, seed_starred_wallet):
     uow = UnitOfWork()
+    seed_starred_wallet(uow)
 
     marketing_commands.add_weightage(
         weightage_type="PAYMENT_GATEWAY",
@@ -164,9 +166,9 @@ def test_cashback(seed_verified_auth_user):
     )
 
     with uow:
-        uow.transactions.add_1000_wallet(wallet=pg_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=pg_wallet.id)
         cardpay_wallet = payment_commands.create_wallet(user_id=str(uuid4()), uow=uow)
-        uow.transactions.add_1000_wallet(wallet=cardpay_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=cardpay_wallet.id)
 
     payment_commands.execute_transaction(
         sender_wallet_id=pg.wallet_id,
@@ -186,8 +188,8 @@ def test_cashback(seed_verified_auth_user):
     assert recipient_wallet.balance == 0
 
     with uow:
-        uow.transactions.add_1000_wallet(wallet=pg_wallet)
-        uow.transactions.add_1000_wallet(wallet=cardpay_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=pg_wallet.id)
+        uow.transactions.add_1000_wallet(wallet_id=cardpay_wallet.id)
 
     tx = payment_commands.execute_transaction(
         sender_wallet_id=pg.wallet_id,

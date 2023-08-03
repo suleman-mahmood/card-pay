@@ -15,7 +15,7 @@ from ...entrypoint.commands import (
 from ....marketing.entrypoint import commands as marketing_commands
 from ...entrypoint.queries import get_wallet_from_wallet_id
 from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
-from ....entrypoint.uow import FakeUnitOfWork, UnitOfWork
+from ....entrypoint.uow import UnitOfWork
 from ...domain.model import TransactionMode, TransactionType, TransactionStatus
 from queue import Queue
 from uuid import uuid4
@@ -45,7 +45,7 @@ def test_execute_transaction(seed_verified_auth_user):
 
     with uow:
         # for testing purposes
-        uow.transactions.add_1000_wallet(sender_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=sender_wallet.id)
 
     tx = execute_transaction(
         sender_wallet_id=sender_wallet.id,
@@ -76,7 +76,7 @@ def test_slow_execute_transaction():
         recipient_wallets = [create_wallet(user_id=str(uuid4()), uow=uow) for i in range(5)]
 
         # for testing purposes
-        uow.transactions.add_1000_wallet(sender_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=sender_wallet.id)
 
     threads = []
     queue = Queue()
@@ -135,7 +135,7 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
 
     with uow:
         # for testing purposes
-        uow.transactions.add_1000_wallet(sender_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=sender_wallet.id)
 
         # make pull transaction
     tx = execute_transaction(
@@ -170,7 +170,7 @@ def test_decline_p2p_pull_transaction():
         recipient_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
         # for testing purposes
-        uow.transactions.add_1000_wallet(sender_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=sender_wallet.id)
 
     # make pull transaction
     tx = execute_transaction(
@@ -203,7 +203,7 @@ def test_generate_voucher():
     with UnitOfWork() as uow:
         generator_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
-        uow.transactions.add_1000_wallet(generator_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=generator_wallet.id)
 
     tx = generate_voucher(
         sender_wallet_id=generator_wallet.id, amount=1000, uow=UnitOfWork()
@@ -225,7 +225,7 @@ def test_redeem_voucher():
         generator_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
         redeemer_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
-        uow.transactions.add_1000_wallet(generator_wallet)
+        uow.transactions.add_1000_wallet(wallet_id=generator_wallet.id)
 
     tx = generate_voucher(
         sender_wallet_id=generator_wallet.id, amount=1000, uow=UnitOfWork()

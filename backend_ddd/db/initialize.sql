@@ -6,6 +6,7 @@ drop table if exists user_closed_loops CASCADE;
 drop table if exists weightages CASCADE;
 drop table if exists cashback_slabs CASCADE;
 drop table if exists starred_wallet_id CASCADE;
+drop table if exists payment_gateway_tokens CASCADE;
 
 drop type if exists transaction_mode_enum CASCADE;
 drop type if exists transaction_type_enum CASCADE;
@@ -81,7 +82,7 @@ create table user_closed_loops (
     user_id uuid references users(id),
     closed_loop_id uuid references closed_loops(id),
 
-    unique_identifier varchar(255) not null,
+    unique_identifier varchar(255),
     closed_loop_user_id varchar(255) not null,
     unique_identifier_otp varchar(4) not null,
     status closed_loop_user_state_enum not null,
