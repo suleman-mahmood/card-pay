@@ -10,7 +10,7 @@ from .exceptions import TransactionNotAllowedException
 class Wallet:
     """Wallet entity"""
 
-    id: str = field(default_factory=lambda: str(uuid4()))
+    id: str
     balance: int = 0
 
 

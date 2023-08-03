@@ -1,12 +1,11 @@
 from ...entrypoint import commands as marketing_commands
 from ...entrypoint import queries as marketing_queries
-from ....entrypoint.uow import UnitOfWork, AbstractUnitOfWork
-from ....payment.domain.model import TransactionType, TransactionMode, Wallet
+from ....entrypoint.uow import UnitOfWork
+from ....payment.domain.model import TransactionType, TransactionMode
 from ....payment.entrypoint import commands as payment_commands
 from ....payment.entrypoint import queries as payment_queries
 from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
-from ....authentication.entrypoint import commands as auth_commands
-from ...domain.model import User, Weightage, CashbackSlab, CashbackType, AllCashbacks
+from uuid import uuid4
 
 
 def test_loyalty_points_for_p2p_push(seed_verified_auth_user):
@@ -166,10 +165,8 @@ def test_cashback(seed_verified_auth_user):
 
     with uow:
         uow.transactions.add_1000_wallet(wallet=pg_wallet)
-        cardpay_wallet = payment_commands.create_wallet(uow=uow)
+        cardpay_wallet = payment_commands.create_wallet(user_id=str(uuid4()), uow=uow)
         uow.transactions.add_1000_wallet(wallet=cardpay_wallet)
-
-    payment_queries.add_starred_wallet_id(wallet_id=cardpay_wallet.id, uow=uow)
 
     payment_commands.execute_transaction(
         sender_wallet_id=pg.wallet_id,
@@ -180,12 +177,17 @@ def test_cashback(seed_verified_auth_user):
         uow=uow,
     )
 
+    pg_wallet = payment_queries.get_wallet_from_wallet_id(
+        wallet_id=pg.wallet_id, uow=uow
+    )
+    recipient_wallet = payment_queries.get_wallet_from_wallet_id(
+        wallet_id=recipient.wallet_id, uow=uow
+    )
+    assert recipient_wallet.balance == 0
+
     with uow:
         uow.transactions.add_1000_wallet(wallet=pg_wallet)
-        cardpay_wallet = payment_commands.create_wallet(uow=uow)
         uow.transactions.add_1000_wallet(wallet=cardpay_wallet)
-
-    payment_queries.add_starred_wallet_id(wallet_id=cardpay_wallet.id, uow=uow)
 
     tx = payment_commands.execute_transaction(
         sender_wallet_id=pg.wallet_id,

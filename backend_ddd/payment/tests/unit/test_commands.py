@@ -23,7 +23,7 @@ from uuid import uuid4
 
 def test_create_wallet():
     with UnitOfWork() as uow:
-        wallet = create_wallet(uow)
+        wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
     assert wallet.balance == 0
 
@@ -69,11 +69,11 @@ def test_execute_transaction(seed_verified_auth_user):
 
 def test_slow_execute_transaction():
     with UnitOfWork() as uow:
-        sender_wallet = create_wallet(uow)
+        sender_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
         # recipient_wallet = create_wallet(uow)
 
-        recipient_wallets = [create_wallet(uow) for i in range(5)]
+        recipient_wallets = [create_wallet(user_id=str(uuid4()), uow=uow) for i in range(5)]
 
         # for testing purposes
         uow.transactions.add_1000_wallet(sender_wallet)
@@ -166,8 +166,8 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
 
 def test_decline_p2p_pull_transaction():
     with UnitOfWork() as uow:
-        sender_wallet = create_wallet(uow)
-        recipient_wallet = create_wallet(uow)
+        sender_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
+        recipient_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
         # for testing purposes
         uow.transactions.add_1000_wallet(sender_wallet)
@@ -201,7 +201,7 @@ def test_decline_p2p_pull_transaction():
 
 def test_generate_voucher():
     with UnitOfWork() as uow:
-        generator_wallet = create_wallet(uow)
+        generator_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
         uow.transactions.add_1000_wallet(generator_wallet)
 
@@ -222,8 +222,8 @@ def test_generate_voucher():
 
 def test_redeem_voucher():
     with UnitOfWork() as uow:
-        generator_wallet = create_wallet(uow)
-        redeemer_wallet = create_wallet(uow)
+        generator_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
+        redeemer_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
         uow.transactions.add_1000_wallet(generator_wallet)
 

@@ -61,6 +61,7 @@ def create_user(
     phone_number_with_country_code = "+" + PK_CODE + phone_number
 
     user_already_exists = False
+    firebase_uid = ''
     try:
         firebase_uid = firebase_create_user(
             phone_email=phone_email,
@@ -75,7 +76,7 @@ def create_user(
         user_id = utils.firebaseUidToUUID(firebase_uid)
 
         with uow:
-            wallet = payment_commands.create_wallet(uow)
+            wallet = payment_commands.create_wallet(user_id=user_id,  uow=uow)
             user = User(
                 id=user_id,
                 personal_email=PersonalEmail(value=personal_email),

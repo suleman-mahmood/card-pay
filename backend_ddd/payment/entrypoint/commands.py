@@ -26,10 +26,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def create_wallet(uow: AbstractUnitOfWork) -> Wallet:
+def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
     # please only call this from create_user
-    wallet = Wallet()
+    wallet = Wallet(id=user_id)
     uow.transactions.add_wallet(wallet)
 
     return wallet
