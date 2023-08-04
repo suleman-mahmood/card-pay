@@ -159,7 +159,7 @@ class User:
             raise InvalidOtpException("Otps don't match")
 
         self._generate_new_otp()
-        return True
+        return True #TODO: Refactor and remove this
 
     def _generate_new_otp(self) -> None:
         """Generate OTP"""
