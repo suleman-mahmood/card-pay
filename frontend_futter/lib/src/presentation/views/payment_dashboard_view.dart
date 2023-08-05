@@ -33,7 +33,7 @@ class PaymentDashboardView extends HookWidget {
 
     List<Widget> pageList = [
       DashboardView(scaffoldKey: scaffoldKey),
-      HistroyView(),
+      TransactionHistoryView(),
       FilterHistoryView(),
       ProfileView(),
       // HistroyView(),

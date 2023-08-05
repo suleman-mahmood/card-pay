@@ -14,8 +14,8 @@ import 'package:cardpay/src/utils/constants/payment_string.dart';
 const double _borderRadiusValue = 30.0;
 
 @RoutePage()
-class HistroyView extends HookWidget {
-  const HistroyView({Key? key}) : super(key: key);
+class TransactionHistoryView extends HookWidget {
+  const TransactionHistoryView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -10,8 +10,8 @@ import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import '../widgets/layout/pin_numpad_layout.dart';
 
 @RoutePage()
-class AuthView extends HookWidget {
-  const AuthView({super.key});
+class PinView extends HookWidget {
+  const PinView({super.key});
   @override
   Widget build(BuildContext context) {
     final pinController = useTextEditingController();

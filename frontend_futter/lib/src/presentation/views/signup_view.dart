@@ -149,7 +149,7 @@ class SignupView extends HookWidget {
                     } else if (state.eventCodes == EventCodes.USER_VERIFIED) {
                       context.router.push(const LoginRoute());
                     } else if (state.eventCodes == EventCodes.OTP_VERIFIED) {
-                      context.router.push(const RegisterRoute());
+                      context.router.push(const RegisterOrganizationRoute());
                     } else if (state.eventCodes == EventCodes.OTP_INCORRECT) {
                       return const Text('Incorrect Otp, try again');
                     }
