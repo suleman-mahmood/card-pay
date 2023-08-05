@@ -10,9 +10,9 @@ from ..domain.model import (
     Location,
 )
 from uuid import uuid4
-from backend_ddd.payment.domain import model as payment_model
-from backend_ddd.entrypoint.uow import AbstractUnitOfWork
-from backend_ddd.authentication.entrypoint import commands as auth_commands
+from python_flex.payment.domain import model as payment_model
+from python_flex.entrypoint.uow import AbstractUnitOfWork
+from python_flex.authentication.entrypoint import commands as auth_commands
 
 
 @pytest.fixture

@@ -4,21 +4,21 @@ import firebase_admin
 
 from flask import Flask, request, jsonify
 
-from backend_ddd.api.utils import (
+from python_flex.api.utils import (
     handle_exceptions,
     handle_missing_payload,
     authenticate_token,
 )
-from backend_ddd.entrypoint.uow import UnitOfWork
-from backend_ddd.payment.entrypoint import commands as payment_commands
-from backend_ddd.payment.domain.model import (
+from python_flex.entrypoint.uow import UnitOfWork
+from python_flex.payment.entrypoint import commands as payment_commands
+from python_flex.payment.domain.model import (
     TransactionMode,
     TransactionType,
 )
-from backend_ddd.authentication.entrypoint import queries as authentication_queries
-from backend_ddd.marketing.entrypoint import commands as marketing_commands
-from backend_ddd.authentication.entrypoint import commands as authentication_commands
-from backend_ddd.payment.entrypoint import queries as payment_queries
+from python_flex.authentication.entrypoint import queries as authentication_queries
+from python_flex.marketing.entrypoint import commands as marketing_commands
+from python_flex.authentication.entrypoint import commands as authentication_commands
+from python_flex.payment.entrypoint import queries as payment_queries
 
 app = Flask(__name__)
 app.config["PROPAGATE_EXCEPTIONS"] = True

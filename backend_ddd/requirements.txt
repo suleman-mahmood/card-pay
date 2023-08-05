@@ -6,3 +6,4 @@ gunicorn
 firebase-admin
 python-dotenv
 pylint
+cloud-sql-python-connector[pg8000]

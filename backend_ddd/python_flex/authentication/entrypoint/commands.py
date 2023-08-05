@@ -4,11 +4,11 @@ import firebase_admin
 from firebase_admin import auth
 from typing import Optional, Tuple
 
-from backend_ddd.entrypoint.uow import AbstractUnitOfWork
-from backend_ddd.payment.entrypoint import commands as payment_commands
-from backend_ddd.comms.entrypoint import commands as comms_commands
-from backend_ddd.api import utils
-from backend_ddd.api.event_codes import EventCode
+from python_flex.entrypoint.uow import AbstractUnitOfWork
+from python_flex.payment.entrypoint import commands as payment_commands
+from python_flex.comms.entrypoint import commands as comms_commands
+from python_flex.api import utils
+from python_flex.api.event_codes import EventCode
 from ..domain.model import (
     ClosedLoopUser,
     ClosedLoopVerificationType,
@@ -61,7 +61,7 @@ def create_user(
     phone_number_with_country_code = "+" + PK_CODE + phone_number
 
     user_already_exists = False
-    firebase_uid = ''
+    firebase_uid = ""
     try:
         firebase_uid = firebase_create_user(
             phone_email=phone_email,
@@ -76,7 +76,7 @@ def create_user(
         user_id = utils.firebaseUidToUUID(firebase_uid)
 
         with uow:
-            wallet = payment_commands.create_wallet(user_id=user_id,  uow=uow)
+            wallet = payment_commands.create_wallet(user_id=user_id, uow=uow)
             user = User(
                 id=user_id,
                 personal_email=PersonalEmail(value=personal_email),

@@ -12,10 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-runtime: python
-env: flex
-entrypoint: gunicorn -b :8080 api.flask_app:app
+# runtime: python
+# env: flex
+# entrypoint: gunicorn -b :8080 api.flask_app:app
 
-runtime_config:
-    operating_system: 'ubuntu22'
-    runtime_version: '3.11'
+# runtime_config:
+#     operating_system: 'ubuntu22'
+#     runtime_version: '3.11'
+
+runtime: python310
+entrypoint: gunicorn -b :8080 python_flex.api.flask_app:app
+
+instance_class: B2
+
+manual_scaling:
+    instances: 1

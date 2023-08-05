@@ -1,4 +1,4 @@
-from backend_ddd.comms.entrypoint import commands
+from python_flex.comms.entrypoint import commands
 
 
 def test_send_email():

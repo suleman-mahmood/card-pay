@@ -7,5 +7,4 @@ venv
 cardpay
 cardpay/
 venv/
-credentials.json
-credentials-dev.json
+api/credentials.json

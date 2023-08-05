@@ -1,6 +1,7 @@
 """unit of work"""
 import os
 from abc import ABC, abstractmethod
+from google.cloud.sql.connector import Connector, IPTypes
 import psycopg2
 
 from psycopg2.extensions import adapt, register_adapter, AsIs
@@ -82,6 +83,7 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 class UnitOfWork(AbstractUnitOfWork):
     def __init__(self):
         register_adapter(Location, adapt_point)
+        self.connector = Connector()
 
     def __enter__(self):
         self.connection = psycopg2.connect(
@@ -91,6 +93,21 @@ class UnitOfWork(AbstractUnitOfWork):
             password=os.environ.get("DB_PASSWORD"),
             port=os.environ.get("DB_PORT"),
         )
+
+        # TODO: un-comment this when deploying to app engine (Production)
+        # instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
+        # db_name = os.environ.get("DB_NAME")
+        # db_user = os.environ.get("DB_USER")
+        # db_pass = os.environ.get("DB_PASS")
+
+        # self.connection = self.connector.connect(
+        #     instance_connection_name,
+        #     "pg8000",
+        #     db=db_name,
+        #     user=db_user,
+        #     password=db_pass,
+        #     ip_type=IPTypes.PUBLIC,
+        # )
 
         self.cursor = self.connection.cursor()
 
