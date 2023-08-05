@@ -4,20 +4,24 @@ import 'dart:convert';
 class ExecuteP2PPushTransactionRequest {
   final String recipientUniqueIdentifier;
   final double amount;
+  final String closedLoopId;
 
   const ExecuteP2PPushTransactionRequest({
     required this.recipientUniqueIdentifier,
     required this.amount,
+    required this.closedLoopId,
   });
 
   ExecuteP2PPushTransactionRequest copyWith({
     String? recipientUniqueIdentifier,
     double? amount,
+    String? closed_loop_id,
   }) {
     return ExecuteP2PPushTransactionRequest(
       recipientUniqueIdentifier:
           recipientUniqueIdentifier ?? this.recipientUniqueIdentifier,
       amount: amount ?? this.amount,
+      closedLoopId: closedLoopId ?? this.closedLoopId,
     );
   }
 
@@ -25,6 +29,7 @@ class ExecuteP2PPushTransactionRequest {
     return <String, dynamic>{
       'recipient_unique_identifier': recipientUniqueIdentifier,
       'amount': amount,
+      'closed_loop_id': closedLoopId,
     };
   }
 
@@ -32,6 +37,7 @@ class ExecuteP2PPushTransactionRequest {
     return ExecuteP2PPushTransactionRequest(
       recipientUniqueIdentifier: map['recipient_unique_identifier'] as String,
       amount: map['amount'] as double,
+      closedLoopId: map['closed_loop_id'] as String,
     );
   }
 
@@ -43,16 +49,16 @@ class ExecuteP2PPushTransactionRequest {
 
   @override
   String toString() =>
-      'ExecuteP2PPushTransactionRequest(recipientUniqueIdentifier: $recipientUniqueIdentifier, amount: $amount)';
+      'ExecuteP2PPushTransactionRequest(recipientUniqueIdentifier: $recipientUniqueIdentifier, amount: $amount, closedLoopId: $closedLoopId)';
 
   @override
   bool operator ==(covariant ExecuteP2PPushTransactionRequest other) {
     if (identical(this, other)) return true;
 
     return other.recipientUniqueIdentifier == recipientUniqueIdentifier &&
-        other.amount == amount;
+        other.amount == amount && other.closedLoopId == closedLoopId;
   }
 
   @override
-  int get hashCode => recipientUniqueIdentifier.hashCode ^ amount.hashCode;
+  int get hashCode => recipientUniqueIdentifier.hashCode ^ amount.hashCode ^ closedLoopId.hashCode;
 }

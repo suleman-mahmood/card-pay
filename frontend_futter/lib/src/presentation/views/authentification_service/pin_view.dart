@@ -62,7 +62,7 @@ class PinView extends HookWidget {
               switch (state.runtimeType) {
                 case UserSuccess:
                   if (state.eventCodes == EventCodes.PIN_REGISTERED) {
-                    context.router.push(DashboardRoute());
+                    context.router.push(PaymentDashboardRoute());
                   }
                   return const SizedBox.shrink();
                 case UserLoading:

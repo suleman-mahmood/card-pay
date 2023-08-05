@@ -20,6 +20,7 @@ from . import utils
 from time import sleep
 from queue import Queue
 from uuid import uuid4
+from . import exceptions as exc
 
 from dotenv import load_dotenv
 
@@ -83,7 +84,7 @@ def execute_transaction_unique_identifier(
         transaction_type=transaction_type,
         uow=uow,
     )
-    # where do transactions saves take place?
+
     return tx
 
 
@@ -255,6 +256,11 @@ def create_deposit_request(
     with uow:
         user = uow.users.get(user_id=user_id)
 
+    if amount < 1000:
+        raise exc.DepositAmountTooSmallException(
+            "Deposit amount is less than the minimum allowed deposit"
+        )
+
     tx = execute_transaction(
         sender_wallet_id=user_id,
         recipient_wallet_id=user_id,
@@ -292,7 +298,7 @@ def get_deposit_checkout_url(
     uow: AbstractUnitOfWork,
 ) -> str:
     # TODO: remove in production
-    return "123"
+    # return "123"
 
     auth_token = _get_paypro_auth_token(uow=uow)
 
@@ -342,7 +348,7 @@ def get_deposit_checkout_url(
 
 def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
     # TODO: remove in production
-    return "123"
+    # return "123"
 
     with uow:
         sql = """

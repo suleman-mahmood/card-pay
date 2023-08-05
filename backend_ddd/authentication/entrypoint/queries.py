@@ -50,8 +50,8 @@ def get_all_closed_loops(uow: AbstractUnitOfWork):
 
     return closed_loops
 
-def get_all_closed_loops_with_user_counts(uow: AbstractUnitOfWork):
 
+def get_all_closed_loops_with_user_counts(uow: AbstractUnitOfWork):
     with uow:
         sql = """
             select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at, count(ucl.user_id)
@@ -76,6 +76,7 @@ def get_all_closed_loops_with_user_counts(uow: AbstractUnitOfWork):
         ]
 
     return closed_loops
+
 
 def get_closed_loop_from_closed_loop_id(closed_loop_id: str, uow: AbstractUnitOfWork):
     """Get closed loop from closed loop id"""
@@ -459,7 +460,6 @@ def update_closed_loop(
 
 
 def get_user_count_of_all_closed_loops(uow: AbstractUnitOfWork):
-
     with uow:
         sql = """
             select cl.id, cl.name, count(ucl.user_id)
@@ -481,7 +481,7 @@ def get_user_count_of_all_closed_loops(uow: AbstractUnitOfWork):
 
 
 def get_information_of_all_users_of_a_closed_loop(
-        closed_loop_id: str, uow: AbstractUnitOfWork
+    closed_loop_id: str, uow: AbstractUnitOfWork
 ):
     """Get information of all users of a closed loop"""
     with uow:
@@ -514,13 +514,13 @@ def get_information_of_all_users_of_a_closed_loop(
                 "closed_loop_user_id": row[13],
                 "closed_loop_joining_date": row[14],
             }
-
             for row in rows
         ]
     return users
 
+
 def get_active_inactive_counts_of_a_closed_loop(
-        closed_loop_id: str, uow: AbstractUnitOfWork
+    closed_loop_id: str, uow: AbstractUnitOfWork
 ):
     """Get active inactive counts of a closed loop"""
     with uow:
@@ -546,11 +546,24 @@ def get_active_inactive_counts_of_a_closed_loop(
 
     return [
         {
-            "label":"active",
+            "label": "active",
             "count": active_count,
         },
         {
-            "label":"inactive",
+            "label": "inactive",
             "count": inactive_count,
-        }
+        },
     ]
+
+
+def get_unique_identifier_from_user_id(user_id: str, uow: AbstractUnitOfWork) -> str:
+    with uow:
+        sql = """
+            select unique_identifier
+            from user_closed_loops
+            where user_id = %s;
+        """
+        uow.cursor.execute(sql, [user_id])
+        row = uow.cursor.fetchone()
+
+        return row[0]

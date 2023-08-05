@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cardpay/src/domain/models/closed_loop.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 
@@ -19,7 +20,7 @@ class User {
   String fullName;
   Location location;
   bool isActive;
-  List<ClosedLoop> closedLoops;
+  List<ClosedLoopUser> closedLoops;
   DateTime createdAt;
   List<TransactionResponse> recentTransactions;
 
@@ -53,7 +54,7 @@ class User {
     String? fullName,
     Location? location,
     bool? isActive,
-    List<ClosedLoop>? closedLoops,
+    List<ClosedLoopUser>? closedLoops,
     DateTime? createdAt,
     List<TransactionResponse>? recentTransactions,
   }) {
@@ -108,9 +109,9 @@ class User {
       fullName: map['full_name'] as String,
       location: Location.fromMap(map['location'] as Map<String, dynamic>),
       isActive: map['is_active'] as bool,
-      closedLoops: List<ClosedLoop>.from(
-        (map['closed_loops'] as List<int>).map<ClosedLoop>(
-          (x) => ClosedLoop.fromMap(x as Map<String, dynamic>),
+      closedLoops: List<ClosedLoopUser>.from(
+        (map['closed_loops'] as List<int>).map<ClosedLoopUser>(
+          (x) => ClosedLoopUser.fromMap(x as Map<String, dynamic>),
         ),
       ),
       recentTransactions: List<TransactionResponse>.from(

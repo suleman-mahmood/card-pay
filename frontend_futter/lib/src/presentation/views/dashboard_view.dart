@@ -160,19 +160,19 @@ class DashboardView extends HookWidget {
                         },
                       ),
                     );
-                  case UserFailed:
-                    return Text(
-                      state.error!.response!.data['message'],
-                      style: const TextStyle(color: Colors.red),
-                    );
+                  // case UserFailed:
+                  //   return Text(
+                  //     state.error!.response!.data['message'],
+                  //     style: const TextStyle(color: Colors.red),
+                  //   );
                   default:
                     return const SizedBox.shrink();
                 }
               },
             ),
 
-            HeightBox(slab: 3),
-            Row(
+            const HeightBox(slab: 3),
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomBox(
@@ -187,14 +187,15 @@ class DashboardView extends HookWidget {
                 )
               ],
             ),
-            HeightBox(slab: 1),
-            Row(
+            const HeightBox(slab: 1),
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomBox(
                   imagePath: 'assets/images/Upwork-1.png',
                   text: PaymentStrings.request,
-                  route: RequestRoute(),
+                  // route: RequestRoute(),
+                  route: TransferRoute(), // TODO: change this after implementing the flow
                 ),
                 CustomBox(
                   imagePath: 'assets/images/Upwork-2.png',

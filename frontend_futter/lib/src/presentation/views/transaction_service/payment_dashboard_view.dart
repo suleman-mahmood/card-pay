@@ -33,18 +33,18 @@ class PaymentDashboardView extends HookWidget {
 
     List<Widget> pageList = [
       DashboardView(scaffoldKey: scaffoldKey),
-      TransactionHistoryView(),
-      FilterHistoryView(),
+      const TransactionHistoryView(),
+      const TransactionHistoryView(), // FilterHistoryView(),
       ProfileView(),
       // HistroyView(),
     ];
 
     useEffect(() {
       switch (selectedIndex.value) {
-        case 1:
+        case 1 || 2:
           backgroundColor.value = AppColors.purpleColor;
           horizontalPadding.value = false;
-        case 2 || 3:
+        case 3:
           horizontalPadding.value = true;
           backgroundColor.value = AppColors.secondaryColor;
         default:

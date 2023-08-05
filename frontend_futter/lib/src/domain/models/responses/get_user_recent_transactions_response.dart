@@ -75,7 +75,7 @@ class GetUserRecentTransactionsResponse {
 
 class TransactionResponse {
   final String id;
-  final double amount;
+  final int amount;
   final TransactionMode mode;
   final TransactionType transactionType;
   final TransactionStatus status;
@@ -98,7 +98,7 @@ class TransactionResponse {
 
   TransactionResponse copyWith({
     String? id,
-    double? amount,
+    int? amount,
     TransactionMode? mode,
     TransactionType? transactionType,
     TransactionStatus? status,
@@ -137,7 +137,7 @@ class TransactionResponse {
   factory TransactionResponse.fromMap(Map<String, dynamic> map) {
     return TransactionResponse(
       id: map['id'] as String,
-      amount: map['amount'] as double,
+      amount: map['amount'] as int,
       mode: TransactionMode.values.firstWhere(
         (e) => e.name == map['mode'],
       ),

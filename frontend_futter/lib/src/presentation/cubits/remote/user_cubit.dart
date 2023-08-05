@@ -188,27 +188,28 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      Future.delayed(const Duration(seconds: 1), () {
-        data.fullName = "Suleman";
-        emit(UserSuccess(user: data));
-      });
+      // Future.delayed(const Duration(seconds: 1), () {
+      //   data.fullName = "Suleman";
+      //   emit(UserSuccess(user: data));
+      // });
 
       // TODO: uncomment in production
-      // final token =
-      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-      //         '';
-      // final response = await _apiRepository.getUser(token);
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.getUser(token);
 
-      // if (response is DataSuccess) {
-      //   data.fullName = response.data!.user.fullName;
+      if (response is DataSuccess) {
+        data.fullName = response.data!.user.fullName;
+        data.closedLoops = response.data!.user.closedLoops;
 
-      //   emit(UserSuccess(
-      //     message: response.data!.message,
-      //     user: data,
-      //   ));
-      // } else if (response is DataFailed) {
-      //   emit(UserFailed(error: response.error));
-      // }
+        emit(UserSuccess(
+          message: response.data!.message,
+          user: data,
+        ));
+      } else if (response is DataFailed) {
+        emit(UserFailed(error: response.error));
+      }
     });
   }
 
@@ -218,27 +219,27 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      Future.delayed(const Duration(seconds: 1), () {
-        data.balance = 500;
-        emit(UserSuccess(user: data));
-      });
+      // Future.delayed(const Duration(seconds: 1), () {
+      //   data.balance = 500;
+      //   emit(UserSuccess(user: data));
+      // });
 
       // TODO: uncomment in production
-      // final token =
-      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-      //         '';
-      // final response = await _apiRepository.getUserBalance(token);
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.getUserBalance(token);
 
-      // if (response is DataSuccess) {
-      //   data.balance = response.data!.balance;
+      if (response is DataSuccess) {
+        data.balance = response.data!.balance;
 
-      //   emit(UserSuccess(
-      //     message: response.data!.message,
-      //     user: data,
-      //   ));
-      // } else if (response is DataFailed) {
-      //   emit(UserFailed(error: response.error));
-      // }
+        emit(UserSuccess(
+          message: response.data!.message,
+          user: data,
+        ));
+      } else if (response is DataFailed) {
+        emit(UserFailed(error: response.error));
+      }
     });
   }
 
@@ -248,50 +249,50 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      Future.delayed(const Duration(seconds: 1), () {
-        final recentTransactions = [
-          TransactionResponse(
-            id: '',
-            amount: 251,
-            mode: TransactionMode.APP_TRANSFER,
-            transactionType: TransactionType.P2P_PUSH,
-            status: TransactionStatus.SUCCESSFUL,
-            createdAt: DateTime.now(),
-            lastUpdated: DateTime.now(),
-            senderName: 'Suleman',
-            recipientName: 'Namelus',
-          ),
-          TransactionResponse(
-            id: '',
-            amount: 501,
-            mode: TransactionMode.APP_TRANSFER,
-            transactionType: TransactionType.P2P_PUSH,
-            status: TransactionStatus.SUCCESSFUL,
-            createdAt: DateTime.now(),
-            lastUpdated: DateTime.now(),
-            senderName: 'Suleman',
-            recipientName: 'Namelus',
-          )
-        ];
-        data.recentTransactions = recentTransactions;
-        emit(UserSuccess(user: data));
-      });
+      // Future.delayed(const Duration(seconds: 1), () {
+      //   final recentTransactions = [
+      //     TransactionResponse(
+      //       id: '',
+      //       amount: 251,
+      //       mode: TransactionMode.APP_TRANSFER,
+      //       transactionType: TransactionType.P2P_PUSH,
+      //       status: TransactionStatus.SUCCESSFUL,
+      //       createdAt: DateTime.now(),
+      //       lastUpdated: DateTime.now(),
+      //       senderName: 'Suleman',
+      //       recipientName: 'Namelus',
+      //     ),
+      //     TransactionResponse(
+      //       id: '',
+      //       amount: 501,
+      //       mode: TransactionMode.APP_TRANSFER,
+      //       transactionType: TransactionType.P2P_PUSH,
+      //       status: TransactionStatus.SUCCESSFUL,
+      //       createdAt: DateTime.now(),
+      //       lastUpdated: DateTime.now(),
+      //       senderName: 'Suleman',
+      //       recipientName: 'Namelus',
+      //     )
+      //   ];
+      //   data.recentTransactions = recentTransactions;
+      //   emit(UserSuccess(user: data));
+      // });
 
       // TODO: uncomment in production
-      // final token =
-      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-      //         '';
-      // final response = await _apiRepository.getUserRecentTransactions(token);
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.getUserRecentTransactions(token);
 
-      // if (response is DataSuccess) {
-      //   emit(UserSuccess(
-      //     user: data,
-      //     message: response.data!.message,
-      //     transactions: response.data!.recentTransactions,
-      //   ));
-      // } else if (response is DataFailed) {
-      //   emit(UserFailed(error: response.error));
-      // }
+      if (response is DataSuccess) {
+        emit(UserSuccess(
+          user: data,
+          message: response.data!.message,
+          transactions: response.data!.recentTransactions,
+        ));
+      } else if (response is DataFailed) {
+        emit(UserFailed(error: response.error));
+      }
     });
   }
 
@@ -301,33 +302,33 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      Future.delayed(const Duration(seconds: 1), () {
-        emit(
-          UserSuccess(
-            checkoutUrl:
-                'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d',
-            user: data,
-          ),
-        );
-      });
+      // Future.delayed(const Duration(seconds: 1), () {
+      //   emit(
+      //     UserSuccess(
+      //       checkoutUrl:
+      //           'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d',
+      //       user: data,
+      //     ),
+      //   );
+      // });
 
       // TODO: uncomment in production
-      // final token =
-      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-      //         '';
-      // final response = await _apiRepository.createDepositRequest(
-      //   request: CreateDepositRequest(userId: data.id, amount: amount),
-      //   token: token,
-      // );
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.createDepositRequest(
+        request: CreateDepositRequest(userId: data.id, amount: amount),
+        token: token,
+      );
 
-      // if (response is DataSuccess) {
-      //   emit(UserSuccess(
-      //     message: response.data!.message,
-      //     checkoutUrl: response.data!.checkoutUrl,
-      //   ));
-      // } else if (response is DataFailed) {
-      //   emit(UserFailed(error: response.error));
-      // }
+      if (response is DataSuccess) {
+        emit(UserSuccess(
+          message: response.data!.message,
+          checkoutUrl: response.data!.checkoutUrl,
+        ));
+      } else if (response is DataFailed) {
+        emit(UserFailed(error: response.error));
+      }
     });
   }
 
@@ -338,31 +339,33 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      Future.delayed(const Duration(seconds: 1), () {
-        emit(
-          UserSuccess(eventCodes: EventCodes.TRANSFER_SUCCESSFUL),
-        );
-      });
+      // Future.delayed(const Duration(seconds: 1), () {
+      //   emit(
+      //     UserSuccess(eventCodes: EventCodes.TRANSFER_SUCCESSFUL),
+      //   );
+      // });
 
       // TODO: uncomment in production
-      // final token =
-      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-      //         '';
-      // final response = await _apiRepository.executeP2PPushTransaction(
-      //   request: ExecuteP2PPushTransactionRequest(
-      //     recipientUniqueIdentifier: recipientUniqueIdentifier,
-      //     amount: amount,
-      //   ),
-      //   token: token,
-      // );
+      final closed_loop_id = data.closedLoops[0].closedLoopId;
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.executeP2PPushTransaction(
+        request: ExecuteP2PPushTransactionRequest(
+          recipientUniqueIdentifier: recipientUniqueIdentifier,
+          amount: amount,
+          closedLoopId: closed_loop_id,
+        ),
+        token: token,
+      );
 
-      // if (response is DataSuccess) {
-      //   emit(UserSuccess(
-      //     message: response.data!.message,
-      //   ));
-      // } else if (response is DataFailed) {
-      //   emit(UserFailed(error: response.error));
-      // }
+      if (response is DataSuccess) {
+        emit(UserSuccess(
+          message: response.data!.message,
+        ));
+      } else if (response is DataFailed) {
+        emit(UserFailed(error: response.error));
+      }
     });
   }
 
