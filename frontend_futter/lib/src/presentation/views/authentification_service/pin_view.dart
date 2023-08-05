@@ -7,7 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
-import '../widgets/layout/pin_numpad_layout.dart';
+import '../../widgets/layout/pin_numpad_layout.dart';
 
 @RoutePage()
 class PinView extends HookWidget {

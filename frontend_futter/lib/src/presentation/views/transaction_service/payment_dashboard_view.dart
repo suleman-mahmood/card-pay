@@ -1,9 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/views/dashboard_view.dart';
-import 'package:cardpay/src/presentation/views/filtered_history_view.dart';
-import 'package:cardpay/src/presentation/views/history_transaction_view.dart';
-import 'package:cardpay/src/presentation/views/profile_view.dart';
+import 'package:cardpay/src/presentation/views/transaction_service/filtered_history_view.dart';
+import 'package:cardpay/src/presentation/views/transaction_service/history_transaction_view.dart';
+import 'package:cardpay/src/presentation/views/feature_service/profile_view.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/animated_bottom_bar.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
 import 'package:flutter/material.dart';
