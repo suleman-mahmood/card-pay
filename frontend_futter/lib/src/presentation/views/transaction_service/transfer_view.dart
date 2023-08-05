@@ -1,5 +1,5 @@
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/views/payment_dashboard_view.dart';
+import 'package:cardpay/src/presentation/views/transaction_service/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
