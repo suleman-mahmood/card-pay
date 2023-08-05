@@ -20,8 +20,8 @@ import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 
 @RoutePage()
-class RegisterView extends HookWidget {
-  const RegisterView({Key? key}) : super(key: key);
+class RegisterOrganizationView extends HookWidget {
+  const RegisterOrganizationView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +75,7 @@ class RegisterView extends HookWidget {
                   });
                 } else if (state.eventCodes ==
                     EventCodes.ORGANIZATION_VERIFIED) {
-                  context.router.push(const AuthRoute());
+                  context.router.push(const PinRoute());
                 }
                 return const SizedBox.shrink();
               default:

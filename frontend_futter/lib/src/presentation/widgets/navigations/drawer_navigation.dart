@@ -76,7 +76,8 @@ class MyDrawer extends HookWidget {
             child: SizedBox(),
           ),
           GestureDetector(
-            onTap: () => {context.router.push(const RegisterRoute())},
+            onTap: () =>
+                {context.router.push(const RegisterOrganizationRoute())},
             child: Container(
               padding: const EdgeInsets.all(16.0),
               child: Row(
