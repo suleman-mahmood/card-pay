@@ -57,8 +57,10 @@ def create_user(
     """Create user"""
     location_object = Location(latitude=location[0], longitude=location[1])
 
+    # TODO: get these representations from PhoneNumber domain object instead
     phone_email = PK_CODE + phone_number + "@cardpay.com.pk"
     phone_number_with_country_code = "+" + PK_CODE + phone_number
+    phone_number_sms = PK_CODE + phone_number
 
     user_already_exists = False
     firebase_uid = ""
@@ -90,7 +92,7 @@ def create_user(
 
             uow.users.add(user)
 
-        comms_commands.send_sms(content=user.otp, to=phone_number_with_country_code)
+        comms_commands.send_otp_sms(full_name=user.full_name, to=phone_number_sms, otp_code=user.otp)
 
         return EventCode.OTP_SENT, user_id
     else:
@@ -102,9 +104,10 @@ def create_user(
             if fetched_user.is_phone_number_verified:
                 return EventCode.USER_VERIFIED, user_id
             else:
-                comms_commands.send_sms(
-                    content=fetched_user.otp,
-                    to=phone_number_with_country_code,
+                comms_commands.send_otp_sms(
+                    full_name=fetched_user.full_name,
+                    to=phone_number_sms,
+                    otp_code=fetched_user.otp,
                 )
                 return EventCode.OTP_SENT, user_id
 
