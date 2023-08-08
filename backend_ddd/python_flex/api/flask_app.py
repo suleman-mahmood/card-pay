@@ -71,13 +71,15 @@ def base():
 @handle_missing_payload
 def create_user():
     """Create a new user account"""
+    req = request.get_json(force=True)
+
     authentication_commands.create_user(
-        personal_email=request.json["personal_email"],
-        password=request.json["password"],
-        phone_number=request.json["phone_number"],
-        user_type=request.json["user_type"],
-        full_name=request.json["full_name"],
-        location=request.json["location"],
+        personal_email=req["personal_email"],
+        password=req["password"],
+        phone_number=req["phone_number"],
+        user_type=req["user_type"],
+        full_name=req["full_name"],
+        location=req["location"],
         uow=UnitOfWork(),
     )
     return (
@@ -101,14 +103,15 @@ def create_customer():
 
     phone_number = '03333462677'
     """
+    req = request.get_json(force=True)
 
     event_code, user_id = authentication_commands.create_user(
-        personal_email=request.json["personal_email"],
-        password=request.json["password"],
-        phone_number=request.json["phone_number"],
+        personal_email=req["personal_email"],
+        password=req["password"],
+        phone_number=req["phone_number"],
         user_type="CUSTOMER",
-        full_name=request.json["full_name"],
-        location=request.json["location"],
+        full_name=req["full_name"],
+        location=req["location"],
         uow=UnitOfWork(),
     )
     return (
@@ -128,12 +131,14 @@ def create_customer():
 @handle_missing_payload
 @handle_exceptions
 def create_closed_loop():
+    req = request.get_json(force=True)
+
     authentication_commands.create_closed_loop(
-        name=request.json["name"],
-        logo_url=request.json["logo_url"],
-        description=request.json["description"],
-        verification_type=request.json["verification_type"],
-        regex=request.json["regex"],
+        name=req["name"],
+        logo_url=req["logo_url"],
+        description=req["description"],
+        verification_type=req["verification_type"],
+        regex=req["regex"],
         uow=UnitOfWork(),
     )
     return (
@@ -151,9 +156,11 @@ def create_closed_loop():
 @handle_exceptions
 @handle_missing_payload
 def change_name():
+    req = request.get_json(force=True)
+
     authentication_commands.change_name(
-        user_id=request.json["user_id"],
-        new_name=request.json["new_name"],
+        user_id=req["user_id"],
+        new_name=req["new_name"],
         uow=UnitOfWork(),
     )
     return (
@@ -171,9 +178,11 @@ def change_name():
 @handle_exceptions
 @handle_missing_payload
 def change_pin():
+    req = request.get_json(force=True)
+
     authentication_commands.change_pin(
-        user_id=request.json["user_id"],
-        new_pin=request.json["new_pin"],
+        user_id=req["user_id"],
+        new_pin=req["new_pin"],
         uow=UnitOfWork(),
     )
     return (
@@ -191,8 +200,10 @@ def change_pin():
 @handle_exceptions
 @handle_missing_payload
 def user_toggle_active():
+    req = request.get_json(force=True)
+
     authentication_commands.user_toggle_active(
-        user_id=request.json["user_id"],
+        user_id=req["user_id"],
         uow=UnitOfWork(),
     )
     return (
@@ -210,9 +221,11 @@ def user_toggle_active():
 @handle_exceptions
 @handle_missing_payload
 def verify_otp():
+    req = request.get_json(force=True)
+
     authentication_commands.verify_otp(
-        user_id=request.json["user_id"],
-        otp=request.json["otp"],
+        user_id=req["user_id"],
+        otp=req["otp"],
         uow=UnitOfWork(),
     )
     return (
@@ -230,9 +243,11 @@ def verify_otp():
 @handle_exceptions
 @handle_missing_payload
 def verify_phone_number():
+    req = request.get_json(force=True)
+
     authentication_commands.verify_phone_number(
-        user_id=request.json["user_id"],
-        otp=request.json["otp"],
+        user_id=req["user_id"],
+        otp=req["otp"],
         uow=UnitOfWork(),
     )
     return (
@@ -250,10 +265,12 @@ def verify_phone_number():
 @handle_exceptions
 @handle_missing_payload
 def register_closed_loop():
+    req = request.get_json(force=True)
+
     authentication_commands.register_closed_loop(
-        user_id=request.json["user_id"],
-        closed_loop_id=request.json["closed_loop_id"],
-        unique_identifier=request.json["unique_identifier"],
+        user_id=req["user_id"],
+        closed_loop_id=req["closed_loop_id"],
+        unique_identifier=req["unique_identifier"],
         uow=UnitOfWork(),
     )
     return (
@@ -271,10 +288,12 @@ def register_closed_loop():
 @handle_exceptions
 @handle_missing_payload
 def verify_closed_loop():
+    req = request.get_json(force=True)
+
     authentication_commands.verify_closed_loop(
-        user_id=request.json["user_id"],
-        closed_loop_id=request.json["closed_loop_id"],
-        unique_identifier_otp=request.json["unique_identifier_otp"],
+        user_id=req["user_id"],
+        closed_loop_id=req["closed_loop_id"],
+        unique_identifier_otp=req["unique_identifier_otp"],
         uow=UnitOfWork(),
     )
     return (
@@ -387,15 +406,18 @@ def get_user_recent_transactions(uid):
 
 
 # for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)
-@app.route(PREFIX + "/create-test-wallet", methods=["POST"])
-@handle_exceptions
-def create_test_wallet():
-    with UnitOfWork() as uow:
-        payment_commands.create_wallet(uow=uow)
-    return {
-        "success": True,
-        "message": "test wallet created successfully (only call me from create_user though)",
-    }, 200
+# @app.route(PREFIX + "/create-test-wallet", methods=["POST"])
+# @handle_exceptions
+# def create_test_wallet():
+#     req = request.get_json(force=True)
+
+#     with UnitOfWork() as uow:
+#         payment_commands.create_wallet(uow=uow)
+
+#     return {
+#         "success": True,
+#         "message": "test wallet created successfully (only call me from create_user though)",
+#     }, 200
 
 
 @app.route(PREFIX + "/create-deposit-request", methods=["POST"])
@@ -403,9 +425,11 @@ def create_test_wallet():
 @handle_missing_payload
 @authenticate_token
 def create_deposit_request(uid):
+    req = request.get_json(force=True)
+
     checkout_url = payment_commands.create_deposit_request(
         user_id=uid,
-        amount=request.json["amount"],
+        amount=req["amount"],
         uow=UnitOfWork(),
     )
     return (
@@ -422,9 +446,11 @@ def create_deposit_request(uid):
 
 @app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
 def pay_pro_callback():
+    req = request.get_json(force=True)
+
     payment_commands.pay_pro_callback(
         uow=UnitOfWork(),
-        data=request.json[""],  # TODO: fill these later
+        data=req[""],  # TODO: fill these later
     )
     return (
         jsonify(
@@ -442,14 +468,16 @@ def pay_pro_callback():
 @handle_missing_payload
 @authenticate_token
 def execute_p2p_push_transaction(uid):
+    req = request.get_json(force=True)
+
     unique_identifier = authentication_queries.get_unique_identifier_from_user_id(
         user_id=uid, uow=UnitOfWork()
     )
     payment_commands.execute_transaction_unique_identifier(
         sender_unique_identifier=unique_identifier,
-        recipient_unique_identifier=request.json["recipient_unique_identifier"],
-        amount=request.json["amount"],
-        closed_loop_id=request.json["closed_loop_id"],
+        recipient_unique_identifier=req["recipient_unique_identifier"],
+        amount=req["amount"],
+        closed_loop_id=req["closed_loop_id"],
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
         uow=UnitOfWork(),
@@ -470,14 +498,16 @@ def execute_p2p_push_transaction(uid):
 @handle_missing_payload
 @authenticate_token
 def create_p2p_pull_transaction(uid):
+    req = request.get_json(force=True)
+
     unique_identifier = authentication_queries.get_unique_identifier_from_user_id(
         user_id=uid, uow=UnitOfWork()
     )
     payment_commands.execute_transaction_unique_identifier(
-        sender_unique_identifier=request.json["sender_unique_identifier"],
+        sender_unique_identifier=req["sender_unique_identifier"],
         recipient_unique_identifier=unique_identifier,
-        amount=request.json["amount"],
-        closed_loop_id=request.json["closed_loop_id"],
+        amount=req["amount"],
+        closed_loop_id=req["closed_loop_id"],
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
         uow=UnitOfWork(),
@@ -497,12 +527,14 @@ def create_p2p_pull_transaction(uid):
 @handle_exceptions
 @handle_missing_payload
 def execute_transaction():
+    req = request.get_json(force=True)
+
     payment_commands.execute_transaction(
-        sender_wallet_id=request.json["sender_wallet_id"],
-        recipient_wallet_id=request.json["recipient_wallet_id"],
-        amount=request.json["amount"],
-        transaction_mode=TransactionMode.__members__[request.json["transaction_mode"]],
-        transaction_type=TransactionType.__members__[request.json["transaction_type"]],
+        sender_wallet_id=req["sender_wallet_id"],
+        recipient_wallet_id=req["recipient_wallet_id"],
+        amount=req["amount"],
+        transaction_mode=TransactionMode.__members__[req["transaction_mode"]],
+        transaction_type=TransactionType.__members__[req["transaction_type"]],
         uow=UnitOfWork(),
     )
     return (
@@ -515,8 +547,10 @@ def execute_transaction():
 @handle_exceptions
 @handle_missing_payload
 def accept_p2p_pull_transaction():
+    req = request.get_json(force=True)
+
     payment_commands.accept_p2p_pull_transaction(
-        transaction_id=request.json["transaction_id"],
+        transaction_id=req["transaction_id"],
         uow=UnitOfWork(),
     )
     return (
@@ -534,8 +568,10 @@ def accept_p2p_pull_transaction():
 @handle_exceptions
 @handle_missing_payload
 def decline_p2p_pull_transaction():
+    req = request.get_json(force=True)
+
     payment_commands.decline_p2p_pull_transaction(
-        transaction_id=request.json["transaction_id"],
+        transaction_id=req["transaction_id"],
         uow=UnitOfWork(),
     )
     return (
@@ -553,9 +589,11 @@ def decline_p2p_pull_transaction():
 @handle_exceptions
 @handle_missing_payload
 def generate_voucher():
+    req = request.get_json(force=True)
+
     payment_commands.generate_voucher(
-        sender_wallet_id=request.json["sender_wallet_id"],
-        amount=request.json["amount"],
+        sender_wallet_id=req["sender_wallet_id"],
+        amount=req["amount"],
         uow=UnitOfWork(),
     )
     return (
@@ -573,9 +611,11 @@ def generate_voucher():
 @handle_exceptions
 @handle_missing_payload
 def redeem_voucher():
+    req = request.get_json(force=True)
+
     payment_commands.redeem_voucher(
-        recipient_wallet_id=request.json["recipient_wallet_id"],
-        transaction_id=request.json["transaction_id"],
+        recipient_wallet_id=req["recipient_wallet_id"],
+        transaction_id=req["transaction_id"],
         uow=UnitOfWork(),
     )
     return (
@@ -593,9 +633,11 @@ def redeem_voucher():
 @handle_exceptions
 @handle_missing_payload
 def use_reference():
+    req = request.get_json(force=True)
+
     marketing_commands.use_reference(
-        referee_id=request.json["referee_id"],
-        referral_id=request.json["referral_id"],
+        referee_id=req["referee_id"],
+        referral_id=req["referral_id"],
         uow=UnitOfWork(),
     )
     return (
@@ -616,9 +658,11 @@ def use_reference():
 @handle_exceptions
 @handle_missing_payload
 def add_weightage():
+    req = request.get_json(force=True)
+
     marketing_commands.add_weightage(
-        weightage_type=request.json["weightage_type"],
-        weightage_value=request.json["weightage_value"],
+        weightage_type=req["weightage_type"],
+        weightage_value=req["weightage_value"],
         uow=UnitOfWork(),
     )
     return (
@@ -636,9 +680,11 @@ def add_weightage():
 @handle_exceptions
 @handle_missing_payload
 def set_weightage():
+    req = request.get_json(force=True)
+    
     marketing_commands.set_weightage(
-        weightage_type=request.json["weightage_type"],
-        weightage_value=request.json["weightage_value"],
+        weightage_type=req["weightage_type"],
+        weightage_value=req["weightage_value"],
         uow=UnitOfWork(),
     )
     return (
@@ -656,7 +702,9 @@ def set_weightage():
 @handle_exceptions
 @handle_missing_payload
 def set_cashback_slabs():
-    cashback_slabs = request.json["cashback_slabs"]
+    req = request.get_json(force=True)
+
+    cashback_slabs = req["cashback_slabs"]
 
     marketing_commands.set_cashback_slabs(
         cashback_slabs=cashback_slabs,
@@ -699,13 +747,15 @@ def get_all_closed_loops_with_user_counts():
 @handle_exceptions
 @handle_missing_payload
 def update_closed_loop():
+    req = request.get_json(force=True)
+
     authentication_queries.update_closed_loop(
-        closed_loop_id=request.json["id"],
-        name=request.json["name"],
-        logo_url=request.json["logo_url"],
-        description=request.json["description"],
-        verification_type=request.json["verification_type"],
-        regex=request.json["regex"],
+        closed_loop_id=req["id"],
+        name=req["name"],
+        logo_url=req["logo_url"],
+        description=req["description"],
+        verification_type=req["verification_type"],
+        regex=req["regex"],
         uow=UnitOfWork(),
     )
     # print("hello")
@@ -724,8 +774,10 @@ def update_closed_loop():
 @handle_exceptions
 @handle_missing_payload
 def get_active_inactive_counts_of_a_closed_loop():
+    req = request.get_json(force=True)
+
     counts = authentication_queries.get_active_inactive_counts_of_a_closed_loop(
-        closed_loop_id=request.json["closed_loop_id"],
+        closed_loop_id=req["closed_loop_id"],
         uow=UnitOfWork(),
     )
 
@@ -745,8 +797,10 @@ def get_active_inactive_counts_of_a_closed_loop():
 @handle_exceptions
 @handle_missing_payload
 def get_information_of_all_users_of_a_closed_loop():
+    req = request.get_json(force=True)
+    
     users = authentication_queries.get_information_of_all_users_of_a_closed_loop(
-        closed_loop_id=request.json["closed_loop_id"],
+        closed_loop_id=req["closed_loop_id"],
         uow=UnitOfWork(),
     )
 
