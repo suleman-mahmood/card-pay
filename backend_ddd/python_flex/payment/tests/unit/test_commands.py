@@ -22,7 +22,9 @@ from uuid import uuid4
 
 
 def test_create_wallet():
-    with UnitOfWork() as uow:
+    uow = UnitOfWork()
+
+    with uow:
         wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
     assert wallet.balance == 0
@@ -68,15 +70,16 @@ def test_execute_transaction(seed_verified_auth_user):
 
 
 def test_slow_execute_transaction():
-    with UnitOfWork() as uow:
+    uow = UnitOfWork()
+
+    with uow:
         sender_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
-
-        # recipient_wallet = create_wallet(uow)
-
         recipient_wallets = [create_wallet(user_id=str(uuid4()), uow=uow) for i in range(5)]
 
         # for testing purposes
         uow.transactions.add_1000_wallet(wallet_id=sender_wallet.id)
+
+    uow.commit_close_connection()
 
     threads = []
     queue = Queue()
@@ -105,7 +108,8 @@ def test_slow_execute_transaction():
         x = queue.get()
         txs.append(x)
 
-    with UnitOfWork() as uow:
+    uow = UnitOfWork()
+    with uow:
         for i in range(5):
             fetched_tx = uow.transactions.get(transaction_id=txs[i].id)
 
@@ -118,6 +122,8 @@ def test_slow_execute_transaction():
 
         sender_wallet = uow.transactions.get(transaction_id=txs[0].id).sender_wallet
         assert sender_wallet.balance == 500
+
+    uow.commit_close_connection()
 
 
 def test_accept_p2p_pull_transaction(seed_verified_auth_user):
@@ -144,13 +150,13 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
         amount=1000,
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PULL,
-        uow=UnitOfWork(),
+        uow=uow,
     )
 
     # accept previously created pull transaction
-    tx = accept_p2p_pull_transaction(transaction_id=tx.id, uow=UnitOfWork())
+    tx = accept_p2p_pull_transaction(transaction_id=tx.id, uow=uow)
 
-    with UnitOfWork() as uow:
+    with uow:
         # fetch tx from memory
         fetched_tx = uow.transactions.get(transaction_id=tx.id)
 
@@ -165,7 +171,9 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
 
 
 def test_decline_p2p_pull_transaction():
-    with UnitOfWork() as uow:
+    uow = UnitOfWork()
+
+    with uow:
         sender_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
         recipient_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
@@ -179,13 +187,13 @@ def test_decline_p2p_pull_transaction():
         amount=1000,
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PULL,
-        uow=UnitOfWork(),
+        uow=uow,
     )
 
     # decline previously created pull transaction
-    tx = decline_p2p_pull_transaction(transaction_id=tx.id, uow=UnitOfWork())
+    tx = decline_p2p_pull_transaction(transaction_id=tx.id, uow=uow)
 
-    with UnitOfWork() as uow:
+    with uow:
         # fetch tx from memory
         fetched_tx = uow.transactions.get(transaction_id=tx.id)
 
@@ -200,16 +208,18 @@ def test_decline_p2p_pull_transaction():
 
 
 def test_generate_voucher():
-    with UnitOfWork() as uow:
+    uow = UnitOfWork()
+
+    with uow:
         generator_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
         uow.transactions.add_1000_wallet(wallet_id=generator_wallet.id)
 
     tx = generate_voucher(
-        sender_wallet_id=generator_wallet.id, amount=1000, uow=UnitOfWork()
+        sender_wallet_id=generator_wallet.id, amount=1000, uow=uow
     )
 
-    with UnitOfWork() as uow:
+    with uow:
         fetched_tx = uow.transactions.get(transaction_id=tx.id)
 
         assert fetched_tx.amount == 1000
@@ -221,21 +231,23 @@ def test_generate_voucher():
 
 
 def test_redeem_voucher():
-    with UnitOfWork() as uow:
+    uow = UnitOfWork()
+
+    with uow:
         generator_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
         redeemer_wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
         uow.transactions.add_1000_wallet(wallet_id=generator_wallet.id)
 
     tx = generate_voucher(
-        sender_wallet_id=generator_wallet.id, amount=1000, uow=UnitOfWork()
+        sender_wallet_id=generator_wallet.id, amount=1000, uow=uow
     )
 
     tx = redeem_voucher(
-        recipient_wallet_id=redeemer_wallet.id, transaction_id=tx.id, uow=UnitOfWork()
+        recipient_wallet_id=redeemer_wallet.id, transaction_id=tx.id, uow=uow
     )
 
-    with UnitOfWork() as uow:
+    with uow:
         fetched_tx = uow.transactions.get(tx.id)
 
         assert fetched_tx.amount == 1000
@@ -248,21 +260,25 @@ def test_redeem_voucher():
 # Keep these commented, only for testing at certain times
 
 # def test_get_paypro_token():
-#     token = _get_paypro_auth_token(uow=UnitOfWork())
+#     uow = UnitOfWork()
+
+#     token = _get_paypro_auth_token(uow=uow)
 #     sleep(1)
-#     token_2 = _get_paypro_auth_token(uow=UnitOfWork())
+#     token_2 = _get_paypro_auth_token(uow=uow)
 
 #     assert token == token_2
 
 
 # def test_get_deposit_checkout_url():
+#     uow = UnitOfWork()
+
 #     payment_url = get_deposit_checkout_url(
 #         amount=500,
 #         transaction_id=str(uuid4()),
 #         email="test@tdd.com",
 #         full_name="TDD test case",
 #         phone_number="03333333333",
-#         uow=UnitOfWork(),
+#         uow=uow,
 #     )
 
 #     assert payment_url is not None

@@ -153,6 +153,8 @@ def slow_execute_transaction(
 
         uow.transactions.save(tx)
 
+    uow.commit_close_connection()
+
     queue.put(tx)
 
 

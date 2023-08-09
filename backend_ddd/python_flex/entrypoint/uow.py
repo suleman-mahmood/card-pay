@@ -48,13 +48,18 @@ class AbstractUnitOfWork(ABC):
     cashback_slabs: CashbackSlabAbstractRepository
     weightages: WeightageAbstractRepository
 
+    def __init__(self) -> None:
+        connection: psycopg2.connection
+        cursor: psycopg2.cursor
+
     def __enter__(self) -> "AbstractUnitOfWork":
-        self.cursor: psycopg2.cursor
         return self
 
     def __exit__(self, *args):
-        self.commit()
-        self.rollback()
+        pass
+
+    def commit_close_connection(self):
+        pass
 
     @abstractmethod
     def commit(self):
@@ -83,16 +88,6 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 class UnitOfWork(AbstractUnitOfWork):
     def __init__(self):
         register_adapter(Location, adapt_point)
-        self.connector = Connector()
-
-    def __enter__(self):
-        self.connection = psycopg2.connect(
-            host=os.environ.get("DB_HOST"),
-            database=os.environ.get("DB_NAME"),
-            user=os.environ.get("DB_USER"),
-            password=os.environ.get("DB_PASSWORD"),
-            port=os.environ.get("DB_PORT"),
-        )
 
         # TODO: un-comment this when deploying to app engine (Production)
         # instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
@@ -100,7 +95,8 @@ class UnitOfWork(AbstractUnitOfWork):
         # db_user = os.environ.get("DB_USER")
         # db_pass = os.environ.get("DB_PASS")
 
-        # self.connection = self.connector.connect(
+        # connector = Connector()
+        # self.connection = connector.connect(
         #     instance_connection_name,
         #     "pg8000",
         #     db=db_name,
@@ -109,9 +105,16 @@ class UnitOfWork(AbstractUnitOfWork):
         #     ip_type=IPTypes.PUBLIC,
         # )
 
+        self.connection = psycopg2.connect(
+            host=os.environ.get("DB_HOST"),
+            database=os.environ.get("DB_NAME"),
+            user=os.environ.get("DB_USER"),
+            password=os.environ.get("DB_PASSWORD"),
+            port=os.environ.get("DB_PORT"),
+        )
+
         self.cursor = self.connection.cursor()
 
-        # fix this asap
         self.transactions = TransactionRepository(self.connection)
         self.closed_loops = ClosedLoopRepository(self.connection)
         self.users = UserRepository(self.connection)
@@ -119,11 +122,18 @@ class UnitOfWork(AbstractUnitOfWork):
         self.cashback_slabs = CashbackSlabRepository(self.connection)
         self.weightages = WeightageRepository(self.connection)
 
-        return super().__enter__()
+    def __enter__(self, *args):
+        super().__enter__(*args)
 
     def __exit__(self, *args):
         super().__exit__(*args)
+
+    def commit_close_connection(self):
+        self.commit()
         self.connection.close()
+
+    def close_connection(self):
+        self.close_connection()
 
     def commit(self):
         self.connection.commit()

@@ -3,6 +3,7 @@ from functools import wraps
 from firebase_admin import auth
 from flask import request, jsonify
 
+from python_flex.entrypoint.uow import UnitOfWork
 
 def firebaseUidToUUID(uid: str) -> str:
     return str(uuid5(NAMESPACE_OID, uid))
@@ -38,12 +39,18 @@ def authenticate_token(f):
     return decorated_function
 
 
-def handle_exceptions(func):
+def handle_exceptions_uow(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
+        uow = UnitOfWork()
+
         try:
-            return func(*args, **kwargs)
+            ret = func(uow, *args, **kwargs)
+            uow.commit_close_connection()
+
+            return ret
         except Exception as e:
+            uow.close_connection()
             return jsonify({"success": False, "message": str(e)}), 400
 
     return wrapper

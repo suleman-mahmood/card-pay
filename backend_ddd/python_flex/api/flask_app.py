@@ -5,11 +5,10 @@ import firebase_admin
 from flask import Flask, request, jsonify
 
 from python_flex.api.utils import (
-    handle_exceptions,
+    handle_exceptions_uow,
     handle_missing_payload,
     authenticate_token,
 )
-from python_flex.entrypoint.uow import UnitOfWork
 from python_flex.payment.entrypoint import commands as payment_commands
 from python_flex.payment.domain.model import (
     TransactionMode,
@@ -66,10 +65,9 @@ def base():
 
 
 @app.route(PREFIX + "/create-user", methods=["POST"])
-# @authenticate_token
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def create_user():
+def create_user(uow):
     """Create a new user account"""
     req = request.get_json(force=True)
 
@@ -80,7 +78,7 @@ def create_user():
         user_type=req["user_type"],
         full_name=req["full_name"],
         location=req["location"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -95,9 +93,9 @@ def create_user():
 
 @app.route(PREFIX + "/create-customer", methods=["POST"])
 # @authenticate_token
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def create_customer():
+def create_customer(uow):
     """
     Create a new user account of type customer
 
@@ -112,7 +110,7 @@ def create_customer():
         user_type="CUSTOMER",
         full_name=req["full_name"],
         location=req["location"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -129,8 +127,8 @@ def create_customer():
 
 @app.route(PREFIX + "/create-closed-loop", methods=["POST"])
 @handle_missing_payload
-@handle_exceptions
-def create_closed_loop():
+@handle_exceptions_uow
+def create_closed_loop(uow):
     req = request.get_json(force=True)
 
     authentication_commands.create_closed_loop(
@@ -139,7 +137,7 @@ def create_closed_loop():
         description=req["description"],
         verification_type=req["verification_type"],
         regex=req["regex"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -153,15 +151,15 @@ def create_closed_loop():
 
 
 @app.route(PREFIX + "/change-name", methods=["POST"])
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def change_name():
+def change_name(uow):
     req = request.get_json(force=True)
 
     authentication_commands.change_name(
         user_id=req["user_id"],
         new_name=req["new_name"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -175,15 +173,15 @@ def change_name():
 
 
 @app.route(PREFIX + "/change-pin", methods=["POST"])
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def change_pin():
+def change_pin(uow):
     req = request.get_json(force=True)
 
     authentication_commands.change_pin(
         user_id=req["user_id"],
         new_pin=req["new_pin"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -197,14 +195,14 @@ def change_pin():
 
 
 @app.route(PREFIX + "/user-toggle-active", methods=["POST"])
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def user_toggle_active():
+def user_toggle_active(uow):
     req = request.get_json(force=True)
 
     authentication_commands.user_toggle_active(
         user_id=req["user_id"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -218,15 +216,15 @@ def user_toggle_active():
 
 
 @app.route(PREFIX + "/verify-otp", methods=["POST"])
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def verify_otp():
+def verify_otp(uow):
     req = request.get_json(force=True)
 
     authentication_commands.verify_otp(
         user_id=req["user_id"],
         otp=req["otp"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -240,15 +238,15 @@ def verify_otp():
 
 
 @app.route(PREFIX + "/verify-phone-number", methods=["POST"])
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def verify_phone_number():
+def verify_phone_number(uow):
     req = request.get_json(force=True)
 
     authentication_commands.verify_phone_number(
         user_id=req["user_id"],
         otp=req["otp"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -262,16 +260,16 @@ def verify_phone_number():
 
 
 @app.route(PREFIX + "/register-closed-loop", methods=["POST"])
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def register_closed_loop():
+def register_closed_loop(uow):
     req = request.get_json(force=True)
 
     authentication_commands.register_closed_loop(
         user_id=req["user_id"],
         closed_loop_id=req["closed_loop_id"],
         unique_identifier=req["unique_identifier"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -285,16 +283,16 @@ def register_closed_loop():
 
 
 @app.route(PREFIX + "/verify-closed-loop", methods=["POST"])
-@handle_exceptions
+@handle_exceptions_uow
 @handle_missing_payload
-def verify_closed_loop():
+def verify_closed_loop(uow):
     req = request.get_json(force=True)
 
     authentication_commands.verify_closed_loop(
         user_id=req["user_id"],
         closed_loop_id=req["closed_loop_id"],
         unique_identifier_otp=req["unique_identifier_otp"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -311,11 +309,11 @@ def verify_closed_loop():
 
 
 @app.route(PREFIX + "/get-all-closed-loops", methods=["GET"])
-@handle_exceptions
-def get_all_closed_loops():
+@handle_exceptions_uow
+def get_all_closed_loops(uow):
     """ """
 
-    closed_loops = authentication_queries.get_all_closed_loops(uow=UnitOfWork())
+    closed_loops = authentication_queries.get_all_closed_loops(uow=uow)
 
     return (
         jsonify(
@@ -339,12 +337,12 @@ def decode_access_token(uid):
 
 
 @app.route(PREFIX + "/get-user", methods=["GET"])
-@handle_exceptions
+@handle_exceptions_uow
 @authenticate_token
-def get_user(uid):
+def get_user(uid, uow):
     user = authentication_queries.get_user_from_user_id(
         user_id=uid,
-        uow=UnitOfWork(),
+        uow=uow,
     )
 
     user.closed_loops = [c for c in user.closed_loops.values()]
@@ -362,12 +360,12 @@ def get_user(uid):
 
 
 @app.route(PREFIX + "/get-user-balance", methods=["GET"])
-@handle_exceptions
+@handle_exceptions_uow
 @authenticate_token
-def get_user_balance(uid):
+def get_user_balance(uid, uow):
     balance = authentication_queries.get_user_balance(
         user_id=uid,
-        uow=UnitOfWork(),
+        uow=uow,
     )
 
     return (
@@ -383,14 +381,14 @@ def get_user_balance(uid):
 
 
 @app.route(PREFIX + "/get-user-recent-transactions", methods=["GET"])
-@handle_exceptions
+@handle_exceptions_uow
 @authenticate_token
-def get_user_recent_transactions(uid):
+def get_user_recent_transactions(uid, uow):
     txs = payment_queries.get_all_transactions_of_a_user(
         user_id=uid,
         offset=0,
         page_size=50,
-        uow=UnitOfWork(),
+        uow=uow,
     )
 
     return (
@@ -407,12 +405,12 @@ def get_user_recent_transactions(uid):
 
 # for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)
 # @app.route(PREFIX + "/create-test-wallet", methods=["POST"])
-# @handle_exceptions
-# def create_test_wallet():
+# @handle_exceptions_uow
+# def create_test_wallet(uid, uow):
 #     req = request.get_json(force=True)
 
-#     with UnitOfWork() as uow:
-#         payment_commands.create_wallet(uow=uow)
+#     with uow as uow:
+#         payment_commands.create_wallet(user_id=uid, uow=uow)
 
 #     return {
 #         "success": True,
@@ -421,16 +419,16 @@ def get_user_recent_transactions(uid):
 
 
 @app.route(PREFIX + "/create-deposit-request", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
+@handle_exceptions_uow
 @authenticate_token
-def create_deposit_request(uid):
+def create_deposit_request(uid, uow):
     req = request.get_json(force=True)
 
     checkout_url = payment_commands.create_deposit_request(
         user_id=uid,
         amount=req["amount"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -445,11 +443,12 @@ def create_deposit_request(uid):
 
 
 @app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
-def pay_pro_callback():
+@handle_exceptions_uow
+def pay_pro_callback(uow):
     req = request.get_json(force=True)
 
     payment_commands.pay_pro_callback(
-        uow=UnitOfWork(),
+        uow=uow,
         data=req[""],  # TODO: fill these later
     )
     return (
@@ -464,14 +463,14 @@ def pay_pro_callback():
 
 
 @app.route(PREFIX + "/execute-p2p-push-transaction", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
+@handle_exceptions_uow
 @authenticate_token
-def execute_p2p_push_transaction(uid):
+def execute_p2p_push_transaction(uid, uow):
     req = request.get_json(force=True)
 
     unique_identifier = authentication_queries.get_unique_identifier_from_user_id(
-        user_id=uid, uow=UnitOfWork()
+        user_id=uid, uow=uow
     )
     payment_commands.execute_transaction_unique_identifier(
         sender_unique_identifier=unique_identifier,
@@ -480,7 +479,7 @@ def execute_p2p_push_transaction(uid):
         closed_loop_id=req["closed_loop_id"],
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -494,14 +493,14 @@ def execute_p2p_push_transaction(uid):
 
 
 @app.route(PREFIX + "/create-p2p-pull-transaction", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
+@handle_exceptions_uow
 @authenticate_token
-def create_p2p_pull_transaction(uid):
+def create_p2p_pull_transaction(uid, uow):
     req = request.get_json(force=True)
 
     unique_identifier = authentication_queries.get_unique_identifier_from_user_id(
-        user_id=uid, uow=UnitOfWork()
+        user_id=uid, uow=uow
     )
     payment_commands.execute_transaction_unique_identifier(
         sender_unique_identifier=req["sender_unique_identifier"],
@@ -510,7 +509,7 @@ def create_p2p_pull_transaction(uid):
         closed_loop_id=req["closed_loop_id"],
         transaction_mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -523,35 +522,36 @@ def create_p2p_pull_transaction(uid):
     )
 
 
-@app.route(PREFIX + "/execute-transaction", methods=["POST"])
-@handle_exceptions
-@handle_missing_payload
-def execute_transaction():
-    req = request.get_json(force=True)
+# TODO: Check where this is used and then remove if not required
+# @app.route(PREFIX + "/execute-transaction", methods=["POST"])
+# @handle_exceptions_uow
+# @handle_missing_payload
+# def execute_transaction():
+#     req = request.get_json(force=True)
 
-    payment_commands.execute_transaction(
-        sender_wallet_id=req["sender_wallet_id"],
-        recipient_wallet_id=req["recipient_wallet_id"],
-        amount=req["amount"],
-        transaction_mode=TransactionMode.__members__[req["transaction_mode"]],
-        transaction_type=TransactionType.__members__[req["transaction_type"]],
-        uow=UnitOfWork(),
-    )
-    return (
-        jsonify({"success": True, "message": "transaction executed successfully"}),
-        200,
-    )
+#     payment_commands.execute_transaction(
+#         sender_wallet_id=req["sender_wallet_id"],
+#         recipient_wallet_id=req["recipient_wallet_id"],
+#         amount=req["amount"],
+#         transaction_mode=TransactionMode.__members__[req["transaction_mode"]],
+#         transaction_type=TransactionType.__members__[req["transaction_type"]],
+#         uow=uow,
+#     )
+#     return (
+#         jsonify({"success": True, "message": "transaction executed successfully"}),
+#         200,
+#     )
 
 
 @app.route(PREFIX + "/accept-p2p-pull-transaction", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
-def accept_p2p_pull_transaction():
+@handle_exceptions_uow
+def accept_p2p_pull_transaction(uow):
     req = request.get_json(force=True)
 
     payment_commands.accept_p2p_pull_transaction(
         transaction_id=req["transaction_id"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -565,14 +565,14 @@ def accept_p2p_pull_transaction():
 
 
 @app.route(PREFIX + "/decline-p2p-pull-transaction", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
-def decline_p2p_pull_transaction():
+@handle_exceptions_uow
+def decline_p2p_pull_transaction(uow):
     req = request.get_json(force=True)
 
     payment_commands.decline_p2p_pull_transaction(
         transaction_id=req["transaction_id"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -586,15 +586,15 @@ def decline_p2p_pull_transaction():
 
 
 @app.route(PREFIX + "/generate-voucher", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
-def generate_voucher():
+@handle_exceptions_uow
+def generate_voucher(uow):
     req = request.get_json(force=True)
 
     payment_commands.generate_voucher(
         sender_wallet_id=req["sender_wallet_id"],
         amount=req["amount"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -608,15 +608,15 @@ def generate_voucher():
 
 
 @app.route(PREFIX + "/redeem-voucher", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
-def redeem_voucher():
+@handle_exceptions_uow
+def redeem_voucher(uow):
     req = request.get_json(force=True)
 
     payment_commands.redeem_voucher(
         recipient_wallet_id=req["recipient_wallet_id"],
         transaction_id=req["transaction_id"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -630,15 +630,15 @@ def redeem_voucher():
 
 
 @app.route(PREFIX + "/use-reference", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
-def use_reference():
+@handle_exceptions_uow
+def use_reference(uow):
     req = request.get_json(force=True)
 
     marketing_commands.use_reference(
         referee_id=req["referee_id"],
         referral_id=req["referral_id"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -655,15 +655,15 @@ def use_reference():
 
 
 @app.route(PREFIX + "/add-weightage", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
-def add_weightage():
+@handle_exceptions_uow
+def add_weightage(uow):
     req = request.get_json(force=True)
 
     marketing_commands.add_weightage(
         weightage_type=req["weightage_type"],
         weightage_value=req["weightage_value"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -677,15 +677,15 @@ def add_weightage():
 
 
 @app.route(PREFIX + "/set-weightage", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
-def set_weightage():
+@handle_exceptions_uow
+def set_weightage(uow):
     req = request.get_json(force=True)
     
     marketing_commands.set_weightage(
         weightage_type=req["weightage_type"],
         weightage_value=req["weightage_value"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -699,16 +699,16 @@ def set_weightage():
 
 
 @app.route(PREFIX + "/set-cashback-slabs", methods=["POST"])
-@handle_exceptions
 @handle_missing_payload
-def set_cashback_slabs():
+@handle_exceptions_uow
+def set_cashback_slabs(uow):
     req = request.get_json(force=True)
 
     cashback_slabs = req["cashback_slabs"]
 
     marketing_commands.set_cashback_slabs(
         cashback_slabs=cashback_slabs,
-        uow=UnitOfWork(),
+        uow=uow,
     )
     return (
         jsonify(
@@ -725,10 +725,10 @@ def set_cashback_slabs():
 
 
 @app.route(PREFIX + "/get-all-closed-loops-with-user-counts", methods=["GET"])
-@handle_exceptions
-def get_all_closed_loops_with_user_counts():
+@handle_exceptions_uow
+def get_all_closed_loops_with_user_counts(uow):
     closed_loops = authentication_queries.get_all_closed_loops_with_user_counts(
-        uow=UnitOfWork()
+        uow=uow
     )
 
     return (
@@ -744,9 +744,9 @@ def get_all_closed_loops_with_user_counts():
 
 
 @app.route(PREFIX + "/update-closed-loop", methods=["PUT"])
-@handle_exceptions
 @handle_missing_payload
-def update_closed_loop():
+@handle_exceptions_uow
+def update_closed_loop(uow):
     req = request.get_json(force=True)
 
     authentication_queries.update_closed_loop(
@@ -756,9 +756,8 @@ def update_closed_loop():
         description=req["description"],
         verification_type=req["verification_type"],
         regex=req["regex"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
-    # print("hello")
     return (
         jsonify(
             {
@@ -771,14 +770,14 @@ def update_closed_loop():
 
 
 @app.route(PREFIX + "/get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
-@handle_exceptions
 @handle_missing_payload
-def get_active_inactive_counts_of_a_closed_loop():
+@handle_exceptions_uow
+def get_active_inactive_counts_of_a_closed_loop(uow):
     req = request.get_json(force=True)
 
     counts = authentication_queries.get_active_inactive_counts_of_a_closed_loop(
         closed_loop_id=req["closed_loop_id"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
 
     return (
@@ -794,14 +793,14 @@ def get_active_inactive_counts_of_a_closed_loop():
 
 
 @app.route(PREFIX + "/get-all-users-of-a-closed-loop", methods=["GET"])
-@handle_exceptions
 @handle_missing_payload
-def get_information_of_all_users_of_a_closed_loop():
+@handle_exceptions_uow
+def get_information_of_all_users_of_a_closed_loop(uow):
     req = request.get_json(force=True)
     
     users = authentication_queries.get_information_of_all_users_of_a_closed_loop(
         closed_loop_id=req["closed_loop_id"],
-        uow=UnitOfWork(),
+        uow=uow,
     )
 
     return (
