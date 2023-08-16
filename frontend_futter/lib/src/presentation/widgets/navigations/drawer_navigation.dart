@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
@@ -8,14 +10,20 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DrawerItem {
   final IconData icon;
   final String text;
-  final PageRouteInfo<dynamic> route;
+  final PageRouteInfo<dynamic>? route;
+  final VoidCallback? onClick;
 
-  const DrawerItem(
-      {required this.icon, required this.text, required this.route});
+  const DrawerItem({
+    required this.icon,
+    required this.text,
+    this.route,
+    this.onClick,
+  });
 }
 
 class MyDrawer extends HookWidget {
@@ -24,10 +32,17 @@ class MyDrawer extends HookWidget {
   final List<DrawerItem> drawerItems = [
     DrawerItem(icon: Icons.home, text: 'Home', route: PaymentDashboardRoute()),
     DrawerItem(
-      icon: Icons.phone_outlined,
-      text: 'Help',
-      route: HelpRoute(),
-    ),
+        icon: Icons.phone_outlined,
+        text: 'Help',
+        onClick: () {
+          if (Platform.isIOS) {
+            const whatsappUrl = 'https://wa.me/+923322208287';
+            launchUrl(Uri.parse(whatsappUrl));
+          } else if (Platform.isAndroid) {
+            const whatsappUrl = 'whatsapp://send?phone=+923322208287';
+            launchUrl(Uri.parse(whatsappUrl));
+          }
+        }),
     // DrawerItem(
     //     icon: Icons.history, text: 'History', route: const HistroyRoute()),
     // DrawerItem(icon: Icons.show_chart, text: 'Charts', route: DashboardRoute()),
@@ -41,7 +56,7 @@ class MyDrawer extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var selectedRouteName = useState(drawerItems[0].route.routeName);
+    var selectedRouteName = useState(drawerItems[0].route?.routeName);
 
     return Drawer(
       child: Column(
@@ -66,15 +81,17 @@ class MyDrawer extends HookWidget {
                 icon: item.icon,
                 text: item.text,
                 onTap: () {
-                  context.router.push(item.route);
-                  selectedRouteName.value = item.route.routeName;
+                  if (item.route != null) {
+                    context.router.push(item.route!);
+                    selectedRouteName.value = item.route!.routeName;
+                  } else {
+                    item.onClick!();
+                  }
                 },
-                selected: selectedRouteName.value == item.route.routeName,
+                selected: selectedRouteName.value == item.route?.routeName,
               ),
             ),
-          Expanded(
-            child: SizedBox(),
-          ),
+          const Expanded(child: SizedBox()),
           GestureDetector(
             onTap: () =>
                 {context.router.push(const RegisterOrganizationRoute())},
@@ -108,11 +125,11 @@ class MyDrawer extends HookWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             backgroundImage: AssetImage('assets/images/talha.jpg'),
             radius: 30,
           ),
-          WidthBetween(),
+          const WidthBetween(),
           Column(
             children: [
               Text(
@@ -197,6 +214,7 @@ class CustomListTile extends HookWidget {
                   color: suffixIconColor,
                 )
               : null,
+          textColor: color,
         ),
       ),
     );

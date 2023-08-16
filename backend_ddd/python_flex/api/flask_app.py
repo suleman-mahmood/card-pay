@@ -23,12 +23,8 @@ app = Flask(__name__)
 app.config["PROPAGATE_EXCEPTIONS"] = True
 PREFIX = "/api/v1"
 
-
 cred = firebase_admin.credentials.Certificate("credentials-dev.json")
 firebase_admin.initialize_app(cred)
-
-# Or this in app engine
-# default_app = firebase_admin.initialize_app()
 
 # 200 OK
 # The request succeeded. The result meaning of "success" depends on the HTTP method:
@@ -681,7 +677,7 @@ def add_weightage(uow):
 @handle_exceptions_uow
 def set_weightage(uow):
     req = request.get_json(force=True)
-    
+
     marketing_commands.set_weightage(
         weightage_type=req["weightage_type"],
         weightage_value=req["weightage_value"],
@@ -727,9 +723,7 @@ def set_cashback_slabs(uow):
 @app.route(PREFIX + "/get-all-closed-loops-with-user-counts", methods=["GET"])
 @handle_exceptions_uow
 def get_all_closed_loops_with_user_counts(uow):
-    closed_loops = authentication_queries.get_all_closed_loops_with_user_counts(
-        uow=uow
-    )
+    closed_loops = authentication_queries.get_all_closed_loops_with_user_counts(uow=uow)
 
     return (
         jsonify(
@@ -797,7 +791,7 @@ def get_active_inactive_counts_of_a_closed_loop(uow):
 @handle_exceptions_uow
 def get_information_of_all_users_of_a_closed_loop(uow):
     req = request.get_json(force=True)
-    
+
     users = authentication_queries.get_information_of_all_users_of_a_closed_loop(
         closed_loop_id=req["closed_loop_id"],
         uow=uow,

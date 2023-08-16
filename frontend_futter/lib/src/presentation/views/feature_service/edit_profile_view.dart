@@ -25,13 +25,13 @@ class EditProfileView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final userCubit = BlocProvider.of<UserCubit>(context);
-    useEffect(() {
-      someFunction() async {
-        await userCubit.getUser();
-      }
+    // useEffect(() {
+    //   someFunction() async {
+    //     await userCubit.getUser();
+    //   }
 
-      someFunction();
-    }, []);
+    //   someFunction();
+    // }, []);
     void handleLogout() async {
       await userCubit.logout();
     }

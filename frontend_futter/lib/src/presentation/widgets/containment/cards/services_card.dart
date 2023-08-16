@@ -56,7 +56,7 @@ class CustomBox extends StatelessWidget {
       );
     }
 
-    onTap() {
+    onTap() async {
       userCubit.initialize();
       context.router.push(route);
     }

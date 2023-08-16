@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/presentation/views/feature_service/faqs_view.dart';
-import 'package:cardpay/src/presentation/views/feature_service/help_view.dart';
 import 'package:cardpay/src/presentation/views/transaction_service/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/views/transaction_service/qr_view.dart';
 import 'package:cardpay/src/presentation/views/feature_service/profile_view.dart';
@@ -93,10 +92,6 @@ class AppRouter extends _$AppRouter {
         ),
         CustomRoute(
           page: FaqsRoute.page,
-          transitionsBuilder: TransitionsBuilders.slideLeft,
-        ),
-        CustomRoute(
-          page: HelpRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(

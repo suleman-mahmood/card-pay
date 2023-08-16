@@ -21,10 +21,10 @@ class SendView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recipientUniqueIdentifier = useState<String>(uniqueIdentifier ?? '');
     final userCubit = BlocProvider.of<UserCubit>(context);
 
     return BlocBuilder<UserCubit, UserState>(builder: (_, state) {
+      print(state.runtimeType);
       switch (state.runtimeType) {
         case UserLoading:
           return const Scaffold(
@@ -41,13 +41,16 @@ class SendView extends HookWidget {
           return TransactionView(
             title: PaymentStrings.transferMoney,
             buttonText: PaymentStrings.continu,
-            rollNumber: recipientUniqueIdentifier.value,
+            rollNumber: uniqueIdentifier,
             backgroundColor: AppColors.parrotColor,
-            onButtonPressed: (amount) => {
+            onButtonPressed: (amount) {
+              if (uniqueIdentifier == null) {
+                return;
+              }
               userCubit.executeP2PPushTransaction(
-                recipientUniqueIdentifier.value,
+                uniqueIdentifier!,
                 amount,
-              )
+              );
             },
           );
       }

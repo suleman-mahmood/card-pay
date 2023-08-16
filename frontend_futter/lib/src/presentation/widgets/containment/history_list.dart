@@ -20,9 +20,9 @@ class TransactionList extends HookWidget {
   Widget build(BuildContext context) {
     final userCubit = BlocProvider.of<UserCubit>(context);
 
-    useEffect(() {
-      userCubit.getUserRecentTransactions();
-    }, []);
+    // useEffect(() {
+    //   userCubit.getUserRecentTransactions();
+    // }, []);
 
     return BlocBuilder<UserCubit, UserState>(
       builder: (_, state) {
