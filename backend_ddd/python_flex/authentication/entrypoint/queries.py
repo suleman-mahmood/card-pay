@@ -28,146 +28,190 @@ from ...entrypoint.uow import AbstractUnitOfWork
 
 def get_all_closed_loops(uow: AbstractUnitOfWork):
     """Get all closed loops"""
-    with uow:
-        sql = """
-            select id, name, logo_url, description, regex, verification_type, created_at
-            from closed_loops
-            """
-        uow.cursor.execute(sql)
-        rows = uow.cursor.fetchall()
-        closed_loops = [
-            authentication_model.ClosedLoop(
-                id=row[0],
-                name=row[1],
-                logo_url=row[2],
-                description=row[3],
-                regex=row[4],
-                verification_type=row[5],
-                created_at=row[6],
-            )
-            for row in rows
-        ]
+    
+    sql = """
+        select id, name, logo_url, description, regex, verification_type, created_at
+        from closed_loops
+        """
+    uow.cursor.execute(sql)
+    rows = uow.cursor.fetchall()
+    closed_loops = [
+        authentication_model.ClosedLoop(
+            id=row[0],
+            name=row[1],
+            logo_url=row[2],
+            description=row[3],
+            regex=row[4],
+            verification_type=row[5],
+            created_at=row[6],
+        )
+        for row in rows
+    ]
 
     return closed_loops
 
 
 def get_all_closed_loops_with_user_counts(uow: AbstractUnitOfWork):
-    with uow:
-        sql = """
-            select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at, count(ucl.user_id)
-            from closed_loops cl
-            left join user_closed_loops ucl on cl.id = ucl.closed_loop_id
-            group by cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at
-        """
-        uow.cursor.execute(sql)
-        rows = uow.cursor.fetchall()
-        closed_loops = [
-            {
-                "id": row[0],
-                "name": row[1],
-                "logo_url": row[2],
-                "description": row[3],
-                "regex": row[4],
-                "verification_type": row[5],
-                "created_at": row[6],
-                "user_count": row[7],
-            }
-            for row in rows
-        ]
+
+    sql = """
+        select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at, count(ucl.user_id)
+        from closed_loops cl
+        left join user_closed_loops ucl on cl.id = ucl.closed_loop_id
+        group by cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at
+    """
+    uow.cursor.execute(sql)
+    rows = uow.cursor.fetchall()
+    closed_loops = [
+        {
+            "id": row[0],
+            "name": row[1],
+            "logo_url": row[2],
+            "description": row[3],
+            "regex": row[4],
+            "verification_type": row[5],
+            "created_at": row[6],
+            "user_count": row[7],
+        }
+        for row in rows
+    ]
 
     return closed_loops
 
 
 def get_closed_loop_from_closed_loop_id(closed_loop_id: str, uow: AbstractUnitOfWork):
     """Get closed loop from closed loop id"""
-    with uow:
-        closed_loop = uow.closed_loops.get(closed_loop_id=closed_loop_id)
+
+    closed_loop = uow.closed_loops.get(closed_loop_id=closed_loop_id)
+
     return closed_loop
 
 
 def get_user_from_user_id(user_id: str, uow: AbstractUnitOfWork):
     """Get user from user id"""
-    with uow:
-        user = uow.users.get(user_id=user_id)
+    user = uow.users.get(user_id=user_id)
     return user
 
+def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
+    """Get user type from user id"""
+    sql = """
+        select user_type
+        from users
+        where id = %s
+    """
+    uow.cursor.execute(sql, [user_id])
+    row = uow.cursor.fetchone()
+    user_type = authentication_model.UserType[row[0]]
+    return user_type
 
 def get_user_from_email(user_email: str, uow: AbstractUnitOfWork):
     """Get user from email"""
-    with uow:
-        sql = """
-            select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
-            from users
-            where personal_email = %s
-        """
-        uow.cursor.execute(sql, [user_email])
-        row = uow.cursor.fetchone()
-        user = authentication_model.User(
-            id=row[0],
-            personal_email=authentication_model.PersonalEmail(row[1]),
-            phone_number=authentication_model.PhoneNumber(row[2]),
-            user_type=authentication_model.UserType[row[3]],
-            pin=row[4],
-            full_name=row[5],
-            wallet_id=row[6],
-            is_active=row[7],
-            is_phone_number_verified=row[8],
-            otp=row[9],
-            otp_generated_at=row[10],
-            location=authentication_model.Location(
-                latitude=float(row[11][1:-1].split(",")[0]),
-                longitude=float(row[11][1:-1].split(",")[0]),
-            ),
-            created_at=row[12],
-        )
+    
+    sql = """
+        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
+        from users
+        where personal_email = %s
+    """
+    uow.cursor.execute(sql, [user_email])
+    row = uow.cursor.fetchone()
+    user = authentication_model.User(
+        id=row[0],
+        personal_email=authentication_model.PersonalEmail(row[1]),
+        phone_number=authentication_model.PhoneNumber(row[2]),
+        user_type=authentication_model.UserType[row[3]],
+        pin=row[4],
+        full_name=row[5],
+        wallet_id=row[6],
+        is_active=row[7],
+        is_phone_number_verified=row[8],
+        otp=row[9],
+        otp_generated_at=row[10],
+        location=authentication_model.Location(
+            latitude=float(row[11][1:-1].split(",")[0]),
+            longitude=float(row[11][1:-1].split(",")[0]),
+        ),
+        created_at=row[12],
+    )
     return user
 
 
 def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork):
     """Get user from phone number"""
-    with uow:
-        sql = """
-            select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
-            from users
-            where phone_number = %s
-        """
-        uow.cursor.execute(sql, [phone_number])
-        row = uow.cursor.fetchone()
-        user = authentication_model.User(
-            id=row[0],
-            personal_email=authentication_model.PersonalEmail(row[1]),
-            phone_number=authentication_model.PhoneNumber(row[2]),
-            user_type=authentication_model.UserType[row[3]],
-            pin=row[4],
-            full_name=row[5],
-            wallet_id=row[6],
-            is_active=row[7],
-            is_phone_number_verified=row[8],
-            otp=row[9],
-            otp_generated_at=row[10],
-            location=authentication_model.Location(
-                latitude=float(row[11][1:-1].split(",")[0]),
-                longitude=float(row[11][1:-1].split(",")[0]),
-            ),
-            created_at=row[12],
-        )
-        return user
+   
+    sql = """
+        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
+        from users
+        where phone_number = %s
+    """
+    uow.cursor.execute(sql, [phone_number])
+    row = uow.cursor.fetchone()
+    user = authentication_model.User(
+        id=row[0],
+        personal_email=authentication_model.PersonalEmail(row[1]),
+        phone_number=authentication_model.PhoneNumber(row[2]),
+        user_type=authentication_model.UserType[row[3]],
+        pin=row[4],
+        full_name=row[5],
+        wallet_id=row[6],
+        is_active=row[7],
+        is_phone_number_verified=row[8],
+        otp=row[9],
+        otp_generated_at=row[10],
+        location=authentication_model.Location(
+            latitude=float(row[11][1:-1].split(",")[0]),
+            longitude=float(row[11][1:-1].split(",")[0]),
+        ),
+        created_at=row[12],
+    )
+    return user
 
 
 def get_user_from_closed_loop_id_and_unique_identifier(
     closed_loop_id: str, unique_identifier: str, uow: AbstractUnitOfWork
 ):
     """Get user from closed_loop_id and unique_identifier"""
-    with uow:
-        sql = """
-            select u.id, u.personal_email, u.phone_number, u.user_type, u.pin, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.otp, u.otp_generated_at, u.location, u.created_at
-            from users u
-            join user_closed_loops ucl on u.id = ucl.user_id
-            where ucl.closed_loop_id = %s and ucl.unique_identifier = %s
-            """
-        uow.cursor.execute(sql, [closed_loop_id, unique_identifier])
-        row = uow.cursor.fetchone()
-        user = authentication_model.User(
+
+    sql = """
+        select u.id, u.personal_email, u.phone_number, u.user_type, u.pin, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.otp, u.otp_generated_at, u.location, u.created_at
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s and ucl.unique_identifier = %s
+        """
+    uow.cursor.execute(sql, [closed_loop_id, unique_identifier])
+    row = uow.cursor.fetchone()
+    user = authentication_model.User(
+        id=row[0],
+        personal_email=authentication_model.PersonalEmail(row[1]),
+        phone_number=authentication_model.PhoneNumber(row[2]),
+        user_type=authentication_model.UserType[row[3]],
+        pin=row[4],
+        full_name=row[5],
+        wallet_id=row[6],
+        is_active=row[7],
+        is_phone_number_verified=row[8],
+        otp=row[9],
+        otp_generated_at=row[10],
+        location=authentication_model.Location(
+            latitude=float(row[11][1:-1].split(",")[0]),
+            longitude=float(row[11][1:-1].split(",")[0]),
+        ),
+        created_at=row[12],
+    )
+    
+    return user
+
+
+def get_all_active_users(uow: AbstractUnitOfWork):
+    """Get all active users"""
+
+    sql = """
+        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
+        from users 
+        where is_active = true
+    """
+    uow.cursor.execute(sql)
+    rows = uow.cursor.fetchall()
+    users = [
+        authentication_model.User(
             id=row[0],
             personal_email=authentication_model.PersonalEmail(row[1]),
             phone_number=authentication_model.PhoneNumber(row[2]),
@@ -185,74 +229,43 @@ def get_user_from_closed_loop_id_and_unique_identifier(
             ),
             created_at=row[12],
         )
-    return user
-
-
-def get_all_active_users(uow: AbstractUnitOfWork):
-    """Get all active users"""
-    with uow:
-        sql = """
-            select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
-            from users 
-            where is_active = true
-        """
-        uow.cursor.execute(sql)
-        rows = uow.cursor.fetchall()
-        users = [
-            authentication_model.User(
-                id=row[0],
-                personal_email=authentication_model.PersonalEmail(row[1]),
-                phone_number=authentication_model.PhoneNumber(row[2]),
-                user_type=authentication_model.UserType[row[3]],
-                pin=row[4],
-                full_name=row[5],
-                wallet_id=row[6],
-                is_active=row[7],
-                is_phone_number_verified=row[8],
-                otp=row[9],
-                otp_generated_at=row[10],
-                location=authentication_model.Location(
-                    latitude=float(row[11][1:-1].split(",")[0]),
-                    longitude=float(row[11][1:-1].split(",")[0]),
-                ),
-                created_at=row[12],
-            )
-            for row in rows
-        ]
+        for row in rows
+    ]
     return users
 
 
 def get_all_inactive_users(uow: AbstractUnitOfWork):
     """Get all inactive users"""
-    with uow:
-        sql = """
-            select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
-            from users 
-            where is_active = false
-        """
-        uow.cursor.execute(sql)
-        rows = uow.cursor.fetchall()
-        users = [
-            authentication_model.User(
-                id=row[0],
-                personal_email=authentication_model.PersonalEmail(row[1]),
-                phone_number=authentication_model.PhoneNumber(row[2]),
-                user_type=authentication_model.UserType[row[3]],
-                pin=row[4],
-                full_name=row[5],
-                wallet_id=row[6],
-                is_active=row[7],
-                is_phone_number_verified=row[8],
-                otp=row[9],
-                otp_generated_at=row[10],
-                location=authentication_model.Location(
-                    latitude=float(row[11][1:-1].split(",")[0]),
-                    longitude=float(row[11][1:-1].split(",")[0]),
-                ),
-                created_at=row[12],
-            )
-            for row in rows
-        ]
+
+    sql = """
+        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
+        from users 
+        where is_active = false
+    """
+    uow.cursor.execute(sql)
+    rows = uow.cursor.fetchall()
+    users = [
+        authentication_model.User(
+            id=row[0],
+            personal_email=authentication_model.PersonalEmail(row[1]),
+            phone_number=authentication_model.PhoneNumber(row[2]),
+            user_type=authentication_model.UserType[row[3]],
+            pin=row[4],
+            full_name=row[5],
+            wallet_id=row[6],
+            is_active=row[7],
+            is_phone_number_verified=row[8],
+            otp=row[9],
+            otp_generated_at=row[10],
+            location=authentication_model.Location(
+                latitude=float(row[11][1:-1].split(",")[0]),
+                longitude=float(row[11][1:-1].split(",")[0]),
+            ),
+            created_at=row[12],
+        )
+        for row in rows
+    ]
+
     return users
 
 
@@ -260,62 +273,62 @@ def get_all_users_of_a_user_type(
     uow: AbstractUnitOfWork, user_type: authentication_model.UserType
 ):
     """Get all users of a user type"""
-    with uow:
-        sql = """
-            select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
-            from users 
-            where user_type = %s
-        """
-        uow.cursor.execute(sql, [user_type.name])
-        rows = uow.cursor.fetchall()
-        users = [
-            authentication_model.User(
-                id=row[0],
-                personal_email=authentication_model.PersonalEmail(row[1]),
-                phone_number=authentication_model.PhoneNumber(row[2]),
-                user_type=authentication_model.UserType[row[3]],
-                pin=row[4],
-                full_name=row[5],
-                wallet_id=row[6],
-                is_active=row[7],
-                is_phone_number_verified=row[8],
-                otp=row[9],
-                otp_generated_at=row[10],
-                location=authentication_model.Location(
-                    latitude=float(row[11][1:-1].split(",")[0]),
-                    longitude=float(row[11][1:-1].split(",")[0]),
-                ),
-                created_at=row[12],
-            )
-            for row in rows
-        ]
+   
+    sql = """
+        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
+        from users 
+        where user_type = %s
+    """
+    uow.cursor.execute(sql, [user_type.name])
+    rows = uow.cursor.fetchall()
+    users = [
+        authentication_model.User(
+            id=row[0],
+            personal_email=authentication_model.PersonalEmail(row[1]),
+            phone_number=authentication_model.PhoneNumber(row[2]),
+            user_type=authentication_model.UserType[row[3]],
+            pin=row[4],
+            full_name=row[5],
+            wallet_id=row[6],
+            is_active=row[7],
+            is_phone_number_verified=row[8],
+            otp=row[9],
+            otp_generated_at=row[10],
+            location=authentication_model.Location(
+                latitude=float(row[11][1:-1].split(",")[0]),
+                longitude=float(row[11][1:-1].split(",")[0]),
+            ),
+            created_at=row[12],
+        )
+        for row in rows
+    ]
     return users
 
 
 def get_all_closed_loops_of_a_user(user_id: str, uow: AbstractUnitOfWork):
     """Get all closed loops of a user"""
-    with uow:
-        sql = """
-            select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at
-            from closed_loops cl
-            join user_closed_loops ucl ON cl.id = ucl.closed_loop_id
-            where ucl.user_id = %s
-        """
-        uow.cursor.execute(sql, [user_id])
-        rows = uow.cursor.fetchall()
 
-        closed_loops = [
-            authentication_model.ClosedLoop(
-                id=row[0],
-                name=row[1],
-                logo_url=row[2],
-                description=row[3],
-                regex=row[4],
-                verification_type=row[5],
-                created_at=row[6],
-            )
-            for row in rows
-        ]
+    sql = """
+        select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at
+        from closed_loops cl
+        join user_closed_loops ucl ON cl.id = ucl.closed_loop_id
+        where ucl.user_id = %s
+    """
+    uow.cursor.execute(sql, [user_id])
+    rows = uow.cursor.fetchall()
+
+    closed_loops = [
+        authentication_model.ClosedLoop(
+            id=row[0],
+            name=row[1],
+            logo_url=row[2],
+            description=row[3],
+            regex=row[4],
+            verification_type=row[5],
+            created_at=row[6],
+        )
+        for row in rows
+    ]
 
     return closed_loops
 
@@ -361,36 +374,36 @@ def get_all_closed_loops_of_a_user(user_id: str, uow: AbstractUnitOfWork):
 
 def get_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork):
     """Get all users of a closed loop"""
-    with uow:
-        sql = """
-            select u.id, u.personal_email, u.phone_number, u.user_type, u.pin, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.otp, u.otp_generated_at, u.location, u.created_at
-            from users u
-            join user_closed_loops ucl on u.id = ucl.user_id
-            where ucl.closed_loop_id = %s
-        """
-        uow.cursor.execute(sql, [closed_loop_id])
-        rows = uow.cursor.fetchall()
-        users = [
-            authentication_model.User(
-                id=row[0],
-                personal_email=authentication_model.PersonalEmail(row[1]),
-                phone_number=authentication_model.PhoneNumber(row[2]),
-                user_type=authentication_model.UserType[row[3]],
-                pin=row[4],
-                full_name=row[5],
-                wallet_id=row[6],
-                is_active=row[7],
-                is_phone_number_verified=row[8],
-                otp=row[9],
-                otp_generated_at=row[10],
-                location=authentication_model.Location(
-                    latitude=float(row[11][1:-1].split(",")[0]),
-                    longitude=float(row[11][1:-1].split(",")[0]),
-                ),
-                created_at=row[12],
-            )
-            for row in rows
-        ]
+
+    sql = """
+        select u.id, u.personal_email, u.phone_number, u.user_type, u.pin, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.otp, u.otp_generated_at, u.location, u.created_at
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s
+    """
+    uow.cursor.execute(sql, [closed_loop_id])
+    rows = uow.cursor.fetchall()
+    users = [
+        authentication_model.User(
+            id=row[0],
+            personal_email=authentication_model.PersonalEmail(row[1]),
+            phone_number=authentication_model.PhoneNumber(row[2]),
+            user_type=authentication_model.UserType[row[3]],
+            pin=row[4],
+            full_name=row[5],
+            wallet_id=row[6],
+            is_active=row[7],
+            is_phone_number_verified=row[8],
+            otp=row[9],
+            otp_generated_at=row[10],
+            location=authentication_model.Location(
+                latitude=float(row[11][1:-1].split(",")[0]),
+                longitude=float(row[11][1:-1].split(",")[0]),
+            ),
+            created_at=row[12],
+        )
+        for row in rows
+    ]
     return users
 
 
@@ -398,34 +411,33 @@ def get_all_unique_identifier_of_a_closed_loop(
     closed_loop_id: str, uow: AbstractUnitOfWork
 ):
     """Get all unique identifiers of a closed loop (all roll numbers of LUMS)"""
-    with uow:
-        sql = """
-            select unique_identifier
-            from user_closed_loops
-            where closed_loop_id = %s
-        """
-        uow.cursor.execute(sql, [closed_loop_id])
-        rows = uow.cursor.fetchall()
-        unique_identifiers = [row[0] for row in rows]
+
+    sql = """
+        select unique_identifier
+        from user_closed_loops
+        where closed_loop_id = %s
+    """
+    uow.cursor.execute(sql, [closed_loop_id])
+    rows = uow.cursor.fetchall()
+    unique_identifiers = [row[0] for row in rows]
     return unique_identifiers
 
 
 def get_user_balance(user_id: str, uow: AbstractUnitOfWork):
     """Get user from user id"""
-    with uow:
-        # TODO: fix this to user user id as wallet id
-        sql = """
-            select balance
-            from wallets
-            where id = (
-                select wallet_id
-                from users
-                where id = %s
-            )        
-        """
-        uow.cursor.execute(sql, [user_id])
-        row = uow.cursor.fetchone()
-        balance = row[0]
+    # TODO: fix this to user user id as wallet id
+    sql = """
+        select balance
+        from wallets
+        where id = (
+            select wallet_id
+            from users
+            where id = %s
+        )        
+    """
+    uow.cursor.execute(sql, [user_id])
+    row = uow.cursor.fetchone()
+    balance = row[0]
 
     return balance
 
@@ -440,43 +452,43 @@ def update_closed_loop(
     uow: AbstractUnitOfWork,
 ):
     """Update closed loop"""
-    with uow:
-        sql = """
-            update closed_loops
-            set name = %s, logo_url = %s, description = %s, regex = %s, verification_type = %s
-            where id = %s
-        """
-        uow.cursor.execute(
-            sql,
-            [
-                name,
-                logo_url,
-                description,
-                regex,
-                verification_type,
-                closed_loop_id,
-            ],
-        )
+
+    sql = """
+        update closed_loops
+        set name = %s, logo_url = %s, description = %s, regex = %s, verification_type = %s
+        where id = %s
+    """
+    uow.cursor.execute(
+        sql,
+        [
+            name,
+            logo_url,
+            description,
+            regex,
+            verification_type,
+            closed_loop_id,
+        ],
+    )
 
 
 def get_user_count_of_all_closed_loops(uow: AbstractUnitOfWork):
-    with uow:
-        sql = """
-            select cl.id, cl.name, count(ucl.user_id)
-            from closed_loops cl
-            join user_closed_loops ucl on cl.id = ucl.closed_loop_id
-            group by cl.id, cl.name
-        """
-        uow.cursor.execute(sql)
-        rows = uow.cursor.fetchall()
-        closed_loops_user_count = [
-            {
-                "id": row[0],
-                "name": row[1],
-                "user_count": row[2],
-            }
-            for row in rows
-        ]
+
+    sql = """
+        select cl.id, cl.name, count(ucl.user_id)
+        from closed_loops cl
+        join user_closed_loops ucl on cl.id = ucl.closed_loop_id
+        group by cl.id, cl.name
+    """
+    uow.cursor.execute(sql)
+    rows = uow.cursor.fetchall()
+    closed_loops_user_count = [
+        {
+            "id": row[0],
+            "name": row[1],
+            "user_count": row[2],
+        }
+        for row in rows
+    ]
     return closed_loops_user_count
 
 
@@ -484,38 +496,37 @@ def get_information_of_all_users_of_a_closed_loop(
     closed_loop_id: str, uow: AbstractUnitOfWork
 ):
     """Get information of all users of a closed loop"""
-    with uow:
-        sql = """
-            select
-            u.id, u.personal_email, u.phone_number, u.user_type, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.location, u.loyalty_points, u.referral_id, u.created_at,
-            ucl.unique_identifier, ucl.closed_loop_user_id, ucl.created_at 
-            from users u
-            join user_closed_loops ucl on u.id = ucl.user_id
-            where ucl.closed_loop_id = %s
-        """
-        uow.cursor.execute(sql, [closed_loop_id])
+    sql = """
+        select
+        u.id, u.personal_email, u.phone_number, u.user_type, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.location, u.loyalty_points, u.referral_id, u.created_at,
+        ucl.unique_identifier, ucl.closed_loop_user_id, ucl.created_at 
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s
+    """
+    uow.cursor.execute(sql, [closed_loop_id])
 
-        rows = uow.cursor.fetchall()
-        users = [
-            {
-                "id": row[0],
-                "personal_email": row[1],
-                "phone_number": row[2],
-                "user_type": row[3],
-                "full_name": row[4],
-                "wallet_id": row[5],
-                "is_active": row[6],
-                "is_phone_number_verified": row[7],
-                "location": row[8],
-                "loyalty_points": row[9],
-                "referral_id": row[10],
-                "card_pay_joining_date": row[11],
-                "closed_loop_unique_identifier": row[12],
-                "closed_loop_user_id": row[13],
-                "closed_loop_joining_date": row[14],
-            }
-            for row in rows
-        ]
+    rows = uow.cursor.fetchall()
+    users = [
+        {
+            "id": row[0],
+            "personal_email": row[1],
+            "phone_number": row[2],
+            "user_type": row[3],
+            "full_name": row[4],
+            "wallet_id": row[5],
+            "is_active": row[6],
+            "is_phone_number_verified": row[7],
+            "location": row[8],
+            "loyalty_points": row[9],
+            "referral_id": row[10],
+            "card_pay_joining_date": row[11],
+            "closed_loop_unique_identifier": row[12],
+            "closed_loop_user_id": row[13],
+            "closed_loop_joining_date": row[14],
+        }
+        for row in rows
+    ]
     return users
 
 
@@ -523,26 +534,26 @@ def get_active_inactive_counts_of_a_closed_loop(
     closed_loop_id: str, uow: AbstractUnitOfWork
 ):
     """Get active inactive counts of a closed loop"""
-    with uow:
-        active_sql = """
-            select
-            count(u.id)
-            from users u
-            join user_closed_loops ucl on u.id = ucl.user_id
-            where ucl.closed_loop_id = %s and u.is_active = true
-        """
-        uow.cursor.execute(active_sql, [closed_loop_id])
-        active_count = uow.cursor.fetchone()[0]
 
-        inactive_sql = """
-            select
-            count(u.id)
-            from users u
-            join user_closed_loops ucl on u.id = ucl.user_id
-            where ucl.closed_loop_id = %s and u.is_active = false
-        """
-        uow.cursor.execute(inactive_sql, [closed_loop_id])
-        inactive_count = uow.cursor.fetchone()[0]
+    active_sql = """
+        select
+        count(u.id)
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s and u.is_active = true
+    """
+    uow.cursor.execute(active_sql, [closed_loop_id])
+    active_count = uow.cursor.fetchone()[0]
+
+    inactive_sql = """
+        select
+        count(u.id)
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s and u.is_active = false
+    """
+    uow.cursor.execute(inactive_sql, [closed_loop_id])
+    inactive_count = uow.cursor.fetchone()[0]
 
     return [
         {
@@ -557,13 +568,13 @@ def get_active_inactive_counts_of_a_closed_loop(
 
 
 def get_unique_identifier_from_user_id(user_id: str, uow: AbstractUnitOfWork) -> str:
-    with uow:
-        sql = """
-            select unique_identifier
-            from user_closed_loops
-            where user_id = %s;
-        """
-        uow.cursor.execute(sql, [user_id])
-        row = uow.cursor.fetchone()
 
-        return row[0]
+    sql = """
+        select unique_identifier
+        from user_closed_loops
+        where user_id = %s;
+    """
+    uow.cursor.execute(sql, [user_id])
+    row = uow.cursor.fetchone()
+
+    return row[0]

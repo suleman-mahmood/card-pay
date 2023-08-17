@@ -5,9 +5,10 @@ import firebase_admin
 from flask import Flask, request, jsonify
 
 from python_flex.api.utils import (
+    authenticate_token,
+    authenticate_user_type,
     handle_exceptions_uow,
     handle_missing_payload,
-    authenticate_token,
 )
 from python_flex.payment.entrypoint import commands as payment_commands
 from python_flex.payment.domain.model import (
@@ -15,6 +16,7 @@ from python_flex.payment.domain.model import (
     TransactionType,
 )
 from python_flex.authentication.entrypoint import queries as authentication_queries
+from python_flex.authentication.domain.model import UserType
 from python_flex.marketing.entrypoint import commands as marketing_commands
 from python_flex.authentication.entrypoint import commands as authentication_commands
 from python_flex.payment.entrypoint import queries as payment_queries
@@ -61,6 +63,8 @@ def base():
 
 
 @app.route(PREFIX + "/create-user", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def create_user(uow):
@@ -88,7 +92,8 @@ def create_user(uow):
 
 
 @app.route(PREFIX + "/create-customer", methods=["POST"])
-# @authenticate_token
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def create_customer(uow):
@@ -122,6 +127,8 @@ def create_customer(uow):
 
 
 @app.route(PREFIX + "/create-closed-loop", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_missing_payload
 @handle_exceptions_uow
 def create_closed_loop(uow):
@@ -147,6 +154,8 @@ def create_closed_loop(uow):
 
 
 @app.route(PREFIX + "/change-name", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def change_name(uow):
@@ -169,6 +178,8 @@ def change_name(uow):
 
 
 @app.route(PREFIX + "/change-pin", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def change_pin(uow):
@@ -191,6 +202,8 @@ def change_pin(uow):
 
 
 @app.route(PREFIX + "/user-toggle-active", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def user_toggle_active(uow):
@@ -212,6 +225,8 @@ def user_toggle_active(uow):
 
 
 @app.route(PREFIX + "/verify-otp", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER])
 @handle_exceptions_uow
 @handle_missing_payload
 def verify_otp(uow):
@@ -234,6 +249,8 @@ def verify_otp(uow):
 
 
 @app.route(PREFIX + "/verify-phone-number", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER])
 @handle_exceptions_uow
 @handle_missing_payload
 def verify_phone_number(uow):
@@ -256,6 +273,8 @@ def verify_phone_number(uow):
 
 
 @app.route(PREFIX + "/register-closed-loop", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def register_closed_loop(uow):
@@ -279,6 +298,8 @@ def register_closed_loop(uow):
 
 
 @app.route(PREFIX + "/verify-closed-loop", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def verify_closed_loop(uow):
@@ -305,6 +326,8 @@ def verify_closed_loop(uow):
 
 
 @app.route(PREFIX + "/get-all-closed-loops", methods=["GET"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_exceptions_uow
 def get_all_closed_loops(uow):
     """ """
@@ -325,6 +348,7 @@ def get_all_closed_loops(uow):
 
 @app.route(PREFIX + "/decode-access-token", methods=["GET"])
 @authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 def decode_access_token(uid):
     """Decode an access token"""
 
@@ -333,8 +357,9 @@ def decode_access_token(uid):
 
 
 @app.route(PREFIX + "/get-user", methods=["GET"])
-@handle_exceptions_uow
 @authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@handle_exceptions_uow
 def get_user(uid, uow):
     user = authentication_queries.get_user_from_user_id(
         user_id=uid,
@@ -356,8 +381,9 @@ def get_user(uid, uow):
 
 
 @app.route(PREFIX + "/get-user-balance", methods=["GET"])
-@handle_exceptions_uow
 @authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@handle_exceptions_uow
 def get_user_balance(uid, uow):
     balance = authentication_queries.get_user_balance(
         user_id=uid,
@@ -377,8 +403,9 @@ def get_user_balance(uid, uow):
 
 
 @app.route(PREFIX + "/get-user-recent-transactions", methods=["GET"])
-@handle_exceptions_uow
 @authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@handle_exceptions_uow
 def get_user_recent_transactions(uid, uow):
     txs = payment_queries.get_all_transactions_of_a_user(
         user_id=uid,
@@ -401,6 +428,8 @@ def get_user_recent_transactions(uid, uow):
 
 # for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)
 # @app.route(PREFIX + "/create-test-wallet", methods=["POST"])
+# @authenticate_token
+# @authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 # @handle_exceptions_uow
 # def create_test_wallet(uid, uow):
 #     req = request.get_json(force=True)
@@ -415,9 +444,10 @@ def get_user_recent_transactions(uid, uow):
 
 
 @app.route(PREFIX + "/create-deposit-request", methods=["POST"])
-@handle_missing_payload
-@handle_exceptions_uow
 @authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER])
+@handle_exceptions_uow
+@handle_missing_payload
 def create_deposit_request(uid, uow):
     req = request.get_json(force=True)
 
@@ -439,7 +469,10 @@ def create_deposit_request(uid, uow):
 
 
 @app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.PAYMENT_GATEWAY])
 @handle_exceptions_uow
+@handle_missing_payload
 def pay_pro_callback(uow):
     req = request.get_json(force=True)
 
@@ -459,9 +492,10 @@ def pay_pro_callback(uow):
 
 
 @app.route(PREFIX + "/execute-p2p-push-transaction", methods=["POST"])
-@handle_missing_payload
-@handle_exceptions_uow
 @authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@handle_exceptions_uow
+@handle_missing_payload
 def execute_p2p_push_transaction(uid, uow):
     req = request.get_json(force=True)
 
@@ -489,9 +523,10 @@ def execute_p2p_push_transaction(uid, uow):
 
 
 @app.route(PREFIX + "/create-p2p-pull-transaction", methods=["POST"])
-@handle_missing_payload
-@handle_exceptions_uow
 @authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@handle_exceptions_uow
+@handle_missing_payload
 def create_p2p_pull_transaction(uid, uow):
     req = request.get_json(force=True)
 
@@ -540,8 +575,10 @@ def create_p2p_pull_transaction(uid, uow):
 
 
 @app.route(PREFIX + "/accept-p2p-pull-transaction", methods=["POST"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def accept_p2p_pull_transaction(uow):
     req = request.get_json(force=True)
 
@@ -561,8 +598,10 @@ def accept_p2p_pull_transaction(uow):
 
 
 @app.route(PREFIX + "/decline-p2p-pull-transaction", methods=["POST"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def decline_p2p_pull_transaction(uow):
     req = request.get_json(force=True)
 
@@ -582,8 +621,10 @@ def decline_p2p_pull_transaction(uow):
 
 
 @app.route(PREFIX + "/generate-voucher", methods=["POST"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def generate_voucher(uow):
     req = request.get_json(force=True)
 
@@ -604,8 +645,10 @@ def generate_voucher(uow):
 
 
 @app.route(PREFIX + "/redeem-voucher", methods=["POST"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def redeem_voucher(uow):
     req = request.get_json(force=True)
 
@@ -626,8 +669,10 @@ def redeem_voucher(uow):
 
 
 @app.route(PREFIX + "/use-reference", methods=["POST"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def use_reference(uow):
     req = request.get_json(force=True)
 
@@ -651,8 +696,10 @@ def use_reference(uow):
 
 
 @app.route(PREFIX + "/add-weightage", methods=["POST"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def add_weightage(uow):
     req = request.get_json(force=True)
 
@@ -673,8 +720,10 @@ def add_weightage(uow):
 
 
 @app.route(PREFIX + "/set-weightage", methods=["POST"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def set_weightage(uow):
     req = request.get_json(force=True)
 
@@ -695,8 +744,10 @@ def set_weightage(uow):
 
 
 @app.route(PREFIX + "/set-cashback-slabs", methods=["POST"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def set_cashback_slabs(uow):
     req = request.get_json(force=True)
 
@@ -721,7 +772,10 @@ def set_cashback_slabs(uow):
 
 
 @app.route(PREFIX + "/get-all-closed-loops-with-user-counts", methods=["GET"])
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def get_all_closed_loops_with_user_counts(uow):
     closed_loops = authentication_queries.get_all_closed_loops_with_user_counts(uow=uow)
 
@@ -738,8 +792,10 @@ def get_all_closed_loops_with_user_counts(uow):
 
 
 @app.route(PREFIX + "/update-closed-loop", methods=["PUT"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def update_closed_loop(uow):
     req = request.get_json(force=True)
 
@@ -764,8 +820,10 @@ def update_closed_loop(uow):
 
 
 @app.route(PREFIX + "/get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def get_active_inactive_counts_of_a_closed_loop(uow):
     req = request.get_json(force=True)
 
@@ -787,8 +845,10 @@ def get_active_inactive_counts_of_a_closed_loop(uow):
 
 
 @app.route(PREFIX + "/get-all-users-of-a-closed-loop", methods=["GET"])
-@handle_missing_payload
+@authenticate_token
+@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
 @handle_exceptions_uow
+@handle_missing_payload
 def get_information_of_all_users_of_a_closed_loop(uow):
     req = request.get_json(force=True)
 

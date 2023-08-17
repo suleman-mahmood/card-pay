@@ -2,8 +2,11 @@ from uuid import uuid5, NAMESPACE_OID
 from functools import wraps
 from firebase_admin import auth
 from flask import request, jsonify
+from typing import List
 
 from python_flex.entrypoint.uow import UnitOfWork
+from python_flex.authentication.entrypoint import queries as authentication_queries
+from python_flex.authentication.domain.model import UserType
 
 def firebaseUidToUUID(uid: str) -> str:
     return str(uuid5(NAMESPACE_OID, uid))
@@ -27,6 +30,9 @@ def authenticate_token(f):
 
             # Extract the user ID and other information from the decoded token
             uid = firebaseUidToUUID(decoded_token["uid"])
+
+            kwargs["uid"] = uid
+            
 
             # Call the decorated function with the extracted information
             return f(uid, *args, **kwargs)
@@ -55,6 +61,21 @@ def handle_exceptions_uow(func):
 
     return wrapper
 
+def authenticate_user_type(func, allowed_user_types: List[UserType]):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        uow = UnitOfWork()
+        user_type = authentication_queries.get_user_type_from_user_id(user_id = kwargs["uid"], uow= uow)
+        uow.close_connection()
+        kwargs.pop("uid")
+        if user_type not in allowed_user_types:
+            return (
+                jsonify({"success": False, "message": "User not eligible"}),
+                400,
+            )
+        return func(*args, **kwargs)
+
+    return wrapper
 
 def handle_missing_payload(func):
     @wraps(func)
