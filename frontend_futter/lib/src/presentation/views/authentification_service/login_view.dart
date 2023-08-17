@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -43,6 +45,30 @@ class LoginView extends HookWidget {
       await userCubit.login(phoneNumber.value, password.value);
     }
 
+    Future<bool> authenticateWithBiometrics() async {
+      print("Hello! We are triggering");
+      final LocalAuthentication auth = LocalAuthentication();
+      bool didAuthenticate = false;
+
+      try {
+        didAuthenticate = await auth.authenticate(
+          localizedReason: 'Please authenticate to show account balance',
+          options: const AuthenticationOptions(biometricOnly: true),
+        );
+      } on PlatformException catch (e) {
+        print(e);
+        return false;
+      }
+
+      // Handle after biometric authentication flow
+      if (!didAuthenticate) {
+        return false;
+      }
+
+      // Handle successful biometric authentication
+      return true;
+    }
+
     return AuthLayout(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -51,17 +77,17 @@ class LoginView extends HookWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-                switch (state.runtimeType) {
-                  case UserSuccess:
-                    if (state.eventCodes == EventCodes.USER_AUTHENTICATED) {
+              FutureBuilder(
+                future: authenticateWithBiometrics(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.data == true) {
                       context.router.push(PaymentDashboardRoute());
                     }
-                    return const SizedBox.shrink();
-                  default:
-                    return const SizedBox.shrink();
-                }
-              }),
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
               HeightBox(slab: 4),
               Align(
                 alignment: Alignment.centerLeft,
@@ -106,6 +132,17 @@ class LoginView extends HookWidget {
                 text: AppStrings.logIn,
                 onPressed: handleLogin,
               ),
+              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
+                switch (state.runtimeType) {
+                  case UserSuccess:
+                    if (state.eventCodes == EventCodes.USER_AUTHENTICATED) {
+                      context.router.push(PaymentDashboardRoute());
+                    }
+                    return const SizedBox.shrink();
+                  default:
+                    return const SizedBox.shrink();
+                }
+              }),
             ],
           ),
         ),
