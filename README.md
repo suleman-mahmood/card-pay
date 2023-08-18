@@ -29,7 +29,7 @@
 
 
 ## Backend DDD
-- To run the flask app server locally, run the command `flask --app flask_app --debug run` in `backend_dd/api` directory
+- To run the flask app server locally, run the command `flask --app api --debug run` in `backend_dd/api` directory
     - Make sure to `source venv/bin/activate` before running the command to activate your virtual env
 - To start the ngrok tunnel, run the command `ngrok http 5000`
     - Add auth token to get the verified http url or whatever that is but required warna weird errors

@@ -61,21 +61,27 @@ def handle_exceptions_uow(func):
 
     return wrapper
 
-def authenticate_user_type(func, allowed_user_types: List[UserType]):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        uow = UnitOfWork()
-        user_type = authentication_queries.get_user_type_from_user_id(user_id = kwargs["uid"], uow= uow)
-        uow.close_connection()
-        kwargs.pop("uid")
-        if user_type not in allowed_user_types:
-            return (
-                jsonify({"success": False, "message": "User not eligible"}),
-                400,
+def authenticate_user_type(allowed_user_types: List[UserType]):
+    def inner_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            uow = UnitOfWork()
+            user_type = authentication_queries.get_user_type_from_user_id(
+                user_id=kwargs["uid"], uow=uow
             )
-        return func(*args, **kwargs)
+            uow.close_connection()
 
-    return wrapper
+            # kwargs.pop("uid")
+            
+            if user_type not in allowed_user_types:
+                return (
+                    jsonify({"success": False, "message": "User not eligible"}),
+                    400,
+                )
+            
+            return func(*args, **kwargs)
+        return wrapper
+    return inner_decorator
 
 def handle_missing_payload(func):
     @wraps(func)
