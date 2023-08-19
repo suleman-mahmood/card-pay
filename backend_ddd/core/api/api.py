@@ -1,6 +1,9 @@
 # from dataclasses import asdict
 
 import firebase_admin
+import os
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from flask import Flask, request, jsonify
 
@@ -16,12 +19,31 @@ from core.authentication.domain.model import UserType
 from .api_cardpay_app import cardpay_app
 from .api_retool import retool
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+sentry_sdk.init(
+    dsn=os.environ.get("SENTRY_DSN"),
+    integrations=[
+        FlaskIntegration(),
+    ],
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0,
+)
+
 app = Flask(__name__)
 app.config["PROPAGATE_EXCEPTIONS"] = True
-PREFIX = "/api/v1"
+
+app.register_blueprint(cardpay_app)
+app.register_blueprint(retool)
 
 cred = firebase_admin.credentials.Certificate("credentials-dev.json")
 firebase_admin.initialize_app(cred)
+
+PREFIX = "/api/v1"
 
 # 200 OK
 # The request succeeded. The result meaning of "success" depends on the HTTP method:
@@ -48,9 +70,6 @@ firebase_admin.initialize_app(cred)
 
 # 500 Internal Server Error
 # The server has encountered a situation it does not know how to handle.
-
-app.register_blueprint(cardpay_app)
-app.register_blueprint(retool)
 
 
 @app.route(PREFIX)

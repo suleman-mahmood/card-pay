@@ -45,6 +45,7 @@ def authenticate_token(f):
     return decorated_function
 
 
+# TODO: Deprecate this
 def handle_exceptions_uow(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -58,6 +59,7 @@ def handle_exceptions_uow(func):
         except Exception as e:
             uow.close_connection()
             # TODO: add logging to include the full stack trace
+            # raise e  # TODO: hack, remove this
             return jsonify({"success": False, "message": str(e)}), 400
 
     return wrapper

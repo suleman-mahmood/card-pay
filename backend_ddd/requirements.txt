@@ -6,3 +6,4 @@ gunicorn
 firebase-admin
 python-dotenv
 pylint
+sentry-sdk[flask]
