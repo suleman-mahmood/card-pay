@@ -31,7 +31,7 @@ def test_create_closed_loop(seed_auth_closed_loop):
 def test_create_user(seed_auth_user):
     uow = UnitOfWork()
     user = seed_auth_user(uow)
-    
+
     with uow:
         fetched_user = uow.users.get(user_id=user.id)
 
@@ -42,7 +42,7 @@ def test_change_name(seed_auth_user):
     uow = UnitOfWork()
     user = seed_auth_user(uow)
     change_name(user_id=user.id, new_name="Malik Moaz", uow=uow)
-    
+
     with uow:
         fetched_user = uow.users.get(user_id=user.id)
 
@@ -54,7 +54,7 @@ def test_change_pin(seed_auth_user):
     uow = UnitOfWork()
     user = seed_auth_user(uow)
     change_pin(user_id=user.id, new_pin="5678", uow=uow)
-    
+
     with uow:
         fetched_user = uow.users.get(user_id=user.id)
 
@@ -66,7 +66,7 @@ def test_user_toggle_active(seed_auth_user):
     uow = UnitOfWork()
     user = deepcopy(seed_auth_user(uow))
     user_toggle_active(user_id=user.id, uow=uow)
-    
+
     with uow:
         fetched_user = uow.users.get(user_id=user.id)
 
@@ -77,14 +77,14 @@ def test_user_toggle_active(seed_auth_user):
 def test_verify_otp(seed_auth_user):
     uow = UnitOfWork()
     user = seed_auth_user(uow)
-    
+
     with uow:
         otp = user.otp
         wrong_otp = "0000"
 
     with pytest.raises(InvalidOtpException, match="Otps don't match"):
         verify_otp(user_id=user.id, otp=wrong_otp, uow=uow)
-    
+
     assert verify_otp(user_id=user.id, otp=otp, uow=uow)
 
     with pytest.raises(InvalidOtpException):
@@ -94,7 +94,7 @@ def test_verify_otp(seed_auth_user):
 def test_verify_phone_number(seed_auth_user):
     uow = UnitOfWork()
     user = seed_auth_user(uow)
-    
+
     with uow:
         otp = user.otp
 
@@ -108,7 +108,7 @@ def test_register_closed_loop(seed_auth_user, seed_auth_closed_loop):
     uow = UnitOfWork()
     user = seed_auth_user(uow)
     closed_loop = seed_auth_closed_loop(uow)
-    
+
     with uow:
         fetched_user = uow.users.get(user_id=user.id)
 
@@ -123,8 +123,7 @@ def test_register_closed_loop(seed_auth_user, seed_auth_closed_loop):
         fetched_user = uow.users.get(user_id=user.id)
 
     assert (
-        fetched_user.closed_loops[closed_loop.id].status
-        == ClosedLoopUserState.VERIFIED
+        fetched_user.closed_loops[closed_loop.id].status == ClosedLoopUserState.VERIFIED
     )
     assert len(fetched_user.closed_loops) == 1
 
@@ -161,7 +160,7 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
 
     with uow:
         fetched_user = uow.users.get(user_id=user.id)
-    
+
     assert (
         fetched_user.closed_loops[closed_loop.id].status
         == ClosedLoopUserState.UN_VERIFIED
@@ -178,3 +177,12 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
         verified_user.closed_loops[closed_loop.id].status
         == ClosedLoopUserState.VERIFIED
     )
+
+
+def some_function():
+    return 5
+
+
+def test_mocker(mocker):
+    mocker.patch("core.payment.tests.unit.test_model.some_function", return_value=2)
+    assert some_function() == 2
