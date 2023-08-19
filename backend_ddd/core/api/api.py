@@ -4,14 +4,14 @@ import firebase_admin
 
 from flask import Flask, request, jsonify
 
-from python_flex.api.utils import (
+from core.api.utils import (
     authenticate_token,
     authenticate_user_type,
     handle_exceptions_uow,
     handle_missing_payload,
 )
-from python_flex.payment.entrypoint import commands as payment_commands
-from python_flex.authentication.domain.model import UserType
+from core.payment.entrypoint import commands as payment_commands
+from core.authentication.domain.model import UserType
 
 from .api_cardpay_app import cardpay_app
 from .api_retool import retool
@@ -52,15 +52,17 @@ firebase_admin.initialize_app(cred)
 app.register_blueprint(cardpay_app)
 app.register_blueprint(retool)
 
+
 @app.route(PREFIX)
 def base():
     """base endpoint"""
 
     return jsonify({"success": True, "message": "Welcome to the backend"}), 200
 
+
 @app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.PAYMENT_GATEWAY])
+@authenticate_user_type(allowed_user_types=[UserType.PAYMENT_GATEWAY])
 @handle_exceptions_uow
 @handle_missing_payload
 def pay_pro_callback(uow):
@@ -79,6 +81,7 @@ def pay_pro_callback(uow):
         ),
         201,
     )
+
 
 # for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)
 # @app.route(PREFIX + "/create-test-wallet", methods=["POST"])

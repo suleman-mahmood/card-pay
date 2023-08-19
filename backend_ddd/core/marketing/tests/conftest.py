@@ -1,8 +1,8 @@
 import pytest
 from ..domain import model
 from uuid import uuid4
-from python_flex.entrypoint.uow import AbstractUnitOfWork
-from python_flex.payment.entrypoint import commands as payment_commands
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.payment.entrypoint import commands as payment_commands
 
 
 @pytest.fixture

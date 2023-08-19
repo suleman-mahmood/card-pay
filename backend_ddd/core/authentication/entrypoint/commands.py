@@ -4,11 +4,11 @@ import firebase_admin
 from firebase_admin import auth
 from typing import Optional, Tuple
 
-from python_flex.entrypoint.uow import AbstractUnitOfWork
-from python_flex.payment.entrypoint import commands as payment_commands
-from python_flex.comms.entrypoint import commands as comms_commands
-from python_flex.api import utils
-from python_flex.api.event_codes import EventCode
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.payment.entrypoint import commands as payment_commands
+from core.comms.entrypoint import commands as comms_commands
+from core.api import utils
+from core.api.event_codes import EventCode
 from ..domain.model import (
     ClosedLoopUser,
     ClosedLoopVerificationType,
@@ -92,7 +92,9 @@ def create_user(
 
             uow.users.add(user)
 
-        comms_commands.send_otp_sms(full_name=user.full_name, to=phone_number_sms, otp_code=user.otp)
+        comms_commands.send_otp_sms(
+            full_name=user.full_name, to=phone_number_sms, otp_code=user.otp
+        )
 
         return EventCode.OTP_SENT, user_id
     else:

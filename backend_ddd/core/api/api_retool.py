@@ -1,23 +1,24 @@
 from flask import Blueprint, request, jsonify
 
-from python_flex.api.utils import (
+from core.api.utils import (
     authenticate_token,
     authenticate_user_type,
     handle_exceptions_uow,
     handle_missing_payload,
 )
 
-from python_flex.authentication.entrypoint import queries as authentication_queries
-from python_flex.authentication.domain.model import UserType
-from python_flex.marketing.entrypoint import commands as marketing_commands
-from python_flex.authentication.entrypoint import commands as authentication_commands
-from python_flex.payment.entrypoint import queries as payment_queries
+from core.authentication.entrypoint import queries as authentication_queries
+from core.authentication.domain.model import UserType
+from core.marketing.entrypoint import commands as marketing_commands
+from core.authentication.entrypoint import commands as authentication_commands
+from core.payment.entrypoint import queries as payment_queries
 
-retool = Blueprint("retool", __name__, url_prefix = "/api/v1")
+retool = Blueprint("retool", __name__, url_prefix="/api/v1")
+
 
 @retool.route("/get-user-recent-transactions", methods=["GET"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 def get_user_recent_transactions(uid, uow):
     txs = payment_queries.get_all_transactions_of_a_user(
@@ -38,9 +39,10 @@ def get_user_recent_transactions(uid, uow):
         200,
     )
 
+
 @retool.route("/get-all-closed-loops", methods=["GET"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 def get_all_closed_loops(uow):
     """ """
@@ -61,7 +63,7 @@ def get_all_closed_loops(uow):
 
 @retool.route("/decode-access-token", methods=["GET"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 def decode_access_token(uid):
     """Decode an access token"""
 
@@ -71,7 +73,7 @@ def decode_access_token(uid):
 
 @retool.route("/get-user", methods=["GET"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 def get_user(uid, uow):
     user = authentication_queries.get_user_from_user_id(
@@ -95,7 +97,7 @@ def get_user(uid, uow):
 
 @retool.route("/get-user-balance", methods=["GET"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 def get_user_balance(uid, uow):
     balance = authentication_queries.get_user_balance(
@@ -114,9 +116,10 @@ def get_user_balance(uid, uow):
         200,
     )
 
+
 @retool.route("/create-closed-loop", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_missing_payload
 @handle_exceptions_uow
 def create_closed_loop(uow):
@@ -140,9 +143,10 @@ def create_closed_loop(uow):
         201,
     )
 
+
 @retool.route("/add-weightage", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def add_weightage(uow):
@@ -166,7 +170,7 @@ def add_weightage(uow):
 
 @retool.route("/set-weightage", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def set_weightage(uow):
@@ -190,7 +194,7 @@ def set_weightage(uow):
 
 @retool.route("/set-cashback-slabs", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def set_cashback_slabs(uow):
@@ -218,7 +222,7 @@ def set_cashback_slabs(uow):
 
 @retool.route("/get-all-closed-loops-with-user-counts", methods=["GET"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def get_all_closed_loops_with_user_counts(uow):
@@ -238,7 +242,7 @@ def get_all_closed_loops_with_user_counts(uow):
 
 @retool.route("/update-closed-loop", methods=["PUT"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def update_closed_loop(uow):
@@ -266,7 +270,7 @@ def update_closed_loop(uow):
 
 @retool.route("/get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def get_active_inactive_counts_of_a_closed_loop(uow):
@@ -291,7 +295,7 @@ def get_active_inactive_counts_of_a_closed_loop(uow):
 
 @retool.route("/get-all-users-of-a-closed-loop", methods=["GET"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def get_information_of_all_users_of_a_closed_loop(uow):

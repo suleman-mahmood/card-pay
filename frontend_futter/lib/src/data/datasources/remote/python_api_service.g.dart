@@ -13,7 +13,7 @@ class _PythonApiService implements PythonApiService {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'https://38bd-221-120-220-11.ngrok-free.app/api/v1';
+    baseUrl ??= 'https://cardpay-1.el.r.appspot.com/api/v1';
   }
 
   final Dio _dio;

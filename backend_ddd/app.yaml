@@ -21,7 +21,7 @@
 #     runtime_version: '3.11'
 
 runtime: python310
-entrypoint: gunicorn -b :8080 python_flex.api.api:app
+entrypoint: gunicorn -b :8080 core.api.flask_app:app
 
 instance_class: B2
 

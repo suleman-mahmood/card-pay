@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from json import dumps
 
 # load_dotenv()
-# from python_flex.comms.entrypoint import commands
+# from core.comms.entrypoint import commands
 
 
 # def test_send_email():

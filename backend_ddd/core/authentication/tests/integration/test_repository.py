@@ -9,7 +9,7 @@ from ...domain.model import (
     PhoneNumber,
     Location,
 )
-from python_flex.entrypoint.uow import UnitOfWork
+from core.entrypoint.uow import UnitOfWork
 from ..conftest import seed_closed_loop, seed_auth_user
 from uuid import uuid4
 from datetime import datetime

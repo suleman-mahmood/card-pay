@@ -4,9 +4,10 @@ from firebase_admin import auth
 from flask import request, jsonify
 from typing import List
 
-from python_flex.entrypoint.uow import UnitOfWork
-from python_flex.authentication.entrypoint import queries as authentication_queries
-from python_flex.authentication.domain.model import UserType
+from core.entrypoint.uow import UnitOfWork
+from core.authentication.entrypoint import queries as authentication_queries
+from core.authentication.domain.model import UserType
+
 
 def firebaseUidToUUID(uid: str) -> str:
     return str(uuid5(NAMESPACE_OID, uid))
@@ -31,11 +32,10 @@ def authenticate_token(f):
             # Extract the user ID and other information from the decoded token
             uid = firebaseUidToUUID(decoded_token["uid"])
 
-            kwargs["uid"] = uid
-            
+            # kwargs["uid"] = uid
 
             # Call the decorated function with the extracted information
-            return f(uid, *args, **kwargs)
+            return f(uid=uid, *args, **kwargs)
 
         except auth.InvalidIdTokenError:
             # Token is invalid or expired
@@ -57,9 +57,11 @@ def handle_exceptions_uow(func):
             return ret
         except Exception as e:
             uow.close_connection()
+            # TODO: add logging to include the full stack trace
             return jsonify({"success": False, "message": str(e)}), 400
 
     return wrapper
+
 
 def authenticate_user_type(allowed_user_types: List[UserType]):
     def inner_decorator(func):
@@ -72,16 +74,18 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
             uow.close_connection()
 
             # kwargs.pop("uid")
-            
+
             if user_type not in allowed_user_types:
                 return (
                     jsonify({"success": False, "message": "User not eligible"}),
                     400,
                 )
-            
             return func(*args, **kwargs)
+
         return wrapper
+
     return inner_decorator
+
 
 def handle_missing_payload(func):
     @wraps(func)

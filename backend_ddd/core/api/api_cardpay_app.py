@@ -2,27 +2,28 @@ import firebase_admin
 
 from flask import Blueprint, request, jsonify
 
-from python_flex.api.utils import (
+from core.api.utils import (
     authenticate_token,
     authenticate_user_type,
     handle_exceptions_uow,
     handle_missing_payload,
 )
-from python_flex.payment.entrypoint import commands as payment_commands
-from python_flex.payment.domain.model import (
+from core.payment.entrypoint import commands as payment_commands
+from core.payment.domain.model import (
     TransactionMode,
     TransactionType,
 )
-from python_flex.authentication.entrypoint import queries as authentication_queries
-from python_flex.authentication.domain.model import UserType
-from python_flex.marketing.entrypoint import commands as marketing_commands
-from python_flex.authentication.entrypoint import commands as authentication_commands
+from core.authentication.entrypoint import queries as authentication_queries
+from core.authentication.domain.model import UserType
+from core.marketing.entrypoint import commands as marketing_commands
+from core.authentication.entrypoint import commands as authentication_commands
 
-cardpay_app = Blueprint("cardpay_app", __name__, url_prefix = "/api/v1")
+cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
+
 
 @cardpay_app.route("/create-user", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def create_user(uow):
@@ -51,7 +52,7 @@ def create_user(uow):
 
 @cardpay_app.route("/create-customer", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def create_customer(uow):
@@ -84,11 +85,9 @@ def create_customer(uow):
     )
 
 
-
-
 @cardpay_app.route("/change-name", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def change_name(uow):
@@ -112,7 +111,7 @@ def change_name(uow):
 
 @cardpay_app.route("/change-pin", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def change_pin(uow):
@@ -136,7 +135,7 @@ def change_pin(uow):
 
 @cardpay_app.route("/user-toggle-active", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def user_toggle_active(uow):
@@ -159,7 +158,7 @@ def user_toggle_active(uow):
 
 @cardpay_app.route("/verify-otp", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @handle_exceptions_uow
 @handle_missing_payload
 def verify_otp(uow):
@@ -183,7 +182,7 @@ def verify_otp(uow):
 
 @cardpay_app.route("/verify-phone-number", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @handle_exceptions_uow
 @handle_missing_payload
 def verify_phone_number(uow):
@@ -207,7 +206,7 @@ def verify_phone_number(uow):
 
 @cardpay_app.route("/register-closed-loop", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def register_closed_loop(uow):
@@ -232,7 +231,7 @@ def register_closed_loop(uow):
 
 @cardpay_app.route("/verify-closed-loop", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def verify_closed_loop(uow):
@@ -254,9 +253,10 @@ def verify_closed_loop(uow):
         200,
     )
 
+
 @cardpay_app.route("/create-deposit-request", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @handle_exceptions_uow
 @handle_missing_payload
 def create_deposit_request(uid, uow):
@@ -278,9 +278,10 @@ def create_deposit_request(uid, uow):
         201,
     )
 
+
 @cardpay_app.route("/execute-p2p-push-transaction", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def execute_p2p_push_transaction(uid, uow):
@@ -311,7 +312,7 @@ def execute_p2p_push_transaction(uid, uow):
 
 @cardpay_app.route("/create-p2p-pull-transaction", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def create_p2p_pull_transaction(uid, uow):
@@ -339,9 +340,10 @@ def create_p2p_pull_transaction(uid, uow):
         201,
     )
 
+
 @cardpay_app.route("/accept-p2p-pull-transaction", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def accept_p2p_pull_transaction(uow):
@@ -364,7 +366,7 @@ def accept_p2p_pull_transaction(uow):
 
 @cardpay_app.route("/decline-p2p-pull-transaction", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def decline_p2p_pull_transaction(uow):
@@ -387,7 +389,7 @@ def decline_p2p_pull_transaction(uow):
 
 @cardpay_app.route("/generate-voucher", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def generate_voucher(uow):
@@ -411,7 +413,7 @@ def generate_voucher(uow):
 
 @cardpay_app.route("/redeem-voucher", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def redeem_voucher(uow):
@@ -435,7 +437,7 @@ def redeem_voucher(uow):
 
 @cardpay_app.route("/use-reference", methods=["POST"])
 @authenticate_token
-@authenticate_user_type(allowed_user_types = [UserType.CUSTOMER, UserType.ADMIN])
+@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
 def use_reference(uow):

@@ -1,7 +1,6 @@
 """unit of work"""
 import os
 from abc import ABC, abstractmethod
-from google.cloud.sql.connector import Connector, IPTypes
 import psycopg2
 
 from psycopg2.extensions import adapt, register_adapter, AsIs
@@ -61,6 +60,9 @@ class AbstractUnitOfWork(ABC):
     def commit_close_connection(self):
         pass
 
+    def close_connection(self):
+        pass
+
     @abstractmethod
     def commit(self):
         raise NotImplementedError
@@ -89,28 +91,18 @@ class UnitOfWork(AbstractUnitOfWork):
     def __init__(self):
         register_adapter(Location, adapt_point)
 
-        # TODO: un-comment this when deploying to app engine (Production)
-        # instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
-        # db_name = os.environ.get("DB_NAME")
-        # db_user = os.environ.get("DB_USER")
-        # db_pass = os.environ.get("DB_PASS")
-
-        # connector = Connector()
-        # self.connection = connector.connect(
-        #     instance_connection_name,
-        #     "pg8000",
-        #     db=db_name,
-        #     user=db_user,
-        #     password=db_pass,
-        #     ip_type=IPTypes.PUBLIC,
-        # )
+        db_host = os.environ.get("DB_HOST")
+        db_name = os.environ.get("DB_NAME")
+        db_user = os.environ.get("DB_USER")
+        db_pass = os.environ.get("DB_PASSWORD")
+        db_port = os.environ.get("DB_PORT")
 
         self.connection = psycopg2.connect(
-            host=os.environ.get("DB_HOST"),
-            database=os.environ.get("DB_NAME"),
-            user=os.environ.get("DB_USER"),
-            password=os.environ.get("DB_PASSWORD"),
-            port=os.environ.get("DB_PORT"),
+            host=db_host,
+            dbname=db_name,
+            user=db_user,
+            password=db_pass,
+            port=db_port,
         )
 
         self.cursor = self.connection.cursor()
@@ -130,10 +122,10 @@ class UnitOfWork(AbstractUnitOfWork):
 
     def commit_close_connection(self):
         self.commit()
-        self.connection.close()
+        self.close_connection()
 
     def close_connection(self):
-        self.close_connection()
+        self.connection.close()
 
     def commit(self):
         self.connection.commit()

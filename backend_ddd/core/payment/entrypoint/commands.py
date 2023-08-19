@@ -6,7 +6,7 @@ import json
 
 from datetime import datetime, timedelta
 
-from python_flex.entrypoint.uow import AbstractUnitOfWork
+from core.entrypoint.uow import AbstractUnitOfWork
 from ..domain.model import (
     Transaction,
     Wallet,

@@ -10,12 +10,14 @@ class Header extends HookWidget {
   final Color color;
   final bool showMainHeading;
   final String? mainHeadingText;
+  final bool? removeTopPadding;
 
   const Header({
     super.key,
     required this.title,
     this.color = AppColors.secondaryColor,
     this.showMainHeading = false,
+    this.removeTopPadding,
     this.mainHeadingText,
   });
 
@@ -30,26 +32,39 @@ class Header extends HookWidget {
 
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            horizontalPadding * 1,
-            verticalPadding * 5,
-            horizontalPadding * 9,
-            verticalPadding * 3,
-          ),
-          child: Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              BackButton(color),
-              WidthArrowBetween(),
-              Text(
-                title,
-                style: AppTypography.mainHeading.copyWith(color: color),
+        removeTopPadding ?? false
+            ? Row(
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BackButton(color),
+                  WidthArrowBetween(),
+                  Text(
+                    title,
+                    style: AppTypography.mainHeading.copyWith(color: color),
+                  ),
+                  // BackButton(Colors.transparent),
+                ],
+              )
+            : Padding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding * 1,
+                  verticalPadding * 5,
+                  horizontalPadding * 9,
+                  verticalPadding * 3,
+                ),
+                child: Row(
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    BackButton(color),
+                    WidthArrowBetween(),
+                    Text(
+                      title,
+                      style: AppTypography.mainHeading.copyWith(color: color),
+                    ),
+                    // BackButton(Colors.transparent),
+                  ],
+                ),
               ),
-              // BackButton(Colors.transparent),
-            ],
-          ),
-        ),
         if (showMainHeading && mainHeadingText != null)
           Text(
             mainHeadingText!,

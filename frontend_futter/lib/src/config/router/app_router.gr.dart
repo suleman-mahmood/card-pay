@@ -15,29 +15,6 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
-    SplashRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const SplashView(),
-      );
-    },
-    DashboardRoute.name: (routeData) {
-      final args = routeData.argsAs<DashboardRouteArgs>(
-          orElse: () => const DashboardRouteArgs());
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: DashboardView(
-          key: args.key,
-          scaffoldKey: args.scaffoldKey,
-        ),
-      );
-    },
-    IntroRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const IntroView(),
-      );
-    },
     ConfirmationRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -138,6 +115,29 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const LoginView(),
       );
     },
+    SplashRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const SplashView(),
+      );
+    },
+    DashboardRoute.name: (routeData) {
+      final args = routeData.argsAs<DashboardRouteArgs>(
+          orElse: () => const DashboardRouteArgs());
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: DashboardView(
+          key: args.key,
+          scaffoldKey: args.scaffoldKey,
+        ),
+      );
+    },
+    IntroRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const IntroView(),
+      );
+    },
     FaqsRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -159,72 +159,6 @@ abstract class _$AppRouter extends RootStackRouter {
       );
     },
   };
-}
-
-/// generated route for
-/// [SplashView]
-class SplashRoute extends PageRouteInfo<void> {
-  const SplashRoute({List<PageRouteInfo>? children})
-      : super(
-          SplashRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'SplashRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
-/// [DashboardView]
-class DashboardRoute extends PageRouteInfo<DashboardRouteArgs> {
-  DashboardRoute({
-    Key? key,
-    GlobalKey<ScaffoldState>? scaffoldKey,
-    List<PageRouteInfo>? children,
-  }) : super(
-          DashboardRoute.name,
-          args: DashboardRouteArgs(
-            key: key,
-            scaffoldKey: scaffoldKey,
-          ),
-          initialChildren: children,
-        );
-
-  static const String name = 'DashboardRoute';
-
-  static const PageInfo<DashboardRouteArgs> page =
-      PageInfo<DashboardRouteArgs>(name);
-}
-
-class DashboardRouteArgs {
-  const DashboardRouteArgs({
-    this.key,
-    this.scaffoldKey,
-  });
-
-  final Key? key;
-
-  final GlobalKey<ScaffoldState>? scaffoldKey;
-
-  @override
-  String toString() {
-    return 'DashboardRouteArgs{key: $key, scaffoldKey: $scaffoldKey}';
-  }
-}
-
-/// generated route for
-/// [IntroView]
-class IntroRoute extends PageRouteInfo<void> {
-  const IntroRoute({List<PageRouteInfo>? children})
-      : super(
-          IntroRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'IntroRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -500,6 +434,72 @@ class LoginRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'LoginRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [SplashView]
+class SplashRoute extends PageRouteInfo<void> {
+  const SplashRoute({List<PageRouteInfo>? children})
+      : super(
+          SplashRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'SplashRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [DashboardView]
+class DashboardRoute extends PageRouteInfo<DashboardRouteArgs> {
+  DashboardRoute({
+    Key? key,
+    GlobalKey<ScaffoldState>? scaffoldKey,
+    List<PageRouteInfo>? children,
+  }) : super(
+          DashboardRoute.name,
+          args: DashboardRouteArgs(
+            key: key,
+            scaffoldKey: scaffoldKey,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'DashboardRoute';
+
+  static const PageInfo<DashboardRouteArgs> page =
+      PageInfo<DashboardRouteArgs>(name);
+}
+
+class DashboardRouteArgs {
+  const DashboardRouteArgs({
+    this.key,
+    this.scaffoldKey,
+  });
+
+  final Key? key;
+
+  final GlobalKey<ScaffoldState>? scaffoldKey;
+
+  @override
+  String toString() {
+    return 'DashboardRouteArgs{key: $key, scaffoldKey: $scaffoldKey}';
+  }
+}
+
+/// generated route for
+/// [IntroView]
+class IntroRoute extends PageRouteInfo<void> {
+  const IntroRoute({List<PageRouteInfo>? children})
+      : super(
+          IntroRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'IntroRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

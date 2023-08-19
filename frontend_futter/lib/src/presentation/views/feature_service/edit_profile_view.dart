@@ -8,6 +8,7 @@ import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/layout/profile_layout.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/animated_bottom_bar.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
@@ -45,6 +46,7 @@ class EditProfileView extends HookWidget {
 
     final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
     final phoneNumberController = useTextEditingController();
+
     void _showBottomSheetAvatar() {
       showModalBottomSheet(
         context: context,
@@ -233,126 +235,136 @@ class EditProfileView extends HookWidget {
     return ProfileLayout(
       child: PaddingHorizontal(
         slab: 2,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            PaymentStrings.profileEdit,
-            style: AppTypography.mainHeading,
-          ),
-          const HeightBox(slab: 1),
-          GestureDetector(
-            onTap: () {
-              _showBottomSheetAvatar();
-            },
-            child: Center(
-              child: Stack(children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage('assets/images/talha.jpg'),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                    size: 40,
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HeightBox(slab: 5),
+                  GestureDetector(
+                    onTap: () {
+                      _showBottomSheetAvatar();
+                    },
+                    child: Center(
+                      child: Stack(children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundImage:
+                              AssetImage('assets/images/talha.jpg'),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                        ),
+                      ]),
+                    ),
                   ),
-                ),
-              ]),
-            ),
-          ),
-          const HeightBox(slab: 1),
-          CustomInputField(
-            label: AppStrings.username,
-            hint: AppStrings.enterUsername,
-            obscureText: false,
-            validator: (fullNameValue) {
-              if (fullNameValue == null) {
-                return "Please enter your full name";
-              }
+                  const HeightBox(slab: 1),
+                  CustomInputField(
+                    label: AppStrings.username,
+                    hint: AppStrings.enterUsername,
+                    obscureText: false,
+                    validator: (fullNameValue) {
+                      if (fullNameValue == null) {
+                        return "Please enter your full name";
+                      }
 
-              return null;
-            },
-          ),
-          const HeightBox(slab: 1),
-          CustomInputField(
-            label: AppStrings.email,
-            hint: AppStrings.enterEmail,
-            obscureText: false,
-            validator: (EmailValue) {
-              if (EmailValue == null) {
-                return "Please enter your email";
-              }
+                      return null;
+                    },
+                  ),
+                  const HeightBox(slab: 1),
+                  CustomInputField(
+                    label: AppStrings.email,
+                    hint: AppStrings.enterEmail,
+                    obscureText: false,
+                    validator: (EmailValue) {
+                      if (EmailValue == null) {
+                        return "Please enter your email";
+                      }
 
-              return null;
-            },
-          ),
-          const HeightBox(slab: 1),
-          GestureDetector(
-            onTap: () {
-              _showOTPBottomSheetProfile();
-            },
-            child: Container(
-              alignment: Alignment.bottomRight,
-              child: Text(
-                "hello",
-                style: AppTypography.linkText,
+                      return null;
+                    },
+                  ),
+                  const HeightBox(slab: 1),
+                  GestureDetector(
+                    onTap: () {
+                      _showOTPBottomSheetProfile();
+                    },
+                    child: Container(
+                      alignment: Alignment.bottomRight,
+                      child: Text(
+                        "change password",
+                        style: AppTypography.linkText,
+                      ),
+                    ),
+                  ),
+                  CustomInputField(
+                    label: AppStrings.password,
+                    hint: AppStrings.enterPassword,
+                    obscureText: true,
+                    validator: (passwordValue) {
+                      if (passwordValue == null) {
+                        return "Please enter your password";
+                      }
+                      return null;
+                    },
+                  ),
+                  const HeightBox(slab: 1),
+                  PhoneNumberInput(
+                    controller: phoneNumberController,
+                    dropdownItems: AppStrings.phoneCountryCodes,
+                    dropdownValue: dropdownValue.value,
+                    onChanged: onPhoneNumberChanged,
+                    // onPhoneNumberChanged: (v) => phoneNumber.value = v,
+                    validator: (fullNameValue) {
+                      if (fullNameValue == null) {
+                        return "Please enter your phone number";
+                      }
+
+                      return null;
+                    },
+                  ),
+                  // const HeightBox(slab: 4),
+                  // Center(
+                  //   child: PrimaryButton(
+                  //     text: 'Done',
+                  //     onPressed: () {
+                  //       context.router.push(PaymentDashboardRoute());
+                  //     },
+                  //   ),
+                  // ),
+                  HeightBox(slab: 2),
+                  GestureDetector(
+                    onTap: () {
+                      _showBottomSheetDelete();
+                    },
+                    child: Center(
+                      child: PrimaryButton(
+                        color: AppColors.redColor,
+                        text: 'Delete Account',
+                        onPressed: () {
+                          _showBottomSheetDelete();
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          CustomInputField(
-            label: AppStrings.password,
-            hint: AppStrings.enterPassword,
-            obscureText: true,
-            validator: (passwordValue) {
-              if (passwordValue == null) {
-                return "Please enter your password";
-              }
-              return null;
-            },
-          ),
-          const HeightBox(slab: 1),
-          PhoneNumberInput(
-            controller: phoneNumberController,
-            dropdownItems: AppStrings.phoneCountryCodes,
-            dropdownValue: dropdownValue.value,
-            onChanged: onPhoneNumberChanged,
-            // onPhoneNumberChanged: (v) => phoneNumber.value = v,
-            validator: (fullNameValue) {
-              if (fullNameValue == null) {
-                return "Please enter your phone number";
-              }
-
-              return null;
-            },
-          ),
-          const HeightBox(slab: 4),
-          Center(
-            child: PrimaryButton(
-              text: 'Done',
-              onPressed: () {},
+            Header(
+              title: PaymentStrings.profileEdit,
+              color: AppColors.blackColor,
+              removeTopPadding: true,
             ),
-          ),
-          HeightBox(slab: 2),
-          GestureDetector(
-            onTap: () {
-              _showBottomSheetDelete();
-            },
-            child: Center(
-              child: PrimaryButton(
-                color: AppColors.redColor,
-                text: 'Delete Account',
-                onPressed: () {
-                  _showBottomSheetDelete();
-                },
-              ),
-            ),
-          ),
-          HeightBox(slab: 5),
-          AnimatedBottomBar(
-            selectedIndex: ValueNotifier(3),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
