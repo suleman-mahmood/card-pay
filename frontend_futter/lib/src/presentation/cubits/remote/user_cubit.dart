@@ -15,7 +15,9 @@ import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/data_state.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
+import 'package:local_auth/local_auth.dart';
 
 part 'user_state.dart';
 
@@ -426,6 +428,29 @@ class UserCubit extends BaseCubit<UserState, User> {
       } on firebase_auth.FirebaseAuthException catch (e) {
         emit(UserFailed(errorMessage: e.message ?? ''));
       }
+    });
+  }
+
+  Future<void> loginWithBiometric() async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(UserLoading());
+      final LocalAuthentication auth = LocalAuthentication();
+      bool didAuthenticate = false;
+
+      try {
+        didAuthenticate = await auth.authenticate(
+          localizedReason: 'Please authenticate to log in',
+        );
+        emit(UserSuccess(
+          message: "Sign in was successful",
+          eventCodes: EventCodes.USER_AUTHENTICATED,
+        ));
+      } on PlatformException catch (e) {
+        emit(UserFailed(errorMessage: e.message ?? ''));
+      }
+
     });
   }
 
