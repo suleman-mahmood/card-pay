@@ -5,6 +5,7 @@ from core.api.utils import (
     authenticate_user_type,
     handle_exceptions_uow,
     handle_missing_payload,
+    validate_json_payload,
 )
 
 from core.authentication.entrypoint import queries as authentication_queries
@@ -149,6 +150,7 @@ def create_closed_loop(uow):
 @authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["weightage_type", "weightage_value"])
 def add_weightage(uow):
     req = request.get_json(force=True)
 
@@ -173,6 +175,7 @@ def add_weightage(uow):
 @authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["weightage_type", "weightage_value"])
 def set_weightage(uow):
     req = request.get_json(force=True)
 
@@ -197,6 +200,7 @@ def set_weightage(uow):
 @authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["cashback_slabs"])
 def set_cashback_slabs(uow):
     req = request.get_json(force=True)
 
@@ -224,7 +228,6 @@ def set_cashback_slabs(uow):
 @authenticate_token
 @authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
-@handle_missing_payload
 def get_all_closed_loops_with_user_counts(uow):
     closed_loops = authentication_queries.get_all_closed_loops_with_user_counts(uow=uow)
 
@@ -245,6 +248,7 @@ def get_all_closed_loops_with_user_counts(uow):
 @authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["id", "name", "logo_url", "description", "verification_type", "regex"])
 def update_closed_loop(uow):
     req = request.get_json(force=True)
 
@@ -273,6 +277,7 @@ def update_closed_loop(uow):
 @authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["closed_loop_id"])
 def get_active_inactive_counts_of_a_closed_loop(uow):
     req = request.get_json(force=True)
 
@@ -298,6 +303,7 @@ def get_active_inactive_counts_of_a_closed_loop(uow):
 @authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["closed_loop_id"])
 def get_information_of_all_users_of_a_closed_loop(uow):
     req = request.get_json(force=True)
 

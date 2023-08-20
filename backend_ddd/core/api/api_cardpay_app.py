@@ -7,6 +7,7 @@ from core.api.utils import (
     authenticate_user_type,
     handle_exceptions_uow,
     handle_missing_payload,
+    validate_json_payload,
 )
 from core.payment.entrypoint import commands as payment_commands
 from core.payment.domain.model import (
@@ -26,6 +27,7 @@ cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["personal_email", "password", "phone_number", "user_type", "full_name", "location"])
 def create_user(uow):
     """Create a new user account"""
     req = request.get_json(force=True)
@@ -55,6 +57,7 @@ def create_user(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["personal_email", "password", "phone_number", "full_name", "location"])
 def create_customer(uow):
     """
     Create a new user account of type customer
@@ -90,6 +93,7 @@ def create_customer(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["user_id", "new_name"])
 def change_name(uow):
     req = request.get_json(force=True)
 
@@ -114,6 +118,7 @@ def change_name(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["user_id", "new_pin"])
 def change_pin(uow):
     req = request.get_json(force=True)
 
@@ -138,6 +143,7 @@ def change_pin(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["user_id"])
 def user_toggle_active(uow):
     req = request.get_json(force=True)
 
@@ -161,6 +167,7 @@ def user_toggle_active(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["user_id", "otp"])
 def verify_otp(uow):
     req = request.get_json(force=True)
 
@@ -185,6 +192,7 @@ def verify_otp(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["user_id", "otp"])
 def verify_phone_number(uow):
     req = request.get_json(force=True)
 
@@ -209,6 +217,7 @@ def verify_phone_number(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["user_id", "closed_loop_id", "unique_identifier"])
 def register_closed_loop(uow):
     req = request.get_json(force=True)
 
@@ -234,6 +243,7 @@ def register_closed_loop(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["user_id", "closed_loop_id", "unique_identifier_otp"])
 def verify_closed_loop(uow):
     req = request.get_json(force=True)
 
@@ -259,6 +269,7 @@ def verify_closed_loop(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["amount"])
 def create_deposit_request(uid, uow):
     req = request.get_json(force=True)
 
@@ -284,6 +295,7 @@ def create_deposit_request(uid, uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["recipient_unique_identifier", "amount", "closed_loop_id"])
 def execute_p2p_push_transaction(uid, uow):
     req = request.get_json(force=True)
 
@@ -315,6 +327,7 @@ def execute_p2p_push_transaction(uid, uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["sender_unique_identifier", "amount", "closed_loop_id"])
 def create_p2p_pull_transaction(uid, uow):
     req = request.get_json(force=True)
 
@@ -346,6 +359,7 @@ def create_p2p_pull_transaction(uid, uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["transaction_id"])
 def accept_p2p_pull_transaction(uow):
     req = request.get_json(force=True)
 
@@ -369,6 +383,7 @@ def accept_p2p_pull_transaction(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["transaction_id"])
 def decline_p2p_pull_transaction(uow):
     req = request.get_json(force=True)
 
@@ -392,6 +407,7 @@ def decline_p2p_pull_transaction(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["sender_wallet_id", "amount"])
 def generate_voucher(uow):
     req = request.get_json(force=True)
 
@@ -416,6 +432,7 @@ def generate_voucher(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["recipient_wallet_id", "transaction_id"])
 def redeem_voucher(uow):
     req = request.get_json(force=True)
 
@@ -440,6 +457,7 @@ def redeem_voucher(uow):
 @authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @handle_exceptions_uow
 @handle_missing_payload
+@validate_json_payload(required_parameters = ["referee_id", "referral_id"])
 def use_reference(uow):
     req = request.get_json(force=True)
 

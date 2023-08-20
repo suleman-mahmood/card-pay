@@ -32,10 +32,8 @@ def authenticate_token(f):
             # Extract the user ID and other information from the decoded token
             uid = firebaseUidToUUID(decoded_token["uid"])
 
-            # kwargs["uid"] = uid
-
             # Call the decorated function with the extracted information
-            return f(uid=uid, *args, **kwargs)
+            return f(uid = uid, *args, **kwargs)
 
         except auth.InvalidIdTokenError:
             # Token is invalid or expired
@@ -74,9 +72,7 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
                 user_id=kwargs["uid"], uow=uow
             )
             uow.close_connection()
-
-            # kwargs.pop("uid")
-
+            
             if user_type not in allowed_user_types:
                 return (
                     jsonify({"success": False, "message": "User not eligible"}),
@@ -101,3 +97,17 @@ def handle_missing_payload(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+def validate_json_payload(required_parameters : List[str]):
+    def inner_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            req = request.get_json(force=True)
+            if set(required_parameters) != set(req.keys()):
+                return (
+                    jsonify({"success": False, "message": "invalid json payload, missing or extra parameters"}),
+                    400,
+                )
+            return func(*args, **kwargs)
+        return wrapper
+    return inner_decorator
