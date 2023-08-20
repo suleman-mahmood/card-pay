@@ -2,42 +2,36 @@
 
 ## Setup instructions
 
-## Frontend (frontend-flutter)
+### Backend DDD
+
+- To run the flask app locally, run `./scripts/deploy_local.sh` from `backend_ddd` directory
+    - Make sure to `source venv/bin/activate` in `backend_dd` before running the command to activate your virtual env
+- Install packages for backend using `pip install -r requirements.txt` from `backend_ddd`
+- To start the ngrok tunnel, run the command `ngrok http 5000`
+    - Add auth token to get the verified http url or whatever that is but required warna weird errors
+
+
+### Frontend
+
+#### Flutter
 
 -   To create json serializable models for your dart classes run `flutter pub run build_runner build` in frontend-flutter directory
 -   To add a package in flutter run `flutter pub add <package-name>` in frontend-flutter directory
 
-## Frontend (frontend-web)
-
--   To run the localhost server on dev db, set `RUN_DEV = true` in `initialize-firebase.tsx`
-    in the services folder
-
-### Release steps
-
--   Increment the version in `pubspec.yaml` in frontend-flutter directory
--   Create an app bundle using `flutter build appbundle` in frontend-flutter directory
-
-## Backend
-
--   To deploy your cloud functions run `firebase deploy --only functions` in the backend directory
--   To run functions locally run `npm run serve` in the backend/functions directory
--   Run this command to sync backend with backend-dev `rsync -av --delete "backend/functions/src/" "backend-dev/functions/src"`
--   Functions structure:
-    -   Log to display the arguments passed to the function
-    -   Arguments check including authentication
-    -   Log on all types of error occured
-
-
-## Backend DDD
-- To run the flask app server locally, run the command `flask --app api --debug run` in `backend_dd/api` directory
-    - Make sure to `source venv/bin/activate` before running the command to activate your virtual env
-- To start the ngrok tunnel, run the command `ngrok http 5000`
-    - Add auth token to get the verified http url or whatever that is but required warna weird errors
-
-## Admin
+### Admin scripts
 
 -   To run the script, run `npm run start` in the admin directory
 -   To run the script on dev db, run `npm run start-dev` in the admin directory
+
+## Release steps
+
+-   Increment the version in `pubspec.yaml` in frontend-flutter directory
+-   Create an app bundle (android) using `flutter build appbundle` in frontend-flutter directory
+-   Create an app bundle (iOS) using `flutter build ipa` in frontend-flutter directory
+
+
+
+
 
 ### Steps to backup the database:
 
@@ -49,3 +43,21 @@
 -   6. In the file `admin/data_analytics.py`, uncomment the line `saveTransactionsToCsv()` at the end of file
 -   7. Run `python data_analytics.py` in the admin directory
 -   8. Viola! The `transactions.csv` will contain the updated transactions fresh from the database
+
+
+## DEPRECATED
+
+### Cardpay Web App
+
+-   To run the localhost server on dev db, set `RUN_DEV = true` in `initialize-firebase.tsx`
+    in the services folder
+
+### Firebase functions
+
+-   To deploy your cloud functions run `firebase deploy --only functions` in the backend directory
+-   To run functions locally run `npm run serve` in the backend/functions directory
+-   Run this command to sync backend with backend-dev `rsync -av --delete "backend/functions/src/" "backend-dev/functions/src"`
+-   Functions structure:
+    -   Log to display the arguments passed to the function
+    -   Arguments check including authentication
+    -   Log on all types of error occured
