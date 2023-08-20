@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/app_themes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:upgrader/upgrader.dart';
 
 Future<void> main() async {
   await initializeDependencies();
@@ -19,18 +20,20 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => UserCubit(locator<ApiRepository>()),
+    return UpgradeAlert(
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => UserCubit(locator<ApiRepository>()),
+          ),
+          BlocProvider(
+            create: (context) => ClosedLoopCubit(locator<ApiRepository>()),
+          ),
+        ],
+        child: MaterialApp.router(
+          routerConfig: _appRouter.config(),
+          theme: AppTheme.light,
         ),
-        BlocProvider(
-          create: (context) => ClosedLoopCubit(locator<ApiRepository>()),
-        ),
-      ],
-      child: MaterialApp.router(
-        routerConfig: _appRouter.config(),
-        theme: AppTheme.light,
       ),
     );
   }
