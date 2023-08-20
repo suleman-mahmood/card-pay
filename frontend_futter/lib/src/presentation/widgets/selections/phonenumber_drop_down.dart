@@ -31,7 +31,7 @@ class PhoneNumberInput extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           PaymentStrings.phone,
           style: AppTypography.bodyText,
         ),

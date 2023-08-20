@@ -49,7 +49,7 @@ class BottomSheetOTP extends HookWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   AppStrings.noOtp,
                   style: AppTypography.bodyText,
                 ),
@@ -58,7 +58,7 @@ class BottomSheetOTP extends HookWidget {
                   onTap: () {
                     context.router.push(const LoginRoute());
                   },
-                  child: const Text(
+                  child: Text(
                     AppStrings.resendCode,
                     style: AppTypography.bodyTextBold,
                   ),

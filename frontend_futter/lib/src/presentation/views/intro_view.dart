@@ -36,7 +36,7 @@ class IntroView extends HookWidget {
               position: imageAnimationOffset,
               child: Image.asset('assets/images/transection.png'),
             ),
-            const Text(
+            Text(
               AppStrings.revolution,
               textAlign: TextAlign.center,
               style: AppTypography.introHeading,
@@ -55,7 +55,7 @@ class IntroView extends HookWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   AppStrings.alreadyHaveAccount,
                   style: AppTypography.bodyText,
                 ),
@@ -64,7 +64,7 @@ class IntroView extends HookWidget {
                   onTap: () {
                     context.router.push(const LoginRoute());
                   },
-                  child: const Text(
+                  child: Text(
                     AppStrings.logIn,
                     style: AppTypography.linkText,
                   ),

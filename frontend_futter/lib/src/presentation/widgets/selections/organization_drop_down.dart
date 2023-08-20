@@ -21,7 +21,7 @@ class DropDown extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           AppStrings.organization,
           style: AppTypography.bodyText,
         ),

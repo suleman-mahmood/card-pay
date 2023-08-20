@@ -68,7 +68,7 @@ class SignupView extends HookWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.alreadyHaveAccount,
             style: AppTypography.bodyText,
           ),
@@ -77,7 +77,7 @@ class SignupView extends HookWidget {
             onTap: () {
               context.router.push(const LoginRoute());
             },
-            child: const Text(
+            child: Text(
               AppStrings.logIn,
               style: AppTypography.linkText,
             ),

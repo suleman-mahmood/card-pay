@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   static const Color secondaryColor = Colors.white;
@@ -71,68 +72,74 @@ class AppColors {
 }
 
 class AppTypography {
-  static const TextStyle introHeading = TextStyle(
-    fontFamily: 'poppins',
+  static TextStyle introHeading = TextStyle(
+    fontFamily: GoogleFonts.poppins().fontFamily,
     fontSize: 48,
     fontWeight: FontWeight.bold,
   );
 
-  static const TextStyle mainHeading = TextStyle(
-    fontFamily: 'poppins',
+  static TextStyle mainHeading = TextStyle(
+    fontFamily: GoogleFonts.poppins().fontFamily,
     fontSize: 28,
     fontWeight: FontWeight.bold,
   );
-  static const TextStyle mainHeadingWhite = TextStyle(
-    fontFamily: 'poppins',
+  static TextStyle mainHeadingWhite = TextStyle(
+    fontFamily: GoogleFonts.poppins().fontFamily,
     color: AppColors.secondaryColor,
     fontSize: 28,
     fontWeight: FontWeight.bold,
   );
   static TextStyle mainHeadingGrey = TextStyle(
-    fontFamily: 'poppins',
+    fontFamily: GoogleFonts.poppins().fontFamily,
     color: AppColors.blackColor.withOpacity(0.8),
     fontSize: 40,
     fontWeight: FontWeight.bold,
   );
 
-  static const TextStyle bodyText = TextStyle(
+  static TextStyle bodyText = TextStyle(
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     color: AppColors.blackColor,
     fontSize: 16,
   );
-  static const TextStyle bodyTextBold = TextStyle(
+  static TextStyle bodyTextBold = TextStyle(
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     color: AppColors.blackColor,
     fontSize: 16,
     fontWeight: FontWeight.bold,
   );
 
-  static const TextStyle linkText = TextStyle(
+  static TextStyle linkText = TextStyle(
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     color: AppColors.primaryColor,
     fontWeight: FontWeight.bold,
     fontSize: 16,
   );
-  static const TextStyle errorText = TextStyle(
+  static TextStyle errorText = TextStyle(
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     color: AppColors.darkOrangeColor,
     fontWeight: FontWeight.bold,
     fontSize: 16,
   );
 
-  static const TextStyle subHeading = TextStyle(
+  static TextStyle subHeading = TextStyle(
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     color: AppColors.greyColor,
     fontSize: 16,
   );
-  static const TextStyle subHeadingBold = TextStyle(
+  static TextStyle subHeadingBold = TextStyle(
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     color: AppColors.greyColor,
     fontSize: 16,
     fontWeight: FontWeight.bold,
   );
 
-  static const TextStyle inputFont = TextStyle(
-    fontFamily: 'plus jakarta sans',
+  static TextStyle inputFont = TextStyle(
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     fontSize: 16,
   );
 
-  static const TextStyle headingFont = TextStyle(
-    fontFamily: 'poppins',
+  static TextStyle headingFont = TextStyle(
+    fontFamily: GoogleFonts.poppins().fontFamily,
     fontSize: 16,
     color: AppColors.secondaryColor,
     fontWeight: FontWeight.bold,
