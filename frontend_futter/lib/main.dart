@@ -8,10 +8,7 @@ import 'package:cardpay/src/config/themes/app_themes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   await initializeDependencies();
-
   runApp(MainApp());
 }
 

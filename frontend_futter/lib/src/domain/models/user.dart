@@ -42,6 +42,8 @@ class User {
   })  : location = location ?? Location(),
         createdAt = createdAt ?? DateTime(9999, 12, 31, 23, 59, 59, 999, 999);
 
+  set email(String email) {}
+
   User copyWith({
     String? id,
     int? balance,

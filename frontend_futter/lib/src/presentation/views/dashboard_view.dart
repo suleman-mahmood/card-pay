@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
@@ -195,7 +194,8 @@ class DashboardView extends HookWidget {
                   imagePath: 'assets/images/Upwork-1.png',
                   text: PaymentStrings.request,
                   // route: RequestRoute(),
-                  route: TransferRoute(), // TODO: change this after implementing the flow
+                  route:
+                      TransferRoute(), // TODO: change this after implementing the flow
                 ),
                 CustomBox(
                   imagePath: 'assets/images/Upwork-2.png',

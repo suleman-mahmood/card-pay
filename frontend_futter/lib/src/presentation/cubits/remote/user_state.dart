@@ -7,6 +7,7 @@ abstract class UserState {
   final String qrTitle;
   final EventCodes eventCodes;
   final User user;
+
   final String errorMessage;
   final List<TransactionResponse> transactions;
   final DioError? error;

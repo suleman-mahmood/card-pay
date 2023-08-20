@@ -16,6 +16,9 @@ class IntroView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final _analyticsService =
+    //     AnalyticsService(); // Create an instance of AnalyticsService
+
     final fadeAnimation = useFadeAnimation(
       begin: 0.0,
       end: 1.0,
@@ -47,6 +50,8 @@ class IntroView extends HookWidget {
               child: PrimaryButton(
                 text: AppStrings.start,
                 onPressed: () {
+                  // _analyticsService.logSelectContentEvent(
+                  //     'button', 'Introduction Button');
                   context.router.push(const SignupRoute());
                 },
               ),

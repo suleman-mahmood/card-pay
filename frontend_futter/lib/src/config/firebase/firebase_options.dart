@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '451051195028',
     projectId: 'card-pay-dev',
     storageBucket: 'card-pay-dev.appspot.com',
-    iosClientId: '451051195028-c6fbv4od0uqkk5m6j3hrhcl56ibsjnec.apps.googleusercontent.com',
+    iosClientId:
+        '451051195028-c6fbv4od0uqkk5m6j3hrhcl56ibsjnec.apps.googleusercontent.com',
     iosBundleId: 'io.payment.cardpay',
   );
 }

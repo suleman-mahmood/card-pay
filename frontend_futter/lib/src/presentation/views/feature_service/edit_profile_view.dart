@@ -1,5 +1,4 @@
 import 'package:cardpay/src/config/router/app_router.dart';
-import 'package:cardpay/src/config/screen_utills/box_decoration_all.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -7,7 +6,6 @@ import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/layout/profile_layout.dart';
-import 'package:cardpay/src/presentation/widgets/navigations/animated_bottom_bar.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
