@@ -7,7 +7,6 @@ import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
-import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:cardpay/src/domain/models/user.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
@@ -190,12 +189,6 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      // Future.delayed(const Duration(seconds: 1), () {
-      //   data.fullName = "Suleman";
-      //   emit(UserSuccess(user: data));
-      // });
-
-      // TODO: uncomment in production
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
@@ -207,6 +200,7 @@ class UserCubit extends BaseCubit<UserState, User> {
         emit(UserSuccess(
           message: response.data!.message,
           user: data,
+          transactions: data.recentTransactions,
         ));
       } else if (response is DataFailed) {
         emit(UserFailed(error: response.error));
@@ -220,12 +214,6 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      // Future.delayed(const Duration(seconds: 1), () {
-      //   data.balance = 500;
-      //   emit(UserSuccess(user: data));
-      // });
-
-      // TODO: uncomment in production
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
@@ -237,6 +225,7 @@ class UserCubit extends BaseCubit<UserState, User> {
         emit(UserSuccess(
           message: response.data!.message,
           user: data,
+          transactions: data.recentTransactions,
         ));
       } else if (response is DataFailed) {
         emit(UserFailed(error: response.error));
@@ -250,40 +239,12 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      // Future.delayed(const Duration(seconds: 1), () {
-      //   final recentTransactions = [
-      //     TransactionResponse(
-      //       id: '',
-      //       amount: 251,
-      //       mode: TransactionMode.APP_TRANSFER,
-      //       transactionType: TransactionType.P2P_PUSH,
-      //       status: TransactionStatus.SUCCESSFUL,
-      //       createdAt: DateTime.now(),
-      //       lastUpdated: DateTime.now(),
-      //       senderName: 'Suleman',
-      //       recipientName: 'Namelus',
-      //     ),
-      //     TransactionResponse(
-      //       id: '',
-      //       amount: 501,
-      //       mode: TransactionMode.APP_TRANSFER,
-      //       transactionType: TransactionType.P2P_PUSH,
-      //       status: TransactionStatus.SUCCESSFUL,
-      //       createdAt: DateTime.now(),
-      //       lastUpdated: DateTime.now(),
-      //       senderName: 'Suleman',
-      //       recipientName: 'Namelus',
-      //     )
-      //   ];
-      //   data.recentTransactions = recentTransactions;
-      //   emit(UserSuccess(user: data));
-      // });
-
-      // TODO: uncomment in production
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
       final response = await _apiRepository.getUserRecentTransactions(token);
+
+      data.recentTransactions = response.data!.recentTransactions;
 
       if (response is DataSuccess) {
         emit(UserSuccess(
@@ -303,17 +264,6 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      // Future.delayed(const Duration(seconds: 1), () {
-      //   emit(
-      //     UserSuccess(
-      //       checkoutUrl:
-      //           'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d',
-      //       user: data,
-      //     ),
-      //   );
-      // });
-
-      // TODO: uncomment in production
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
@@ -340,31 +290,23 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      Future.delayed(const Duration(seconds: 1), () {
-        emit(
-          UserSuccess(eventCodes: EventCodes.TRANSFER_SUCCESSFUL),
-        );
-      });
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.executeP2PPushTransaction(
+        request: ExecuteP2PPushTransactionRequest(
+          recipientUniqueIdentifier: recipientUniqueIdentifier,
+          amount: amount,
+          closedLoopId: '',
+        ),
+        token: token,
+      );
 
-      // TODO: uncomment in production
-      // final token =
-      //     await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-      //         '';
-      // final response = await _apiRepository.executeP2PPushTransaction(
-      //   request: ExecuteP2PPushTransactionRequest(
-      //     recipientUniqueIdentifier: recipientUniqueIdentifier,
-      //     amount: amount,
-      //   ),
-      //   token: token,
-      // );
-
-      // if (response is DataSuccess) {
-      //   emit(UserSuccess(
-      //     message: response.data!.message,
-      //   ));
-      // } else if (response is DataFailed) {
-      //   emit(UserFailed(error: response.error));
-      // }
+      if (response is DataSuccess) {
+        emit(UserSuccess(message: response.data!.message));
+      } else if (response is DataFailed) {
+        emit(UserFailed(error: response.error));
+      }
     });
   }
 
@@ -377,13 +319,6 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
-      // Future.delayed(const Duration(seconds: 1), () {
-      //   emit(
-      //     UserSuccess(eventCodes: EventCodes.REQUEST_SUCCESSFUL),
-      //   );
-      // });
-
-      // TODO: uncomment in production
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
@@ -468,6 +403,7 @@ class UserCubit extends BaseCubit<UserState, User> {
     });
   }
 
+  // TODO: DEPRECATE this
   Future<void> initialize() async {
     if (isBusy) return;
 

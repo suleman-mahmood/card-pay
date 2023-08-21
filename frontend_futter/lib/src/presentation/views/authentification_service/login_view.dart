@@ -1,7 +1,6 @@
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
