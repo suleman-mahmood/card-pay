@@ -7,15 +7,10 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 
 from flask import Flask, request, jsonify
 
-from core.api.utils import (
-    authenticate_token,
-    authenticate_user_type,
-    handle_exceptions_uow,
-    handle_missing_payload,
-)
-from core.payment.entrypoint import commands as payment_commands
-from core.authentication.domain.model import UserType
-
+from core.api import utils
+from core.payment.entrypoint import commands as pmt_cmd
+from core.authentication.domain import model as auth_mdl
+from core.entrypoint.uow import UnitOfWork
 from .api_cardpay_app import cardpay_app
 from .api_retool import retool
 
@@ -80,38 +75,35 @@ def base():
 
 
 @app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.PAYMENT_GATEWAY])
-@handle_exceptions_uow
-@handle_missing_payload
-def pay_pro_callback(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.PAYMENT_GATEWAY])
+@utils.handle_missing_payload
+def pay_pro_callback():
     req = request.get_json(force=True)
 
-    payment_commands.pay_pro_callback(
+    uow = UnitOfWork()
+    pmt_cmd.pay_pro_callback(
         uow=uow,
         data=req[""],  # TODO: fill these later
     )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "callback processed successfully",
-            }
-        ),
-        201,
+    uow.close_connection()
+
+    return utils.Response(
+        message="callback processed successfully",
+        status_code=201,
     )
 
 
 # for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)
 # @app.route(PREFIX + "/create-test-wallet", methods=["POST"])
-# @authenticate_token
-# @authenticate_user_type(allowed_user_types = [UserType.ADMIN])
-# @handle_exceptions_uow
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types = [auth_mdl.UserType.ADMIN])
+# @utils.handle_exceptions_uow
 # def create_test_wallet(uid, uow):
 #     req = request.get_json(force=True)
 
 #     with uow as uow:
-#         payment_commands.create_wallet(user_id=uid, uow=uow)
+#         pmt_cmd.create_wallet(user_id=uid, uow=uow)
 
 #     return {
 #         "success": True,
@@ -121,12 +113,12 @@ def pay_pro_callback(uow):
 
 # TODO: Check where this is used and then remove if not required
 # @app.route(PREFIX + "/execute-transaction", methods=["POST"])
-# @handle_exceptions_uow
-# @handle_missing_payload
+# @utils.handle_exceptions_uow
+# @utils.handle_missing_payload
 # def execute_transaction():
 #     req = request.get_json(force=True)
 
-#     payment_commands.execute_transaction(
+#     pmt_cmd.execute_transaction(
 #         sender_wallet_id=req["sender_wallet_id"],
 #         recipient_wallet_id=req["recipient_wallet_id"],
 #         amount=req["amount"],

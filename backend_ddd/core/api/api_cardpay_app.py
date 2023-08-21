@@ -1,64 +1,81 @@
-import firebase_admin
+from flask import Blueprint, request
 
-from flask import Blueprint, request, jsonify
+from core.entrypoint.uow import UnitOfWork
 
-from core.api.utils import (
-    authenticate_token,
-    authenticate_user_type,
-    handle_exceptions_uow,
-    handle_missing_payload,
-    validate_json_payload,
-)
-from core.payment.entrypoint import commands as payment_commands
-from core.payment.domain.model import (
-    TransactionMode,
-    TransactionType,
-)
-from core.authentication.entrypoint import queries as authentication_queries
+from core.api import utils
+from core.payment.entrypoint import commands as pmt_cmd
+from core.payment.domain import model as pmt_mdl
+from core.payment.entrypoint import queries as pmt_qry
+from core.payment.domain import exceptions as pmt_ex
+from core.payment.entrypoint import exceptions as pmt_cmd_ex
+from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain.model import UserType
-from core.marketing.entrypoint import commands as marketing_commands
-from core.authentication.entrypoint import commands as authentication_commands
+from core.marketing.entrypoint import commands as mktg_cmd
+from core.marketing.domain import exceptions as mktg_ex
+from core.authentication.entrypoint import commands as auth_cmd
+from core.authentication.domain import exceptions as auth_ex
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
 
 @cardpay_app.route("/create-user", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["personal_email", "password", "phone_number", "user_type", "full_name", "location"])
-def create_user(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(
+    required_parameters=[
+        "personal_email",
+        "password",
+        "phone_number",
+        "user_type",
+        "full_name",
+        "location",
+    ]
+)
+def create_user():
     """Create a new user account"""
     req = request.get_json(force=True)
 
-    authentication_commands.create_user(
-        personal_email=req["personal_email"],
-        password=req["password"],
-        phone_number=req["phone_number"],
-        user_type=req["user_type"],
-        full_name=req["full_name"],
-        location=req["location"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "User created successfully",
-            }
-        ),
-        201,
+    uow = UnitOfWork()
+    try:
+        auth_cmd.create_user(
+            personal_email=req["personal_email"],
+            password=req["password"],
+            phone_number=req["phone_number"],
+            user_type=req["user_type"],
+            full_name=req["full_name"],
+            location=req["location"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        auth_ex.InvalidOtpException,
+        auth_ex.VerificationException,
+        auth_ex.ClosedLoopException,
+    ) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="User created successfully",
+        status_code=201,
     )
 
 
 @cardpay_app.route("/create-customer", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["personal_email", "password", "phone_number", "full_name", "location"])
-def create_customer(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(
+    required_parameters=[
+        "personal_email",
+        "password",
+        "phone_number",
+        "full_name",
+        "location",
+    ]
+)
+def create_customer():
     """
     Create a new user account of type customer
 
@@ -66,412 +83,522 @@ def create_customer(uow):
     """
     req = request.get_json(force=True)
 
-    event_code, user_id = authentication_commands.create_user(
-        personal_email=req["personal_email"],
-        password=req["password"],
-        phone_number=req["phone_number"],
-        user_type="CUSTOMER",
-        full_name=req["full_name"],
-        location=req["location"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "User created successfully",
-                "event_code": event_code.name,
-                "user_id": user_id,
-            }
-        ),
-        201,
+    uow = UnitOfWork()
+    try:
+        event_code, user_id = auth_cmd.create_user(
+            personal_email=req["personal_email"],
+            password=req["password"],
+            phone_number=req["phone_number"],
+            user_type="CUSTOMER",
+            full_name=req["full_name"],
+            location=req["location"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        auth_ex.InvalidOtpException,
+        auth_ex.VerificationException,
+        auth_ex.ClosedLoopException,
+    ) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="User created successfully",
+        status_code=201,
+        event_code=event_code,
+        data={
+            "user_id": user_id,
+        },
     )
 
 
 @cardpay_app.route("/change-name", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["user_id", "new_name"])
-def change_name(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["user_id", "new_name"])
+def change_name():
     req = request.get_json(force=True)
 
-    authentication_commands.change_name(
+    uow = UnitOfWork()
+    auth_cmd.change_name(
         user_id=req["user_id"],
         new_name=req["new_name"],
         uow=uow,
     )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "Name changed successfully",
-            }
-        ),
-        200,
+    uow.commit_close_connection()
+
+    return utils.Response(
+        message="Name changed successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/change-pin", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["user_id", "new_pin"])
-def change_pin(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["user_id", "new_pin"])
+def change_pin():
     req = request.get_json(force=True)
 
-    authentication_commands.change_pin(
+    uow = UnitOfWork()
+    auth_cmd.change_pin(
         user_id=req["user_id"],
         new_pin=req["new_pin"],
         uow=uow,
     )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "Pin changed successfully",
-            }
-        ),
-        200,
+    uow.commit_close_connection()
+
+    return utils.Response(
+        message="Pin changed successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/user-toggle-active", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["user_id"])
-def user_toggle_active(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["user_id"])
+def user_toggle_active():
     req = request.get_json(force=True)
 
-    authentication_commands.user_toggle_active(
+    uow = UnitOfWork()
+    auth_cmd.user_toggle_active(
         user_id=req["user_id"],
         uow=uow,
     )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "User toggled active successfully",
-            }
-        ),
-        200,
+    uow.commit_close_connection()
+
+    return utils.Response(
+        message="User toggled active successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/verify-otp", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["user_id", "otp"])
-def verify_otp(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["user_id", "otp"])
+def verify_otp():
     req = request.get_json(force=True)
 
-    authentication_commands.verify_otp(
-        user_id=req["user_id"],
-        otp=req["otp"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "OTP verified successfully",
-            }
-        ),
-        200,
+    uow = UnitOfWork()
+    try:
+        auth_cmd.verify_otp(
+            user_id=req["user_id"],
+            otp=req["otp"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except auth_ex.InvalidOtpException as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="OTP verified successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/verify-phone-number", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["user_id", "otp"])
-def verify_phone_number(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["user_id", "otp"])
+def verify_phone_number():
     req = request.get_json(force=True)
 
-    authentication_commands.verify_phone_number(
-        user_id=req["user_id"],
-        otp=req["otp"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "Phone number verified successfully",
-            }
-        ),
-        200,
+    uow = UnitOfWork()
+    try:
+        auth_cmd.verify_phone_number(
+            user_id=req["user_id"],
+            otp=req["otp"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except auth_ex.VerificationException as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="Phone number verified successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/register-closed-loop", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["user_id", "closed_loop_id", "unique_identifier"])
-def register_closed_loop(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(
+    required_parameters=["user_id", "closed_loop_id", "unique_identifier"]
+)
+def register_closed_loop():
     req = request.get_json(force=True)
 
-    authentication_commands.register_closed_loop(
+    uow = UnitOfWork()
+    auth_cmd.register_closed_loop(
         user_id=req["user_id"],
         closed_loop_id=req["closed_loop_id"],
         unique_identifier=req["unique_identifier"],
         uow=uow,
     )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "User registered into loop successfully",
-            }
-        ),
-        200,
+    uow.commit_close_connection()
+
+    return utils.Response(
+        message="User registered into loop successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/verify-closed-loop", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["user_id", "closed_loop_id", "unique_identifier_otp"])
-def verify_closed_loop(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(
+    required_parameters=["user_id", "closed_loop_id", "unique_identifier_otp"]
+)
+def verify_closed_loop():
     req = request.get_json(force=True)
 
-    authentication_commands.verify_closed_loop(
-        user_id=req["user_id"],
-        closed_loop_id=req["closed_loop_id"],
-        unique_identifier_otp=req["unique_identifier_otp"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "Closed loop verified successfully",
-            }
-        ),
-        200,
+    uow = UnitOfWork()
+    try:
+        auth_cmd.verify_closed_loop(
+            user_id=req["user_id"],
+            closed_loop_id=req["closed_loop_id"],
+            unique_identifier_otp=req["unique_identifier_otp"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (auth_ex.ClosedLoopException, auth_ex.VerificationException) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="Closed loop verified successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/create-deposit-request", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["amount"])
-def create_deposit_request(uid, uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["amount"])
+def create_deposit_request(uid):
     req = request.get_json(force=True)
 
-    checkout_url = payment_commands.create_deposit_request(
-        user_id=uid,
-        amount=req["amount"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "deposit request created successfully",
-                "checkout_url": checkout_url,
-            }
-        ),
-        201,
+    uow = UnitOfWork()
+    try:
+        checkout_url = pmt_cmd.create_deposit_request(
+            user_id=uid,
+            amount=req["amount"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        pmt_cmd_ex.DepositAmountTooSmallException,
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.InvalidReferenceException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="Deposit request created successfully",
+        status_code=201,
+        data={
+            "checkout_url": checkout_url,
+        },
     )
 
 
 @cardpay_app.route("/execute-p2p-push-transaction", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["recipient_unique_identifier", "amount", "closed_loop_id"])
-def execute_p2p_push_transaction(uid, uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(
+    required_parameters=["recipient_unique_identifier", "amount", "closed_loop_id"]
+)
+def execute_p2p_push_transaction(uid):
     req = request.get_json(force=True)
 
-    unique_identifier = authentication_queries.get_unique_identifier_from_user_id(
+    uow = UnitOfWork()
+    unique_identifier = auth_qry.get_unique_identifier_from_user_id(
         user_id=uid, uow=uow
     )
-    payment_commands.execute_transaction_unique_identifier(
-        sender_unique_identifier=unique_identifier,
-        recipient_unique_identifier=req["recipient_unique_identifier"],
-        amount=req["amount"],
-        closed_loop_id=req["closed_loop_id"],
-        transaction_mode=TransactionMode.APP_TRANSFER,
-        transaction_type=TransactionType.P2P_PUSH,
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "p2p push transaction executed successfully",
-            }
-        ),
-        201,
+    try:
+        pmt_cmd.execute_transaction_unique_identifier(
+            sender_unique_identifier=unique_identifier,
+            recipient_unique_identifier=req["recipient_unique_identifier"],
+            amount=req["amount"],
+            closed_loop_id=req["closed_loop_id"],
+            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+            transaction_type=pmt_mdl.TransactionType.P2P_PUSH,
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.InvalidReferenceException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="p2p push transaction executed successfully",
+        status_code=201,
     )
 
 
 @cardpay_app.route("/create-p2p-pull-transaction", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["sender_unique_identifier", "amount", "closed_loop_id"])
-def create_p2p_pull_transaction(uid, uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(
+    required_parameters=["sender_unique_identifier", "amount", "closed_loop_id"]
+)
+def create_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
 
-    unique_identifier = authentication_queries.get_unique_identifier_from_user_id(
+    uow = UnitOfWork()
+    unique_identifier = auth_qry.get_unique_identifier_from_user_id(
         user_id=uid, uow=uow
     )
-    payment_commands.execute_transaction_unique_identifier(
-        sender_unique_identifier=req["sender_unique_identifier"],
-        recipient_unique_identifier=unique_identifier,
-        amount=req["amount"],
-        closed_loop_id=req["closed_loop_id"],
-        transaction_mode=TransactionMode.APP_TRANSFER,
-        transaction_type=TransactionType.P2P_PUSH,
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "p2p pull transaction created successfully",
-            }
-        ),
-        201,
+    try:
+        pmt_cmd.execute_transaction_unique_identifier(
+            sender_unique_identifier=req["sender_unique_identifier"],
+            recipient_unique_identifier=unique_identifier,
+            amount=req["amount"],
+            closed_loop_id=req["closed_loop_id"],
+            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+            transaction_type=pmt_mdl.TransactionType.P2P_PUSH,
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.InvalidReferenceException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="p2p pull transaction created successfully",
+        status_code=201,
     )
 
 
 @cardpay_app.route("/accept-p2p-pull-transaction", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["transaction_id"])
-def accept_p2p_pull_transaction(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["transaction_id"])
+def accept_p2p_pull_transaction():
     req = request.get_json(force=True)
 
-    payment_commands.accept_p2p_pull_transaction(
-        transaction_id=req["transaction_id"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "p2p pull transaction accepted successfully",
-            }
-        ),
-        200,
+    uow = UnitOfWork()
+    try:
+        pmt_cmd.accept_p2p_pull_transaction(
+            transaction_id=req["transaction_id"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.InvalidReferenceException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="p2p pull transaction accepted successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/decline-p2p-pull-transaction", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["transaction_id"])
-def decline_p2p_pull_transaction(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["transaction_id"])
+def decline_p2p_pull_transaction():
     req = request.get_json(force=True)
 
-    payment_commands.decline_p2p_pull_transaction(
-        transaction_id=req["transaction_id"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "p2p pull transaction declined successfully",
-            }
-        ),
-        200,
+    uow = UnitOfWork()
+    try:
+        pmt_cmd.decline_p2p_pull_transaction(
+            transaction_id=req["transaction_id"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except pmt_ex.TransactionNotAllowedException as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="p2p pull transaction declined successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/generate-voucher", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["sender_wallet_id", "amount"])
-def generate_voucher(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["sender_wallet_id", "amount"])
+def generate_voucher():
     req = request.get_json(force=True)
 
-    payment_commands.generate_voucher(
+    uow = UnitOfWork()
+    pmt_cmd.generate_voucher(
         sender_wallet_id=req["sender_wallet_id"],
         amount=req["amount"],
         uow=uow,
     )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "voucher generated successfully",
-            }
-        ),
-        200,
+    uow.commit_close_connection()
+
+    return utils.Response(
+        message="voucher generated successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/redeem-voucher", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["recipient_wallet_id", "transaction_id"])
-def redeem_voucher(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(
+    required_parameters=["recipient_wallet_id", "transaction_id"]
+)
+def redeem_voucher():
     req = request.get_json(force=True)
 
-    payment_commands.redeem_voucher(
-        recipient_wallet_id=req["recipient_wallet_id"],
-        transaction_id=req["transaction_id"],
-        uow=uow,
-    )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "voucher redeemed successfully",
-            }
-        ),
-        200,
+    uow = UnitOfWork()
+    try:
+        pmt_cmd.redeem_voucher(
+            recipient_wallet_id=req["recipient_wallet_id"],
+            transaction_id=req["transaction_id"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.InvalidReferenceException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="voucher redeemed successfully",
+        status_code=200,
     )
 
 
 @cardpay_app.route("/use-reference", methods=["POST"])
-@authenticate_token
-@authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
-@handle_exceptions_uow
-@handle_missing_payload
-@validate_json_payload(required_parameters = ["referee_id", "referral_id"])
-def use_reference(uow):
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["referee_id", "referral_id"])
+def use_reference():
     req = request.get_json(force=True)
 
-    marketing_commands.use_reference(
-        referee_id=req["referee_id"],
-        referral_id=req["referral_id"],
+    uow = UnitOfWork()
+    try:
+        mktg_cmd.use_reference(
+            referee_id=req["referee_id"],
+            referral_id=req["referral_id"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        mktg_ex.InvalidReferenceException,
+        mktg_ex.NotVerifiedException,
+        mktg_ex.InvalidWeightageException,
+    ) as e:
+        uow.close_connection()
+        raise utils.Tabist(message=str(e), status_code=400)
+
+    return utils.Response(
+        message="reference used successfully",
+        status_code=200,
+    )
+
+
+@cardpay_app.route("/get-user-recent-transactions", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+def get_user_recent_transactions(uid):
+    uow = UnitOfWork()
+    txs = pmt_qry.get_all_transactions_of_a_user(
+        user_id=uid,
+        offset=0,
+        page_size=50,
         uow=uow,
     )
-    return (
-        jsonify(
-            {
-                "success": True,
-                "message": "reference used successfully",
-            }
-        ),
-        200,
+    uow.close_connection()
+
+    return utils.Response(
+        message="User recent transactions returned successfully",
+        status_code=200,
+        data=txs,  # txs is a list of dictionaries
+    )
+
+
+@cardpay_app.route("/get-user", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+def get_user(uid):
+    uow = UnitOfWork()
+    user = auth_qry.get_user_from_user_id(
+        user_id=uid,
+        uow=uow,
+    )
+    uow.close_connection()
+
+    user.closed_loops = [c for c in user.closed_loops.values()]
+
+    return utils.Response(
+        message="User returned successfully",
+        status_code=200,
+        data=user.__dict__,
+    )
+
+
+@cardpay_app.route("/get-user-balance", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+def get_user_balance(uid):
+    uow = UnitOfWork()
+    balance = auth_qry.get_user_balance(
+        user_id=uid,
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="User balance returned successfully",
+        status_code=200,
+        data={
+            "balance": balance,
+        },
     )

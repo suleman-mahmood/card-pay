@@ -1,7 +1,7 @@
 # from ..domain.model import Wallet
 from ..domain import model as payment_model
 from ...entrypoint.uow import AbstractUnitOfWork
-
+from typing import List, Dict
 
 def usecases():
     """
@@ -200,7 +200,7 @@ def get_all_transactions_of_a_type(
 
 def get_all_transactions_of_a_user(
     user_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int
-):
+) -> List[Dict[str, str]]:
     """generel fuction | Get all transactions of a user"""
     with uow:
         sql = """

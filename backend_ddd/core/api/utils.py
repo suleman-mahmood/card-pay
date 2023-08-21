@@ -1,12 +1,39 @@
 from uuid import uuid5, NAMESPACE_OID
+from typing import List, Dict, Union
 from functools import wraps
 from firebase_admin import auth
-from flask import request, jsonify
-from typing import List
+from flask import request
+from dataclasses import dataclass
+
 
 from core.entrypoint.uow import UnitOfWork
 from core.authentication.entrypoint import queries as authentication_queries
 from core.authentication.domain.model import UserType
+from core.api.event_codes import EventCode
+
+class Tabist(Exception):
+    """
+    User friendly exception.
+
+    Attributes:
+        message -- message to be viewed by user
+    """
+
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+
+        self.status_code = status_code
+        super().__init__(message)
+
+@dataclass(frozen = True)
+class Response:
+    """Response object"""
+
+    message: str
+    event_code: EventCode = EventCode.DEFAULT_EVENT
+
+    status_code: int = 200
+    data: Union[Dict,List] = None
 
 
 def firebaseUidToUUID(uid: str) -> str:
@@ -20,8 +47,11 @@ def authenticate_token(f):
         auth_header = request.headers.get("Authorization")
         if not auth_header:
             print("No auth header provided")
-            return "Unauthorized", 401
-
+            return Response(
+                message="Unauthorized",
+                status_code=401,
+            )
+            
         # Extract the token from the Authorization header
         token = auth_header.split("Bearer ")[1]
 
@@ -38,30 +68,12 @@ def authenticate_token(f):
         except auth.InvalidIdTokenError:
             # Token is invalid or expired
             print("Threw an exception when decoding the auth token")
-            return "Unauthorized", 401
-
+            return Response(
+                message="Unauthorized",
+                status_code=401,
+            )
+          
     return decorated_function
-
-
-# TODO: Deprecate this
-def handle_exceptions_uow(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        uow = UnitOfWork()
-
-        try:
-            ret = func(uow, *args, **kwargs)
-            uow.commit_close_connection()
-
-            return ret
-        except Exception as e:
-            uow.close_connection()
-            # TODO: add logging to include the full stack trace
-            # raise e  # TODO: hack, remove this
-            return jsonify({"success": False, "message": str(e)}), 400
-
-    return wrapper
-
 
 def authenticate_user_type(allowed_user_types: List[UserType]):
     def inner_decorator(func):
@@ -74,10 +86,11 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
             uow.close_connection()
             
             if user_type not in allowed_user_types:
-                return (
-                    jsonify({"success": False, "message": "User not eligible"}),
-                    400,
+                return Response(
+                    message="User not eligible",
+                    status_code=400,
                 )
+
             return func(*args, **kwargs)
 
         return wrapper
@@ -89,11 +102,10 @@ def handle_missing_payload(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if request.json is None:
-            return (
-                jsonify({"success": False, "message": "payload missing in request"}),
-                400,
+            return Response(
+                message="payload missing in request",
+                status_code=400,
             )
-
         return func(*args, **kwargs)
 
     return wrapper
@@ -104,9 +116,9 @@ def validate_json_payload(required_parameters : List[str]):
         def wrapper(*args, **kwargs):
             req = request.get_json(force=True)
             if set(required_parameters) != set(req.keys()):
-                return (
-                    jsonify({"success": False, "message": "invalid json payload, missing or extra parameters"}),
-                    400,
+                return Response(
+                    message="invalid json payload, missing or extra parameters",
+                    status_code=400,
                 )
             return func(*args, **kwargs)
         return wrapper
