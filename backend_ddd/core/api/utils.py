@@ -32,7 +32,7 @@ class Response:
     message: str
     event_code: EventCode = EventCode.DEFAULT_EVENT
 
-    status_code: int = 200
+    status_code: int
     data: Union[Dict,List] = None
 
 

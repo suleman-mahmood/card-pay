@@ -37,25 +37,19 @@ def create_user():
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
-    try:
-        auth_cmd.create_user(
-            personal_email=req["personal_email"],
-            password=req["password"],
-            phone_number=req["phone_number"],
-            user_type=req["user_type"],
-            full_name=req["full_name"],
-            location=req["location"],
-            uow=uow,
-        )
-        uow.commit_close_connection()
-    except (
-        auth_ex.InvalidOtpException,
-        auth_ex.VerificationException,
-        auth_ex.ClosedLoopException,
-    ) as e:
-        uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
 
+    auth_cmd.create_user(
+        personal_email=req["personal_email"],
+        password=req["password"],
+        phone_number=req["phone_number"],
+        user_type=req["user_type"],
+        full_name=req["full_name"],
+        location=req["location"],
+        uow=uow,
+    )
+
+    uow.commit_close_connection()
+    
     return utils.Response(
         message="User created successfully",
         status_code=201,
@@ -84,25 +78,18 @@ def create_customer():
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
-    try:
-        event_code, user_id = auth_cmd.create_user(
-            personal_email=req["personal_email"],
-            password=req["password"],
-            phone_number=req["phone_number"],
-            user_type="CUSTOMER",
-            full_name=req["full_name"],
-            location=req["location"],
-            uow=uow,
-        )
-        uow.commit_close_connection()
-    except (
-        auth_ex.InvalidOtpException,
-        auth_ex.VerificationException,
-        auth_ex.ClosedLoopException,
-    ) as e:
-        uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
-
+    
+    event_code, user_id = auth_cmd.create_user(
+        personal_email=req["personal_email"],
+        password=req["password"],
+        phone_number=req["phone_number"],
+        user_type="CUSTOMER",
+        full_name=req["full_name"],
+        location=req["location"],
+        uow=uow,
+    )
+    uow.commit_close_connection()
+   
     return utils.Response(
         message="User created successfully",
         status_code=201,
@@ -194,14 +181,20 @@ def verify_otp():
             uow=uow,
         )
         uow.commit_close_connection()
+    
     except auth_ex.InvalidOtpException as e:
+        
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
-
-    return utils.Response(
-        message="OTP verified successfully",
-        status_code=200,
-    )
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
+    
+    else:
+        return utils.Response(
+            message="OTP verified successfully",
+            status_code=200,
+        )
 
 
 @cardpay_app.route("/verify-phone-number", methods=["POST"])
@@ -220,14 +213,19 @@ def verify_phone_number():
             uow=uow,
         )
         uow.commit_close_connection()
+    
     except auth_ex.VerificationException as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="Phone number verified successfully",
-        status_code=200,
-    )
+    else:
+        return utils.Response(
+            message="Phone number verified successfully",
+            status_code=200,
+        )
 
 
 @cardpay_app.route("/register-closed-loop", methods=["POST"])
@@ -274,14 +272,19 @@ def verify_closed_loop():
             uow=uow,
         )
         uow.commit_close_connection()
+
     except (auth_ex.ClosedLoopException, auth_ex.VerificationException) as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="Closed loop verified successfully",
-        status_code=200,
-    )
+    else:
+        return utils.Response(
+            message="Closed loop verified successfully",
+            status_code=200,
+        )
 
 
 @cardpay_app.route("/create-deposit-request", methods=["POST"])
@@ -309,15 +312,19 @@ def create_deposit_request(uid):
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="Deposit request created successfully",
-        status_code=201,
-        data={
-            "checkout_url": checkout_url,
-        },
-    )
+    else:
+        return utils.Response(
+            message="Deposit request created successfully",
+            status_code=201,
+            data={
+                "checkout_url": checkout_url,
+            },
+        )
 
 
 @cardpay_app.route("/execute-p2p-push-transaction", methods=["POST"])
@@ -353,12 +360,16 @@ def execute_p2p_push_transaction(uid):
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="p2p push transaction executed successfully",
-        status_code=201,
-    )
+    else:
+        return utils.Response(
+            message="p2p push transaction executed successfully",
+            status_code=201,
+        )
 
 
 @cardpay_app.route("/create-p2p-pull-transaction", methods=["POST"])
@@ -394,12 +405,16 @@ def create_p2p_pull_transaction(uid):
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="p2p pull transaction created successfully",
-        status_code=201,
-    )
+    else:
+        return utils.Response(
+            message="p2p pull transaction created successfully",
+            status_code=201,
+        )
 
 
 @cardpay_app.route("/accept-p2p-pull-transaction", methods=["POST"])
@@ -425,12 +440,16 @@ def accept_p2p_pull_transaction():
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="p2p pull transaction accepted successfully",
-        status_code=200,
-    )
+    else:
+        return utils.Response(
+            message="p2p pull transaction accepted successfully",
+            status_code=200,
+        )
 
 
 @cardpay_app.route("/decline-p2p-pull-transaction", methods=["POST"])
@@ -450,12 +469,16 @@ def decline_p2p_pull_transaction():
         uow.commit_close_connection()
     except pmt_ex.TransactionNotAllowedException as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="p2p pull transaction declined successfully",
-        status_code=200,
-    )
+    else:
+        return utils.Response(
+            message="p2p pull transaction declined successfully",
+            status_code=200,
+        )
 
 
 @cardpay_app.route("/generate-voucher", methods=["POST"])
@@ -506,12 +529,16 @@ def redeem_voucher():
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="voucher redeemed successfully",
-        status_code=200,
-    )
+    else:
+        return utils.Response(
+            message="voucher redeemed successfully",
+            status_code=200,
+        )
 
 
 @cardpay_app.route("/use-reference", methods=["POST"])
@@ -536,12 +563,16 @@ def use_reference():
         mktg_ex.InvalidWeightageException,
     ) as e:
         uow.close_connection()
-        raise utils.Tabist(message=str(e), status_code=400)
+        return utils.Response(
+            message=str(e),
+            status_code=400,
+        )
 
-    return utils.Response(
-        message="reference used successfully",
-        status_code=200,
-    )
+    else:
+        return utils.Response(
+            message="reference used successfully",
+            status_code=200,
+        )
 
 
 @cardpay_app.route("/get-user-recent-transactions", methods=["GET"])
