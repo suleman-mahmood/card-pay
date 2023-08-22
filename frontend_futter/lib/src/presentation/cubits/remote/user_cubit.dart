@@ -2,7 +2,6 @@ import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_customer_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
-import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
@@ -17,13 +16,15 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'user_state.dart';
 
 class UserCubit extends BaseCubit<UserState, User> {
   final ApiRepository _apiRepository;
+  final SharedPreferences _prefs;
 
-  UserCubit(this._apiRepository) : super(UserInitial(), User());
+  UserCubit(this._apiRepository, this._prefs) : super(UserInitial(), User());
 
   Future<void> createCustomer(
     String personalEmail,
@@ -47,6 +48,12 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       if (response is DataSuccess) {
         data.id = response.data!.userId;
+
+        await _prefs.setString('user_id', response.data!.userId);
+        await _prefs.setString('user_full_name', fullName);
+        await _prefs.setString('user_personal_email', personalEmail);
+        await _prefs.setString('user_phone_number', phoneNumber);
+        await _prefs.setString('user_password', password);
 
         emit(UserSuccess(
           message: response.data!.message,
@@ -375,10 +382,20 @@ class UserCubit extends BaseCubit<UserState, User> {
         didAuthenticate = await auth.authenticate(
           localizedReason: 'Please authenticate to log in',
         );
-        emit(UserSuccess(
-          message: "Sign in was successful",
-          eventCodes: EventCodes.USER_AUTHENTICATED,
-        ));
+
+        if (didAuthenticate) {
+          final personalEmail = _prefs.getString('user_personal_email');
+          final password = _prefs.getString('user_password');
+
+          emit(UserSuccess(
+            message: "Sign in was successful",
+            eventCodes: EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC,
+            email: personalEmail,
+            password: password,
+          ));
+        } else {
+          emit(UserFailed(errorMessage: 'Authentication failed'));
+        }
       } on PlatformException catch (e) {
         emit(UserFailed(errorMessage: e.message ?? ''));
       }

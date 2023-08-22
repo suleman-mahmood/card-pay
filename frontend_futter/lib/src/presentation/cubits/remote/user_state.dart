@@ -7,7 +7,8 @@ abstract class UserState {
   final String qrTitle;
   final EventCodes eventCodes;
   final User user;
-
+  final String email;
+  final String password;
   final String errorMessage;
   final List<TransactionResponse> transactions;
   final DioError? error;
@@ -19,6 +20,8 @@ abstract class UserState {
     this.qrTitle = '',
     this.eventCodes = EventCodes.DEFAULT_EVENT,
     this.error,
+    this.email = '',
+    this.password = '',
     this.transactions = const [],
     User? user,
   }) : user = user ?? User();
@@ -43,6 +46,8 @@ class UserSuccess extends UserState {
     super.transactions,
     super.checkoutUrl,
     super.qrTitle,
+    String? email,
+    String? password,
   });
 }
 

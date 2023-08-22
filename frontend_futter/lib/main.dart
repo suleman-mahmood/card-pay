@@ -7,6 +7,7 @@ import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/app_themes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   await initializeDependencies();
@@ -24,7 +25,8 @@ class MainApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => UserCubit(locator<ApiRepository>()),
+            create: (context) => UserCubit(
+                locator<ApiRepository>(), locator<SharedPreferences>()),
           ),
           BlocProvider(
             create: (context) => ClosedLoopCubit(locator<ApiRepository>()),

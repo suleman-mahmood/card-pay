@@ -10,6 +10,7 @@ import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final locator = GetIt.instance;
 
@@ -28,6 +29,9 @@ Future<void> initializeDependencies() async {
   locator.registerSingleton<ApiRepository>(
     // ApiRepositoryImpl(locator<PythonApiService>()),
     FakeApiRepositoryImpl(),
+  );
+  locator.registerSingleton<SharedPreferences>(
+    await SharedPreferences.getInstance(),
   );
 
   await Firebase.initializeApp(
