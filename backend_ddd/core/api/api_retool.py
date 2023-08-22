@@ -29,9 +29,10 @@ def get_all_closed_loops():
 
 
 @retool.route("/create-closed-loop", methods=["POST"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
+@utils.authenticate_retool_secret
 @utils.validate_json_payload(
     required_parameters=[
         "name",
@@ -160,9 +161,10 @@ def auth_retools_get_all_closed_loops_with_user_counts():
 
 
 @retool.route("/auth-retools-update-closed-loop", methods=["PUT"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
+@utils.authenticate_retool_secret
 @utils.validate_json_payload(
     required_parameters=[
         "id",
@@ -195,9 +197,10 @@ def auth_retools_update_closed_loop():
 
 
 @retool.route("/auth-retools-get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
+@utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters=["closed_loop_id"])
 def auth_retools_get_active_inactive_counts_of_a_closed_loop():
     req = request.get_json(force=True)
@@ -221,9 +224,10 @@ def auth_retools_get_active_inactive_counts_of_a_closed_loop():
 
 
 @retool.route("/auth-retools-get-all-users-of-a-closed-loop", methods=["GET"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
+@utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters=["closed_loop_id"])
 def auth_retools_get_information_of_all_users_of_a_closed_loop():
     req = request.get_json(force=True)
@@ -245,9 +249,10 @@ def auth_retools_get_information_of_all_users_of_a_closed_loop():
 
 
 @retool.route("/auth-retools-create-vendor", methods=["POST"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
+@utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters=["personal_email", "password", "phone_number", "full_name", "longitude", "latitude", "closed_loop_id"])
 def auth_retools_create_vendor(uow):
     req = request.get_json(force=True)
