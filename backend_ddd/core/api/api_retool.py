@@ -79,7 +79,7 @@ def add_weightage():
 
     return utils.Response(
         message="weightage added successfully",
-        status_code=200,
+        status_code=201,
     )
 
 
@@ -144,10 +144,10 @@ def set_cashback_slabs():
 # retool auth admin routes
 
 
-@retool.route("/get-all-closed-loops-with-user-counts", methods=["GET"])
+@retool.route("/auth-retools-get-all-closed-loops-with-user-counts", methods=["GET"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
-def get_all_closed_loops_with_user_counts():
+def auth_retools_get_all_closed_loops_with_user_counts():
     uow = UnitOfWork()
     closed_loops = auth_qry.get_all_closed_loops_with_user_counts(uow=uow)
     uow.close_connection()
@@ -159,7 +159,7 @@ def get_all_closed_loops_with_user_counts():
     )
 
 
-@retool.route("/update-closed-loop", methods=["PUT"])
+@retool.route("/auth-retools-update-closed-loop", methods=["PUT"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
@@ -173,7 +173,7 @@ def get_all_closed_loops_with_user_counts():
         "regex",
     ]
 )
-def update_closed_loop():
+def auth_retools_update_closed_loop():
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
@@ -194,12 +194,12 @@ def update_closed_loop():
     )
 
 
-@retool.route("/get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
+@retool.route("/auth-retools-get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["closed_loop_id"])
-def get_active_inactive_counts_of_a_closed_loop():
+def auth_retools_get_active_inactive_counts_of_a_closed_loop():
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
@@ -211,19 +211,21 @@ def get_active_inactive_counts_of_a_closed_loop():
 
     response = utils.Response(
         message="Counts returned successfully",
-        status_code=201,
-        data=counts,
+        status_code=200,
+        data={
+                "counts":counts
+            }
     )
 
     return response
 
 
-@retool.route("/get-all-users-of-a-closed-loop", methods=["GET"])
+@retool.route("/auth-retools-get-all-users-of-a-closed-loop", methods=["GET"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["closed_loop_id"])
-def get_information_of_all_users_of_a_closed_loop():
+def auth_retools_get_information_of_all_users_of_a_closed_loop():
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
@@ -235,6 +237,38 @@ def get_information_of_all_users_of_a_closed_loop():
 
     return utils.Response(
         message="All users returned successfully",
+        status_code=200,
+        data={
+            "users": users
+        },
+    )
+
+
+@retool.route("/auth-retools-create-vendor", methods=["POST"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.validate_json_payload(required_parameters=["personal_email", "password", "phone_number", "full_name", "longitude", "latitude", "closed_loop_id"])
+def auth_retools_create_vendor(uow):
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+    auth_cmd.create_vendor_through_retool(
+        personal_email=req["personal_email"],
+        password=req["password"],
+        phone_number=req["phone_number"],
+        full_name=req["full_name"],
+        location=(
+            float(req["longitude"]),
+            float(req["latitude"])
+        ),
+        closed_loop_id=req["closed_loop_id"],
+        unique_identifier="",
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="vendor created successfully",
         status_code=201,
-        data=users,
     )

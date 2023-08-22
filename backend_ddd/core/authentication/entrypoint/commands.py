@@ -276,3 +276,56 @@ def firebase_get_user(email: str) -> str:
     user_record = auth.get_user_by_email(email=email)
 
     return user_record.uid
+
+def create_vendor_through_retool(
+    personal_email: str,
+    password: str,
+    phone_number: str,
+    full_name: str,
+    location: Tuple[float, float],
+    closed_loop_id: str,
+    unique_identifier: Optional[str],
+    uow: AbstractUnitOfWork,
+):
+    """
+    assumption: each vendor can only belong to a single closed loop
+    """
+
+    user_object = create_user(
+        personal_email=personal_email,
+        password=password,
+        phone_number=phone_number,
+        user_type="VENDOR",
+        full_name=full_name,
+        location=location,
+        uow=uow,
+    )
+
+    user_id = user_object[1]
+
+    with uow:
+        user = uow.users.get(user_id=user_id)
+
+    user = verify_phone_number(
+        user_id=user_id,
+        otp=user.otp,
+        uow=uow,
+    )
+
+    user = register_closed_loop(
+        user_id=user_id,
+        closed_loop_id=closed_loop_id,
+        unique_identifier=unique_identifier,
+        uow=uow,
+    )
+
+    closed_loop_user = user.closed_loops[closed_loop_id]
+
+    user = verify_closed_loop(
+        user_id=user_id,
+        closed_loop_id=closed_loop_id,
+        unique_identifier_otp=closed_loop_user.unique_identifier_otp,
+        uow=uow,
+    )
+
+    return user

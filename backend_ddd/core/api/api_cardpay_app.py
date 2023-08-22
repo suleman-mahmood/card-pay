@@ -499,7 +499,7 @@ def generate_voucher():
 
     return utils.Response(
         message="voucher generated successfully",
-        status_code=200,
+        status_code=201,
     )
 
 
