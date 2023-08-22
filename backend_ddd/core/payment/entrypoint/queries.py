@@ -87,7 +87,7 @@ def get_user_id_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork) -> str:
 #         uow.connection.commit()
 
 
-def get_starred_wallet_id(uow: AbstractUnitOfWork):
+def get_starred_wallet_id(uow: AbstractUnitOfWork) -> str:
     """
     keeping it here for now, will move it later after discussion
     """

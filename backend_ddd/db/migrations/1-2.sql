@@ -1,20 +1,23 @@
-drop table if exists transactions CASCADE;
-drop table if exists wallets CASCADE;
-drop table if exists closed_loops CASCADE;
-drop table if exists users CASCADE;
-drop table if exists user_closed_loops CASCADE;
-drop table if exists weightages CASCADE;
-drop table if exists cashback_slabs CASCADE;
-drop table if exists starred_wallet_id CASCADE;
-drop table if exists payment_gateway_tokens CASCADE;
+drop table if exists transactions cascade;
+drop table if exists wallets cascade;
+drop table if exists closed_loops cascade;
+drop table if exists users cascade;
+drop table if exists user_closed_loops cascade;
+drop table if exists weightages cascade;
+drop table if exists cashback_slabs cascade;
+drop table if exists starred_wallet_id cascade;
+drop table if exists payment_gateway_tokens cascade;
+drop table if exists wallets_firestore cascade;
+drop table if exists users_firestore cascade;
+drop table if exists transactions_firestore cascade;
 
-drop type if exists transaction_mode_enum CASCADE;
-drop type if exists transaction_type_enum CASCADE;
-drop type if exists transaction_status_enum CASCADE;
-drop type if exists closed_loop_verification_type CASCADE;
-drop type if exists user_type_enum CASCADE;
-drop type if exists closed_loop_user_state_enum CASCADE;
-drop type if exists cashback_type_enum CASCADE;
+drop type if exists transaction_mode_enum cascade;
+drop type if exists transaction_type_enum cascade;
+drop type if exists transaction_status_enum cascade;
+drop type if exists closed_loop_verification_type cascade;
+drop type if exists user_type_enum cascade;
+drop type if exists closed_loop_user_state_enum cascade;
+drop type if exists cashback_type_enum cascade;
 
 create type  transaction_mode_enum as enum ('QR', 'RFID', 'NFC', 'BARCODE', 'APP_TRANSFER');
 create type transaction_type_enum as enum ('POS', 'P2P_PUSH', 'P2P_PULL', 'VOUCHER', 'VIRTUAL_POS', 'PAYMENT_GATEWAY', 'CARD_PAY', 'CASH_BACK', 'REFERRAL');
@@ -29,7 +32,6 @@ create table wallets (
     id uuid primary key,
     balance integer not null constraint  non_negative_integer check (balance >= 0),
     created_at timestamp not null default current_timestamp
-
 );
 
 create table starred_wallet_id (
@@ -42,8 +44,8 @@ create table transactions (
     mode transaction_mode_enum not null,
     transaction_type transaction_type_enum not null,
     status transaction_status_enum not null,
-    sender_wallet_id uuid References wallets(id) not null,
-    recipient_wallet_id uuid References wallets(id) not null,
+    sender_wallet_id uuid references wallets(id) not null,
+    recipient_wallet_id uuid references wallets(id) not null,
     created_at timestamp not null default current_timestamp,
     last_updated timestamp not null default current_timestamp
 );
@@ -65,7 +67,7 @@ create table users (
     user_type user_type_enum not null,
     pin varchar(4) not null,
     full_name varchar(255) not null,
-    wallet_id uuid References wallets(id) not null,
+    wallet_id uuid references wallets(id) not null,
     is_active boolean not null,
     is_phone_number_verified boolean not null,
     otp varchar(4) not null,
@@ -110,4 +112,49 @@ create table payment_gateway_tokens (
     id varchar(255) primary key,
     token varchar(255) not null,
     last_updated timestamp not null default current_timestamp
+);
+
+
+-- Migration content
+
+create table wallets_firestore (
+    id uuid primary key,
+    balance integer not null constraint  non_negative_integer check (balance >= 0),
+    created_at timestamp not null default current_timestamp,
+
+    migrated boolean not null default false -- The only difference here
+);
+
+create table users_firestore (
+    id uuid primary key,
+    personal_email varchar(255) not null,
+    phone_number varchar(255) not null,
+    user_type user_type_enum not null,
+    pin varchar(4) not null,
+    full_name varchar(255) not null,
+    wallet_id uuid references wallets_firestore(id) not null, -- fk
+    is_active boolean not null,
+    is_phone_number_verified boolean not null,
+    otp varchar(4) not null,
+    otp_generated_at timestamp not null default current_timestamp,
+    location point not null default point(0,0),
+    created_at timestamp not null default current_timestamp,
+    loyalty_points integer not null default 0,
+    referral_id uuid not null default '00000000-0000-0000-0000-000000000000',
+
+    migrated boolean not null default false -- The only difference here
+);
+
+create table transactions_firestore (
+    id uuid primary key,
+    amount integer not null  constraint  non_negative_integer check (amount >= 0),
+    mode transaction_mode_enum not null,
+    transaction_type transaction_type_enum not null,
+    status transaction_status_enum not null,
+    sender_wallet_id uuid references wallets_firestore(id) not null, -- fk
+    recipient_wallet_id uuid references wallets_firestore(id) not null, -- fk
+    created_at timestamp not null default current_timestamp,
+    last_updated timestamp not null default current_timestamp,
+
+    migrated boolean not null default false -- The only difference here
 );

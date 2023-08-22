@@ -10,6 +10,9 @@
 - To start the ngrok tunnel, run the command `ngrok http 5000`
     - Add auth token to get the verified http url or whatever that is but required warna weird errors
 
+### Cloud SQL
+- To connect to the PostgreSQL instance on the cloud, run `./cloud-sql-proxy cardpay-1:asia-south1:cardpay-dev -p 5433`
+- To run migrations run `pg-migrator postgres://postgres:"-3vjMTP4s>*aEDuG"@127.0.0.1:5433/cardpay-dev-db` in `backend_ddd/db/migrations` directory
 
 ### Frontend
 

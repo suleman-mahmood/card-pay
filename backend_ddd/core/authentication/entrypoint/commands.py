@@ -6,9 +6,13 @@ from typing import Optional, Tuple
 
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import commands as payment_commands
+from core.payment.entrypoint import queries as pmt_qry
 from core.comms.entrypoint import commands as comms_commands
 from core.api import utils
 from core.api.event_codes import EventCode
+from core.authentication.entrypoint import queries as qry
+from core.authentication.entrypoint import exceptions as ex
+from core.payment.domain import model as pmt_mdl
 from ..domain.model import (
     ClosedLoopUser,
     ClosedLoopVerificationType,
@@ -21,6 +25,7 @@ from ..domain.model import (
 )
 
 PK_CODE = "92"
+LUMS_CLOSED_LOOP_ID = ""  # TODO: Hardcode the lums id here
 
 
 def create_closed_loop(
@@ -195,14 +200,58 @@ def verify_closed_loop(
     uow: AbstractUnitOfWork,
 ):
     """Request/Register to join a closed loop"""
-    with uow:
-        user = uow.users.get(user_id=user_id)
-        user.verify_closed_loop(
-            closed_loop_id=closed_loop_id, otp=unique_identifier_otp
+    user = uow.users.get(user_id=user_id)
+    user.verify_closed_loop(closed_loop_id=closed_loop_id, otp=unique_identifier_otp)
+    uow.users.save(user)
+
+    if closed_loop_id != LUMS_CLOSED_LOOP_ID:
+        return user
+
+    unique_identifier = user.closed_loops[closed_loop_id].unique_identifier
+    assert unique_identifier is not None
+
+    try:
+        fetched_user_id = qry.user_id_from_firestore(
+            unique_identifier=unique_identifier, uow=uow
         )
-        uow.users.save(user)
+    except ex.UserNotInFirestore:
+        # This is not an old LUMS user, so just return
+        return user
+
+    _migrate_user(user_id=fetched_user_id, uow=uow)
 
     return user
+
+
+def _migrate_user(user_id: str, uow: AbstractUnitOfWork):
+    fetched_wallet_balance = qry.wallet_balance_from_firestore(user_id=user_id, uow=uow)
+    cardpay_wallet_id = pmt_qry.get_starred_wallet_id(uow=uow)
+
+    payment_commands.execute_transaction(
+        sender_wallet_id=cardpay_wallet_id,
+        recipient_wallet_id=user_id,
+        amount=fetched_wallet_balance,
+        transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=pmt_mdl.TransactionType.CARD_PAY,
+        uow=uow,
+    )
+
+    sql = """
+        update users_firestore
+        set migrated=true
+        where id=%(user_id)s;
+
+        update wallets_firestore
+        set migrated=true
+        where id=%(user_id)s;
+    """
+
+    uow.cursor.execute(
+        sql,
+        {
+            "user_id": user_id,
+        },
+    )
 
 
 def firebase_create_user(

@@ -19,7 +19,7 @@
 13. update closed loop
 14. get information of all users of a closed loop
 """
-
+from core.authentication.entrypoint import exceptions as ex
 from ..domain import model as authentication_model
 
 # from ..adapters import repository as authentication_repository
@@ -28,7 +28,7 @@ from ...entrypoint.uow import AbstractUnitOfWork
 
 def get_all_closed_loops(uow: AbstractUnitOfWork):
     """Get all closed loops"""
-    
+
     sql = """
         select id, name, logo_url, description, regex, verification_type, created_at
         from closed_loops
@@ -52,7 +52,6 @@ def get_all_closed_loops(uow: AbstractUnitOfWork):
 
 
 def get_all_closed_loops_with_user_counts(uow: AbstractUnitOfWork):
-
     sql = """
         select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at, count(ucl.user_id)
         from closed_loops cl
@@ -91,6 +90,7 @@ def get_user_from_user_id(user_id: str, uow: AbstractUnitOfWork):
     user = uow.users.get(user_id=user_id)
     return user
 
+
 def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
     """Get user type from user id"""
     sql = """
@@ -103,9 +103,10 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
     user_type = authentication_model.UserType[row[0]]
     return user_type
 
+
 def get_user_from_email(user_email: str, uow: AbstractUnitOfWork):
     """Get user from email"""
-    
+
     sql = """
         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
         from users
@@ -136,7 +137,7 @@ def get_user_from_email(user_email: str, uow: AbstractUnitOfWork):
 
 def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork):
     """Get user from phone number"""
-   
+
     sql = """
         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
         from users
@@ -196,7 +197,7 @@ def get_user_from_closed_loop_id_and_unique_identifier(
         ),
         created_at=row[12],
     )
-    
+
     return user
 
 
@@ -273,7 +274,7 @@ def get_all_users_of_a_user_type(
     uow: AbstractUnitOfWork, user_type: authentication_model.UserType
 ):
     """Get all users of a user type"""
-   
+
     sql = """
         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
         from users 
@@ -472,7 +473,6 @@ def update_closed_loop(
 
 
 def get_user_count_of_all_closed_loops(uow: AbstractUnitOfWork):
-
     sql = """
         select cl.id, cl.name, count(ucl.user_id)
         from closed_loops cl
@@ -568,13 +568,50 @@ def get_active_inactive_counts_of_a_closed_loop(
 
 
 def get_unique_identifier_from_user_id(user_id: str, uow: AbstractUnitOfWork) -> str:
-
     sql = """
         select unique_identifier
         from user_closed_loops
-        where user_id = %s;
+        where user_id = %s
     """
     uow.cursor.execute(sql, [user_id])
     row = uow.cursor.fetchone()
+
+    return row[0]
+
+
+def user_id_from_firestore(unique_identifier: str, uow: AbstractUnitOfWork) -> str:
+    sql = """
+        select
+            id
+        from 
+            users_firestore
+        where 
+            personal_email ilike %s
+            and not migrated
+    """
+    uow.cursor.execute(sql, ["%" + unique_identifier + "%"])
+    row = uow.cursor.fetchone()
+
+    if row is None:
+        raise ex.UserNotInFirestore("User not found")
+
+    return row[0]
+
+
+def wallet_balance_from_firestore(user_id: str, uow: AbstractUnitOfWork) -> int:
+    sql = """
+        select
+            balance
+        from 
+            wallets_firestore
+        where 
+            id = %s
+            and not migrated
+    """
+    uow.cursor.execute(sql, [user_id])
+    row = uow.cursor.fetchone()
+
+    if row is None:
+        raise ex.WalletNotInFirestore("Wallet not found")
 
     return row[0]
