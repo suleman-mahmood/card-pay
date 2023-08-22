@@ -28,17 +28,16 @@ def test_closed_loop_repository_add_get(seed_closed_loop):
 def test_user_repository_add_get(seed_user):
     uow = UnitOfWork()
 
-    with uow:
-        uow.cursor.execute(
-            "ALTER TABLE users DROP CONSTRAINT IF EXISTS users_wallet_id_fkey CASCADE;"
-        )
+    uow.cursor.execute(
+        "ALTER TABLE users DROP CONSTRAINT IF EXISTS users_wallet_id_fkey CASCADE;"
+    )
 
-        user = seed_user()
-        uow.users.add(user=user)
+    user = seed_user()
+    uow.users.add(user=user)
 
-        fetched_user = uow.users.get(user_id=user.id)
-
-        assert fetched_user == user
+    fetched_user = uow.users.get(user_id=user.id)
+    uow.commit_close_connection()
+    assert fetched_user == user
 
 
 def test_closed_loop_repository_save(seed_closed_loop):

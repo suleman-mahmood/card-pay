@@ -19,8 +19,6 @@ cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
 
 @cardpay_app.route("/create-user", methods=["POST"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters=[
@@ -37,7 +35,6 @@ def create_user():
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
-
     auth_cmd.create_user(
         personal_email=req["personal_email"],
         password=req["password"],
@@ -47,18 +44,15 @@ def create_user():
         location=req["location"],
         uow=uow,
     )
-
     uow.commit_close_connection()
-    
+
     return utils.Response(
         message="User created successfully",
         status_code=201,
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/create-customer", methods=["POST"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters=[
@@ -78,7 +72,6 @@ def create_customer():
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
-    
     event_code, user_id = auth_cmd.create_user(
         personal_email=req["personal_email"],
         password=req["password"],
@@ -89,7 +82,7 @@ def create_customer():
         uow=uow,
     )
     uow.commit_close_connection()
-   
+
     return utils.Response(
         message="User created successfully",
         status_code=201,
@@ -97,7 +90,7 @@ def create_customer():
         data={
             "user_id": user_id,
         },
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/change-name", methods=["POST"])
@@ -181,15 +174,14 @@ def verify_otp():
             uow=uow,
         )
         uow.commit_close_connection()
-    
+
     except auth_ex.InvalidOtpException as e:
-        
         uow.close_connection()
         return utils.Response(
             message=str(e),
             status_code=400,
         )
-    
+
     else:
         return utils.Response(
             message="OTP verified successfully",
@@ -213,7 +205,7 @@ def verify_phone_number():
             uow=uow,
         )
         uow.commit_close_connection()
-    
+
     except auth_ex.VerificationException as e:
         uow.close_connection()
         return utils.Response(

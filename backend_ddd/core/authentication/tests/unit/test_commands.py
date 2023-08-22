@@ -177,12 +177,3 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
         verified_user.closed_loops[closed_loop.id].status
         == ClosedLoopUserState.VERIFIED
     )
-
-
-def some_function():
-    return 5
-
-
-def test_mocker(mocker):
-    mocker.patch("core.payment.tests.unit.test_model.some_function", return_value=2)
-    assert some_function() == 2

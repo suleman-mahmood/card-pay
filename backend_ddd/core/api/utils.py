@@ -11,9 +11,7 @@ from core.entrypoint.uow import UnitOfWork
 from core.authentication.entrypoint import queries as authentication_queries
 from core.authentication.domain.model import UserType
 from core.api.event_codes import EventCode
-from dotenv import load_dotenv
 
-load_dotenv()
 
 class Tabist(Exception):
     """
@@ -29,15 +27,16 @@ class Tabist(Exception):
         self.status_code = status_code
         super().__init__(message)
 
-@dataclass(frozen = True)
+
+@dataclass(frozen=True)
 class Response:
     """Response object"""
 
     message: str
-    event_code: EventCode = EventCode.DEFAULT_EVENT
-
     status_code: int
-    data: Union[Dict,List] = None
+
+    event_code: EventCode = EventCode.DEFAULT_EVENT
+    data: Union[Dict, List] = None
 
 
 def firebaseUidToUUID(uid: str) -> str:
@@ -50,34 +49,29 @@ def authenticate_token(f):
         # Fetch the token from the request headers
         auth_header = request.headers.get("Authorization")
         if not auth_header:
-            print("No auth header provided")
             return Response(
-                message="Unauthorized",
+                message="Unauthorized, no header provided",
                 status_code=401,
-            )
-            
+            ).__dict__
+
         # Extract the token from the Authorization header
         token = auth_header.split("Bearer ")[1]
 
         try:
-            # Verify and decode the token
-            decoded_token = auth.verify_id_token(token)
-
-            # Extract the user ID and other information from the decoded token
-            uid = firebaseUidToUUID(decoded_token["uid"])
+            uid = _get_uid_from_bearer(token)
 
             # Call the decorated function with the extracted information
-            return f(uid = uid, *args, **kwargs)
+            return f(uid=uid, *args, **kwargs)
 
         except auth.InvalidIdTokenError:
             # Token is invalid or expired
-            print("Threw an exception when decoding the auth token")
             return Response(
-                message="Unauthorized",
+                message="Unauthorized, invalid token",
                 status_code=401,
-            )
-          
+            ).__dict__
+
     return decorated_function
+
 
 def authenticate_user_type(allowed_user_types: List[UserType]):
     def inner_decorator(func):
@@ -88,12 +82,12 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
                 user_id=kwargs["uid"], uow=uow
             )
             uow.close_connection()
-            
+
             if user_type not in allowed_user_types:
                 return Response(
                     message="User not eligible",
                     status_code=400,
-                )
+                ).__dict__
 
             return func(*args, **kwargs)
 
@@ -109,12 +103,13 @@ def handle_missing_payload(func):
             return Response(
                 message="payload missing in request",
                 status_code=400,
-            )
+            ).__dict__
         return func(*args, **kwargs)
 
     return wrapper
 
-def validate_json_payload(required_parameters : List[str]):
+
+def validate_json_payload(required_parameters: List[str]):
     def inner_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -123,9 +118,11 @@ def validate_json_payload(required_parameters : List[str]):
                 return Response(
                     message="invalid json payload, missing or extra parameters",
                     status_code=400,
-                )
+                ).__dict__
             return func(*args, **kwargs)
+
         return wrapper
+
     return inner_decorator
 
 def authenticate_retool_secret():
@@ -148,3 +145,11 @@ def authenticate_retool_secret():
             return func(*args, **kwargs)
         return wrapper
     return inner_decorator
+
+
+def _get_uid_from_bearer(token: str) -> str:
+    # Verify and decode the token
+    decoded_token = auth.verify_id_token(token)
+
+    # Extract the user ID and other information from the decoded token
+    return firebaseUidToUUID(decoded_token["uid"])

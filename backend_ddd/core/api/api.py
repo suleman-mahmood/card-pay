@@ -35,10 +35,8 @@ app.config["PROPAGATE_EXCEPTIONS"] = True
 app.register_blueprint(cardpay_app)
 app.register_blueprint(retool)
 
-cred = firebase_admin.credentials.Certificate("credentials-dev.json")
+cred = firebase_admin.credentials.Certificate("core/api/credentials-dev.json")
 firebase_admin.initialize_app(cred)
-
-PREFIX = "/api/v1"
 
 # 200 OK
 # The request succeeded. The result meaning of "success" depends on the HTTP method:
@@ -66,12 +64,14 @@ PREFIX = "/api/v1"
 # 500 Internal Server Error
 # The server has encountered a situation it does not know how to handle.
 
+PREFIX = "/api/v1"
+
 
 @app.route(PREFIX)
 def base():
     """base endpoint"""
 
-    return jsonify({"success": True, "message": "Welcome to the backend"}), 200
+    return utils.Response(message="Welcome to the backend", status_code=200).__dict__
 
 
 @app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
