@@ -88,17 +88,19 @@ class RegisterOrganizationView extends HookWidget {
               Expanded(
                 flex: 2,
                 child: CustomDivider(
-                  indent: 50,
+                  thickness: 3,
+                  indent: 70,
                   color: AppColors.primaryColor,
-                  endIndent: 10,
+                  endIndent: 5,
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: CustomDivider(
-                  indent: 10,
+                  indent: 5,
+                  thickness: 3,
                   color: AppColors.primaryColor,
-                  endIndent: 50,
+                  endIndent: 70,
                 ),
               ),
             ],

@@ -34,7 +34,7 @@ class DropDown extends HookWidget {
           child: PaddingHorizontal(
             slab: 2,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 19),
+              padding: EdgeInsets.symmetric(horizontal: 0),
               child: BlocBuilder<ClosedLoopCubit, ClosedLoopState>(
                 builder: (_, state) {
                   switch (state.runtimeType) {
@@ -45,7 +45,9 @@ class DropDown extends HookWidget {
                           border: InputBorder.none,
                         ),
                         value: selectedOrganization.value,
-                        dropdownColor: AppColors.greyColor,
+                        elevation: 4,
+                        dropdownColor: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
                         items: [
                           _buildDropdownMenuItem(
                             context,

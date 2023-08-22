@@ -72,23 +72,25 @@ class MyDrawer extends HookWidget {
             ),
           ),
           for (var item in drawerItems)
-            PaddingAll(
-              slab: 1,
-              child: CustomListTile(
-                backgroundColor: AppColors.primaryColor,
-                textColor: AppColors.secondaryColor,
-                iconColor: AppColors.greyColor,
-                icon: item.icon,
-                text: item.text,
-                onTap: () {
-                  if (item.route != null) {
-                    context.router.push(item.route!);
-                    selectedRouteName.value = item.route!.routeName;
-                  } else {
-                    item.onClick!();
-                  }
-                },
-                selected: selectedRouteName.value == item.route?.routeName,
+            GestureDetector(
+              child: PaddingAll(
+                slab: 1,
+                child: CustomListTile(
+                  backgroundColor: AppColors.primaryColor,
+                  textColor: AppColors.greyColor,
+                  iconColor: AppColors.greyColor,
+                  icon: item.icon,
+                  text: item.text,
+                  onTap: () {
+                    if (item.route != null) {
+                      context.router.push(item.route!);
+                      selectedRouteName.value = item.route!.routeName;
+                    } else {
+                      item.onClick!();
+                    }
+                  },
+                  selected: selectedRouteName.value == item.route?.routeName,
+                ),
               ),
             ),
           const Expanded(child: SizedBox()),

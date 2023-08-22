@@ -1,4 +1,5 @@
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -72,11 +73,15 @@ class PinView extends HookWidget {
               }
             }),
             Expanded(flex: 2, child: Container()),
-            Text(
-              isPinConfirmed.value
-                  ? AppStrings.confirmPin
-                  : AppStrings.enterPin,
-              style: AppTypography.mainHeadingWhite,
+            PaddingHorizontal(
+              slab: 2,
+              child: Text(
+                textAlign: TextAlign.center,
+                isPinConfirmed.value
+                    ? AppStrings.confirmPin
+                    : AppStrings.enterPin,
+                style: AppTypography.mainHeadingWhite,
+              ),
             ),
             Expanded(flex: 1, child: Container()),
             if (showErrorMessage.value)

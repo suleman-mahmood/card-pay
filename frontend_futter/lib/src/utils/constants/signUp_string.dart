@@ -26,7 +26,7 @@ class AppStrings {
   static const String requestSuccessful = 'Send Successfully';
 
   static const String acceptPrivacyTerms =
-      'I accept the privacy terms and conditions.';
+      'I accept privacy terms and conditions.';
 
   static const String alreadyHaveAccount = 'Already have an account?';
   static const String logIn = 'Log In';
@@ -39,7 +39,7 @@ class AppStrings {
   static const String resendCode = 'Resend code';
   static const String noOtp = 'Didn\'t receive the code?';
   static const String verify = 'Verify';
-  static const String revolution = 'Revolutionize your transactions';
+  static const String revolution = 'Revolutionise your transactions';
   static const String start = 'Get Started';
   static const String organization = 'Organization';
   static const String register = 'Register Organization';

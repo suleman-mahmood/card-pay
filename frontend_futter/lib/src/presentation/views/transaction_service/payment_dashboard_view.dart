@@ -9,7 +9,6 @@ import 'package:cardpay/src/presentation/views/transaction_service/filtered_hist
 import 'package:cardpay/src/presentation/views/feature_service/profile_view.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
-import 'package:cardpay/src/presentation/widgets/navigations/bottom_bar.dart';
 
 @RoutePage()
 class PaymentDashboardView extends HookWidget {
@@ -69,11 +68,22 @@ class PaymentDashboardView extends HookWidget {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.router.push(const QrRoute());
-        },
-        child: const Icon(Icons.qr_code),
+      floatingActionButton: Transform.translate(
+        offset: Offset(0, -8),
+        child: Container(
+          width: 72,
+          height: 72,
+          child: FloatingActionButton(
+            shape: const CircleBorder(),
+            onPressed: () {
+              context.router.push(const QrRoute());
+            },
+            child: Image.asset(
+              'assets/images/qrCode.png',
+              width: 48,
+            ),
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: showBottomBar

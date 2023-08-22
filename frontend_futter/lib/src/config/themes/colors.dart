@@ -75,7 +75,8 @@ class AppTypography {
   static TextStyle introHeading = TextStyle(
     fontFamily: GoogleFonts.poppins().fontFamily,
     fontSize: 48,
-    fontWeight: FontWeight.bold,
+    height: 1.2,
+    fontWeight: FontWeight.w900,
   );
 
   static TextStyle mainHeading = TextStyle(
@@ -86,7 +87,7 @@ class AppTypography {
   static TextStyle mainHeadingWhite = TextStyle(
     fontFamily: GoogleFonts.poppins().fontFamily,
     color: AppColors.secondaryColor,
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: FontWeight.bold,
   );
   static TextStyle mainHeadingGrey = TextStyle(

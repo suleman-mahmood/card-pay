@@ -35,6 +35,7 @@ class IntroView extends HookWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const HeightBox(slab: 3),
             SlideTransition(
               position: imageAnimationOffset,
               child: Image.asset('assets/images/transection.png'),
@@ -44,7 +45,7 @@ class IntroView extends HookWidget {
               textAlign: TextAlign.center,
               style: AppTypography.introHeading,
             ),
-            const HeightBox(slab: 2),
+            const HeightBox(slab: 3),
             FadeTransition(
               opacity: fadeAnimation,
               child: PrimaryButton(
@@ -56,7 +57,7 @@ class IntroView extends HookWidget {
                 },
               ),
             ),
-            const HeightBox(slab: 2),
+            const HeightBox(slab: 3),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

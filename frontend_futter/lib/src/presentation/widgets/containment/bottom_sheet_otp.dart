@@ -29,65 +29,70 @@ class BottomSheetOTP extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PaddingAll(
-      slab: 3,
-      child: Container(
-        color: AppColors.secondaryColor,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            MainHeading(
-              accountTitle: deviceCheckHeading,
-              accountDescription: otpDeviceText,
-            ),
-            const HeightBox(slab: 2),
-            OTPInput(
-              digitCount: 4,
-              onCompleted: (otp) => {onChanged(otp)},
-            ),
-            const HeightBox(slab: 2),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  AppStrings.noOtp,
-                  style: AppTypography.bodyText,
-                ),
-                const WidthBetween(),
-                GestureDetector(
-                  onTap: () {
-                    context.router.push(const LoginRoute());
-                  },
-                  child: Text(
-                    AppStrings.resendCode,
-                    style: AppTypography.bodyTextBold,
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: PaddingAll(
+        slab: 3,
+        child: Container(
+          color: AppColors.secondaryColor,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MainHeading(
+                accountTitle: deviceCheckHeading,
+                accountDescription: otpDeviceText,
+              ),
+              const HeightBox(slab: 2),
+              OTPInput(
+                digitCount: 4,
+                onCompleted: (otp) => {onChanged(otp)},
+              ),
+              const HeightBox(slab: 2),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    AppStrings.noOtp,
+                    style: AppTypography.bodyText,
                   ),
-                ),
-              ],
-            ),
-            const HeightBox(slab: 4),
-            BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-              switch (state.runtimeType) {
-                case UserFailed:
-                  return Column(
-                    children: [
-                      Text(
-                        state.error!.response!.data['message'],
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      const HeightBox(slab: 4),
-                    ],
-                  );
-                default:
-                  return const SizedBox.shrink();
-              }
-            }),
-            PrimaryButton(
-              text: AppStrings.verify,
-              onPressed: onAction,
-            ),
-            const HeightBox(slab: 5),
-          ],
+                  const WidthBetween(),
+                  GestureDetector(
+                    onTap: () {
+                      context.router.push(const LoginRoute());
+                    },
+                    child: Text(
+                      AppStrings.resendCode,
+                      style: AppTypography.bodyTextBold,
+                    ),
+                  ),
+                ],
+              ),
+              const HeightBox(slab: 4),
+              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
+                switch (state.runtimeType) {
+                  case UserFailed:
+                    return Column(
+                      children: [
+                        Text(
+                          state.error!.response!.data['message'],
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        const HeightBox(slab: 4),
+                      ],
+                    );
+                  default:
+                    return const SizedBox.shrink();
+                }
+              }),
+              PrimaryButton(
+                text: AppStrings.verify,
+                onPressed: onAction,
+              ),
+              const HeightBox(slab: 5),
+            ],
+          ),
         ),
       ),
     );

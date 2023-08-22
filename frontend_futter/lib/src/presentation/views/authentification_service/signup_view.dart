@@ -118,17 +118,19 @@ class SignupView extends HookWidget {
                   Expanded(
                     flex: 2,
                     child: CustomDivider(
-                      indent: 50,
+                      thickness: 3,
+                      indent: 70,
                       color: AppColors.primaryColor,
-                      endIndent: 10,
+                      endIndent: 5,
                     ),
                   ),
                   Expanded(
                     flex: 2,
                     child: CustomDivider(
-                      indent: 10,
-                      color: AppColors.greyColor,
-                      endIndent: 50,
+                      thickness: 3,
+                      indent: 5,
+                      color: AppColors.lightGreyColor,
+                      endIndent: 70,
                     ),
                   ),
                 ],
@@ -276,6 +278,7 @@ class SignupView extends HookWidget {
                   onPressed: handleCreateAccount,
                 ),
               ),
+              const HeightBox(slab: 3),
             ],
           ),
         ),

@@ -44,8 +44,13 @@ class BalanceCard extends HookWidget {
       return Positioned(
         top: 0,
         right: 0,
-        child: Image.asset(
-          topRightImage,
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(10.0), // Adjust the radius as needed
+          ),
+          child: Image.asset(
+            topRightImage,
+          ),
         ),
       );
     }
@@ -54,8 +59,13 @@ class BalanceCard extends HookWidget {
       return Positioned(
         bottom: 0,
         left: 0,
-        child: Image.asset(
-          bottomLeftImage,
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(10.0), // Adjust the radius as needed
+          ),
+          child: Image.asset(
+            bottomLeftImage,
+          ),
         ),
       );
     }
