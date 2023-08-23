@@ -36,24 +36,30 @@ abstract class PythonApiService {
   @POST('/verify-phone-number')
   Future<HttpResponse<VerifyPhoneNumberResponse>> verifyPhoneNumber({
     @Body() VerifyPhoneNumberRequest? verifyPhoneNumberRequest,
+    @Header("Authorization") String? token,
   });
 
   @GET('/get-all-closed-loops')
-  Future<HttpResponse<GetAllClosedLoopsResponse>> getAllClosedLoops();
+  Future<HttpResponse<GetAllClosedLoopsResponse>> getAllClosedLoops({
+    @Header("Authorization") String? token,
+  });
 
   @POST('/register-closed-loop')
   Future<HttpResponse<RegisterClosedLoopResponse>> registerClosedLoop({
     @Body() RegisterClosedLoopRequest? registerClosedLoopRequest,
+    @Header("Authorization") String? token,
   });
 
   @POST('/verify-closed-loop')
   Future<HttpResponse<VerifyClosedLoopResponse>> verifyClosedLoop({
     @Body() VerifyClosedLoopRequest? verifyClosedLoopRequest,
+    @Header("Authorization") String? token,
   });
 
   @POST('/change-pin')
   Future<HttpResponse<ChangePinResponse>> changePin({
     @Body() ChangePinRequest? changePinRequest,
+    @Header("Authorization") String? token,
   });
 
   @GET('/get-user')

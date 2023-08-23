@@ -48,12 +48,15 @@ class _PythonApiService implements PythonApiService {
   }
 
   @override
-  Future<HttpResponse<VerifyPhoneNumberResponse>> verifyPhoneNumber(
-      {VerifyPhoneNumberRequest? verifyPhoneNumberRequest}) async {
+  Future<HttpResponse<VerifyPhoneNumberResponse>> verifyPhoneNumber({
+    VerifyPhoneNumberRequest? verifyPhoneNumberRequest,
+    String? token,
+  }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(verifyPhoneNumberRequest?.toMap() ?? <String, dynamic>{});
     final _result = await _dio.fetch<Map<String, dynamic>>(
@@ -75,10 +78,13 @@ class _PythonApiService implements PythonApiService {
   }
 
   @override
-  Future<HttpResponse<GetAllClosedLoopsResponse>> getAllClosedLoops() async {
+  Future<HttpResponse<GetAllClosedLoopsResponse>> getAllClosedLoops(
+      {String? token}) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
     final Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<HttpResponse<GetAllClosedLoopsResponse>>(Options(
@@ -99,12 +105,15 @@ class _PythonApiService implements PythonApiService {
   }
 
   @override
-  Future<HttpResponse<RegisterClosedLoopResponse>> registerClosedLoop(
-      {RegisterClosedLoopRequest? registerClosedLoopRequest}) async {
+  Future<HttpResponse<RegisterClosedLoopResponse>> registerClosedLoop({
+    RegisterClosedLoopRequest? registerClosedLoopRequest,
+    String? token,
+  }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(registerClosedLoopRequest?.toMap() ?? <String, dynamic>{});
     final _result = await _dio.fetch<Map<String, dynamic>>(
@@ -126,12 +135,15 @@ class _PythonApiService implements PythonApiService {
   }
 
   @override
-  Future<HttpResponse<VerifyClosedLoopResponse>> verifyClosedLoop(
-      {VerifyClosedLoopRequest? verifyClosedLoopRequest}) async {
+  Future<HttpResponse<VerifyClosedLoopResponse>> verifyClosedLoop({
+    VerifyClosedLoopRequest? verifyClosedLoopRequest,
+    String? token,
+  }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(verifyClosedLoopRequest?.toMap() ?? <String, dynamic>{});
     final _result = await _dio.fetch<Map<String, dynamic>>(
@@ -153,12 +165,15 @@ class _PythonApiService implements PythonApiService {
   }
 
   @override
-  Future<HttpResponse<ChangePinResponse>> changePin(
-      {ChangePinRequest? changePinRequest}) async {
+  Future<HttpResponse<ChangePinResponse>> changePin({
+    ChangePinRequest? changePinRequest,
+    String? token,
+  }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(changePinRequest?.toMap() ?? <String, dynamic>{});
     final _result = await _dio.fetch<Map<String, dynamic>>(

@@ -72,11 +72,15 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+
       final response = await _apiRepository.verifyPhoneNumber(
         request: VerifyPhoneNumberRequest(
-          userId: data.id,
           otp: otp,
         ),
+        token: token,
       );
 
       if (response is DataSuccess) {
@@ -102,12 +106,15 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
       final response = await _apiRepository.registerClosedLoop(
         request: RegisterClosedLoopRequest(
-          userId: data.id,
           closedLoopId: closedLoopId,
           uniqueIdentifier: uniqueIdentifier,
         ),
+        token: token,
       );
 
       if (response is DataSuccess) {
@@ -130,12 +137,15 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
       final response = await _apiRepository.verifyClosedLoop(
         request: VerifyClosedLoopRequest(
-          userId: data.id,
           closedLoopId: closedLoopId,
           uniqueIdentifierOtp: uniqueIdentifierOtp,
         ),
+        token: token,
       );
 
       if (response is DataSuccess) {
@@ -160,11 +170,14 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
       final response = await _apiRepository.changePin(
         request: ChangePinRequest(
-          userId: data.id,
           newPin: newPin,
         ),
+        token: token,
       );
 
       if (response is DataSuccess) {
@@ -235,6 +248,7 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       if (response is DataSuccess) {
         data.fullName = response.data!.user.fullName;
+        data.closedLoops = response.data!.user.closedLoops;
 
         emit(UserSuccess(
           message: response.data!.message,
@@ -307,7 +321,7 @@ class UserCubit extends BaseCubit<UserState, User> {
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
       final response = await _apiRepository.createDepositRequest(
-        request: CreateDepositRequest(userId: data.id, amount: amount),
+        request: CreateDepositRequest(amount: amount),
         token: token,
       );
 
@@ -336,7 +350,7 @@ class UserCubit extends BaseCubit<UserState, User> {
         request: ExecuteP2PPushTransactionRequest(
           recipientUniqueIdentifier: recipientUniqueIdentifier,
           amount: amount,
-          closedLoopId: '',
+          closedLoopId: data.closedLoops[0].closedLoopId, // TODO: fix this
         ),
         token: token,
       );
@@ -365,6 +379,7 @@ class UserCubit extends BaseCubit<UserState, User> {
         request: CreateP2PPullTransactionRequest(
           senderUniqueIdentifier: senderUniqueIdentifier,
           amount: amount,
+          closedLoopId: data.closedLoops[0].closedLoopId, // TODO: fix this
         ),
         token: token,
       );

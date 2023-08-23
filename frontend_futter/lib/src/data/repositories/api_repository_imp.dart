@@ -43,28 +43,34 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   @override
   Future<DataState<VerifyPhoneNumberResponse>> verifyPhoneNumber({
     required VerifyPhoneNumberRequest request,
+    required String token,
   }) {
     return getStateOf<VerifyPhoneNumberResponse>(
       request: () => _pythonApiService.verifyPhoneNumber(
         verifyPhoneNumberRequest: request,
+        token: 'Bearer $token',
       ),
     );
   }
 
   @override
-  Future<DataState<GetAllClosedLoopsResponse>> getAllClosedLoops() {
+  Future<DataState<GetAllClosedLoopsResponse>> getAllClosedLoops(String token) {
     return getStateOf<GetAllClosedLoopsResponse>(
-      request: () => _pythonApiService.getAllClosedLoops(),
+      request: () => _pythonApiService.getAllClosedLoops(
+        token: 'Bearer $token',
+      ),
     );
   }
 
   @override
   Future<DataState<RegisterClosedLoopResponse>> registerClosedLoop({
     required RegisterClosedLoopRequest request,
+    required String token,
   }) {
     return getStateOf<RegisterClosedLoopResponse>(
       request: () => _pythonApiService.registerClosedLoop(
         registerClosedLoopRequest: request,
+        token: 'Bearer $token',
       ),
     );
   }
@@ -72,10 +78,12 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   @override
   Future<DataState<VerifyClosedLoopResponse>> verifyClosedLoop({
     required VerifyClosedLoopRequest request,
+    required String token,
   }) {
     return getStateOf<VerifyClosedLoopResponse>(
       request: () => _pythonApiService.verifyClosedLoop(
         verifyClosedLoopRequest: request,
+        token: 'Bearer $token',
       ),
     );
   }
@@ -83,23 +91,29 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   @override
   Future<DataState<ChangePinResponse>> changePin({
     required ChangePinRequest request,
+    required String token,
   }) {
     return getStateOf<ChangePinResponse>(
       request: () => _pythonApiService.changePin(
         changePinRequest: request,
+        token: 'Bearer $token',
       ),
     );
   }
 
   Future<DataState<GetUserResponse>> getUser(String token) {
     return getStateOf<GetUserResponse>(
-      request: () => _pythonApiService.getUser(token: 'Bearer $token'),
+      request: () => _pythonApiService.getUser(
+        token: 'Bearer $token',
+      ),
     );
   }
 
   Future<DataState<GetUserBalanceResponse>> getUserBalance(String token) {
     return getStateOf<GetUserBalanceResponse>(
-      request: () => _pythonApiService.getUserBalance(token: 'Bearer $token'),
+      request: () => _pythonApiService.getUserBalance(
+        token: 'Bearer $token',
+      ),
     );
   }
 

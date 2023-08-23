@@ -27,20 +27,24 @@ abstract class ApiRepository {
 
   Future<DataState<VerifyPhoneNumberResponse>> verifyPhoneNumber({
     required VerifyPhoneNumberRequest request,
+    required String token,
   });
 
-  Future<DataState<GetAllClosedLoopsResponse>> getAllClosedLoops();
+  Future<DataState<GetAllClosedLoopsResponse>> getAllClosedLoops(String token);
 
   Future<DataState<RegisterClosedLoopResponse>> registerClosedLoop({
     required RegisterClosedLoopRequest request,
+    required String token,
   });
 
   Future<DataState<VerifyClosedLoopResponse>> verifyClosedLoop({
     required VerifyClosedLoopRequest request,
+    required String token,
   });
 
   Future<DataState<ChangePinResponse>> changePin({
     required ChangePinRequest request,
+    required String token,
   });
 
   Future<DataState<GetUserResponse>> getUser(String token);

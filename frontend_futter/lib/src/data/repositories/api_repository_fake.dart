@@ -46,6 +46,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   @override
   Future<DataState<VerifyPhoneNumberResponse>> verifyPhoneNumber({
     required VerifyPhoneNumberRequest request,
+    required String token,
   }) {
     VerifyPhoneNumberResponse verificationStatus = VerifyPhoneNumberResponse(
       success: true,
@@ -56,7 +57,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   }
 
   @override
-  Future<DataState<GetAllClosedLoopsResponse>> getAllClosedLoops() {
+  Future<DataState<GetAllClosedLoopsResponse>> getAllClosedLoops(String token) {
     return Future.value(DataSuccess(GetAllClosedLoopsResponse(
       success: true,
       message: 'Customer created successfully',
@@ -76,6 +77,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   @override
   Future<DataState<RegisterClosedLoopResponse>> registerClosedLoop({
     required RegisterClosedLoopRequest request,
+    required String token,
   }) {
     RegisterClosedLoopResponse registerClosedLoopResponse =
         RegisterClosedLoopResponse(
@@ -89,6 +91,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   @override
   Future<DataState<VerifyClosedLoopResponse>> verifyClosedLoop({
     required VerifyClosedLoopRequest request,
+    required String token,
   }) {
     VerifyClosedLoopResponse VerifyClosedLoopRequest = VerifyClosedLoopResponse(
       success: true,
@@ -101,6 +104,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   @override
   Future<DataState<ChangePinResponse>> changePin({
     required ChangePinRequest request,
+    required String token,
   }) {
     ChangePinResponse ChangePinRequest = ChangePinResponse(
       success: true,

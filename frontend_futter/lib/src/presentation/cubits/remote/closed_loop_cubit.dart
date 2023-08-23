@@ -2,6 +2,7 @@ import 'package:cardpay/src/domain/models/closed_loop.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/data_state.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 
@@ -22,7 +23,10 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, ClosedLoop> {
     await run(() async {
       emit(const ClosedLoopLoading());
 
-      final response = await _apiRepository.getAllClosedLoops();
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.getAllClosedLoops(token);
 
       if (response is DataSuccess) {
         emit(ClosedLoopSuccess(

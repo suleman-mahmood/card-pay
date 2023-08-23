@@ -15,7 +15,7 @@ class ExecuteP2PPushTransactionRequest {
   ExecuteP2PPushTransactionRequest copyWith({
     String? recipientUniqueIdentifier,
     double? amount,
-    String? closed_loop_id,
+    String? closedLoopId,
   }) {
     return ExecuteP2PPushTransactionRequest(
       recipientUniqueIdentifier:
@@ -33,19 +33,7 @@ class ExecuteP2PPushTransactionRequest {
     };
   }
 
-  factory ExecuteP2PPushTransactionRequest.fromMap(Map<String, dynamic> map) {
-    return ExecuteP2PPushTransactionRequest(
-      recipientUniqueIdentifier: map['recipient_unique_identifier'] as String,
-      amount: map['amount'] as double,
-      closedLoopId: map['closed_loop_id'] as String,
-    );
-  }
-
   String toJson() => json.encode(toMap());
-
-  factory ExecuteP2PPushTransactionRequest.fromJson(String source) =>
-      ExecuteP2PPushTransactionRequest.fromMap(
-          json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() =>
@@ -56,9 +44,13 @@ class ExecuteP2PPushTransactionRequest {
     if (identical(this, other)) return true;
 
     return other.recipientUniqueIdentifier == recipientUniqueIdentifier &&
-        other.amount == amount && other.closedLoopId == closedLoopId;
+        other.amount == amount &&
+        other.closedLoopId == closedLoopId;
   }
 
   @override
-  int get hashCode => recipientUniqueIdentifier.hashCode ^ amount.hashCode ^ closedLoopId.hashCode;
+  int get hashCode =>
+      recipientUniqueIdentifier.hashCode ^
+      amount.hashCode ^
+      closedLoopId.hashCode;
 }
