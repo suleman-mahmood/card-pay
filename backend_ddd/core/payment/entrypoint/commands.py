@@ -109,19 +109,20 @@ def execute_transaction(
             tx.execute_transaction()
             uow.transactions.save(tx)
 
-            marketing_commands.add_loyalty_points(
-                sender_wallet_id=sender_wallet_id,
-                recipient_wallet_id=recipient_wallet_id,
-                transaction_amount=amount,
-                transaction_type=transaction_type,
-                uow=uow,
-            )
-            marketing_commands.give_cashback(
-                recipient_wallet_id=recipient_wallet_id,
-                deposited_amount=amount,
-                transaction_type=transaction_type,
-                uow=uow,
-            )
+            # TODO: Add these back when slabs are created
+            # marketing_commands.add_loyalty_points(
+            #     sender_wallet_id=sender_wallet_id,
+            #     recipient_wallet_id=recipient_wallet_id,
+            #     transaction_amount=amount,
+            #     transaction_type=transaction_type,
+            #     uow=uow,
+            # )
+            # marketing_commands.give_cashback(
+            #     recipient_wallet_id=recipient_wallet_id,
+            #     deposited_amount=amount,
+            #     transaction_type=transaction_type,
+            #     uow=uow,
+            # )
 
         uow.transactions.save(tx)
 
@@ -166,19 +167,19 @@ def accept_p2p_pull_transaction(
         tx.accept_p2p_pull_transaction()
         uow.transactions.save(tx)
 
-        marketing_commands.add_loyalty_points(
-            sender_wallet_id=tx.sender_wallet.id,
-            recipient_wallet_id=tx.recipient_wallet.id,
-            transaction_amount=tx.amount,
-            transaction_type=tx.transaction_type,
-            uow=uow,
-        )
-        marketing_commands.give_cashback(
-            recipient_wallet_id=tx.recipient_wallet.id,
-            deposited_amount=tx.amount,
-            transaction_type=tx.transaction_type,
-            uow=uow,
-        )
+        # marketing_commands.add_loyalty_points(
+        #     sender_wallet_id=tx.sender_wallet.id,
+        #     recipient_wallet_id=tx.recipient_wallet.id,
+        #     transaction_amount=tx.amount,
+        #     transaction_type=tx.transaction_type,
+        #     uow=uow,
+        # )
+        # marketing_commands.give_cashback(
+        #     recipient_wallet_id=tx.recipient_wallet.id,
+        #     deposited_amount=tx.amount,
+        #     transaction_type=tx.transaction_type,
+        #     uow=uow,
+        # )
 
     return tx
 
@@ -191,19 +192,19 @@ def accept_payment_gateway_transaction(
         tx.execute_transaction()
         uow.transactions.save(tx)
 
-        marketing_commands.add_loyalty_points(
-            sender_wallet_id=tx.sender_wallet.id,
-            recipient_wallet_id=tx.recipient_wallet.id,
-            transaction_amount=tx.amount,
-            transaction_type=tx.transaction_type,
-            uow=uow,
-        )
-        marketing_commands.give_cashback(
-            recipient_wallet_id=tx.recipient_wallet.id,
-            deposited_amount=tx.amount,
-            transaction_type=tx.transaction_type,
-            uow=uow,
-        )
+        # marketing_commands.add_loyalty_points(
+        #     sender_wallet_id=tx.sender_wallet.id,
+        #     recipient_wallet_id=tx.recipient_wallet.id,
+        #     transaction_amount=tx.amount,
+        #     transaction_type=tx.transaction_type,
+        #     uow=uow,
+        # )
+        # marketing_commands.give_cashback(
+        #     recipient_wallet_id=tx.recipient_wallet.id,
+        #     deposited_amount=tx.amount,
+        #     transaction_type=tx.transaction_type,
+        #     uow=uow,
+        # )
 
     return tx
 

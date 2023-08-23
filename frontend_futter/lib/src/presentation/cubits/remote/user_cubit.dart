@@ -200,6 +200,12 @@ class UserCubit extends BaseCubit<UserState, User> {
     await run(() async {
       emit(UserLoading());
 
+      // Just to reset my variables, only for testing purposes
+      // _prefs.setString('isPhoneNumberVerified', '');
+      // _prefs.setString('closedLoopVerified', '');
+      // _prefs.setString('pinSetup', '');
+
+      // TODO(refactor): Change these to setBool -_-
       final isPhoneNumberVerified =
           (_prefs.getString('isPhoneNumberVerified') ?? '') == 'true';
       final closedLoopVerified =
