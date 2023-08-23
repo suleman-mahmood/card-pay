@@ -615,3 +615,19 @@ def wallet_balance_from_firestore(user_id: str, uow: AbstractUnitOfWork) -> int:
         raise ex.WalletNotInFirestore("Wallet not found")
 
     return row[0]
+
+def _get_latest_closed_loop_id(uow: AbstractUnitOfWork) -> str:
+    sql = """
+        select
+            id
+        from 
+            closed_loops
+        order by created_at desc
+        limit 1
+    """
+    uow.cursor.execute(sql)
+    row = uow.cursor.fetchone()
+
+    return row[0]
+
+# def _get_unique_identifier_otp()

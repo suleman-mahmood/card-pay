@@ -11,22 +11,6 @@ from core.marketing.domain import exceptions as mktg_ex
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
 
-@retool.route("/get-all-closed-loops", methods=["GET"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
-def get_all_closed_loops():
-    """get all closed loops of a user"""
-
-    uow = UnitOfWork()
-    closed_loops = auth_qry.get_all_closed_loops(uow=uow)
-    uow.close_connection()
-
-    return utils.Response(
-        message="All closed loops returned successfully",
-        status_code=201,
-        data=closed_loops,
-    ).__dict__
-
 
 @retool.route("/create-closed-loop", methods=["POST"])
 # @utils.authenticate_token

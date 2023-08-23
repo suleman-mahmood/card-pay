@@ -99,6 +99,8 @@ def validate_json_payload(required_parameters: List[str]):
         @wraps(func)
         def wrapper(*args, **kwargs):
             req = request.get_json(force=True)
+            if "RETOOL_SECRET" in req.keys():
+                req.pop("RETOOL_SECRET")
             if set(required_parameters) != set(req.keys()):
                 return Response(
                     message="invalid json payload, missing or extra parameters",
@@ -115,17 +117,18 @@ def authenticate_retool_secret(func):
     def wrapper(*args, **kwargs):
         req = request.get_json(force=True)
         
-        if "retool_secret" not in req.keys():
+        if "RETOOL_SECRET" not in req.keys():
             return Response(
                 message="retool secret missing in request",
                 status_code=400,
             ).__dict__
         
-        if req["retool_secret"] != os.environ.get("RETOOL_SECRET"):
+        if req["RETOOL_SECRET"] != os.environ.get("RETOOL_SECRET"):
             return Response(
                 message="invalid retool secret",
                 status_code=400,
             ).__dict__
+        
         return func(*args, **kwargs)
     return wrapper
 

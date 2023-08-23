@@ -20,7 +20,7 @@ cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
 @cardpay_app.route("/create-user", methods=["POST"])
 @utils.handle_missing_payload
-@utils.validate_json_payload(
+@utils.validate_json_payload( 
     required_parameters=[
         "personal_email",
         "password",
@@ -193,14 +193,14 @@ def verify_otp():
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["user_id", "otp"])
-def verify_phone_number():
+@utils.validate_json_payload(required_parameters=["otp"])
+def verify_phone_number(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
     try:
         auth_cmd.verify_phone_number(
-            user_id=req["user_id"],
+            user_id=uid,
             otp=req["otp"],
             uow=uow,
         )
@@ -225,14 +225,14 @@ def verify_phone_number():
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=["user_id", "closed_loop_id", "unique_identifier"]
+    required_parameters=["closed_loop_id", "unique_identifier"]
 )
-def register_closed_loop():
+def register_closed_loop(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
     auth_cmd.register_closed_loop(
-        user_id=req["user_id"],
+        user_id=uid,
         closed_loop_id=req["closed_loop_id"],
         unique_identifier=req["unique_identifier"],
         uow=uow,
@@ -250,22 +250,22 @@ def register_closed_loop():
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=["user_id", "closed_loop_id", "unique_identifier_otp"]
+    required_parameters=["closed_loop_id", "unique_identifier_otp"]
 )
-def verify_closed_loop():
+def verify_closed_loop(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
     try:
         auth_cmd.verify_closed_loop(
-            user_id=req["user_id"],
+            user_id=uid,
             closed_loop_id=req["closed_loop_id"],
             unique_identifier_otp=req["unique_identifier_otp"],
             uow=uow,
         )
         uow.commit_close_connection()
 
-    except (auth_ex.ClosedLoopException, auth_ex.VerificationException) as e:
+    except (auth_ex.ClosedLoopException, auth_ex.VerificationException, auth_ex.InvalidOtpException) as e:
         uow.close_connection()
         return utils.Response(
             message=str(e),
@@ -565,6 +565,23 @@ def use_reference():
             message="reference used successfully",
             status_code=200,
         ).__dict__
+
+
+@cardpay_app.route("/get-all-closed-loops", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+def get_all_closed_loops(uid):
+    """get all closed loops"""
+
+    uow = UnitOfWork()
+    closed_loops = auth_qry.get_all_closed_loops(uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="All closed loops returned successfully",
+        status_code=201,
+        data=closed_loops,
+    ).__dict__
 
 
 @cardpay_app.route("/get-user-recent-transactions", methods=["GET"])

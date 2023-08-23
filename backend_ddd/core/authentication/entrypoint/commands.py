@@ -203,7 +203,7 @@ def register_closed_loop(
 
     comms_commands.send_email(
         subject="Verify closed loop | Otp",
-        text=user.otp,
+        text=closed_loop_user.unique_identifier_otp,
         to=user.personal_email.value,
     )
 
