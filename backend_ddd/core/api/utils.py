@@ -125,26 +125,24 @@ def validate_json_payload(required_parameters: List[str]):
 
     return inner_decorator
 
-def authenticate_retool_secret():
-    def inner_decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            req = request.get_json(force=True)
-            
-            if "retool_secret" not in req.keys():
-                return Response(
-                    message="retool secret missing in request",
-                    status_code=400,
-                ).__dict__
-            
-            if req["retool_secret"] != os.environ.get("RETOOL_SECRET"):
-                return Response(
-                    message="invalid retool secret",
-                    status_code=400,
-                ).__dict__
-            return func(*args, **kwargs)
-        return wrapper
-    return inner_decorator
+def authenticate_retool_secret(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        req = request.get_json(force=True)
+        
+        if "retool_secret" not in req.keys():
+            return Response(
+                message="retool secret missing in request",
+                status_code=400,
+            ).__dict__
+        
+        if req["retool_secret"] != os.environ.get("RETOOL_SECRET"):
+            return Response(
+                message="invalid retool secret",
+                status_code=400,
+            ).__dict__
+        return func(*args, **kwargs)
+    return wrapper
 
 
 def _get_uid_from_bearer(token: str) -> str:
