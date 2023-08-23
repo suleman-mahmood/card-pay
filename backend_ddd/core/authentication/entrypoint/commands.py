@@ -25,7 +25,7 @@ from ..domain.model import (
 )
 
 PK_CODE = "92"
-LUMS_CLOSED_LOOP_ID = ""  # TODO: Hardcode the lums id here
+LUMS_CLOSED_LOOP_ID = "ec3c471e-49e7-46a6-9f2c-5fd6252b7518"
 
 
 def create_closed_loop(
@@ -204,7 +204,7 @@ def register_closed_loop(
     comms_commands.send_email(
         subject="Verify closed loop | Otp",
         text=closed_loop_user.unique_identifier_otp,
-        to=user.personal_email.value,
+        to=f"{closed_loop_user.unique_identifier}@lums.edu.pk",  # TODO: fix this
     )
 
     return user

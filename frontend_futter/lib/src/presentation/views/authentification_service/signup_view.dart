@@ -146,7 +146,7 @@ class SignupView extends HookWidget {
                 switch (state.runtimeType) {
                   case UserSuccess:
                     if (state.eventCodes == EventCodes.OTP_SENT) {
-                      // Login the user after a successful signup
+                      // Login the user after a successful sign up
                       userCubit.login(phoneNumber.value, password.value);
 
                       WidgetsBinding.instance.addPostFrameCallback((_) {

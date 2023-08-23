@@ -40,7 +40,7 @@ class CreateCustomerResponse {
       eventCode: EventCodes.values.firstWhere(
         (e) => e.name == map['event_code'],
       ),
-      userId: map['user_id'] as String,
+      userId: map['data']['user_id'] as String,
     );
   }
 

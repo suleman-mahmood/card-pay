@@ -49,10 +49,7 @@ class BottomSheetOTP extends HookWidget {
               const HeightBox(slab: 2),
               OTPInput(
                 digitCount: 4,
-                onCompleted: (otp) => {
-                  if (navigateToRoute != null)
-                    context.router.push(navigateToRoute!)
-                },
+                onCompleted: (otp) => onChanged(otp),
               ),
               const HeightBox(slab: 2),
               Row(
@@ -64,9 +61,7 @@ class BottomSheetOTP extends HookWidget {
                   ),
                   const WidthBetween(),
                   GestureDetector(
-                    onTap: () {
-                      context.router.push(const LoginRoute());
-                    },
+                    onTap: () {},
                     child: Text(
                       AppStrings.resendCode,
                       style: AppTypography.bodyTextBold,

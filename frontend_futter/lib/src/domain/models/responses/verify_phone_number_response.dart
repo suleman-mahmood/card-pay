@@ -6,10 +6,7 @@ class VerifyPhoneNumberResponse {
 
   VerifyPhoneNumberResponse({required this.message});
 
-  VerifyPhoneNumberResponse copyWith({
-    bool? success,
-    String? message,
-  }) {
+  VerifyPhoneNumberResponse copyWith({String? message}) {
     return VerifyPhoneNumberResponse(message: message ?? this.message);
   }
 

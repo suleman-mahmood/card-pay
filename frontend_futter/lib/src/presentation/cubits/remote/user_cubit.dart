@@ -430,16 +430,23 @@ class UserCubit extends BaseCubit<UserState, User> {
           localizedReason: 'Please authenticate to log in',
         );
 
+        print("Did authenticate {$didAuthenticate}");
+
         if (didAuthenticate) {
-          final personalEmail = _prefs.getString('user_personal_email');
+          final userPhoneNumber = _prefs.getString('user_phone_number');
           final password = _prefs.getString('user_password');
 
-          emit(UserSuccess(
-            message: "Sign in was successful",
-            eventCodes: EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC,
-            email: personalEmail,
-            password: password,
-          ));
+          print(userPhoneNumber);
+          print(password);
+
+          emit(
+            UserSuccess(
+              message: "Sign in was successful",
+              eventCodes: EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC,
+              email: userPhoneNumber,
+              password: password,
+            ),
+          );
         } else {
           emit(UserFailed(errorMessage: 'Authentication failed'));
         }

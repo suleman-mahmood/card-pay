@@ -20,7 +20,7 @@ cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
 @cardpay_app.route("/create-user", methods=["POST"])
 @utils.handle_missing_payload
-@utils.validate_json_payload( 
+@utils.validate_json_payload(
     required_parameters=[
         "personal_email",
         "password",
@@ -86,7 +86,7 @@ def create_customer():
     return utils.Response(
         message="User created successfully",
         status_code=201,
-        event_code=event_code,
+        event_code=event_code.name,
         data={
             "user_id": user_id,
         },
@@ -119,13 +119,13 @@ def change_name():
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["user_id", "new_pin"])
-def change_pin():
+@utils.validate_json_payload(required_parameters=["new_pin"])
+def change_pin(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
     auth_cmd.change_pin(
-        user_id=req["user_id"],
+        user_id=uid,
         new_pin=req["new_pin"],
         uow=uow,
     )
@@ -265,7 +265,11 @@ def verify_closed_loop(uid):
         )
         uow.commit_close_connection()
 
-    except (auth_ex.ClosedLoopException, auth_ex.VerificationException, auth_ex.InvalidOtpException) as e:
+    except (
+        auth_ex.ClosedLoopException,
+        auth_ex.VerificationException,
+        auth_ex.InvalidOtpException,
+    ) as e:
         uow.close_connection()
         return utils.Response(
             message=str(e),

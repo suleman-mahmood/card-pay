@@ -35,7 +35,7 @@ class GetAllClosedLoopsResponse {
     return GetAllClosedLoopsResponse(
       message: map['message'] as String,
       closedLoops: List<ClosedLoop>.from(
-        (map['closed_loops'] as List<dynamic>).map<ClosedLoop>(
+        (map['data'] as List<dynamic>).map<ClosedLoop>(
           (x) => ClosedLoop.fromMap(x as Map<String, dynamic>),
         ),
       ),

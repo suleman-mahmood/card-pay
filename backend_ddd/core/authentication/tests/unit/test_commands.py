@@ -95,10 +95,12 @@ def test_verify_phone_number(seed_auth_user):
     uow = UnitOfWork()
     user = seed_auth_user(uow)
 
-    with uow:
-        otp = user.otp
+    otp = user.otp
+    assert not uow.users.get(user.id).is_phone_number_verified
 
-    assert verify_phone_number(user_id=user.id, otp=otp, uow=uow)
+    verify_phone_number(user_id=user.id, otp=otp, uow=uow)
+
+    assert uow.users.get(user.id).is_phone_number_verified
 
     with pytest.raises(VerificationException):
         verify_phone_number(user_id=user.id, otp=otp, uow=uow)

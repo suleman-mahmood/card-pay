@@ -37,7 +37,7 @@ class GetUserResponse {
   factory GetUserResponse.fromMap(Map<String, dynamic> map) {
     return GetUserResponse(
       message: map['message'] as String,
-      user: UserResponse.fromMap(map['user'] as Map<String, dynamic>),
+      user: UserResponse.fromMap(map['data'] as Map<String, dynamic>),
     );
   }
 

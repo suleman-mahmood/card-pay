@@ -35,7 +35,7 @@ class GetUserRecentTransactionsResponse {
     return GetUserRecentTransactionsResponse(
       message: map['message'] as String,
       recentTransactions: List<TransactionResponse>.from(
-        (map['recent_transactions'] as List<dynamic>).map<TransactionResponse>(
+        (map['data'] as List<dynamic>).map<TransactionResponse>(
           (x) => TransactionResponse.fromMap(x as Map<String, dynamic>),
         ),
       ),

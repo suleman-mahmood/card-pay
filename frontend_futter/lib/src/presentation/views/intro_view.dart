@@ -72,15 +72,21 @@ class IntroView extends HookWidget {
                     if (state.isPhoneNumberVerified &&
                         state.closedLoopVerified &&
                         state.pinSetup) {
-                      nextRoute.value = const LoginRoute();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        nextRoute.value = const LoginRoute();
+                      });
                     } else if (state.isPhoneNumberVerified &&
                         state.closedLoopVerified &&
                         state.pinSetup == false) {
-                      nextRoute.value = const PinRoute();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        nextRoute.value = const PinRoute();
+                      });
                     } else if (state.isPhoneNumberVerified &&
                         state.closedLoopVerified == false &&
                         state.pinSetup == false) {
-                      nextRoute.value = const RegisterOrganizationRoute();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        nextRoute.value = const RegisterOrganizationRoute();
+                      });
                     }
                     return const SizedBox.shrink();
                   default:

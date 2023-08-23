@@ -31,7 +31,7 @@ class GetUserBalanceResponse {
   factory GetUserBalanceResponse.fromMap(Map<String, dynamic> map) {
     return GetUserBalanceResponse(
       message: map['message'] as String,
-      balance: map['balance'] as int,
+      balance: map['data']['balance'] as int,
     );
   }
 
