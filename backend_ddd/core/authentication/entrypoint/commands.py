@@ -82,20 +82,18 @@ def create_user(
     if not user_already_exists:
         user_id = utils.firebaseUidToUUID(firebase_uid)
 
-        with uow:
-            wallet = payment_commands.create_wallet(user_id=user_id, uow=uow)
-            user = User(
-                id=user_id,
-                personal_email=PersonalEmail(value=personal_email),
-                phone_number=PhoneNumber(value=phone_number_with_country_code),
-                user_type=UserType.__members__[user_type],
-                pin="0000",  # TODO: fix this
-                full_name=full_name,
-                wallet_id=wallet.id,
-                location=location_object,
-            )
-
-            uow.users.add(user)
+        payment_commands.create_wallet(user_id=user_id, uow=uow)
+        user = User(
+            id=user_id,
+            personal_email=PersonalEmail(value=personal_email),
+            phone_number=PhoneNumber(value=phone_number_with_country_code),
+            user_type=UserType.__members__[user_type],
+            pin="0000",  # TODO: fix this
+            full_name=full_name,
+            wallet_id=user_id,
+            location=location_object,
+        )
+        uow.users.add(user)
 
         comms_commands.send_otp_sms(
             full_name=user.full_name, to=phone_number_sms, otp_code=user.otp
@@ -111,6 +109,25 @@ def create_user(
             if fetched_user.is_phone_number_verified:
                 return EventCode.USER_VERIFIED, user_id
             else:
+                firebase_update_password(
+                    firebase_uid=firebase_uid,
+                    new_password=password,
+                    new_full_name=full_name,
+                )
+
+                # Update user details
+                user = User(
+                    id=user_id,
+                    personal_email=PersonalEmail(value=personal_email),
+                    phone_number=PhoneNumber(value=phone_number_with_country_code),
+                    user_type=UserType.__members__[user_type],
+                    pin="0000",  # TODO: fix this
+                    full_name=full_name,
+                    wallet_id=user_id,
+                    location=location_object,
+                )
+                uow.users.save(user)
+
                 comms_commands.send_otp_sms(
                     full_name=fetched_user.full_name,
                     to=phone_number_sms,
@@ -272,10 +289,19 @@ def firebase_create_user(
     return user_record.uid
 
 
+def firebase_update_password(firebase_uid: str, new_password: str, new_full_name: str):
+    firebase_admin.auth.update_user(
+        uid=firebase_uid,
+        password=new_password,
+        display_name=new_full_name,
+    )
+
+
 def firebase_get_user(email: str) -> str:
     user_record = auth.get_user_by_email(email=email)
 
     return user_record.uid
+
 
 def create_vendor_through_retool(
     personal_email: str,

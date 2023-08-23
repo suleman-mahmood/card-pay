@@ -44,21 +44,7 @@ class CreateCustomerRequest {
     };
   }
 
-  factory CreateCustomerRequest.fromMap(Map<String, dynamic> map) {
-    return CreateCustomerRequest(
-      personalEmail: map['personalEmail'] as String,
-      phoneNumber: map['phoneNumber'] as String,
-      fullName: map['fullName'] as String,
-      password: map['password'] as String,
-      location: List<double>.from((map['location'] as List<double>)),
-    );
-  }
-
   String toJson() => json.encode(toMap());
-
-  factory CreateCustomerRequest.fromJson(String source) =>
-      CreateCustomerRequest.fromMap(
-          json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {

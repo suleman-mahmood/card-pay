@@ -92,8 +92,3 @@ abstract class PythonApiService {
     @Header("Authorization") String? token,
   });
 }
-
-
-// 'Authorization': 'Bearer $token',
-// final token = await AuthService().user?.getIdToken() ?? '';
-// FirebaseAuth.instance.currentUser?.getIdToken() ?? '';
