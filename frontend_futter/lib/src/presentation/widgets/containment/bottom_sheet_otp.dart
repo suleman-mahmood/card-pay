@@ -18,6 +18,7 @@ class BottomSheetOTP extends HookWidget {
   final String otpDeviceText;
   final void Function() onAction;
   final ValueChanged<String> onChanged;
+  final PageRouteInfo? navigateToRoute;
 
   const BottomSheetOTP({
     super.key,
@@ -25,6 +26,7 @@ class BottomSheetOTP extends HookWidget {
     required this.otpDeviceText,
     required this.onAction,
     required this.onChanged,
+    this.navigateToRoute,
   });
 
   @override
@@ -47,7 +49,10 @@ class BottomSheetOTP extends HookWidget {
               const HeightBox(slab: 2),
               OTPInput(
                 digitCount: 4,
-                onCompleted: (otp) => {onChanged(otp)},
+                onCompleted: (otp) => {
+                  if (navigateToRoute != null)
+                    context.router.push(navigateToRoute!)
+                },
               ),
               const HeightBox(slab: 2),
               Row(

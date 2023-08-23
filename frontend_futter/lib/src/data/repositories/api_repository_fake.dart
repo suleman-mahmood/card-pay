@@ -62,8 +62,8 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Customer created successfully',
       closedLoops: [
         ClosedLoop(
-          name: 'Lums',
-          id: 'lums-id',
+          name: 'Nust',
+          id: 'Nust-id',
         ),
         ClosedLoop(
           name: 'Fast',

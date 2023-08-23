@@ -1,11 +1,11 @@
 import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:cardpay/src/domain/models/closed_loop.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -46,16 +46,20 @@ class RegisterOrganizationView extends HookWidget {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            child: BottomSheetOTP(
-              deviceCheckHeading: AppStrings.checkEmail,
-              otpDeviceText: AppStrings.otpEmailText,
-              onAction: () => {
-                userCubit.verifyClosedLoop(
-                  selectedClosedLoop.value.id,
-                  uniqueIdentifierOtp.value,
-                )
-              },
-              onChanged: (v) => uniqueIdentifierOtp.value = v,
+            child: Container(
+              decoration: CustomBoxDecoration.getDecoration(),
+              child: BottomSheetOTP(
+                deviceCheckHeading: AppStrings.checkEmail,
+                otpDeviceText: AppStrings.otpEmailText,
+                onAction: () => {
+                  userCubit.verifyClosedLoop(
+                    selectedClosedLoop.value.id,
+                    uniqueIdentifierOtp.value,
+                  )
+                },
+                onChanged: (v) => uniqueIdentifierOtp.value = v,
+                navigateToRoute: const PinRoute(),
+              ),
             ),
           );
         },
@@ -112,9 +116,13 @@ class RegisterOrganizationView extends HookWidget {
           ),
           const HeightBox(slab: 4),
           DropDown(
-            onChanged: (value, closedLoop) {
-              showRollNumberField.value = value != 'None';
-              selectedClosedLoop.value = closedLoop;
+            onInstituteChanged: (value, closedLoop) {
+              if (value == promptText) {
+                showRollNumberField.value = false;
+                return;
+              }
+              showRollNumberField.value = true;
+              selectedClosedLoop.value = closedLoop!;
             },
           ),
           Visibility(
@@ -142,15 +150,18 @@ class RegisterOrganizationView extends HookWidget {
             ),
           ),
           const HeightBox(slab: 4),
-          Center(
-            child: PrimaryButton(
-              text: AppStrings.create,
-              onPressed: () => {
-                userCubit.registerClosedLoop(
-                  selectedClosedLoop.value.id,
-                  uniqueIdentifier.value,
-                )
-              },
+          Visibility(
+            visible: showRollNumberField.value,
+            child: Center(
+              child: PrimaryButton(
+                text: AppStrings.create,
+                onPressed: () => {
+                  userCubit.registerClosedLoop(
+                    selectedClosedLoop.value.id,
+                    uniqueIdentifier.value,
+                  )
+                },
+              ),
             ),
           )
         ],

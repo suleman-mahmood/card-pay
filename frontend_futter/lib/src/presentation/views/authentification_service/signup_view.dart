@@ -57,6 +57,7 @@ class SignupView extends HookWidget {
                 otpDeviceText: AppStrings.otpMobileText,
                 onAction: () => userCubit.verifyPhoneNumber(otp.value),
                 onChanged: (v) => otp.value = v,
+                navigateToRoute: const RegisterOrganizationRoute(),
               ),
             ),
           );

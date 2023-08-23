@@ -2,6 +2,7 @@ import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_customer_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
+import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';

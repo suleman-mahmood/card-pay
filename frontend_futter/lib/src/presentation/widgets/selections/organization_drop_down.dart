@@ -8,16 +8,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 
+String promptText = 'Select your institute';
+
 class DropDown extends HookWidget {
-  final void Function(String, ClosedLoop) onChanged;
+  final void Function(String, ClosedLoop?) onInstituteChanged;
 
-  const DropDown({Key? key, required this.onChanged}) : super(key: key);
-
-  // static const organizations = ['None', 'LUMS', 'Nust', 'FAST', 'UET', 'IBA'];
+  const DropDown({Key? key, required this.onInstituteChanged})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final selectedOrganization = useState<String>('None');
+    final selectedOrganization = useState<String>(promptText);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -40,8 +41,8 @@ class DropDown extends HookWidget {
                   switch (state.runtimeType) {
                     case ClosedLoopSuccess:
                       return DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          hintText: 'Select your organization',
+                        decoration: InputDecoration(
+                          hintText: promptText,
                           border: InputBorder.none,
                         ),
                         value: selectedOrganization.value,
@@ -51,7 +52,7 @@ class DropDown extends HookWidget {
                         items: [
                           _buildDropdownMenuItem(
                             context,
-                            'None',
+                            promptText,
                           ),
                           ...state.closedLoops.map((ClosedLoop closedLoops) {
                             return _buildDropdownMenuItem(
@@ -61,10 +62,11 @@ class DropDown extends HookWidget {
                           }).toList(),
                         ],
                         onChanged: (value) {
-                          if (value == null) {
+                          if (value == null || value == promptText) {
+                            onInstituteChanged(promptText, null);
                             return;
                           }
-                          onChanged(
+                          onInstituteChanged(
                             value,
                             state.closedLoops
                                 .firstWhere((e) => e.name == value),

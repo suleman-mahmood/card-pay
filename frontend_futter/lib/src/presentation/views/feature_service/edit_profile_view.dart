@@ -122,13 +122,13 @@ class EditProfileView extends HookWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Choose Profile Avatar',
+                    'Change Password',
                     style: AppTypography.mainHeading,
                     textAlign: TextAlign.center,
                   ),
                   HeightBox(slab: 2),
                   Text(
-                    'Select an avatar from the options below:',
+                    'Please update your passward',
                     textAlign: TextAlign.center,
                   ),
                   HeightBox(slab: 2),
@@ -144,7 +144,7 @@ class EditProfileView extends HookWidget {
                     },
                   ),
                   CustomInputField(
-                    label: AppStrings.password,
+                    label: 'Retype Password',
                     hint: AppStrings.enterPassword,
                     obscureText: true,
                     validator: (passwordValue) {
