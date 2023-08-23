@@ -2,12 +2,10 @@
 import 'dart:convert';
 
 class GetUserBalanceResponse {
-  final bool success;
   final String message;
   final int balance;
 
   const GetUserBalanceResponse({
-    required this.success,
     required this.message,
     required this.balance,
   });
@@ -18,7 +16,6 @@ class GetUserBalanceResponse {
     int? balance,
   }) {
     return GetUserBalanceResponse(
-      success: success ?? this.success,
       message: message ?? this.message,
       balance: balance ?? this.balance,
     );
@@ -26,7 +23,6 @@ class GetUserBalanceResponse {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'success': success,
       'message': message,
       'balance': balance,
     };
@@ -34,7 +30,6 @@ class GetUserBalanceResponse {
 
   factory GetUserBalanceResponse.fromMap(Map<String, dynamic> map) {
     return GetUserBalanceResponse(
-      success: map['success'] as bool,
       message: map['message'] as String,
       balance: map['balance'] as int,
     );
@@ -48,17 +43,15 @@ class GetUserBalanceResponse {
 
   @override
   String toString() =>
-      'GetUserBalanceResponse(success: $success, message: $message, balance: $balance)';
+      'GetUserBalanceResponse(message: $message, balance: $balance)';
 
   @override
   bool operator ==(covariant GetUserBalanceResponse other) {
     if (identical(this, other)) return true;
 
-    return other.success == success &&
-        other.message == message &&
-        other.balance == balance;
+    return other.message == message && other.balance == balance;
   }
 
   @override
-  int get hashCode => success.hashCode ^ message.hashCode ^ balance.hashCode;
+  int get hashCode => message.hashCode ^ balance.hashCode;
 }

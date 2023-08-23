@@ -6,23 +6,19 @@ import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 
 class GetUserRecentTransactionsResponse {
-  final bool success;
   final String message;
   final List<TransactionResponse> recentTransactions;
 
   const GetUserRecentTransactionsResponse({
-    required this.success,
     required this.message,
     required this.recentTransactions,
   });
 
   GetUserRecentTransactionsResponse copyWith({
-    bool? success,
     String? message,
     List<TransactionResponse>? recentTransactions,
   }) {
     return GetUserRecentTransactionsResponse(
-      success: success ?? this.success,
       message: message ?? this.message,
       recentTransactions: recentTransactions ?? this.recentTransactions,
     );
@@ -30,7 +26,6 @@ class GetUserRecentTransactionsResponse {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'success': success,
       'message': message,
       'recent_transactions': recentTransactions.map((x) => x.toMap()).toList(),
     };
@@ -38,7 +33,6 @@ class GetUserRecentTransactionsResponse {
 
   factory GetUserRecentTransactionsResponse.fromMap(Map<String, dynamic> map) {
     return GetUserRecentTransactionsResponse(
-      success: map['success'] as bool,
       message: map['message'] as String,
       recentTransactions: List<TransactionResponse>.from(
         (map['recent_transactions'] as List<dynamic>).map<TransactionResponse>(
@@ -56,21 +50,19 @@ class GetUserRecentTransactionsResponse {
 
   @override
   String toString() =>
-      'GetUserRecentTransactionsResponse(success: $success, message: $message, recentTransactions: $recentTransactions)';
+      'GetUserRecentTransactionsResponse(message: $message, recentTransactions: $recentTransactions)';
 
   @override
   bool operator ==(covariant GetUserRecentTransactionsResponse other) {
     if (identical(this, other)) return true;
     final listEquals = const DeepCollectionEquality().equals;
 
-    return other.success == success &&
-        other.message == message &&
+    return other.message == message &&
         listEquals(other.recentTransactions, recentTransactions);
   }
 
   @override
-  int get hashCode =>
-      success.hashCode ^ message.hashCode ^ recentTransactions.hashCode;
+  int get hashCode => message.hashCode ^ recentTransactions.hashCode;
 }
 
 class TransactionResponse {

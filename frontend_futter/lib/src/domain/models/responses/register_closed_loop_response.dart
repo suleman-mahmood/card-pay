@@ -2,36 +2,20 @@
 import 'dart:convert';
 
 class RegisterClosedLoopResponse {
-  final bool success;
   final String message;
 
-  const RegisterClosedLoopResponse({
-    required this.success,
-    required this.message,
-  });
+  const RegisterClosedLoopResponse({required this.message});
 
-  RegisterClosedLoopResponse copyWith({
-    bool? success,
-    String? message,
-  }) {
-    return RegisterClosedLoopResponse(
-      success: success ?? this.success,
-      message: message ?? this.message,
-    );
+  RegisterClosedLoopResponse copyWith({String? message}) {
+    return RegisterClosedLoopResponse(message: message ?? this.message);
   }
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'success': success,
-      'message': message,
-    };
+    return <String, dynamic>{'message': message};
   }
 
   factory RegisterClosedLoopResponse.fromMap(Map<String, dynamic> map) {
-    return RegisterClosedLoopResponse(
-      success: map['success'] as bool,
-      message: map['message'] as String,
-    );
+    return RegisterClosedLoopResponse(message: map['message'] as String);
   }
 
   String toJson() => json.encode(toMap());
@@ -41,16 +25,15 @@ class RegisterClosedLoopResponse {
           json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() =>
-      'RegisterClosedLoopResponse(success: $success, message: $message)';
+  String toString() => 'RegisterClosedLoopResponse(message: $message)';
 
   @override
   bool operator ==(covariant RegisterClosedLoopResponse other) {
     if (identical(this, other)) return true;
 
-    return other.success == success && other.message == message;
+    return other.message == message;
   }
 
   @override
-  int get hashCode => success.hashCode ^ message.hashCode;
+  int get hashCode => message.hashCode;
 }

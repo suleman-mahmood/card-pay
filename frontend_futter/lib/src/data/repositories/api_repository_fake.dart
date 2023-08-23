@@ -34,7 +34,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     required CreateCustomerRequest request,
   }) {
     CreateCustomerResponse dummyUserData = CreateCustomerResponse(
-      success: true,
       message: 'Customer created successfully',
       eventCode: EventCodes.OTP_SENT,
       userId: "123",
@@ -49,7 +48,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     required String token,
   }) {
     VerifyPhoneNumberResponse verificationStatus = VerifyPhoneNumberResponse(
-      success: true,
       message: 'Phone number verified successfully',
     );
 
@@ -59,7 +57,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   @override
   Future<DataState<GetAllClosedLoopsResponse>> getAllClosedLoops(String token) {
     return Future.value(DataSuccess(GetAllClosedLoopsResponse(
-      success: true,
       message: 'Customer created successfully',
       closedLoops: [
         ClosedLoop(
@@ -81,7 +78,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   }) {
     RegisterClosedLoopResponse registerClosedLoopResponse =
         RegisterClosedLoopResponse(
-      success: true,
       message: 'close loop registered successfully',
     );
 
@@ -94,7 +90,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     required String token,
   }) {
     VerifyClosedLoopResponse VerifyClosedLoopRequest = VerifyClosedLoopResponse(
-      success: true,
       message: 'close loop verified successfully',
     );
 
@@ -107,7 +102,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     required String token,
   }) {
     ChangePinResponse ChangePinRequest = ChangePinResponse(
-      success: true,
       message: 'Pin changed successfully',
     );
 
@@ -122,7 +116,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
             fullName: 'Suleman',
             id: '123',
           ),
-          success: true,
           message: 'Customer created successfully',
         ),
       ),
@@ -133,7 +126,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     return Future.value(
       DataSuccess(
         GetUserBalanceResponse(
-          success: true,
           message: 'Customer created successfully',
           balance: 1000,
         ),
@@ -146,7 +138,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     return Future.value(
       DataSuccess(
         GetUserRecentTransactionsResponse(
-          success: true,
           message: 'Customer created successfully',
           recentTransactions: [
             TransactionResponse(
@@ -182,7 +173,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     required String token,
   }) {
     CreateDepositResponse CreateDepositRequest = CreateDepositResponse(
-        success: true,
         message: 'Customer created successfully',
         checkoutUrl:
             'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d');
@@ -197,7 +187,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   }) {
     ExecuteP2PPushTransactionResponse ExecuteP2PPushTransactionRequest =
         ExecuteP2PPushTransactionResponse(
-      success: true,
       message: 'Execute successfully',
     );
 
@@ -210,7 +199,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   }) {
     CreateP2PPullTransactionResponse CreateP2PPullTransactionRequest =
         CreateP2PPullTransactionResponse(
-      success: true,
       message: 'Transection is successfully',
     );
 

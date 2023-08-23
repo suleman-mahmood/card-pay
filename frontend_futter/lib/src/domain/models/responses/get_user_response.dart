@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:cardpay/src/domain/models/closed_loop.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 
@@ -10,23 +9,19 @@ import 'package:intl/intl.dart';
 // .parse(map['created_at']),
 
 class GetUserResponse {
-  final bool success;
   final String message;
   final UserResponse user;
 
   const GetUserResponse({
-    required this.success,
     required this.message,
     required this.user,
   });
 
   GetUserResponse copyWith({
-    bool? success,
     String? message,
     UserResponse? user,
   }) {
     return GetUserResponse(
-      success: success ?? this.success,
       message: message ?? this.message,
       user: user ?? this.user,
     );
@@ -34,7 +29,6 @@ class GetUserResponse {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'success': success,
       'message': message,
       'user': user.toMap(),
     };
@@ -42,7 +36,6 @@ class GetUserResponse {
 
   factory GetUserResponse.fromMap(Map<String, dynamic> map) {
     return GetUserResponse(
-      success: map['success'] as bool,
       message: map['message'] as String,
       user: UserResponse.fromMap(map['user'] as Map<String, dynamic>),
     );
@@ -54,20 +47,17 @@ class GetUserResponse {
       GetUserResponse.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() =>
-      'GetUserResponse(success: $success, message: $message, user: $user)';
+  String toString() => 'GetUserResponse(message: $message, user: $user)';
 
   @override
   bool operator ==(covariant GetUserResponse other) {
     if (identical(this, other)) return true;
 
-    return other.success == success &&
-        other.message == message &&
-        other.user == user;
+    return other.message == message && other.user == user;
   }
 
   @override
-  int get hashCode => success.hashCode ^ message.hashCode ^ user.hashCode;
+  int get hashCode => message.hashCode ^ user.hashCode;
 }
 
 class UserResponse {

@@ -3,12 +3,10 @@ import 'dart:convert';
 
 class CreateDepositResponse {
   final String message;
-  final bool success;
   final String checkoutUrl;
 
   const CreateDepositResponse({
     required this.message,
-    required this.success,
     required this.checkoutUrl,
   });
 
@@ -19,7 +17,6 @@ class CreateDepositResponse {
   }) {
     return CreateDepositResponse(
       message: message ?? this.message,
-      success: success ?? this.success,
       checkoutUrl: checkoutUrl ?? this.checkoutUrl,
     );
   }
@@ -27,7 +24,6 @@ class CreateDepositResponse {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'message': message,
-      'success': success,
       'checkout_url': checkoutUrl,
     };
   }
@@ -35,7 +31,6 @@ class CreateDepositResponse {
   factory CreateDepositResponse.fromMap(Map<String, dynamic> map) {
     return CreateDepositResponse(
       message: map['message'] as String,
-      success: map['success'] as bool,
       checkoutUrl: map['checkout_url'] as String,
     );
   }
@@ -48,18 +43,15 @@ class CreateDepositResponse {
 
   @override
   String toString() =>
-      'CreateDepositResponse(message: $message, success: $success, checkoutUrl: $checkoutUrl)';
+      'CreateDepositResponse(message: $message, checkoutUrl: $checkoutUrl)';
 
   @override
   bool operator ==(covariant CreateDepositResponse other) {
     if (identical(this, other)) return true;
 
-    return other.message == message &&
-        other.success == success &&
-        other.checkoutUrl == checkoutUrl;
+    return other.message == message && other.checkoutUrl == checkoutUrl;
   }
 
   @override
-  int get hashCode =>
-      message.hashCode ^ success.hashCode ^ checkoutUrl.hashCode;
+  int get hashCode => message.hashCode ^ checkoutUrl.hashCode;
 }

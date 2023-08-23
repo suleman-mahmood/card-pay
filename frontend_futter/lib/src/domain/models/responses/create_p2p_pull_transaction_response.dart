@@ -3,11 +3,9 @@ import 'dart:convert';
 
 class CreateP2PPullTransactionResponse {
   final String message;
-  final bool success;
 
   const CreateP2PPullTransactionResponse({
     required this.message,
-    required this.success,
   });
 
   CreateP2PPullTransactionResponse copyWith({
@@ -16,21 +14,18 @@ class CreateP2PPullTransactionResponse {
   }) {
     return CreateP2PPullTransactionResponse(
       message: message ?? this.message,
-      success: success ?? this.success,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'message': message,
-      'success': success,
     };
   }
 
   factory CreateP2PPullTransactionResponse.fromMap(Map<String, dynamic> map) {
     return CreateP2PPullTransactionResponse(
       message: map['message'] as String,
-      success: map['success'] as bool,
     );
   }
 
@@ -41,16 +36,15 @@ class CreateP2PPullTransactionResponse {
           json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() =>
-      'CreateP2PPullTransactionResponse(message: $message, success: $success)';
+  String toString() => 'CreateP2PPullTransactionResponse(message: $message)';
 
   @override
   bool operator ==(covariant CreateP2PPullTransactionResponse other) {
     if (identical(this, other)) return true;
 
-    return other.message == message && other.success == success;
+    return other.message == message;
   }
 
   @override
-  int get hashCode => message.hashCode ^ success.hashCode;
+  int get hashCode => message.hashCode;
 }
