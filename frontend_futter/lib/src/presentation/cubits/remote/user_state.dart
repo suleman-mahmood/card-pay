@@ -5,6 +5,10 @@ abstract class UserState {
   final String message;
   final String checkoutUrl;
   final String qrTitle;
+  final bool isPhoneNumberVerified;
+  final bool pinSetup;
+  final bool closedLoopVerified;
+
   final EventCodes eventCodes;
   final User user;
   final String email;
@@ -21,6 +25,9 @@ abstract class UserState {
     this.eventCodes = EventCodes.DEFAULT_EVENT,
     this.error,
     this.email = '',
+    this.closedLoopVerified = false,
+    this.pinSetup = false,
+    this.isPhoneNumberVerified = false,
     this.password = '',
     this.transactions = const [],
     User? user,
@@ -43,6 +50,9 @@ class UserSuccess extends UserState {
     super.message,
     super.eventCodes,
     super.user,
+    super.pinSetup,
+    super.closedLoopVerified,
+    super.isPhoneNumberVerified,
     super.transactions,
     super.checkoutUrl,
     super.qrTitle,

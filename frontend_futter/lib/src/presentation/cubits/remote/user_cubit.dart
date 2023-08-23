@@ -81,6 +81,7 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       if (response is DataSuccess) {
         data.isPhoneNumberVerified = true;
+        await _prefs.setString('isPhoneNumberVerified', 'true');
 
         emit(UserSuccess(
           message: response.data!.message,
@@ -139,6 +140,7 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       if (response is DataSuccess) {
         data.closedLoopVerified = true;
+        await _prefs.setString('closedLoopVerified', 'true');
 
         emit(UserSuccess(
           message: response.data!.message,
@@ -167,6 +169,7 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       if (response is DataSuccess) {
         data.pinSetup = true;
+        await _prefs.setString('pinSetup', 'true');
 
         emit(UserSuccess(
           message: response.data!.message,
@@ -175,6 +178,34 @@ class UserCubit extends BaseCubit<UserState, User> {
       } else if (response is DataFailed) {
         emit(UserFailed(error: response.error));
       }
+    });
+  }
+
+  Future<void> loadCheckpoints() async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(UserLoading());
+
+      final isPhoneNumberVerified =
+          (_prefs.getString('isPhoneNumberVerified') ?? '') == 'true';
+      final closedLoopVerified =
+          (_prefs.getString('closedLoopVerified') ?? '') == 'true';
+      final pinSetup = (_prefs.getString('pinSetup') ?? '') == 'true';
+
+      data.isPhoneNumberVerified = isPhoneNumberVerified;
+      data.closedLoopVerified = closedLoopVerified;
+      data.pinSetup = pinSetup;
+
+      emit(
+        UserSuccess(
+          message: "Successfully loaded checkpoints from local storage",
+          eventCodes: EventCodes.USER_AUTHENTICATED,
+          isPhoneNumberVerified: isPhoneNumberVerified,
+          closedLoopVerified: closedLoopVerified,
+          pinSetup: pinSetup,
+        ),
+      );
     });
   }
 

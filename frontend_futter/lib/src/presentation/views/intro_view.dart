@@ -1,5 +1,7 @@
+import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -16,9 +18,6 @@ class IntroView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final _analyticsService =
-    //     AnalyticsService(); // Create an instance of AnalyticsService
-
     final fadeAnimation = useFadeAnimation(
       begin: 0.0,
       end: 1.0,
@@ -29,6 +28,17 @@ class IntroView extends HookWidget {
       end: Offset.zero,
       duration: const Duration(milliseconds: 2000),
     );
+    final userCubit = BlocProvider.of<UserCubit>(context);
+
+    final nextRoute = useState<PageRouteInfo>(const SignupRoute());
+
+    useEffect(() {
+      someFunction() async {
+        await userCubit.loadCheckpoints();
+      }
+
+      someFunction();
+    }, []);
 
     return AuthLayout(
       child: SingleChildScrollView(
@@ -51,11 +61,32 @@ class IntroView extends HookWidget {
               child: PrimaryButton(
                 text: AppStrings.start,
                 onPressed: () {
-                  // _analyticsService.logSelectContentEvent(
-                  //     'button', 'Introduction Button');
-                  context.router.push(const SignupRoute());
+                  context.router.push(nextRoute.value);
                 },
               ),
+            ),
+            BlocBuilder<UserCubit, UserState>(
+              builder: (_, state) {
+                switch (state.runtimeType) {
+                  case UserSuccess:
+                    if (state.isPhoneNumberVerified &&
+                        state.closedLoopVerified &&
+                        state.pinSetup) {
+                      nextRoute.value = const LoginRoute();
+                    } else if (state.isPhoneNumberVerified &&
+                        state.closedLoopVerified &&
+                        state.pinSetup == false) {
+                      nextRoute.value = const PinRoute();
+                    } else if (state.isPhoneNumberVerified &&
+                        state.closedLoopVerified == false &&
+                        state.pinSetup == false) {
+                      nextRoute.value = const RegisterOrganizationRoute();
+                    }
+                    return const SizedBox.shrink();
+                  default:
+                    return const SizedBox.shrink();
+                }
+              },
             ),
             const HeightBox(slab: 3),
             Row(
