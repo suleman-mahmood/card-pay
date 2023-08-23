@@ -25,7 +25,7 @@ def get_all_closed_loops():
         message="All closed loops returned successfully",
         status_code=201,
         data=closed_loops,
-    )
+    ).__dict__
 
 
 @retool.route("/create-closed-loop", methods=["POST"])
@@ -59,7 +59,7 @@ def create_closed_loop():
     return utils.Response(
         message="Closed loop created successfully",
         status_code=201,
-    )
+    ).__dict__
 
 
 @retool.route("/add-weightage", methods=["POST"])
@@ -81,7 +81,7 @@ def add_weightage():
     return utils.Response(
         message="weightage added successfully",
         status_code=201,
-    )
+    ).__dict__
 
 
 @retool.route("/set-weightage", methods=["POST"])
@@ -102,15 +102,16 @@ def set_weightage():
         uow.commit_close_connection()
     except mktg_ex.InvalidWeightageException as e:
         uow.close_connection()
-        raise utils.Tabist(
+        return utils.Response(
             message=str(e),
             status_code=400,
-        )
-
-    return utils.Response(
-        message="weightage set successfully",
-        status_code=200,
-    )
+        ).__dict__
+    
+    else:
+        return utils.Response(
+            message="weightage set successfully",
+            status_code=200,
+        ).__dict__
 
 
 @retool.route("/set-cashback-slabs", methods=["POST"])
@@ -131,15 +132,16 @@ def set_cashback_slabs():
         uow.commit_close_connection()
     except mktg_ex.InvalidSlabException as e:
         uow.close_connection()
-        raise utils.Tabist(
+        return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
-    return utils.Response(
-        message="cashback slabs set successfully",
-        status_code=200,
-    )
+    else:
+        return utils.Response(
+            message="cashback slabs set successfully",
+            status_code=200,
+        ).__dict__
 
 
 # retool auth admin routes
@@ -157,7 +159,7 @@ def auth_retools_get_all_closed_loops_with_user_counts():
         message="All closed loops returned successfully",
         status_code=201,
         data=closed_loops,
-    )
+    ).__dict__
 
 
 @retool.route("/auth-retools-update-closed-loop", methods=["PUT"])
@@ -193,7 +195,7 @@ def auth_retools_update_closed_loop():
     return utils.Response(
         message="Closed loop updated successfully",
         status_code=200,
-    )
+    ).__dict__
 
 
 @retool.route("/auth-retools-get-active-inactive-counts-of-a-closed_loop", methods=["GET"])
@@ -212,15 +214,14 @@ def auth_retools_get_active_inactive_counts_of_a_closed_loop():
     )
     uow.close_connection()
 
-    response = utils.Response(
+    return utils.Response(
         message="Counts returned successfully",
         status_code=200,
         data={
                 "counts":counts
             }
-    )
+    ).__dict__
 
-    return response
 
 
 @retool.route("/auth-retools-get-all-users-of-a-closed-loop", methods=["GET"])
@@ -245,7 +246,7 @@ def auth_retools_get_information_of_all_users_of_a_closed_loop():
         data={
             "users": users
         },
-    )
+    ).__dict__
 
 
 @retool.route("/auth-retools-create-vendor", methods=["POST"])
@@ -276,4 +277,4 @@ def auth_retools_create_vendor(uow):
     return utils.Response(
         message="vendor created successfully",
         status_code=201,
-    )
+    ).__dict__

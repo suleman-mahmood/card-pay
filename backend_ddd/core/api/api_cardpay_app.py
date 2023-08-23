@@ -112,7 +112,7 @@ def change_name():
     return utils.Response(
         message="Name changed successfully",
         status_code=200,
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/change-pin", methods=["POST"])
@@ -134,7 +134,7 @@ def change_pin():
     return utils.Response(
         message="Pin changed successfully",
         status_code=200,
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/user-toggle-active", methods=["POST"])
@@ -155,7 +155,7 @@ def user_toggle_active():
     return utils.Response(
         message="User toggled active successfully",
         status_code=200,
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/verify-otp", methods=["POST"])
@@ -180,13 +180,13 @@ def verify_otp():
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="OTP verified successfully",
             status_code=200,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/verify-phone-number", methods=["POST"])
@@ -211,13 +211,13 @@ def verify_phone_number():
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="Phone number verified successfully",
             status_code=200,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/register-closed-loop", methods=["POST"])
@@ -242,7 +242,7 @@ def register_closed_loop():
     return utils.Response(
         message="User registered into loop successfully",
         status_code=200,
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/verify-closed-loop", methods=["POST"])
@@ -270,13 +270,13 @@ def verify_closed_loop():
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="Closed loop verified successfully",
             status_code=200,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/create-deposit-request", methods=["POST"])
@@ -307,7 +307,7 @@ def create_deposit_request(uid):
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
@@ -316,7 +316,7 @@ def create_deposit_request(uid):
             data={
                 "checkout_url": checkout_url,
             },
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/execute-p2p-push-transaction", methods=["POST"])
@@ -355,13 +355,13 @@ def execute_p2p_push_transaction(uid):
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="p2p push transaction executed successfully",
             status_code=201,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/create-p2p-pull-transaction", methods=["POST"])
@@ -400,13 +400,13 @@ def create_p2p_pull_transaction(uid):
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="p2p pull transaction created successfully",
             status_code=201,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/accept-p2p-pull-transaction", methods=["POST"])
@@ -435,13 +435,13 @@ def accept_p2p_pull_transaction():
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="p2p pull transaction accepted successfully",
             status_code=200,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/decline-p2p-pull-transaction", methods=["POST"])
@@ -464,13 +464,13 @@ def decline_p2p_pull_transaction():
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="p2p pull transaction declined successfully",
             status_code=200,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/generate-voucher", methods=["POST"])
@@ -492,7 +492,7 @@ def generate_voucher():
     return utils.Response(
         message="voucher generated successfully",
         status_code=201,
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/redeem-voucher", methods=["POST"])
@@ -524,13 +524,13 @@ def redeem_voucher():
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="voucher redeemed successfully",
             status_code=200,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/use-reference", methods=["POST"])
@@ -558,13 +558,13 @@ def use_reference():
         return utils.Response(
             message=str(e),
             status_code=400,
-        )
+        ).__dict__
 
     else:
         return utils.Response(
             message="reference used successfully",
             status_code=200,
-        )
+        ).__dict__
 
 
 @cardpay_app.route("/get-user-recent-transactions", methods=["GET"])
@@ -584,7 +584,7 @@ def get_user_recent_transactions(uid):
         message="User recent transactions returned successfully",
         status_code=200,
         data=txs,  # txs is a list of dictionaries
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/get-user", methods=["GET"])
@@ -604,7 +604,7 @@ def get_user(uid):
         message="User returned successfully",
         status_code=200,
         data=user.__dict__,
-    )
+    ).__dict__
 
 
 @cardpay_app.route("/get-user-balance", methods=["GET"])
@@ -624,4 +624,4 @@ def get_user_balance(uid):
         data={
             "balance": balance,
         },
-    )
+    ).__dict__

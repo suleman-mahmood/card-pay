@@ -13,21 +13,6 @@ from core.authentication.domain.model import UserType
 from core.api.event_codes import EventCode
 
 
-class Tabist(Exception):
-    """
-    User friendly exception.
-
-    Attributes:
-        message -- message to be viewed by user
-    """
-
-    def __init__(self, message: str, status_code: int = 400):
-        self.message = message
-
-        self.status_code = status_code
-        super().__init__(message)
-
-
 @dataclass(frozen=True)
 class Response:
     """Response object"""

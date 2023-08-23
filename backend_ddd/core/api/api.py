@@ -91,7 +91,7 @@ def pay_pro_callback():
     return utils.Response(
         message="callback processed successfully",
         status_code=201,
-    )
+    ).__dict__
 
 
 # for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)
