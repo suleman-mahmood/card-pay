@@ -109,20 +109,19 @@ def execute_transaction(
             tx.execute_transaction()
             uow.transactions.save(tx)
 
-            # TODO: Add these back when slabs are created
-            # marketing_commands.add_loyalty_points(
-            #     sender_wallet_id=sender_wallet_id,
-            #     recipient_wallet_id=recipient_wallet_id,
-            #     transaction_amount=amount,
-            #     transaction_type=transaction_type,
-            #     uow=uow,
-            # )
-            # marketing_commands.give_cashback(
-            #     recipient_wallet_id=recipient_wallet_id,
-            #     deposited_amount=amount,
-            #     transaction_type=transaction_type,
-            #     uow=uow,
-            # )
+            marketing_commands.add_loyalty_points(
+                sender_wallet_id=sender_wallet_id,
+                recipient_wallet_id=recipient_wallet_id,
+                transaction_amount=amount,
+                transaction_type=transaction_type,
+                uow=uow,
+            )
+            marketing_commands.give_cashback(
+                recipient_wallet_id=recipient_wallet_id,
+                deposited_amount=amount,
+                transaction_type=transaction_type,
+                uow=uow,
+            )
 
         uow.transactions.save(tx)
 

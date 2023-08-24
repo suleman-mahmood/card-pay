@@ -51,7 +51,7 @@ def create_closed_loop():
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["weightage_type", "weightage_value"])
-def add_weightage():
+def add_weightage(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
@@ -73,7 +73,7 @@ def add_weightage():
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["weightage_type", "weightage_value"])
-def set_weightage():
+def set_weightage(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
@@ -103,7 +103,7 @@ def set_weightage():
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["cashback_slabs"])
-def set_cashback_slabs():
+def set_cashback_slabs(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()

@@ -5,7 +5,15 @@ from core.api import utils
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.entrypoint import commands as auth_cmd
+from core.payment.entrypoint import queries as pmt_qry
 from core.entrypoint.uow import UnitOfWork
+from core.conftest import (
+    _create_closed_loop_helper,
+    _register_user_in_closed_loop,
+    _verify_user_in_closed_loop,
+    _marketing_setup,
+    _verify_phone_number,
+)
 import os
 
 def test_base_url_api(client):
@@ -280,8 +288,7 @@ def test_verify_closed_loop_api(seed_api_customer,mocker, client):
     uow.commit_close_connection()
     
     otp = user.closed_loops[closed_loop_id].unique_identifier_otp
-    print(otp)
-    print(closed_loop_id)
+
     response = client.post(
         "http://127.0.0.1:5000/api/v1/verify-closed-loop",
         json = {
@@ -302,7 +309,7 @@ def test_verify_phone_number_api(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
     
     uow = UnitOfWork()
-    user = auth_qry.get_user_from_user_id(user_id, uow)
+    user = uow.users.get(user_id)
     otp = user.otp
     uow.close_connection()
 
@@ -324,3 +331,164 @@ def test_verify_phone_number_api(seed_api_customer, mocker, client):
             message="Phone number verified successfully",
             status_code=200,
         ).__dict__
+
+def test_change_pin_api(seed_api_customer, mocker,client):
+    user_id = seed_api_customer(mocker, client)
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/change-pin",
+        json = {
+            "new_pin": "1234"
+        },
+        headers = headers
+    )
+
+    assert loads(response.data.decode()) == utils.Response(
+        message="Pin changed successfully",
+        status_code=200,
+    ).__dict__
+       
+def test_get_user_api(seed_api_customer,mocker,client):
+    user_id = seed_api_customer(mocker, client)
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user",
+        headers = headers
+    )
+
+    x = loads(response.data.decode())
+    assert x['message'] == "User returned successfully"
+    assert x['status_code'] == 200
+    assert x['data']['id'] == user_id
+
+def test_get_user_balance_api(seed_api_customer, mocker,client):
+    user_id = seed_api_customer(mocker, client)
+
+    uow = UnitOfWork()
+    balance = auth_qry.get_user_balance(
+        user_id=user_id,
+        uow=uow,
+    )
+    uow.close_connection()
+    
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user-balance",
+        headers = headers
+    )
+
+  
+    assert loads(response.data.decode()) ==  utils.Response(
+        message="User balance returned successfully",
+        status_code=200,
+        data={
+            "balance": balance,
+        },
+    ).__dict__     
+
+def test_get_user_recent_transcations_api(seed_api_customer, seed_api_admin, mocker,client):
+
+    sender_id = seed_api_customer(mocker, client)
+    recipient_id = seed_api_customer(mocker, client)
+    
+    closed_loop_id = _create_closed_loop_helper(client)
+
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100279")
+    _register_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, "26100290")
+   
+    uow = UnitOfWork()
+    sender = uow.users.get(user_id=sender_id)
+    recipient = uow.users.get(user_id=recipient_id)
+    uow.close_connection()
+
+    otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
+    _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
+    
+    otp = recipient.closed_loops[closed_loop_id].unique_identifier_otp
+    _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+    
+    uow = UnitOfWork()
+    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
+        user_id=recipient_id, uow=uow
+    )
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
+        user_id=sender_id, uow=uow
+    )
+    uow.transactions.add_1000_wallet(wallet_id=sender_id)
+    uow.commit_close_connection()
+
+    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "10")
+    
+    #execute
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    _verify_phone_number(recipient_id, mocker, client)
+    _verify_phone_number(sender_id, mocker, client)
+
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
+    client.post(
+        "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
+        json={
+            "recipient_unique_identifier": recipient_unique_identifier,
+            "amount": 100,
+            "closed_loop_id": closed_loop_id
+        },
+        headers=headers
+    )     
+
+    #now send 100 back to sender
+
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=recipient_id)
+    client.post(
+        "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
+        json={
+            "recipient_unique_identifier": sender_unique_identifier,
+            "amount": 100,
+            "closed_loop_id": closed_loop_id
+        },
+        headers=headers
+    )     
+
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user-recent-transactions",
+        headers=headers
+    )     
+
+    uow = UnitOfWork()
+    txs = pmt_qry.get_all_transactions_of_a_user(
+        user_id=sender_id,
+        offset=0,
+        page_size=50,
+        uow=uow,
+    )
+    uow.close_connection()
+
+    assert loads(response.data.decode()) == utils.Response(
+        message="User recent transactions returned successfully",
+        status_code=200,
+        data=txs,  # txs is a list of dictionaries
+    ).__dict__
