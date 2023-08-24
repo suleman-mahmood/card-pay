@@ -35,7 +35,7 @@ Future<void> initializeDependencies() async {
   );
 
   await Firebase.initializeApp(
-    name: 'card-pay-dev',
+    // name: 'card-pay-dev',
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
