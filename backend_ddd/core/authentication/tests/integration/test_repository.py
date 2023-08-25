@@ -36,7 +36,6 @@ def test_user_repository_add_get(seed_user):
     uow.users.add(user=user)
 
     fetched_user = uow.users.get(user_id=user.id)
-    uow.commit_close_connection()
     assert fetched_user == user
 
 

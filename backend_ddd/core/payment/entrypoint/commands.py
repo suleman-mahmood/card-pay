@@ -19,13 +19,11 @@ from ...payment.domain.model import TransactionType, TransactionMode
 from . import utils
 from time import sleep
 from queue import Queue
-from uuid import uuid4
 from . import exceptions as exc
 
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
@@ -97,6 +95,11 @@ def execute_transaction(
     uow: AbstractUnitOfWork,
 ) -> Transaction:
     with uow:
+        # if not uow.users.get(user_id=sender_wallet_id).is_phone_number_verified:
+        #     raise NotVerifiedException("User is not verified")
+        # if not uow.users.get(user_id=recipient_wallet_id).is_phone_number_verified:
+        #     raise NotVerifiedException("User is not verified")
+        
         tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
             mode=transaction_mode,
@@ -166,19 +169,19 @@ def accept_p2p_pull_transaction(
         tx.accept_p2p_pull_transaction()
         uow.transactions.save(tx)
 
-        # marketing_commands.add_loyalty_points(
-        #     sender_wallet_id=tx.sender_wallet.id,
-        #     recipient_wallet_id=tx.recipient_wallet.id,
-        #     transaction_amount=tx.amount,
-        #     transaction_type=tx.transaction_type,
-        #     uow=uow,
-        # )
-        # marketing_commands.give_cashback(
-        #     recipient_wallet_id=tx.recipient_wallet.id,
-        #     deposited_amount=tx.amount,
-        #     transaction_type=tx.transaction_type,
-        #     uow=uow,
-        # )
+        marketing_commands.add_loyalty_points(
+            sender_wallet_id=tx.sender_wallet.id,
+            recipient_wallet_id=tx.recipient_wallet.id,
+            transaction_amount=tx.amount,
+            transaction_type=tx.transaction_type,
+            uow=uow,
+        )
+        marketing_commands.give_cashback(
+            recipient_wallet_id=tx.recipient_wallet.id,
+            deposited_amount=tx.amount,
+            transaction_type=tx.transaction_type,
+            uow=uow,
+        )
 
     return tx
 
@@ -191,19 +194,19 @@ def accept_payment_gateway_transaction(
         tx.execute_transaction()
         uow.transactions.save(tx)
 
-        # marketing_commands.add_loyalty_points(
-        #     sender_wallet_id=tx.sender_wallet.id,
-        #     recipient_wallet_id=tx.recipient_wallet.id,
-        #     transaction_amount=tx.amount,
-        #     transaction_type=tx.transaction_type,
-        #     uow=uow,
-        # )
-        # marketing_commands.give_cashback(
-        #     recipient_wallet_id=tx.recipient_wallet.id,
-        #     deposited_amount=tx.amount,
-        #     transaction_type=tx.transaction_type,
-        #     uow=uow,
-        # )
+        marketing_commands.add_loyalty_points(
+            sender_wallet_id=tx.sender_wallet.id,
+            recipient_wallet_id=tx.recipient_wallet.id,
+            transaction_amount=tx.amount,
+            transaction_type=tx.transaction_type,
+            uow=uow,
+        )
+        marketing_commands.give_cashback(
+            recipient_wallet_id=tx.recipient_wallet.id,
+            deposited_amount=tx.amount,
+            transaction_type=tx.transaction_type,
+            uow=uow,
+        )
 
     return tx
 

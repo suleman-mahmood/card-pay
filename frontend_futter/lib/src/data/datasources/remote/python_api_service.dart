@@ -78,12 +78,6 @@ abstract class PythonApiService {
     @Header("Authorization") String? token,
   });
 
-  @POST('/create-deposit-request')
-  Future<HttpResponse<CreateDepositResponse>> createDepositRequest({
-    @Body() CreateDepositRequest? createDepositRequest,
-    @Header("Authorization") String? token,
-  });
-
   @POST('/execute-p2p-push-transaction')
   Future<HttpResponse<ExecuteP2PPushTransactionResponse>>
       executeP2PPushTransaction({

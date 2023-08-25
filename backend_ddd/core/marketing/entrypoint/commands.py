@@ -145,15 +145,4 @@ def set_cashback_slabs(
             for slab in cashback_slabs
         ]
         
-        
-        # for slab in cashback_slabs:
-        #     slab_list.append(
-        #         CashbackSlab(
-        #             start_amount=slab[0],
-        #             end_amount=slab[1],
-        #             cashback_type=CashbackType[slab[2]],
-        #             cashback_value=slab[3],
-        #         )
-        #     )
-
         uow.cashback_slabs.save_all(AllCashbacks(cashback_slabs=slab_list))

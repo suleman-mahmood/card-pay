@@ -6,13 +6,31 @@ from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint.uow import UnitOfWork
 from uuid import uuid4
 
-@pytest.fixture(scope="session", autouse=True)
-def initialize_pytest_config():
+@pytest.fixture(autouse=True)
+def initialize_pytest_config(mocker):
     os.environ["DB_HOST"] = os.environ["DB_HOST_LOCAL"]
     os.environ["DB_NAME"] = os.environ["DB_NAME_LOCAL"]
     os.environ["DB_USER"] = os.environ["DB_USER_LOCAL"]
     os.environ["DB_PASSWORD"] = os.environ["DB_PASSWORD_LOCAL"]
     os.environ["DB_PORT"] = os.environ["DB_PORT_LOCAL"]
+
+    os.environ["EMAIL_USER"] = ''
+    os.environ["EMAIL_PASSWORD"] = ''
+    os.environ["USERNAME"] = ''
+    os.environ["CLIENT_ID"] = ''
+    os.environ["CLIENT_SECRET"] = ''
+    os.environ["PAYPRO_BASE_URL"] = ''
+    os.environ["TOKEN_VALIDITY"] = ''
+    os.environ["SMS_API_TOKEN"] = ''
+    os.environ["SMS_API_SECRET"] = ''
+    os.environ["SENTRY_DSN"] = ''
+    os.environ["RETOOL_SECRET"] = ''
+
+    mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
+    mocker.patch("core.authentication.entrypoint.commands.firebase_create_user", return_value=None)
+    mocker.patch("core.authentication.entrypoint.commands.firebase_update_password", return_value=None)
+    mocker.patch("core.authentication.entrypoint.commands.firebase_get_user", return_value="")
 
 
 @pytest.fixture()
@@ -37,11 +55,6 @@ def seed_api_customer():
         user_id = str(uuid4())
         mocker.patch("core.api.utils.firebaseUidToUUID", return_value=user_id)
 
-        mocker.patch(
-            "core.authentication.entrypoint.commands.firebase_create_user", return_value=""
-        )
-        mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
-
         client.post(
             "http://127.0.0.1:5000/api/v1/create-user",
             json={
@@ -63,11 +76,6 @@ def seed_api_admin():
 
         user_id = str(uuid4())
         mocker.patch("core.api.utils.firebaseUidToUUID", return_value=user_id)
-
-        mocker.patch(
-            "core.authentication.entrypoint.commands.firebase_create_user", return_value=""
-        )
-        mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
 
         client.post(
             "http://127.0.0.1:5000/api/v1/create-user",
@@ -109,7 +117,7 @@ def _create_closed_loop_helper(client):
 
 def _register_user_in_closed_loop(mocker, client,user_id, closed_loop_id, unique_identifier):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
-    mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
+    
     headers = {
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
