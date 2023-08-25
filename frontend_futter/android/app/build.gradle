@@ -57,7 +57,7 @@ android {
     defaultConfig {
         applicationId "io.payment.cardpay"
         minSdkVersion 21
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
