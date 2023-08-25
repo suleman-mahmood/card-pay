@@ -96,6 +96,7 @@ class UnitOfWork(AbstractUnitOfWork):
         db_user = os.environ.get("DB_USER")
         db_pass = os.environ.get("DB_PASSWORD")
         db_port = os.environ.get("DB_PORT")
+        db_connect_timeout = os.environ.get("DB_CONNECT_TIMEOUT")
 
         self.connection = psycopg2.connect(
             host=db_host,
@@ -103,6 +104,7 @@ class UnitOfWork(AbstractUnitOfWork):
             user=db_user,
             password=db_pass,
             port=db_port,
+            connect_timeout=db_connect_timeout,
         )
 
         self.cursor = self.connection.cursor()
