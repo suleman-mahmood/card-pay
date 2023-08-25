@@ -69,6 +69,9 @@ class Transaction:
     created_at: datetime = field(default_factory=datetime.now)
     last_updated: datetime = field(default_factory=datetime.now)
 
+    def __post_init__(self):
+        self.last_updated = self.created_at
+
     def execute_transaction(self):
         """for executing a transaction"""
         if self.amount > self.sender_wallet.balance:
