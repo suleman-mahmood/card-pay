@@ -13,6 +13,11 @@ class BackspaceButton extends HookWidget {
   });
   @override
   Widget build(BuildContext context) {
+    useEffect(() {
+      return () {
+        controller.dispose();
+      };
+    }, []);
     return GestureDetector(
       onTap: () {
         final text = controller.text;

@@ -47,6 +47,10 @@ class LoginView extends HookWidget {
       }
 
       someFunction();
+      return () {
+        phoneNumberController.dispose();
+        userCubit.close();
+      };
     }, []);
     return AuthLayout(
       child: SingleChildScrollView(

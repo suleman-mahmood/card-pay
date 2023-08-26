@@ -27,7 +27,11 @@ class TransactionView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final paymentController = useTextEditingController(text: '0');
-
+    useEffect(() {
+      return () {
+        paymentController.dispose();
+      };
+    }, []);
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(

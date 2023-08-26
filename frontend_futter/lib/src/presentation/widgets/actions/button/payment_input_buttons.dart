@@ -35,6 +35,11 @@ class PaymentEntry extends HookWidget {
     }
 
     Widget PaymentValueListenableBuilder() {
+      useEffect(() {
+        return () {
+          controller.dispose();
+        };
+      }, []);
       return PaddingAll(
         slab: 1,
         child: ValueListenableBuilder(

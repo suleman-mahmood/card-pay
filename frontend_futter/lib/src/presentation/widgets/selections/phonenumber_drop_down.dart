@@ -27,6 +27,11 @@ class PhoneNumberInput extends HookWidget {
     final dropdownMenuItems = _buildDropdownMenuItems(dropdownItems);
 
     final selectedDropdownItem = useState<String>(dropdownValue);
+    useEffect(() {
+      return () {
+        controller.dispose();
+      };
+    }, []);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

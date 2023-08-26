@@ -46,6 +46,8 @@ class EditProfileView extends HookWidget {
     final phoneNumberController = useTextEditingController();
 
     void _showBottomSheetAvatar() {
+      final modalContext = context;
+
       showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -105,6 +107,11 @@ class EditProfileView extends HookWidget {
           );
         },
       );
+      useEffect(() {
+        return () {
+          Navigator.of(modalContext).pop();
+        };
+      }, []);
     }
 
     void onPhoneNumberChanged(String newValue) {
@@ -112,6 +119,7 @@ class EditProfileView extends HookWidget {
     }
 
     void _showOTPBottomSheetProfile() {
+      final modalContext = context;
       showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -167,9 +175,16 @@ class EditProfileView extends HookWidget {
           );
         },
       );
+      useEffect(() {
+        return () {
+          Navigator.of(modalContext).pop();
+        };
+      }, []);
     }
 
     void _showBottomSheetDelete() {
+      final modalContext = context;
+
       showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -228,8 +243,18 @@ class EditProfileView extends HookWidget {
           );
         },
       );
+      useEffect(() {
+        return () {
+          Navigator.of(modalContext).pop();
+        };
+      }, []);
     }
 
+    useEffect(() {
+      return () {
+        userCubit.close();
+      };
+    }, []);
     return ProfileLayout(
       child: PaddingHorizontal(
         slab: 2,

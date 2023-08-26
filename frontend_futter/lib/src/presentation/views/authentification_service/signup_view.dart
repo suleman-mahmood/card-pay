@@ -103,6 +103,13 @@ class SignupView extends HookWidget {
       );
     }
 
+    useEffect(() {
+      return () {
+        phoneNumberController.dispose();
+        userCubit.close();
+      };
+    }, []);
+
     return AuthLayout(
       child: SingleChildScrollView(
         child: Form(

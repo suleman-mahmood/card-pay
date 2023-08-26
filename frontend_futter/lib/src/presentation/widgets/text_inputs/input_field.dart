@@ -39,12 +39,16 @@ class CustomInputField extends HookWidget {
       passwordVisible.value = !passwordVisible.value;
     }
 
+    useEffect(() {
+      return () {
+        controller?.dispose();
+      };
+    }, [controller]);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: AppTypography.bodyText
-                .copyWith(color: labelColor)), // Using the labelColor
+        Text(label, style: AppTypography.bodyText.copyWith(color: labelColor)),
         const HeightBox(slab: 1),
         Container(
           decoration: BoxDecoration(
@@ -65,8 +69,7 @@ class CustomInputField extends HookWidget {
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: hint,
-                      hintStyle:
-                          TextStyle(color: hintColor), // Using the hintColor
+                      hintStyle: TextStyle(color: hintColor),
                       isCollapsed: true,
                       contentPadding: EdgeInsets.zero,
                     ),

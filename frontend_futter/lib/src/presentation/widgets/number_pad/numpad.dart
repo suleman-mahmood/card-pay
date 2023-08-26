@@ -9,6 +9,12 @@ class NumpadWithDisplay extends HookWidget {
       {super.key, required this.display, required this.controller});
   @override
   Widget build(BuildContext context) {
+    useEffect(() {
+      return () {
+        controller.dispose();
+      };
+    }, [controller]);
+
     return Column(
       children: [
         display,
