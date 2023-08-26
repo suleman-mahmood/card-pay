@@ -110,8 +110,8 @@ class DashboardView extends HookWidget {
                       topRightImage: 'assets/images/balance_corner.png',
                       bottomLeftImage: 'assets/images/balance_corner2.png',
                     );
-                  case UserFailed:
-                    return const SizedBox.shrink();
+                  // case UserFailed:
+                  //   return const SizedBox.shrink();
                   // return Text(
                   //   state.error!.response!.data['message'],
                   //   style: const TextStyle(color: Colors.red),

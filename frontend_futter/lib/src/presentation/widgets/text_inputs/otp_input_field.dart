@@ -22,10 +22,29 @@ class OTPInput extends HookWidget {
     return true;
   }
 
-  void _moveFocus(BuildContext context, List<FocusNode> focusNodes, int index) {
-    focusNodes[index].unfocus();
-    if (index != digitCount - 1) {
-      FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+  void _moveFocusForward(
+    BuildContext context,
+    List<FocusNode> focusNodes,
+    int index,
+  ) {
+    final newIndex = index + 1;
+    focusNodes[index].unfocus(); // Un focus the current textfield
+
+    if (newIndex < digitCount) {
+      FocusScope.of(context).requestFocus(focusNodes[newIndex]);
+    }
+  }
+
+  void _moveFocusBackward(
+    BuildContext context,
+    List<FocusNode> focusNodes,
+    int index,
+  ) {
+    final newIndex = index - 1;
+    focusNodes[index].unfocus(); // Un focus the current textfield
+
+    if (newIndex >= 0) {
+      FocusScope.of(context).requestFocus(focusNodes[newIndex]);
     }
   }
 
@@ -87,13 +106,62 @@ class OTPInput extends HookWidget {
                 ),
                 onChanged: (value) {
                   if (value.length == 1) {
-                    _moveFocus(context, focusNodes, index);
+                    _moveFocusForward(context, focusNodes, index);
+                  } else if (value.isEmpty) {
+                    _moveFocusBackward(context, focusNodes, index);
                   }
                   _checkAndCallOnCompleted(controllers);
                 },
               ),
             ),
           );
+
+          // TODO(suleman): Implement this later on since it's not working but is the right way to do things
+          // Using raw keyboard listener
+          // return RawKeyboardListener(
+          //   focusNode: focusNodes[index],
+          //   child: SizedBox(
+          //     width: 64,
+          //     height: 40,
+          //     child: PaddingHorizontal(
+          //       slab: 1,
+          //       child: TextField(
+          //         controller: controllers[index],
+          //         // focusNode: focusNodes[index],
+          //         keyboardType: TextInputType.number,
+          //         maxLength: 1,
+          //         textAlign: TextAlign.center,
+          //         style: AppTypography.inputFont,
+          //         decoration: InputDecoration(
+          //           counterText: '',
+          //           contentPadding: EdgeInsets.all(3),
+          //           border: OutlineInputBorder(
+          //             borderRadius: BorderRadius.circular(8),
+          //             borderSide: BorderSide(
+          //               color: AppColors.greyColor,
+          //               width: 1.0,
+          //             ),
+          //           ),
+          //           fillColor: AppColors.secondaryColor,
+          //           filled: true,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          //   onKey: (keyEvent) {
+          //     final value = keyEvent.data.logicalKey.keyLabel;
+          //     printWarning(
+          //       "Key event called ${value}",
+          //     );
+
+          //     if (value == "Backspace") {
+          //       _moveFocusBackward(context, focusNodes, index);
+          //     } else if (digits.contains(int.parse(value))) {
+          //       _moveFocusForward(context, focusNodes, index);
+          //     }
+          //     _checkAndCallOnCompleted(controllers);
+          //   },
+          // );
         }),
       ),
     );

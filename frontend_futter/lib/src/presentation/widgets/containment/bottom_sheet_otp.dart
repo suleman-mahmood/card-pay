@@ -72,16 +72,16 @@ class BottomSheetOTP extends HookWidget {
               const HeightBox(slab: 4),
               BlocBuilder<UserCubit, UserState>(builder: (_, state) {
                 switch (state.runtimeType) {
-                  case UserFailed:
-                    return Column(
-                      children: [
-                        Text(
-                          state.error!.response!.data['message'],
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        const HeightBox(slab: 4),
-                      ],
-                    );
+                  // case UserFailed:
+                  //   return Column(
+                  //     children: [
+                  //       Text(
+                  //         state.error!.response!.data['message'],
+                  //         style: TextStyle(color: Colors.red),
+                  //       ),
+                  //       const HeightBox(slab: 4),
+                  //     ],
+                  //   );
                   default:
                     return const SizedBox.shrink();
                 }

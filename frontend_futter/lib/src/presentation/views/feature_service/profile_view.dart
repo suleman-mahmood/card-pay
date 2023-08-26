@@ -124,11 +124,11 @@ class ProfileView extends HookWidget {
                             imagePath: 'assets/images/talha.jpg',
                           ),
                         );
-                      case UserFailed:
-                        return Text(
-                          state.error!.response!.data['message'],
-                          style: const TextStyle(color: Colors.red),
-                        );
+                      // case UserFailed:
+                      //   return Text(
+                      //     state.error!.response!.data['message'],
+                      //     style: const TextStyle(color: Colors.red),
+                      //   );
                       default:
                         return const SizedBox.shrink();
                     }

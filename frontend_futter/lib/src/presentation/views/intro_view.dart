@@ -1,4 +1,5 @@
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
