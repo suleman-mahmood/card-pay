@@ -11,8 +11,10 @@ abstract class UserState {
 
   final EventCodes eventCodes;
   final User user;
-  final String email;
+  final String phoneNumber;
   final String password;
+
+  final String email;
   final String errorMessage;
   final List<TransactionResponse> transactions;
   final DioError? error;
@@ -22,6 +24,7 @@ abstract class UserState {
     this.checkoutUrl = '',
     this.errorMessage = '',
     this.qrTitle = '',
+    this.phoneNumber = '',
     this.eventCodes = EventCodes.DEFAULT_EVENT,
     this.error,
     this.email = '',
@@ -47,6 +50,7 @@ class UserLoading extends UserState {
 
 class UserSuccess extends UserState {
   UserSuccess({
+    super.password,
     super.message,
     super.eventCodes,
     super.user,
@@ -56,8 +60,7 @@ class UserSuccess extends UserState {
     super.transactions,
     super.checkoutUrl,
     super.qrTitle,
-    String? email,
-    String? password,
+    super.phoneNumber,
   });
 }
 

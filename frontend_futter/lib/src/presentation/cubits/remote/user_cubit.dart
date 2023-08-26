@@ -442,14 +442,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           final userPhoneNumber = _prefs.getString('user_phone_number');
           final password = _prefs.getString('user_password');
 
-          print(userPhoneNumber);
-          print(password);
+          if (userPhoneNumber == null || password == null) {
+            emit(UserFailed(errorMessage: 'Credentials not linked on device'));
+            return;
+          }
 
           emit(
             UserSuccess(
               message: "Sign in was successful",
               eventCodes: EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC,
-              email: userPhoneNumber,
+              phoneNumber: userPhoneNumber,
               password: password,
             ),
           );
