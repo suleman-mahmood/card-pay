@@ -132,8 +132,10 @@ def set_cashback_slabs(uid):
 
 
 @retool.route("/auth-retools-get-all-closed-loops-with-user-counts", methods=["GET"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
 def auth_retools_get_all_closed_loops_with_user_counts():
     uow = UnitOfWork()
     closed_loops = auth_qry.get_all_closed_loops_with_user_counts(uow=uow)
@@ -239,7 +241,7 @@ def auth_retools_get_information_of_all_users_of_a_closed_loop():
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters=["personal_email", "password", "phone_number", "full_name", "longitude", "latitude", "closed_loop_id"])
-def auth_retools_create_vendor(uow):
+def auth_retools_create_vendor():
     req = request.get_json(force=True)
 
     uow = UnitOfWork()

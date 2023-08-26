@@ -201,11 +201,13 @@ def register_closed_loop(
         user.register_closed_loop(closed_loop_user=closed_loop_user)
         uow.users.save(user)
 
-    comms_commands.send_email(
-        subject="Verify closed loop | Otp",
-        text=closed_loop_user.unique_identifier_otp,
-        to=f"{closed_loop_user.unique_identifier}@lums.edu.pk",  # TODO: fix this
-    )
+    user_type = user.user_type
+    if user_type is UserType.CUSTOMER:
+        comms_commands.send_email(
+            subject="Verify closed loop | Otp",
+            text=closed_loop_user.unique_identifier_otp,
+            to=f"{closed_loop_user.unique_identifier}@lums.edu.pk",  # TODO: fix this
+        )
 
     return user
 
