@@ -28,7 +28,6 @@ class RegisterOrganizationView extends HookWidget {
     final showRollNumberField = useState<bool>(false);
     final uniqueIdentifier = useState<String>('');
     final selectedClosedLoop = useState<ClosedLoop>(ClosedLoop());
-    final uniqueIdentifierOtp = useState<String>('');
 
     final userCubit = BlocProvider.of<UserCubit>(context);
     final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
@@ -51,13 +50,10 @@ class RegisterOrganizationView extends HookWidget {
               child: BottomSheetOTP(
                 deviceCheckHeading: AppStrings.checkEmail,
                 otpDeviceText: AppStrings.otpEmailText,
-                onAction: () => {
-                  userCubit.verifyClosedLoop(
-                    selectedClosedLoop.value.id,
-                    uniqueIdentifierOtp.value,
-                  )
-                },
-                onChanged: (v) => uniqueIdentifierOtp.value = v,
+                onAction: (otp) => userCubit.verifyClosedLoop(
+                  selectedClosedLoop.value.id,
+                  otp,
+                ),
                 navigateToRoute: const PinRoute(),
               ),
             ),
@@ -77,6 +73,7 @@ class RegisterOrganizationView extends HookWidget {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _showOTPBottomSheet();
                   });
+                  return const SizedBox.shrink();
                 } else if (state.eventCodes ==
                     EventCodes.ORGANIZATION_VERIFIED) {
                   context.router.push(const PinRoute());

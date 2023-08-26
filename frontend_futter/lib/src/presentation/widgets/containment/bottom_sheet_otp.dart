@@ -16,8 +16,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class BottomSheetOTP extends HookWidget {
   final String deviceCheckHeading;
   final String otpDeviceText;
-  final void Function() onAction;
-  final ValueChanged<String> onChanged;
+  final void Function(String) onAction;
   final PageRouteInfo? navigateToRoute;
 
   const BottomSheetOTP({
@@ -25,12 +24,13 @@ class BottomSheetOTP extends HookWidget {
     required this.deviceCheckHeading,
     required this.otpDeviceText,
     required this.onAction,
-    required this.onChanged,
     this.navigateToRoute,
   });
 
   @override
   Widget build(BuildContext context) {
+    final otp = useState<String>('');
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -49,7 +49,7 @@ class BottomSheetOTP extends HookWidget {
               const HeightBox(slab: 2),
               OTPInput(
                 digitCount: 4,
-                onCompleted: (otp) => onChanged(otp),
+                onCompleted: (o) => otp.value = o,
               ),
               const HeightBox(slab: 2),
               Row(
@@ -70,25 +70,9 @@ class BottomSheetOTP extends HookWidget {
                 ],
               ),
               const HeightBox(slab: 4),
-              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-                switch (state.runtimeType) {
-                  // case UserFailed:
-                  //   return Column(
-                  //     children: [
-                  //       Text(
-                  //         state.error!.response!.data['message'],
-                  //         style: TextStyle(color: Colors.red),
-                  //       ),
-                  //       const HeightBox(slab: 4),
-                  //     ],
-                  //   );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              }),
               PrimaryButton(
                 text: AppStrings.verify,
-                onPressed: onAction,
+                onPressed: () => onAction(otp.value),
               ),
               const HeightBox(slab: 5),
             ],

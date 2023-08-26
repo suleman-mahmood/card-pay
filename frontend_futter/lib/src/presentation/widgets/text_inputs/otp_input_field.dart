@@ -48,7 +48,7 @@ class OTPInput extends HookWidget {
     }
   }
 
-  void _checkAndCallOnCompleted(List<TextEditingController> controllers) {
+  void _checkOtpCompleted(List<TextEditingController> controllers) {
     if (_isInputComplete(controllers)) {
       String otp = '';
       for (var controller in controllers) {
@@ -110,7 +110,7 @@ class OTPInput extends HookWidget {
                   } else if (value.isEmpty) {
                     _moveFocusBackward(context, focusNodes, index);
                   }
-                  _checkAndCallOnCompleted(controllers);
+                  _checkOtpCompleted(controllers);
                 },
               ),
             ),

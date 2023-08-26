@@ -37,7 +37,6 @@ class SignupView extends HookWidget {
     final fullName = useState<String>('');
     final password = useState<String>('');
     final confirmPassword = useState<String>('');
-    final otp = useState<String>('');
 
     final userCubit = BlocProvider.of<UserCubit>(context);
 
@@ -55,8 +54,7 @@ class SignupView extends HookWidget {
               child: BottomSheetOTP(
                 deviceCheckHeading: AppStrings.checkMobile,
                 otpDeviceText: AppStrings.otpMobileText,
-                onAction: () => userCubit.verifyPhoneNumber(otp.value),
-                onChanged: (v) => otp.value = v,
+                onAction: (otp) => userCubit.verifyPhoneNumber(otp),
                 navigateToRoute: const RegisterOrganizationRoute(),
               ),
             ),
