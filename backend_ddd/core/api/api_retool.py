@@ -258,9 +258,9 @@ def auth_retools_create_vendor():
         unique_identifier="",
         uow=uow,
     )
-    uow.close_connection()
+    uow.commit_close_connection()
 
     return utils.Response(
-        message="vendor created successfully",
+        message="Vendor created successfully",
         status_code=201,
     ).__dict__

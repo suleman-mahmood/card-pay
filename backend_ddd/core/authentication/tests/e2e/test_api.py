@@ -390,3 +390,47 @@ def test_get_user_balance_api(seed_api_customer, mocker,client):
             "balance": balance,
         },
     ).__dict__     
+
+# TODO: need to write the test for create vendor
+
+# def test_auth_retools_create_vendor(mocker, client):
+
+#     uow = UnitOfWork()
+#     auth_cmd.create_closed_loop(
+#         name="retool e2e testing",
+#         logo_url="xyz.com",
+#         description="create vendor e2e testing",
+#         verification_type="ROLLNUMBER",
+#         regex="[0-9]{8}",
+#         uow = uow,
+#     )
+#     closed_loop_id = auth_qry._get_latest_closed_loop_id(
+#         uow
+#     )
+#     uow.commit_close_connection()
+
+#     user_id = str(uuid4())
+#     SECRET_KEY = os.environ["RETOOL_SECRET"]
+
+#     mocker.patch("core.api.utils.firebaseUidToUUID", return_value=user_id)
+#     mocker.patch("core.authentication.entrypoint.commands.firebase_create_user", side_effect=Exception("Uesr already exists"))
+#     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+
+#     response = client.post(
+#         "http://127.0.0.1:5000/api/v1/auth-retools-create-vendor",
+#         json={
+#             "personal_email": "zak@zak.com",
+#             "password": "cardpay123",
+#             "phone_number": "090078601",
+#             "full_name": "Zain vendor retool",
+#             "longitude": 24.8607,
+#             "latitude": 67.0011,
+#             "closed_loop_id": closed_loop_id,
+#             "RETOOL_SECRET": SECRET_KEY,
+#         }
+#     )
+
+#     assert loads(response.data.decode()) == utils.Response(
+#         message="Vendor created successfully",
+#         status_code=201,
+#     ).__dict__
