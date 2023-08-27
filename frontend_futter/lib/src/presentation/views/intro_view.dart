@@ -42,6 +42,7 @@ class IntroView extends HookWidget {
     }, []);
 
     return AuthLayout(
+      showBackButton: false,
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -73,21 +74,27 @@ class IntroView extends HookWidget {
                     if (state.isPhoneNumberVerified &&
                         state.closedLoopVerified &&
                         state.pinSetup) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        nextRoute.value = const LoginRoute();
-                      });
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) {
+                          nextRoute.value = const SignupRoute();
+                        },
+                      );
                     } else if (state.isPhoneNumberVerified &&
                         state.closedLoopVerified &&
                         state.pinSetup == false) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        nextRoute.value = const PinRoute();
-                      });
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) {
+                          nextRoute.value = const PinRoute();
+                        },
+                      );
                     } else if (state.isPhoneNumberVerified &&
                         state.closedLoopVerified == false &&
                         state.pinSetup == false) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        nextRoute.value = const RegisterOrganizationRoute();
-                      });
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) {
+                          nextRoute.value = const RegisterOrganizationRoute();
+                        },
+                      );
                     }
                     return const SizedBox.shrink();
                   default:

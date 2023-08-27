@@ -6,7 +6,7 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class Header extends HookWidget {
-  final String title;
+  final String? title;
   final Color color;
   final bool showMainHeading;
   final String? mainHeadingText;
@@ -14,7 +14,7 @@ class Header extends HookWidget {
 
   const Header({
     super.key,
-    required this.title,
+    this.title,
     this.color = AppColors.secondaryColor,
     this.showMainHeading = false,
     this.removeTopPadding,
@@ -26,7 +26,7 @@ class Header extends HookWidget {
     final double horizontalPadding = ScreenUtil.blockSizeHorizontal(context);
     final double verticalPadding = ScreenUtil.blockSizeVertical(context);
     Widget BackButton(color) => IconButton(
-          icon: Icon(Icons.arrow_back, color: color, size: 40),
+          icon: Icon(Icons.arrow_back, color: color, size: 30),
           onPressed: () => context.router.pop(),
         );
 
@@ -34,34 +34,34 @@ class Header extends HookWidget {
       children: [
         removeTopPadding ?? false
             ? Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   BackButton(color),
                   WidthArrowBetween(),
-                  Text(
-                    title,
-                    style: AppTypography.mainHeading.copyWith(color: color),
-                  ),
+                  if (title != null)
+                    Text(
+                      title!,
+                      style: AppTypography.mainHeading.copyWith(color: color),
+                    ),
+
                   // BackButton(Colors.transparent),
                 ],
               )
             : Padding(
                 padding: EdgeInsets.fromLTRB(
-                  horizontalPadding * 1,
-                  verticalPadding * 5,
+                  horizontalPadding * 0,
+                  verticalPadding * 4,
                   horizontalPadding * 9,
                   verticalPadding * 3,
                 ),
                 child: Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     BackButton(color),
                     WidthArrowBetween(),
-                    Text(
-                      title,
-                      style: AppTypography.mainHeading.copyWith(color: color),
-                    ),
-                    // BackButton(Colors.transparent),
+                    if (title != null)
+                      Text(
+                        title!,
+                        style: AppTypography.mainHeading.copyWith(color: color),
+                      ),
                   ],
                 ),
               ),

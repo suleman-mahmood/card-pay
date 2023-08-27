@@ -58,9 +58,9 @@ class LoginView extends HookWidget {
         child: Form(
           key: formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              HeightBox(slab: 4),
+              HeightBox(slab: 6),
+              HeightBox(slab: 2),
               Align(
                 alignment: Alignment.centerLeft,
                 child: const MainHeading(
@@ -68,7 +68,7 @@ class LoginView extends HookWidget {
                   accountDescription: AppStrings.logInDescription,
                 ),
               ),
-              HeightBox(slab: 4),
+              HeightBox(slab: 2),
               PhoneNumberInput(
                 controller: phoneNumberController,
                 dropdownItems: AppStrings.phoneCountryCodes,

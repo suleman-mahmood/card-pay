@@ -1,6 +1,7 @@
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -117,7 +118,7 @@ class SignupView extends HookWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const HeightBox(slab: 4),
+              const HeightBox(slab: 5),
               // Half progress bar
               Row(
                 children: [
@@ -141,7 +142,7 @@ class SignupView extends HookWidget {
                   ),
                 ],
               ),
-              const HeightBox(slab: 4),
+              const HeightBox(slab: 2),
               const MainHeading(
                 accountTitle: AppStrings.createAccount,
                 accountDescription: AppStrings.createAccountDesc,

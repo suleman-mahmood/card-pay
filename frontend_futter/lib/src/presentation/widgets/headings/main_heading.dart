@@ -3,12 +3,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 
 class MainHeading extends HookWidget {
-  final String accountTitle;
+  final String? accountTitle;
   final String? accountDescription;
 
   const MainHeading({
     super.key,
-    required this.accountTitle,
+    this.accountTitle,
     this.accountDescription,
   });
 
@@ -17,10 +17,12 @@ class MainHeading extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          accountTitle,
-          style: AppTypography.mainHeading,
-        ),
+        (accountTitle != null)
+            ? Text(
+                accountTitle!,
+                style: AppTypography.mainHeading,
+              )
+            : const SizedBox.shrink(),
         (accountDescription != null)
             ? Text(
                 accountDescription!,

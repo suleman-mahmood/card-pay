@@ -13,7 +13,7 @@ class AppStrings {
   static const String enterEmail = 'Enter your email';
   static const String password = 'Password';
   static const String confirmPin = 'Please Confirm your Pin';
-  static const String error = '  Error: Pin length must be 4 digits';
+  static const String error = '  Error: Pin did not matched';
 
   static const String enterPassword = 'Enter your password';
   static const String confirmPassword = 'Confirm Password';
@@ -42,7 +42,7 @@ class AppStrings {
   static const String revolution = 'Revolutionise your transactions';
   static const String start = 'Get Started';
   static const String organization = 'Organization';
-  static const String register = 'Register Organization';
+  static const String register = 'Register  organization';
   static const String sign = 'Sign in to your organization to get started';
   static const String enterRollNumber = 'Enter your Roll Number';
   static const String rollNumber = 'Roll Number';

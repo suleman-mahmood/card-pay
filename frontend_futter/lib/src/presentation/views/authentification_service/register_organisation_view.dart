@@ -86,6 +86,7 @@ class RegisterOrganizationView extends HookWidget {
           const HeightBox(slab: 4),
           Row(
             children: [
+              const HeightBox(slab: 5),
               Expanded(
                 flex: 2,
                 child: CustomDivider(
@@ -106,7 +107,6 @@ class RegisterOrganizationView extends HookWidget {
               ),
             ],
           ),
-          const HeightBox(slab: 4),
           const MainHeading(
             accountTitle: AppStrings.register,
             accountDescription: AppStrings.sign,
