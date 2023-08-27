@@ -1,13 +1,10 @@
-import pytest
-
+from random import randint
 from json import loads
 from uuid import uuid4
 
 from core.api import utils
-from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.entrypoint import commands as auth_cmd
-from core.payment.entrypoint import queries as pmt_qry
 from core.entrypoint.uow import UnitOfWork
 from core.conftest import (
     _verify_phone_number,
@@ -16,6 +13,11 @@ from core.conftest import (
     _verify_user_in_closed_loop,
 )
 import os
+
+
+def _get_random_unique_identifier() -> str:
+    random_number = randint(10000000, 99999999)
+    return str(random_number)
 
 
 def test_base_url_api(client):
@@ -87,7 +89,7 @@ def test_create_user_api(mocker, client):
 
     mocker.patch(
         "core.authentication.entrypoint.commands.firebase_create_user",
-        side_effect=Exception("Uesr already exists"),
+        side_effect=Exception("User already exists"),
     )
 
     response = client.post(
@@ -147,12 +149,18 @@ def test_get_all_closed_loops_api(seed_api_customer, mocker, client):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id, "unique_identifier": "26100279"},
+        json={
+            "closed_loop_id": closed_loop_id,
+            "unique_identifier": _get_random_unique_identifier(),
+        },
         headers=headers,
     )
     client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id_2, "unique_identifier": "11111111"},
+        json={
+            "closed_loop_id": closed_loop_id_2,
+            "unique_identifier": _get_random_unique_identifier(),
+        },
         headers=headers,
     )
 
@@ -182,10 +190,8 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
     # Create closed loop
 
     user_id = seed_api_customer(mocker, client)
-
-    uow = UnitOfWork()
     closed_loop_id = _create_closed_loop_helper(client)
-    uow.commit_close_connection()
+    unique_identifier = _get_random_unique_identifier()
 
     headers = {
         "Authorization": "Bearer pytest_auth_token",
@@ -195,7 +201,10 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     response = client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id, "unique_identifier": "26100279"},
+        json={
+            "closed_loop_id": closed_loop_id,
+            "unique_identifier": unique_identifier,
+        },
         headers=headers,
     )
 
@@ -207,7 +216,7 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
 
     response = client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id, "unique_identifier": "26100279"},
+        json={"closed_loop_id": closed_loop_id, "unique_identifier": unique_identifier},
         headers=headers,
     )
 
@@ -222,23 +231,24 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
 
 def test_verify_closed_loop_api(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
-
     closed_loop_id = _create_closed_loop_helper(client)
 
     _verify_phone_number(user_id, mocker, client)
-    _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, "26100279")
+    _register_user_in_closed_loop(
+        mocker, client, user_id, closed_loop_id, _get_random_unique_identifier()
+    )
 
     uow = UnitOfWork()
-    closed_loops = uow.users.get(user_id).closed_loops
-    otp = closed_loops[closed_loop_id].unique_identifier_otp
+    user = uow.users.get(user_id)
     uow.close_connection()
 
+    otp = user.closed_loops[closed_loop_id].unique_identifier_otp
+
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     headers = {
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
     }
-
-    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     response = client.post(
         "http://127.0.0.1:5000/api/v1/verify-closed-loop",
         json={

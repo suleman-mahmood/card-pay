@@ -616,6 +616,7 @@ def wallet_balance_from_firestore(user_id: str, uow: AbstractUnitOfWork) -> int:
 
     return row[0]
 
+
 def _get_latest_closed_loop_id(uow: AbstractUnitOfWork) -> str:
     sql = """
         select
@@ -630,7 +631,10 @@ def _get_latest_closed_loop_id(uow: AbstractUnitOfWork) -> str:
 
     return row[0]
 
-def user_verification_status_from_user_id(user_id: str, uow:AbstractUnitOfWork) -> bool:
+
+def user_verification_status_from_user_id(
+    user_id: str, uow: AbstractUnitOfWork
+) -> bool:
     sql = """
         select
             is_phone_number_verified
@@ -643,3 +647,16 @@ def user_verification_status_from_user_id(user_id: str, uow:AbstractUnitOfWork) 
     row = uow.cursor.fetchone()
 
     return row[0] if row else False
+
+
+def unique_identifier_already_exists(
+    closed_loop_id: str, unique_identifier: str, uow: AbstractUnitOfWork
+) -> bool:
+    sql = """
+        select unique_identifier
+        from user_closed_loops
+        where closed_loop_id = %s
+    """
+    uow.cursor.execute(sql, [closed_loop_id])
+    result = uow.cursor.fetchone()
+    return result is not None

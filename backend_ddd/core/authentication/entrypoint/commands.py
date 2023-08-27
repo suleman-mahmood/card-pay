@@ -13,16 +13,7 @@ from core.api.event_codes import EventCode
 from core.authentication.entrypoint import queries as qry
 from core.authentication.entrypoint import exceptions as ex
 from core.payment.domain import model as pmt_mdl
-from ..domain.model import (
-    ClosedLoopUser,
-    ClosedLoopVerificationType,
-    ClosedLoop,
-    User,
-    UserType,
-    PersonalEmail,
-    PhoneNumber,
-    Location,
-)
+from core.authentication.domain import model as auth_mdl
 
 PK_CODE = "92"
 LUMS_CLOSED_LOOP_ID = "ec3c471e-49e7-46a6-9f2c-5fd6252b7518"
@@ -38,12 +29,14 @@ def create_closed_loop(
 ):
     """Create closed loop"""
     with uow:
-        closed_loop = ClosedLoop(
+        closed_loop = auth_mdl.ClosedLoop(
             name=name,
             logo_url=logo_url,
             description=description,
             regex=regex,
-            verification_type=ClosedLoopVerificationType.__members__[verification_type],
+            verification_type=auth_mdl.ClosedLoopVerificationType.__members__[
+                verification_type
+            ],
         )
         uow.closed_loops.add(closed_loop)
 
@@ -60,7 +53,7 @@ def create_user(
     uow: AbstractUnitOfWork,
 ) -> Tuple[EventCode, str]:
     """Create user"""
-    location_object = Location(latitude=location[0], longitude=location[1])
+    location_object = auth_mdl.Location(latitude=location[0], longitude=location[1])
 
     # TODO: get these representations from PhoneNumber domain object instead
     phone_email = PK_CODE + phone_number + "@cardpay.com.pk"
@@ -83,11 +76,11 @@ def create_user(
         user_id = utils.firebaseUidToUUID(firebase_uid)
 
         payment_commands.create_wallet(user_id=user_id, uow=uow)
-        user = User(
+        user = auth_mdl.User(
             id=user_id,
-            personal_email=PersonalEmail(value=personal_email),
-            phone_number=PhoneNumber(value=phone_number_with_country_code),
-            user_type=UserType.__members__[user_type],
+            personal_email=auth_mdl.PersonalEmail(value=personal_email),
+            phone_number=auth_mdl.PhoneNumber(value=phone_number_with_country_code),
+            user_type=auth_mdl.UserType.__members__[user_type],
             pin="0000",  # TODO: fix this
             full_name=full_name,
             wallet_id=user_id,
@@ -116,11 +109,13 @@ def create_user(
                 )
 
                 # Update user details
-                user = User(
+                user = auth_mdl.User(
                     id=user_id,
-                    personal_email=PersonalEmail(value=personal_email),
-                    phone_number=PhoneNumber(value=phone_number_with_country_code),
-                    user_type=UserType.__members__[user_type],
+                    personal_email=auth_mdl.PersonalEmail(value=personal_email),
+                    phone_number=auth_mdl.PhoneNumber(
+                        value=phone_number_with_country_code
+                    ),
+                    user_type=auth_mdl.UserType.__members__[user_type],
                     pin="0000",  # TODO: fix this
                     full_name=full_name,
                     wallet_id=user_id,
@@ -193,20 +188,41 @@ def register_closed_loop(
     uow: AbstractUnitOfWork,
 ):
     """Request/Register to join a closed loop"""
-    with uow:
-        user = uow.users.get(user_id=user_id)
-        closed_loop_user = ClosedLoopUser(
-            closed_loop_id=closed_loop_id, unique_identifier=unique_identifier
-        )
-        user.register_closed_loop(closed_loop_user=closed_loop_user)
-        uow.users.save(user)
 
-    user_type = user.user_type
-    if user_type is UserType.CUSTOMER:
+    user = uow.users.get(user_id=user_id)
+
+    if unique_identifier is not None:
+        if qry.unique_identifier_already_exists(
+            closed_loop_id=closed_loop_id,
+            unique_identifier=unique_identifier,
+            uow=uow,
+        ):
+            if (
+                user.closed_loops[closed_loop_id].status
+                == auth_mdl.ClosedLoopUserState.UN_VERIFIED
+            ):
+                comms_commands.send_email(
+                    subject="Verify closed loop | Otp",
+                    text=user.closed_loops[closed_loop_id].unique_identifier_otp,
+                    to=f"{unique_identifier}@lums.edu.pk",
+                )
+                return user
+
+            raise ex.UniqueIdentifierAlreadyExistsException(
+                "User is already registered and verified in this closed loop"
+            )
+
+    closed_loop_user = auth_mdl.ClosedLoopUser(
+        closed_loop_id=closed_loop_id, unique_identifier=unique_identifier
+    )
+    user.register_closed_loop(closed_loop_user=closed_loop_user)
+    uow.users.save(user)
+
+    if unique_identifier is not None and user.user_type is auth_mdl.UserType.CUSTOMER:
         comms_commands.send_email(
             subject="Verify closed loop | Otp",
             text=closed_loop_user.unique_identifier_otp,
-            to=f"{closed_loop_user.unique_identifier}@lums.edu.pk",  # TODO: fix this
+            to=f"{unique_identifier}@lums.edu.pk",  # TODO: fix this
         )
 
     return user

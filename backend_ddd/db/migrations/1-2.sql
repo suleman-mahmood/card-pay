@@ -89,7 +89,7 @@ create table user_closed_loops (
     unique_identifier_otp varchar(4) not null,
     status closed_loop_user_state_enum not null,
     created_at timestamp not null default current_timestamp,
-
+    unique (closed_loop_id, unique_identifier)
     primary key (user_id, closed_loop_id)
 );
 

@@ -14,6 +14,8 @@ from core.marketing.entrypoint import commands as mktg_cmd
 from core.marketing.domain import exceptions as mktg_ex
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.domain import exceptions as auth_ex
+from core.authentication.entrypoint import exceptions as auth_cmd_ex
+
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
@@ -228,18 +230,24 @@ def register_closed_loop(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
-    auth_cmd.register_closed_loop(
-        user_id=uid,
-        closed_loop_id=req["closed_loop_id"],
-        unique_identifier=req["unique_identifier"],
-        uow=uow,
-    )
-    uow.commit_close_connection()
+    try:
+        auth_cmd.register_closed_loop(
+            user_id=uid,
+            closed_loop_id=req["closed_loop_id"],
+            unique_identifier=req["unique_identifier"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
 
-    return utils.Response(
-        message="User registered into loop successfully",
-        status_code=200,
-    ).__dict__
+    except auth_cmd_ex.UniqueIdentifierAlreadyExistsException as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    else:
+        return utils.Response(
+            message="User registered into loop successfully",
+            status_code=200,
+        ).__dict__
 
 
 @cardpay_app.route("/verify-closed-loop", methods=["POST"])
