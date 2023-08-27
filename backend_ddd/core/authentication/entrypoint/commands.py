@@ -88,9 +88,10 @@ def create_user(
         )
         uow.users.add(user)
 
-        comms_commands.send_otp_sms(
-            full_name=user.full_name, to=phone_number_sms, otp_code=user.otp
-        )
+        if user.user_type is auth_mdl.UserType.CUSTOMER:
+            comms_commands.send_otp_sms(
+                full_name=user.full_name, to=phone_number_sms, otp_code=user.otp
+            )
 
         return EventCode.OTP_SENT, user_id
     else:
@@ -123,11 +124,12 @@ def create_user(
                 )
                 uow.users.save(user)
 
-                comms_commands.send_otp_sms(
-                    full_name=fetched_user.full_name,
-                    to=phone_number_sms,
-                    otp_code=fetched_user.otp,
-                )
+                if user.user_type is auth_mdl.UserType.CUSTOMER:
+                    comms_commands.send_otp_sms(
+                        full_name=fetched_user.full_name,
+                        to=phone_number_sms,
+                        otp_code=fetched_user.otp,
+                    )
                 return EventCode.OTP_SENT, user_id
 
 
@@ -347,8 +349,7 @@ def create_vendor_through_retool(
 
     user_id = user_object[1]
 
-    with uow:
-        user = uow.users.get(user_id=user_id)
+    user = uow.users.get(user_id=user_id)
 
     user = verify_phone_number(
         user_id=user_id,
