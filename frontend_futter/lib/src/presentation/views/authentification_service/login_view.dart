@@ -104,16 +104,26 @@ class LoginView extends HookWidget {
                 text: AppStrings.logIn,
                 onPressed: handleLogin,
               ),
+              const HeightBox(slab: 2),
               BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-                if (state.runtimeType == UserSuccess) {
-                  if (state.eventCodes == EventCodes.USER_AUTHENTICATED) {
-                    context.router.push(PaymentDashboardRoute());
-                  } else if (state.eventCodes ==
-                      EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC) {
-                    userCubit.login(state.phoneNumber, state.password);
-                  }
+                switch (state.runtimeType) {
+                  case UserSuccess:
+                    if (state.eventCodes == EventCodes.USER_AUTHENTICATED) {
+                      context.router.push(PaymentDashboardRoute());
+                    } else if (state.eventCodes ==
+                        EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC) {
+                      userCubit.login(state.phoneNumber, state.password);
+                    }
+                    return const SizedBox.shrink();
+                  case UserFailed:
+                    return Text(
+                      state.errorMessage,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    );
+                  default:
+                    return const SizedBox.shrink();
                 }
-                return const SizedBox.shrink();
               }),
             ],
           ),

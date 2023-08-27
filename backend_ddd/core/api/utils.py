@@ -24,6 +24,13 @@ class Response:
     data: Union[Dict, List] = None
 
 
+@dataclass
+class CustomException(Exception):
+    message: str
+    status_code: int = 400
+    event_code: EventCode = EventCode.DEFAULT_EVENT
+
+
 def firebaseUidToUUID(uid: str) -> str:
     return str(uuid5(NAMESPACE_OID, uid))
 
@@ -34,10 +41,10 @@ def authenticate_token(f):
         # Fetch the token from the request headers
         auth_header = request.headers.get("Authorization")
         if not auth_header:
-            return Response(
+            raise CustomException(
                 message="Unauthorized, no header provided",
                 status_code=401,
-            ).__dict__
+            )
 
         # Extract the token from the Authorization header
         token = auth_header.split("Bearer ")[1]
@@ -50,10 +57,10 @@ def authenticate_token(f):
 
         except auth.InvalidIdTokenError:
             # Token is invalid or expired
-            return Response(
+            raise CustomException(
                 message="Unauthorized, invalid token",
                 status_code=401,
-            ).__dict__
+            )
 
     return decorated_function
 
@@ -69,10 +76,7 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
             uow.close_connection()
 
             if user_type not in allowed_user_types:
-                return Response(
-                    message="User not eligible",
-                    status_code=400,
-                ).__dict__
+                raise CustomException(message="User not eligible")
 
             return func(*args, **kwargs)
 
@@ -85,10 +89,7 @@ def handle_missing_payload(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if request.json is None:
-            return Response(
-                message="payload missing in request",
-                status_code=400,
-            ).__dict__
+            raise CustomException(message="payload missing in request")
         return func(*args, **kwargs)
 
     return wrapper
@@ -102,34 +103,31 @@ def validate_json_payload(required_parameters: List[str]):
             if "RETOOL_SECRET" in req.keys():
                 req.pop("RETOOL_SECRET")
             if set(required_parameters) != set(req.keys()):
-                return Response(
-                    message="invalid json payload, missing or extra parameters",
-                    status_code=400,
-                ).__dict__
+                raise CustomException(
+                    "invalid json payload, missing or extra parameters"
+                )
             return func(*args, **kwargs)
 
         return wrapper
 
     return inner_decorator
 
+
 def authenticate_retool_secret(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         req = request.get_json(force=True)
-        
+
         if "RETOOL_SECRET" not in req.keys():
-            return Response(
+            raise CustomException(
                 message="retool secret missing in request",
-                status_code=400,
-            ).__dict__
-        
+            )
+
         if req["RETOOL_SECRET"] != os.environ.get("RETOOL_SECRET"):
-            return Response(
-                message="invalid retool secret",
-                status_code=400,
-            ).__dict__
-        
+            raise CustomException(message="invalid retool secret")
+
         return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -140,20 +138,20 @@ def _get_uid_from_bearer(token: str) -> str:
     # Extract the user ID and other information from the decoded token
     return firebaseUidToUUID(decoded_token["uid"])
 
+
 def user_verified(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-
         user_id = kwargs["uid"]
         uow = UnitOfWork()
-        phone_number_verified = auth_qry.user_verification_status_from_user_id(user_id=user_id, uow=uow)
+        phone_number_verified = auth_qry.user_verification_status_from_user_id(
+            user_id=user_id, uow=uow
+        )
         uow.close_connection()
 
         if not phone_number_verified:
-            return Response(
-                message="User is not verified",
-                status_code=400,
-            ).__dict__
-        
+            raise CustomException(message="User is not verified")
+
         return func(*args, **kwargs)
+
     return wrapper

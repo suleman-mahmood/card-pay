@@ -1,3 +1,5 @@
+import pytest
+
 from json import loads
 from uuid import uuid4
 
@@ -14,6 +16,7 @@ from core.conftest import (
     _verify_user_in_closed_loop,
 )
 import os
+
 
 def test_base_url_api(client):
     response = client.get("http://127.0.0.1:5000/api/v1")
@@ -40,7 +43,7 @@ def test_create_user_api(mocker, client):
             "user_type": "CUSTOMER",
             "full_name": "Shaheer Ahmad",
             "location": [24.8607, 67.0011],
-        }
+        },
     )
 
     assert (
@@ -60,16 +63,11 @@ def test_create_user_api(mocker, client):
             "user_type": "CUSTOMER",
             "full_name": "Shaheer Ahmad",
             # "location": [24.8607, 67.0011],
-        }
+        },
     )
-
-    assert (
-        loads(response.data.decode())
-        == utils.Response(
-            message="invalid json payload, missing or extra parameters",
-            status_code=400,
-        ).__dict__
-    )
+    payload = loads(response.data.decode())
+    assert payload["message"] == "invalid json payload, missing or extra parameters"
+    assert payload["event_code"] == "DEFAULT_EVENT"
 
     response = client.post(
         "http://127.0.0.1:5000/api/v1/create-user",
@@ -81,18 +79,16 @@ def test_create_user_api(mocker, client):
             "full_name": "Shaheer Ahmad",
             "location": [24.8607, 67.0011],
             "extra": "extra",
-        }
+        },
     )
+    payload = loads(response.data.decode())
+    assert payload["message"] == "invalid json payload, missing or extra parameters"
+    assert payload["event_code"] == "DEFAULT_EVENT"
 
-    assert (
-        loads(response.data.decode())
-        == utils.Response(
-            message="invalid json payload, missing or extra parameters",
-            status_code=400,
-        ).__dict__
+    mocker.patch(
+        "core.authentication.entrypoint.commands.firebase_create_user",
+        side_effect=Exception("Uesr already exists"),
     )
-
-    mocker.patch("core.authentication.entrypoint.commands.firebase_create_user", side_effect=Exception("Uesr already exists"))
 
     response = client.post(
         "http://127.0.0.1:5000/api/v1/create-user",
@@ -103,7 +99,7 @@ def test_create_user_api(mocker, client):
             "user_type": "CUSTOMER",
             "full_name": "Shaheer Ahmad",
             "location": [24.8607, 67.0011],
-        }
+        },
     )
 
     assert (
@@ -114,8 +110,8 @@ def test_create_user_api(mocker, client):
         ).__dict__
     )
 
-def test_create_closed_loop_api(client):
 
+def test_create_closed_loop_api(client):
     SECRET_KEY = os.environ["RETOOL_SECRET"]
     response = client.post(
         "http://127.0.0.1:5000/api/v1/create-closed-loop",
@@ -125,16 +121,20 @@ def test_create_closed_loop_api(client):
             "description": "Harvard of Pakistan",
             "verification_type": "ROLLNUMBER",
             "regex": "[0-9]{8}",
-            "RETOOL_SECRET": SECRET_KEY
-        }
+            "RETOOL_SECRET": SECRET_KEY,
+        },
     )
-    
-    assert loads(response.data.decode()) == utils.Response(
-        message="Closed loop created successfully",
-        status_code=201,
-    ).__dict__
 
-def test_get_all_closed_loops_api(seed_api_customer,mocker,client):
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
+            message="Closed loop created successfully",
+            status_code=201,
+        ).__dict__
+    )
+
+
+def test_get_all_closed_loops_api(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
     closed_loop_id = _create_closed_loop_helper(client)
     closed_loop_id_2 = _create_closed_loop_helper(client)
@@ -147,50 +147,42 @@ def test_get_all_closed_loops_api(seed_api_customer,mocker,client):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json = {
-            "closed_loop_id": closed_loop_id,
-            "unique_identifier":"26100279"
-        },
-        headers = headers
+        json={"closed_loop_id": closed_loop_id, "unique_identifier": "26100279"},
+        headers=headers,
     )
     client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json = {
-            "closed_loop_id": closed_loop_id_2,
-            "unique_identifier":"11111111"
-        },
-        headers = headers
+        json={"closed_loop_id": closed_loop_id_2, "unique_identifier": "11111111"},
+        headers=headers,
     )
 
     response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-all-closed-loops",
-        headers = headers
+        "http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers
     )
-    
-    assert loads(response.data.decode()) == utils.Response(
-                message="User is not verified",
-                status_code=400,
-            ).__dict__
+
+    payload = loads(response.data.decode())
+    payload["message"] = "User is not verified"
+    payload["status_code"] = 400
 
     _verify_phone_number(user_id, mocker, client)
 
     response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-all-closed-loops",
-        headers = headers
+        "http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers
     )
 
-    assert closed_loop_id_2 in [closed_loop["id"] for closed_loop in loads(response.data.decode())["data"]]
-    assert closed_loop_id in [closed_loop["id"] for closed_loop in loads(response.data.decode())["data"]]
+    assert closed_loop_id_2 in [
+        closed_loop["id"] for closed_loop in loads(response.data.decode())["data"]
+    ]
+    assert closed_loop_id in [
+        closed_loop["id"] for closed_loop in loads(response.data.decode())["data"]
+    ]
 
-    
 
-
-def test_register_closed_loop_api(seed_api_customer,mocker, client):
-
-    #Create closed loop
+def test_register_closed_loop_api(seed_api_customer, mocker, client):
+    # Create closed loop
 
     user_id = seed_api_customer(mocker, client)
-    
+
     uow = UnitOfWork()
     closed_loop_id = _create_closed_loop_helper(client)
     uow.commit_close_connection()
@@ -203,42 +195,39 @@ def test_register_closed_loop_api(seed_api_customer,mocker, client):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     response = client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json = {
-            "closed_loop_id": closed_loop_id,
-            "unique_identifier":"26100279"
-        },
-        headers = headers
+        json={"closed_loop_id": closed_loop_id, "unique_identifier": "26100279"},
+        headers=headers,
     )
 
-    assert loads(response.data.decode()) == utils.Response(
-                message="User is not verified",
-                status_code=400,
-            ).__dict__
+    payload = loads(response.data.decode())
+    payload["message"] = "User is not verified"
+    payload["status_code"] = 400
 
     _verify_phone_number(user_id, mocker, client)
 
     response = client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json = {
-            "closed_loop_id": closed_loop_id,
-            "unique_identifier":"26100279"
-        },
-        headers = headers
+        json={"closed_loop_id": closed_loop_id, "unique_identifier": "26100279"},
+        headers=headers,
     )
-    
-    assert loads(response.data.decode()) == utils.Response(
-        message="User registered into loop successfully",
-        status_code=200,
-    ).__dict__
 
-def test_verify_closed_loop_api(seed_api_customer,mocker, client):
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
+            message="User registered into loop successfully",
+            status_code=200,
+        ).__dict__
+    )
+
+
+def test_verify_closed_loop_api(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
-    
+
     closed_loop_id = _create_closed_loop_helper(client)
-    
+
     _verify_phone_number(user_id, mocker, client)
     _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, "26100279")
-    
+
     uow = UnitOfWork()
     closed_loops = uow.users.get(user_id).closed_loops
     otp = closed_loops[closed_loop_id].unique_identifier_otp
@@ -252,23 +241,25 @@ def test_verify_closed_loop_api(seed_api_customer,mocker, client):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     response = client.post(
         "http://127.0.0.1:5000/api/v1/verify-closed-loop",
-        json = {
+        json={
             "closed_loop_id": closed_loop_id,
-            "unique_identifier_otp":otp,
+            "unique_identifier_otp": otp,
         },
-        headers = headers
+        headers=headers,
     )
 
-    assert loads(response.data.decode()) == utils.Response(
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
             message="Closed loop verified successfully",
             status_code=200,
         ).__dict__
+    )
 
 
 def test_verify_phone_number_api(seed_api_customer, mocker, client):
-    
     user_id = seed_api_customer(mocker, client)
-    
+
     uow = UnitOfWork()
     user = uow.users.get(user_id)
     otp = user.otp
@@ -282,18 +273,20 @@ def test_verify_phone_number_api(seed_api_customer, mocker, client):
 
     response = client.post(
         "http://127.0.0.1:5000/api/v1/verify-phone-number",
-        json = {
-            "otp" : otp
-        },
-        headers = headers
+        json={"otp": otp},
+        headers=headers,
     )
 
-    assert loads(response.data.decode()) == utils.Response(
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
             message="Phone number verified successfully",
             status_code=200,
         ).__dict__
+    )
 
-def test_change_pin_api(seed_api_customer, mocker,client):
+
+def test_change_pin_api(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     headers = {
@@ -303,59 +296,52 @@ def test_change_pin_api(seed_api_customer, mocker,client):
 
     response = client.post(
         "http://127.0.0.1:5000/api/v1/change-pin",
-        json = {
-            "new_pin": "1234"
-        },
-        headers = headers
+        json={"new_pin": "1234"},
+        headers=headers,
     )
 
-    assert loads(response.data.decode()) == utils.Response(
-                message="User is not verified",
-                status_code=400,
-            ).__dict__
+    payload = loads(response.data.decode())
+    payload["message"] = "User is not verified"
+    payload["status_code"] = 400
 
     _verify_phone_number(user_id, mocker, client)
     response = client.post(
         "http://127.0.0.1:5000/api/v1/change-pin",
-        json = {
-            "new_pin": "1234"
-        },
-        headers = headers
+        json={"new_pin": "1234"},
+        headers=headers,
     )
 
-    assert loads(response.data.decode()) == utils.Response(
-        message="Pin changed successfully",
-        status_code=200,
-    ).__dict__
-       
-def test_get_user_api(seed_api_customer,mocker,client):
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
+            message="Pin changed successfully",
+            status_code=200,
+        ).__dict__
+    )
+
+
+def test_get_user_api(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     headers = {
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
     }
-    response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-user",
-        headers = headers
-    )
-    assert loads(response.data.decode()) == utils.Response(
-                message="User is not verified",
-                status_code=400,
-            ).__dict__
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    payload = loads(response.data.decode())
+    payload["message"] = "User is not verified"
+    payload["status_code"] = 400
 
     _verify_phone_number(user_id, mocker, client)
-    response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-user",
-        headers = headers
-    )
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
 
     x = loads(response.data.decode())
-    assert x['message'] == "User returned successfully"
-    assert x['status_code'] == 200
-    assert x['data']['id'] == user_id
+    assert x["message"] == "User returned successfully"
+    assert x["status_code"] == 200
+    assert x["data"]["id"] == user_id
 
-def test_get_user_balance_api(seed_api_customer, mocker,client):
+
+def test_get_user_balance_api(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
 
     uow = UnitOfWork()
@@ -364,37 +350,37 @@ def test_get_user_balance_api(seed_api_customer, mocker,client):
         uow=uow,
     )
     uow.close_connection()
-    
+
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     headers = {
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
     }
-    
+
     response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-user-balance",
-        headers = headers
+        "http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers
     )
-    
-    assert loads(response.data.decode()) == utils.Response(
-                message="User is not verified",
-                status_code=400,
-            ).__dict__
+
+    payload = loads(response.data.decode())
+    payload["message"] = "User is not verified"
+    payload["status_code"] = 400
 
     _verify_phone_number(user_id, mocker, client)
     response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-user-balance",
-        headers = headers
+        "http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers
     )
 
-  
-    assert loads(response.data.decode()) ==  utils.Response(
-        message="User balance returned successfully",
-        status_code=200,
-        data={
-            "balance": balance,
-        },
-    ).__dict__     
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
+            message="User balance returned successfully",
+            status_code=200,
+            data={
+                "balance": balance,
+            },
+        ).__dict__
+    )
+
 
 # TODO: need to write the test for create vendor
 

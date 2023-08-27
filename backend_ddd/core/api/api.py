@@ -74,6 +74,15 @@ def base():
     return utils.Response(message="Welcome to the backend", status_code=200).__dict__
 
 
+@app.errorhandler(utils.CustomException)
+def handle_exceptions(e: utils.CustomException):
+    payload = {
+        "message": e.message,
+        "event_code": e.event_code.name,
+    }
+    return payload, e.status_code
+
+
 @app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.PAYMENT_GATEWAY])

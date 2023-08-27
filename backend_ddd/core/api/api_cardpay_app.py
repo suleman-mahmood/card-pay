@@ -181,11 +181,7 @@ def verify_otp(uid):
 
     except auth_ex.InvalidOtpException as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="OTP verified successfully",
@@ -212,11 +208,7 @@ def verify_phone_number(uid):
 
     except auth_ex.VerificationException as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="Phone number verified successfully",
@@ -277,11 +269,7 @@ def verify_closed_loop(uid):
         auth_ex.InvalidOtpException,
     ) as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="Closed loop verified successfully",
@@ -315,11 +303,7 @@ def create_deposit_request(uid):
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="Deposit request created successfully",
@@ -364,11 +348,7 @@ def execute_p2p_push_transaction(uid):
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="p2p push transaction executed successfully",
@@ -410,11 +390,7 @@ def create_p2p_pull_transaction(uid):
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="p2p pull transaction created successfully",
@@ -446,11 +422,7 @@ def accept_p2p_pull_transaction(uid):
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="p2p pull transaction accepted successfully",
@@ -476,11 +448,7 @@ def decline_p2p_pull_transaction():
         uow.commit_close_connection()
     except pmt_ex.TransactionNotAllowedException as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="p2p pull transaction declined successfully",
@@ -536,11 +504,7 @@ def redeem_voucher():
         mktg_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="voucher redeemed successfully",
@@ -571,11 +535,7 @@ def use_reference():
         mktg_ex.InvalidWeightageException,
     ) as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
-
+        raise utils.CustomException(str(e))
     else:
         return utils.Response(
             message="reference used successfully",
