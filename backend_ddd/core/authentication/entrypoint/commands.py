@@ -203,11 +203,12 @@ def register_closed_loop(
                 user.closed_loops[closed_loop_id].status
                 == auth_mdl.ClosedLoopUserState.UN_VERIFIED
             ):
-                comms_commands.send_email(
-                    subject="Verify closed loop | Otp",
-                    text=user.closed_loops[closed_loop_id].unique_identifier_otp,
-                    to=f"{unique_identifier}@lums.edu.pk",
-                )
+                if user.user_type is auth_mdl.UserType.CUSTOMER:
+                    comms_commands.send_email(
+                        subject="Verify closed loop | Otp",
+                        text=user.closed_loops[closed_loop_id].unique_identifier_otp,
+                        to=f"{unique_identifier}@lums.edu.pk",
+                    )
                 return user
 
             raise ex.UniqueIdentifierAlreadyExistsException(
