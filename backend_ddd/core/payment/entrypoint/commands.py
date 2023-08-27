@@ -21,6 +21,7 @@ from . import utils
 from time import sleep
 from queue import Queue
 from . import exceptions as exc
+from ..entrypoint import queries as payment_qry
 
 from dotenv import load_dotenv
 
@@ -433,11 +434,11 @@ def payment_retools_reconcile_vendor(
     uow: AbstractUnitOfWork,
     vendor_wallet_id: str,
 ):
-    vendor_balance = payment_queries.get_wallet_balance(
+    vendor_balance = payment_qry.get_wallet_balance(
         wallet_id=vendor_wallet_id,
         uow=uow,
     )
-    card_pay_wallet_id = payment_queries.get_starred_wallet_id(
+    card_pay_wallet_id = payment_qry.get_starred_wallet_id(
         uow=uow,
     )[0]
     
