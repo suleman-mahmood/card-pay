@@ -8,7 +8,7 @@ import os
 
 
 from core.entrypoint.uow import UnitOfWork
-from core.authentication.entrypoint import queries as authentication_queries
+from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain.model import UserType
 from core.api.event_codes import EventCode
 
@@ -63,7 +63,7 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
         @wraps(func)
         def wrapper(*args, **kwargs):
             uow = UnitOfWork()
-            user_type = authentication_queries.get_user_type_from_user_id(
+            user_type = auth_qry.get_user_type_from_user_id(
                 user_id=kwargs["uid"], uow=uow
             )
             uow.close_connection()
@@ -139,3 +139,21 @@ def _get_uid_from_bearer(token: str) -> str:
 
     # Extract the user ID and other information from the decoded token
     return firebaseUidToUUID(decoded_token["uid"])
+
+def user_verified(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+
+        user_id = kwargs["uid"]
+        uow = UnitOfWork()
+        phone_number_verified = auth_qry.user_verification_status_from_user_id(user_id=user_id, uow=uow)
+        uow.close_connection()
+
+        if not phone_number_verified:
+            return Response(
+                message="User is not verified",
+                status_code=400,
+            ).__dict__
+        
+        return func(*args, **kwargs)
+    return wrapper

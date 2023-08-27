@@ -117,7 +117,7 @@ class User():
     marketing_user_verified: bool = False
 
     def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
-        """Add loyalty points to user account for P transaction type"""
+        """Add loyalty points to user account for referral"""
 
         not_verified_exception(self.marketing_user_verified)
         referee_not_verified_exception(referee_verified)
@@ -138,6 +138,9 @@ class User():
     def add_loyalty_points(self, transaction_type: TransactionType, transaction_amount: int, weightage: Weightage):
         """Add loyalty points to user account for P2P_PUSH, P2P_PULL, and PAYMENT_GATEWAY transaction type"""
 
+        if transaction_type == TransactionType.CASH_BACK:
+            return
+        
         not_verified_exception(self.marketing_user_verified)
         negative_amount_exception(transaction_amount)
         invalid_transaction_type_exception(

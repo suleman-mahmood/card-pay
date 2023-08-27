@@ -14,8 +14,9 @@ from ..domain.model import (
     TransactionType,
 )
 from ..entrypoint.queries import get_wallet_id_from_unique_identifier
-from ...marketing.entrypoint import commands as marketing_commands
 from ...payment.domain.model import TransactionType, TransactionMode
+from core.marketing.entrypoint import commands as mktg_cmd
+from core.authentication.entrypoint import queries as auth_qry
 from . import utils
 from time import sleep
 from queue import Queue
@@ -25,6 +26,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+class NotVerifiedException(Exception):
+    """User is not verified"""
+
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
     # please only call this from create_user
@@ -32,26 +36,6 @@ def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     uow.transactions.add_wallet(wallet)
 
     return wallet
-
-
-def execute_cashback_transaction(
-    sender_wallet_id: str,
-    recipient_wallet_id: str,
-    amount: int,
-    uow: AbstractUnitOfWork,
-) -> Transaction:
-    tx = uow.transactions.get_wallets_create_transaction(
-        amount=amount,
-        mode=TransactionMode.APP_TRANSFER,
-        transaction_type=TransactionType.CASH_BACK,
-        sender_wallet_id=sender_wallet_id,
-        recipient_wallet_id=recipient_wallet_id,
-    )
-    tx.execute_transaction()
-    uow.transactions.save(tx)
-
-    return tx
-
 
 def execute_transaction_unique_identifier(
     sender_unique_identifier: str,
@@ -95,10 +79,11 @@ def execute_transaction(
     uow: AbstractUnitOfWork,
 ) -> Transaction:
     with uow:
-        # if not uow.users.get(user_id=sender_wallet_id).is_phone_number_verified:
-        #     raise NotVerifiedException("User is not verified")
-        # if not uow.users.get(user_id=recipient_wallet_id).is_phone_number_verified:
-        #     raise NotVerifiedException("User is not verified")
+
+        if not auth_qry.user_verification_status_from_user_id(user_id = sender_wallet_id, uow=uow):
+            raise NotVerifiedException("User is not verified")
+        if not auth_qry.user_verification_status_from_user_id(user_id = recipient_wallet_id, uow=uow):
+            raise NotVerifiedException("User is not verified")
         
         tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
@@ -112,14 +97,14 @@ def execute_transaction(
             tx.execute_transaction()
             uow.transactions.save(tx)
 
-            marketing_commands.add_loyalty_points(
+            mktg_cmd.add_loyalty_points(
                 sender_wallet_id=sender_wallet_id,
                 recipient_wallet_id=recipient_wallet_id,
                 transaction_amount=amount,
                 transaction_type=transaction_type,
                 uow=uow,
             )
-            marketing_commands.give_cashback(
+            mktg_cmd.give_cashback(
                 recipient_wallet_id=recipient_wallet_id,
                 deposited_amount=amount,
                 transaction_type=transaction_type,
@@ -169,14 +154,14 @@ def accept_p2p_pull_transaction(
         tx.accept_p2p_pull_transaction()
         uow.transactions.save(tx)
 
-        marketing_commands.add_loyalty_points(
+        mktg_cmd.add_loyalty_points(
             sender_wallet_id=tx.sender_wallet.id,
             recipient_wallet_id=tx.recipient_wallet.id,
             transaction_amount=tx.amount,
             transaction_type=tx.transaction_type,
             uow=uow,
         )
-        marketing_commands.give_cashback(
+        mktg_cmd.give_cashback(
             recipient_wallet_id=tx.recipient_wallet.id,
             deposited_amount=tx.amount,
             transaction_type=tx.transaction_type,
@@ -194,14 +179,14 @@ def accept_payment_gateway_transaction(
         tx.execute_transaction()
         uow.transactions.save(tx)
 
-        marketing_commands.add_loyalty_points(
+        mktg_cmd.add_loyalty_points(
             sender_wallet_id=tx.sender_wallet.id,
             recipient_wallet_id=tx.recipient_wallet.id,
             transaction_amount=tx.amount,
             transaction_type=tx.transaction_type,
             uow=uow,
         )
-        marketing_commands.give_cashback(
+        mktg_cmd.give_cashback(
             recipient_wallet_id=tx.recipient_wallet.id,
             deposited_amount=tx.amount,
             transaction_type=tx.transaction_type,

@@ -73,7 +73,7 @@ def seed_auth_user():
 
 @pytest.fixture
 def seed_verified_auth_user(seed_auth_user):
-    def _seed_auth_user(uow: AbstractUnitOfWork) -> User:
+    def _seed_auth_user(uow:AbstractUnitOfWork) -> User:
         user = seed_auth_user(uow)
         auth_commands.verify_phone_number(
             user_id=user.id,

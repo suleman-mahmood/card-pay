@@ -170,7 +170,7 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
         assert fetched_tx.sender_wallet.balance == 0
 
 
-def test_decline_p2p_pull_transaction():
+def test_decline_p2p_pull_transaction(mocker):
     uow = UnitOfWork()
 
     with uow:
@@ -181,6 +181,7 @@ def test_decline_p2p_pull_transaction():
         uow.transactions.add_1000_wallet(wallet_id=sender_wallet.id)
 
     # make pull transaction
+    mocker.patch("core.authentication.entrypoint.queries.user_verification_status_from_user_id", return_value=True)
     tx = execute_transaction(
         sender_wallet_id=sender_wallet.id,
         recipient_wallet_id=recipient_wallet.id,

@@ -630,4 +630,16 @@ def _get_latest_closed_loop_id(uow: AbstractUnitOfWork) -> str:
 
     return row[0]
 
-# def _get_unique_identifier_otp()
+def user_verification_status_from_user_id(user_id: str, uow:AbstractUnitOfWork) -> bool:
+    sql = """
+        select
+            is_phone_number_verified
+        from 
+            users
+        where 
+            id = %s
+    """
+    uow.cursor.execute(sql, [user_id])
+    row = uow.cursor.fetchone()
+
+    return row[0] if row else False

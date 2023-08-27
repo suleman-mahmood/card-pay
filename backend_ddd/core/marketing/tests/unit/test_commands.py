@@ -145,13 +145,19 @@ def test_add_and_set_cashback_slabs():
         assert fetched_cashback_slabs[0].end_amount == 20
 
 
-def test_cashback(seed_verified_auth_user, seed_starred_wallet):
+def test_cashback(seed_verified_auth_user, seed_starred_wallet, mocker):
+    
     uow = UnitOfWork()
     seed_starred_wallet(uow)
-
+    
     marketing_commands.add_weightage(
         weightage_type="PAYMENT_GATEWAY",
         weightage_value=0.1,
+        uow=uow,
+    )
+    marketing_commands.add_weightage(
+        weightage_type="CASH_BACK",
+        weightage_value=0,
         uow=uow,
     )
     marketing_commands.set_cashback_slabs(
@@ -165,34 +171,14 @@ def test_cashback(seed_verified_auth_user, seed_starred_wallet):
         wallet_id=pg.wallet_id, uow=uow
     )
 
-    with uow:
-        uow.transactions.add_1000_wallet(wallet_id=pg_wallet.id)
-        cardpay_wallet = payment_commands.create_wallet(user_id=str(uuid4()), uow=uow)
-        uow.transactions.add_1000_wallet(wallet_id=cardpay_wallet.id)
-
-    payment_commands.execute_transaction(
-        sender_wallet_id=pg.wallet_id,
-        recipient_wallet_id=recipient.wallet_id,
-        amount=100,
-        transaction_mode=TransactionMode.APP_TRANSFER,
-        transaction_type=TransactionType.PAYMENT_GATEWAY,
-        uow=uow,
-    )
-
-    pg_wallet = payment_queries.get_wallet_from_wallet_id(
-        wallet_id=pg.wallet_id, uow=uow
-    )
+    uow.transactions.add_1000_wallet(wallet_id=pg_wallet.id)
     recipient_wallet = payment_queries.get_wallet_from_wallet_id(
         wallet_id=recipient.wallet_id, uow=uow
     )
     assert recipient_wallet.balance == 0
 
-    with uow:
-        uow.transactions.add_1000_wallet(wallet_id=pg_wallet.id)
-        uow.transactions.add_1000_wallet(wallet_id=cardpay_wallet.id)
-
     tx = payment_commands.execute_transaction(
-        sender_wallet_id=pg.wallet_id,
+        sender_wallet_id=pg.id,
         recipient_wallet_id=recipient.wallet_id,
         amount=100,
         transaction_mode=TransactionMode.APP_TRANSFER,

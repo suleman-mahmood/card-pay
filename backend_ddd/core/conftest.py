@@ -130,6 +130,7 @@ def _register_user_in_closed_loop(mocker, client,user_id, closed_loop_id, unique
         },
         headers = headers
     )
+    
 def _verify_user_in_closed_loop(mocker, client,user_id, closed_loop_id, unique_identifier_otp):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     headers = {

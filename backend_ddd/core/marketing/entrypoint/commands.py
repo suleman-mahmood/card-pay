@@ -2,7 +2,8 @@ from ...payment.entrypoint import queries as payment_queries
 from ...entrypoint.uow import AbstractUnitOfWork
 from ...payment.entrypoint import commands as payment_commands
 from ..domain.model import Weightage, CashbackSlab, CashbackType, AllCashbacks
-from ...payment.domain.model import TransactionType
+from ...payment.domain.model import TransactionType, TransactionMode
+from core.marketing.domain import exceptions as mktg_ex
 
 # Every transaction will check if its a cashback transaction then it'll call the marketing command which will again call the transaction command.
 
@@ -49,25 +50,14 @@ def add_loyalty_points(
     transaction_type: TransactionType,
     uow: AbstractUnitOfWork,
 ):
-    sender_user_id = payment_queries.get_user_id_from_wallet_id(
-        wallet_id=sender_wallet_id, uow=uow
-    )
-    recipient_user_id = payment_queries.get_user_id_from_wallet_id(
-        wallet_id=recipient_wallet_id, uow=uow
-    )
-
     # different recipient on Payment Gateway transaction
     if transaction_type == TransactionType.PAYMENT_GATEWAY:
-        _add_loyalty_points_to_user(
-            user_id=recipient_user_id,
-            transaction_amount=transaction_amount,
-            transaction_type=transaction_type,
-            uow=uow,
-        )
-        return
+        user_id = recipient_wallet_id
+    else:
+        user_id = sender_wallet_id
 
     _add_loyalty_points_to_user(
-        user_id=sender_user_id,
+        user_id=user_id,
         transaction_amount=transaction_amount,
         transaction_type=transaction_type,
         uow=uow,
@@ -93,10 +83,12 @@ def give_cashback(
         transaction_type=transaction_type,
         all_cashbacks=uow.cashback_slabs.get_all(),
     )
-    payment_commands.execute_cashback_transaction(
+    payment_commands.execute_transaction(
         sender_wallet_id=sender_wallet_id,  # This will be a fixed cardpay wallet id
         recipient_wallet_id=recipient_wallet_id,
         amount=amount,
+        transaction_mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.CASH_BACK,
         uow=uow,
     )
 
@@ -137,12 +129,12 @@ def set_cashback_slabs(
     with uow:
         slab_list = [
             CashbackSlab(
-                    start_amount=slab[0],
-                    end_amount=slab[1],
-                    cashback_type=CashbackType[slab[2]],
-                    cashback_value=slab[3],
-                )
+                start_amount=slab[0],
+                end_amount=slab[1],
+                cashback_type=CashbackType[slab[2]],
+                cashback_value=slab[3],
+            )
             for slab in cashback_slabs
         ]
-        
+
         uow.cashback_slabs.save_all(AllCashbacks(cashback_slabs=slab_list))

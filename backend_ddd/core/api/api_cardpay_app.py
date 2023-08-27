@@ -96,14 +96,15 @@ def create_customer():
 @cardpay_app.route("/change-name", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["user_id", "new_name"])
-def change_name():
+@utils.validate_json_payload(required_parameters=["new_name"])
+def change_name(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
     auth_cmd.change_name(
-        user_id=req["user_id"],
+        user_id=uid,
         new_name=req["new_name"],
         uow=uow,
     )
@@ -118,6 +119,7 @@ def change_name():
 @cardpay_app.route("/change-pin", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["new_pin"])
 def change_pin(uid):
@@ -140,14 +142,15 @@ def change_pin(uid):
 @cardpay_app.route("/user-toggle-active", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["user_id"])
-def user_toggle_active():
+def user_toggle_active(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
     auth_cmd.user_toggle_active(
-        user_id=req["user_id"],
+        user_id=uid,
         uow=uow,
     )
     uow.commit_close_connection()
@@ -161,15 +164,16 @@ def user_toggle_active():
 @cardpay_app.route("/verify-otp", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["user_id", "otp"])
-def verify_otp():
+def verify_otp(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
     try:
         auth_cmd.verify_otp(
-            user_id=req["user_id"],
+            user_id=uid,
             otp=req["otp"],
             uow=uow,
         )
@@ -223,6 +227,7 @@ def verify_phone_number(uid):
 @cardpay_app.route("/register-closed-loop", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters=["closed_loop_id", "unique_identifier"]
@@ -248,6 +253,7 @@ def register_closed_loop(uid):
 @cardpay_app.route("/verify-closed-loop", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters=["closed_loop_id", "unique_identifier_otp"]
@@ -286,6 +292,7 @@ def verify_closed_loop(uid):
 @cardpay_app.route("/create-deposit-request", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["amount"])
 def create_deposit_request(uid):
@@ -326,6 +333,7 @@ def create_deposit_request(uid):
 @cardpay_app.route("/execute-p2p-push-transaction", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters=["recipient_unique_identifier", "amount", "closed_loop_id"]
@@ -371,6 +379,7 @@ def execute_p2p_push_transaction(uid):
 @cardpay_app.route("/create-p2p-pull-transaction", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters=["sender_unique_identifier", "amount", "closed_loop_id"]
@@ -416,9 +425,10 @@ def create_p2p_pull_transaction(uid):
 @cardpay_app.route("/accept-p2p-pull-transaction", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["transaction_id"])
-def accept_p2p_pull_transaction():
+def accept_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
 
     uow = UnitOfWork()
@@ -451,6 +461,7 @@ def accept_p2p_pull_transaction():
 @cardpay_app.route("/decline-p2p-pull-transaction", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["transaction_id"])
 def decline_p2p_pull_transaction():
@@ -540,6 +551,7 @@ def redeem_voucher():
 @cardpay_app.route("/use-reference", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
+@utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["referee_id", "referral_id"])
 def use_reference():
@@ -574,6 +586,7 @@ def use_reference():
 @cardpay_app.route("/get-all-closed-loops", methods=["GET"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
 def get_all_closed_loops(uid):
     """get all closed loops"""
 
@@ -591,6 +604,7 @@ def get_all_closed_loops(uid):
 @cardpay_app.route("/get-user-recent-transactions", methods=["GET"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
 def get_user_recent_transactions(uid):
     uow = UnitOfWork()
     txs = pmt_qry.get_all_transactions_of_a_user(
@@ -611,6 +625,7 @@ def get_user_recent_transactions(uid):
 @cardpay_app.route("/get-user", methods=["GET"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
 def get_user(uid):
     uow = UnitOfWork()
     user = auth_qry.get_user_from_user_id(
@@ -631,6 +646,7 @@ def get_user(uid):
 @cardpay_app.route("/get-user-balance", methods=["GET"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
 def get_user_balance(uid):
     uow = UnitOfWork()
     balance = auth_qry.get_user_balance(
