@@ -7,6 +7,8 @@ from core.authentication.domain.model import UserType
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.authentication.entrypoint import commands as auth_cmd
 from core.marketing.domain import exceptions as mktg_ex
+from core.payment.entrypoint import queries as payment_qry
+from core.payment.entrypoint import commands as payment_cmd
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
@@ -263,4 +265,228 @@ def auth_retools_create_vendor():
     return utils.Response(
         message="Vendor created successfully",
         status_code=201,
+    ).__dict__
+
+
+## PAYMENT RETOOLS
+
+@retool.route("/payment-retools-get-closed-loops", methods=["GET"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+def payment_retools_get_closed_loops():
+
+    uow = UnitOfWork()
+    closed_loops = payment_qry.payment_retools_get_all_closed_loops(
+        uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="All closed loops returned successfully",
+        status_code=200,
+        data={
+            "closed_loops": closed_loops
+        },
+    ).__dict__
+
+
+@retool.route("/payment-retools-get-customers-and-ventors-of-selected-closed-loop", methods=["GET"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["closed_loop_id"])
+def payment_retools_get_customers_and_ventors_of_selected_closed_loop():
+
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    customers, vendors, counts = payment_qry.payment_retools_get_customers_and_ventors_of_selected_closed_loop(
+        closed_loop_id=req["closed_loop_id"],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message= "All users returned successfully",
+        status_code=200,
+        data={
+            "customers": customers,
+            "vendors": vendors,
+            "counts": counts,
+        },
+    ).__dict__
+
+
+@retool.route("/payment-retools-get-all-transaction-of-selected-user", methods=["GET"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["user_wallet_id"])
+def payment_retools_get_all_transaction_of_selected_user():
+
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    transactions = payment_qry.payment_retools_get_all_transactions_of_selected_user(
+        user_id=req["user_wallet_id"],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message= "All transactions returned successfully",
+        status_code=200,
+        data={
+            "transactions": transactions,
+        },
+    ).__dict__
+
+
+@retool.route("/payment-retools-get-vendors-and-balance", methods=["GET"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["closed_loop_id"])
+def payment_retools_get_vendors_and_balance():
+    """ fetching only those vendors who have balance greater than 0"""
+
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    vendors = payment_qry.payment_retools_get_vendors_and_balance(
+        closed_loop_id=req["closed_loop_id"],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="All vendors returned successfully",
+        status_code=200,
+        data={
+            "vendors": vendors
+        },
+    ).__dict__
+
+
+@retool.route("/payment-retools-get-transactions-to-be-reconciled", methods=["GET"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["vendor_id"])
+def payment_retools_get_transactions_to_be_reconciled():
+
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    transactions = payment_qry.payment_retools_get_transactions_to_be_reconciled(
+        vendor_id=req["vendor_id"],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message= "All transactions returned successfully",
+        status_code=200,
+        data={
+            "transactions": transactions
+        },
+    ).__dict__
+
+
+@retool.route("/payment-retools-reconcile-vendor", methods=["POST"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["vendor_wallet_id"])
+def payment_retools_reconcile_vendor():
+
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    payment_cmd.payment_retools_reconcile_vendor(
+        uow=uow,
+        vendor_wallet_id=req["vendor_wallet_id"],
+    )
+    uow.commit_close_connection()
+
+    return utils.Response(
+        message="Vendor reconciled successfully",
+        status_code=201,
+    ).__dict__
+
+
+@retool.route("/payment-retools-get-vendors", methods=["GET"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["closed_loop_id"])
+def payment_retools_get_vendors():
+    
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    vendors = payment_qry.payment_retools_get_vendors(
+        closed_loop_id=req["closed_loop_id"],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message=  "All vendors returned successfully",
+        status_code=200,
+        data={
+            "vendors": vendors
+        },
+    ).__dict__
+
+
+@retool.route("/payment-retools-get-reconciliation-history", methods=["GET"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["vendor_id"])
+def payment_retools_get_reconciliation_history():
+
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    transactions = payment_qry.payment_retools_get_reconciliation_history(
+        vendor_id=req["vendor_id"],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message = "All transactions returned successfully",
+        status_code=200,
+        data={
+            "transactions": transactions
+        },
+    ).__dict__
+
+
+@retool.route("/payment-retools-get-reconciled-transactions", methods=["GET"])
+# @utils.authenticate_token
+# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["vendor_id", "reconciliation_timestamp"])
+def payment_retools_get_reconciled_transactions():
+
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    transactions = payment_qry.payment_retools_get_reconciled_transactions(
+        reconciliation_timestamp = req["reconciliation_timestamp"],
+        vendor_id=req["vendor_id"],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message = "All transactions returned successfully",
+        status_code=200,
+        data={
+            "transactions": transactions
+        },
     ).__dict__

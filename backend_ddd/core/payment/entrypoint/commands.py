@@ -442,3 +442,28 @@ def _get_min_sec_repr_of_timedelta(td: timedelta):
     minutes, seconds = divmod(total_seconds, 60)
 
     return f"{minutes}:{seconds:02d}"
+
+
+def payment_retools_reconcile_vendor(
+    uow: AbstractUnitOfWork,
+    vendor_wallet_id: str,
+):
+    vendor_balance = payment_queries.get_wallet_balance(
+        wallet_id=vendor_wallet_id,
+        uow=uow,
+    )
+    card_pay_wallet_id = payment_queries.get_starred_wallet_id(
+        uow=uow,
+    )[0]
+    
+
+    execute_transaction(
+        sender_wallet_id=vendor_wallet_id,
+        recipient_wallet_id=card_pay_wallet_id,
+        amount=vendor_balance,
+        transaction_mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.RECONCILIATION,
+        uow=uow,
+    )
+
+    return
