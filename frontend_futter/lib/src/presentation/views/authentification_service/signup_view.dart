@@ -231,6 +231,9 @@ class SignupView extends HookWidget {
                   if (!confirmPasswordValue.isValidPassword) {
                     return "Invalid password";
                   }
+                  if (confirmPasswordValue != password.value) {
+                    return "Passwords do not match";
+                  }
                   return null;
                 },
               ),
