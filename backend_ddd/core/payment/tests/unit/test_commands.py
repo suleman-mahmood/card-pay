@@ -11,15 +11,18 @@ from ...entrypoint.commands import (
     slow_execute_transaction,
     _get_paypro_auth_token,
     get_deposit_checkout_url,
+    execute_qr_transaction
 )
 from ....marketing.entrypoint import commands as marketing_commands
 from ...entrypoint.queries import get_wallet_from_wallet_id
-from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
+from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user, seed_auth_vendor, seed_verified_auth_vendor
 from ....entrypoint.uow import UnitOfWork
 from ...domain.model import TransactionMode, TransactionType, TransactionStatus
 from queue import Queue
 from uuid import uuid4
 
+import pytest
+from ...domain.exceptions import TransactionNotAllowedException
 
 def test_create_wallet():
     uow = UnitOfWork()
@@ -283,3 +286,64 @@ def test_redeem_voucher():
 #     )
 
 #     assert payment_url is not None
+
+def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_user):
+    uow = UnitOfWork()
+    sender_customer = seed_verified_auth_user(uow)
+    recipient_vendor = seed_verified_auth_vendor(uow)
+
+    marketing_commands.add_weightage(
+        weightage_type="P2P_PUSH",
+        weightage_value=0,
+        uow=uow,
+    )
+
+    marketing_commands.add_weightage(
+        weightage_type="VIRTUAL_POS",
+        weightage_value=0,
+        uow=uow,
+    )
+
+    recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient_vendor.wallet_id, uow=uow)
+
+    with uow:
+        # for testing purposes
+        uow.transactions.add_1000_wallet(wallet_id=sender_customer.wallet_id)
+    
+    tx = execute_qr_transaction(
+        sender_wallet_id=sender_customer.wallet_id,
+        recipient_qr_id=recipient_wallet.qr_id,
+        amount=400,
+        uow=uow,
+    )
+
+    with uow:
+        fetched_tx = uow.transactions.get(transaction_id=tx.id)
+        assert fetched_tx == tx
+    
+    recipient_customer = seed_verified_auth_user(uow)
+    recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient_customer.wallet_id, uow=uow)
+
+    tx = execute_qr_transaction(
+        sender_wallet_id=sender_customer.wallet_id,
+        recipient_qr_id=recipient_wallet.qr_id,
+        amount=500,
+        uow=uow,
+    )
+
+    with uow:
+        fetched_tx = uow.transactions.get(transaction_id=tx.id)
+
+        assert fetched_tx == tx
+    
+
+    vendor_recipient_wallet = get_wallet_from_wallet_id(wallet_id=recipient_vendor.wallet_id, uow=uow)
+    with pytest.raises(TransactionNotAllowedException, match="Insufficient balance in sender's wallet"):
+        tx = execute_qr_transaction(
+            sender_wallet_id=sender_customer.wallet_id,
+            recipient_qr_id=vendor_recipient_wallet.qr_id,
+            amount=101,
+            uow=uow,
+        )
+
+    uow.close_connection()

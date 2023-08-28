@@ -161,14 +161,15 @@ class TransactionRepository(TransactionAbstractRepository):
 
     def add_wallet(self, wallet: Wallet):
         sql = """
-            insert into wallets (id, balance)
-            values (%s, %s)
+            insert into wallets (id, balance, qr_id)
+            values (%s, %s, %s)
         """
         self.cursor.execute(
             sql,
             [
                 wallet.id,
                 wallet.balance,
+                wallet.qr_id,
             ],
         )
 
@@ -188,7 +189,7 @@ class TransactionRepository(TransactionAbstractRepository):
             )
 
         sql = """
-            select id, balance
+            select id, balance, qr_id
             from wallets
             where id=%s
             for update
@@ -206,9 +207,9 @@ class TransactionRepository(TransactionAbstractRepository):
             mode=TransactionMode[transaction_row[2]],
             transaction_type=TransactionType[transaction_row[3]],
             status=TransactionStatus[transaction_row[4]],
-            sender_wallet=Wallet(id=transaction_row[5], balance=sender_wallet_row[1]),
+            sender_wallet=Wallet(id=transaction_row[5], balance=sender_wallet_row[1], qr_id=sender_wallet_row[2]),
             recipient_wallet=Wallet(
-                id=transaction_row[6], balance=recipient_wallet_row[1]
+                id=transaction_row[6], balance=recipient_wallet_row[1], qr_id=recipient_wallet_row[2]
             ),
             created_at=transaction_row[7],
             last_updated=transaction_row[8],
@@ -223,7 +224,7 @@ class TransactionRepository(TransactionAbstractRepository):
         recipient_wallet_id: str,
     ) -> Transaction:
         sql = """
-            select id, balance 
+            select id, balance, qr_id
             from wallets
             where id=%s
             for update
@@ -238,9 +239,9 @@ class TransactionRepository(TransactionAbstractRepository):
             mode=mode,
             transaction_type=transaction_type,
             recipient_wallet=Wallet(
-                id=recipient_wallet_id, balance=recipient_wallet_row[1]
+                id=recipient_wallet_id, balance=recipient_wallet_row[1], qr_id=recipient_wallet_row[2]
             ),
-            sender_wallet=Wallet(id=sender_wallet_id, balance=sender_wallet_row[1]),
+            sender_wallet=Wallet(id=sender_wallet_id, balance=sender_wallet_row[1], qr_id=sender_wallet_row[2]),
         )
 
     def get_with_different_recipient(
@@ -262,7 +263,7 @@ class TransactionRepository(TransactionAbstractRepository):
             )
 
         sql = """
-            select id, balance
+            select id, balance, qr_id
             from wallets
             where id=%s
             for update
@@ -279,9 +280,9 @@ class TransactionRepository(TransactionAbstractRepository):
             mode=TransactionMode[transaction_row[2]],
             transaction_type=TransactionType[transaction_row[3]],
             status=TransactionStatus[transaction_row[4]],
-            sender_wallet=Wallet(id=transaction_row[5], balance=sender_wallet_row[1]),
+            sender_wallet=Wallet(id=transaction_row[5], balance=sender_wallet_row[1], qr_id=sender_wallet_row[2]),
             recipient_wallet=Wallet(
-                id=recipient_wallet_id, balance=recipient_wallet_row[1]
+                id=recipient_wallet_id, balance=recipient_wallet_row[1], qr_id=recipient_wallet_row[2]
             ),
             created_at=transaction_row[7],
             last_updated=transaction_row[8],

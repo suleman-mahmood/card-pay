@@ -1,8 +1,10 @@
 # from ..domain.model import Wallet
 from ..domain import model as payment_model
 from ...entrypoint.uow import AbstractUnitOfWork
-from typing import List, Dict
+from typing import List, Dict, Optional
 from datetime import datetime
+from dataclasses import dataclass
+from ...authentication.domain import model as auth_mdl
 
 def usecases():
     """
@@ -47,7 +49,7 @@ def get_wallet_balance(
 def get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
     with uow:
         sql = """
-            select id, balance
+            select id, balance, qr_id
             from wallets
             where id = %s
         """
@@ -56,6 +58,7 @@ def get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
         return payment_model.Wallet(
             id=row[0],
             balance=row[1],
+            qr_id=row[2],
         )
 
 
@@ -719,3 +722,33 @@ def payment_retools_get_reconciled_transactions(
             rows)
         
     return transactions
+
+@dataclass
+class UserWalletIDAndTypeDTO:
+    user_wallet_id: str
+    user_type: auth_mdl.UserType
+
+def get_user_wallet_id_and_type_from_qr_id(
+    qr_id: str,
+    uow: AbstractUnitOfWork,
+) -> Optional[UserWalletIDAndTypeDTO]:
+    
+    sql = """
+        select w.id, u.user_type
+        from wallets w
+        join users u on w.id = u.wallet_id
+        where w.qr_id = %s
+    """
+
+    uow.cursor.execute(sql, [qr_id])
+    row = uow.cursor.fetchone()
+
+    if row is None:
+        return None
+
+    user_info = UserWalletIDAndTypeDTO(
+        user_wallet_id=row[0],
+        user_type= auth_mdl.UserType.__members__[row[1]]
+    )
+
+    return user_info

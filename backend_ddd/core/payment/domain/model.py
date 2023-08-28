@@ -11,6 +11,7 @@ class Wallet:
     """Wallet entity"""
 
     id: str
+    qr_id: str
     balance: int = 0
 
 

@@ -63,7 +63,7 @@ def seed_auth_user():
         )
 
         with uow:
-            uow.transactions.add_wallet(wallet=payment_model.Wallet(id=user_id))
+            uow.transactions.add_wallet(wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4())))
             uow.users.add(user)
 
         return user
@@ -98,3 +98,39 @@ def seed_auth_closed_loop():
         )
 
     return _seed_auth_closed_loop
+
+@pytest.fixture
+def seed_auth_vendor():
+    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> User:
+        user_id = str(uuid4())
+        user = User(
+            id=user_id,
+            personal_email=PersonalEmail(value="zainalikhokhar40@gmail.com"),
+            phone_number=PhoneNumber(value="+923123456789"),
+            user_type=UserType.VENDOR,
+            pin="1234",
+            full_name="Zain Ali Khokhar",
+            location=Location(latitude=0, longitude=0),
+            wallet_id=user_id,
+        )
+
+        with uow:
+            uow.transactions.add_wallet(wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4())))
+            uow.users.add(user)
+
+        return user
+
+    return _seed_auth_vendor
+
+@pytest.fixture
+def seed_verified_auth_vendor(seed_auth_vendor):
+    def _seed_auth_vendor(uow:AbstractUnitOfWork) -> User:
+        user = seed_auth_vendor(uow)
+        auth_commands.verify_phone_number(
+            user_id=user.id,
+            otp=user.otp,
+            uow=uow,
+        )
+        return user
+
+    return _seed_auth_vendor

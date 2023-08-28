@@ -17,12 +17,13 @@ from ..entrypoint.queries import get_wallet_id_from_unique_identifier
 from ...payment.domain.model import TransactionType, TransactionMode
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.authentication.entrypoint import queries as auth_qry
+from core.authentication.domain import model as auth_mdl
 from . import utils
 from time import sleep
 from queue import Queue
 from . import exceptions as exc
 from ..entrypoint import queries as payment_qry
-
+from uuid import uuid4
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,7 +34,8 @@ class NotVerifiedException(Exception):
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
     # please only call this from create_user
-    wallet = Wallet(id=user_id)
+    qr_id = str(uuid4())
+    wallet = Wallet(id=user_id, qr_id=qr_id)
     uow.transactions.add_wallet(wallet)
 
     return wallet
@@ -453,3 +455,40 @@ def payment_retools_reconcile_vendor(
     )
 
     return
+
+def execute_qr_transaction(
+        sender_wallet_id: str,
+        recipient_qr_id: str,
+        amount: int,
+        uow: AbstractUnitOfWork,
+) -> Transaction:
+
+    user_info = payment_qry.get_user_wallet_id_and_type_from_qr_id(
+        qr_id=recipient_qr_id,
+        uow=uow,
+    )
+
+    transaction_type = TransactionType.VIRTUAL_POS
+
+    if user_info is None:
+        raise exc.InvalidQRCodeException("Invalid QR code")
+    
+    elif user_info.user_type == auth_mdl.UserType.VENDOR:
+        transaction_type = TransactionType.VIRTUAL_POS
+
+    elif user_info.user_type == auth_mdl.UserType.CUSTOMER:
+        transaction_type = TransactionType.P2P_PUSH
+
+    else:
+        raise exc.InvalidUserTypeException("Invalid user type")
+
+    tx = execute_transaction(
+        sender_wallet_id=sender_wallet_id,
+        recipient_wallet_id=user_info.user_wallet_id,
+        amount=amount,
+        transaction_mode=TransactionMode.QR,
+        transaction_type=transaction_type,
+        uow=uow,
+    )
+
+    return tx

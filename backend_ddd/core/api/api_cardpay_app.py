@@ -630,3 +630,41 @@ def get_user_balance(uid):
             "balance": balance,
         },
     ).__dict__
+
+
+@cardpay_app.route("/execute-qr-transaction", methods=["POST"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+@utils.handle_missing_payload
+@utils.validate_json_payload(
+    required_parameters=["recipient_qr_id", "amount"]
+)
+def execute_qr_transaction(uid):
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+    try:
+        pmt_cmd.execute_qr_transaction(
+            sender_wallet_id=uid,
+            recipient_qr_id=req["recipient_qr_id"],
+            amount=req["amount"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        pmt_cmd_ex.InvalidQRCodeException,
+        pmt_cmd_ex.InvalidUserTyoeException,
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.InvalidReferenceException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+    else:
+        return utils.Response(
+            message="QR transaction executed successfully",
+            status_code=201,
+        ).__dict__
