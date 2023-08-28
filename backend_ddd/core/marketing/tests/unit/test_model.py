@@ -156,8 +156,11 @@ def test_cashback_on_deposit(seed_user):
         )
         AllCashbacks(cashback_slabs = [cashback_slab_1, cashback_slab_2])
 
-    with pytest.raises(InvalidSlabException, match = "Cashback slabs cannot be empty"):
-        AllCashbacks(cashback_slabs = [])
+    all_cashbacks =AllCashbacks(cashback_slabs = [])
+    assert all_cashbacks.cashback_slabs[0].start_amount == 0
+    assert all_cashbacks.cashback_slabs[0].end_amount == 10
+    assert all_cashbacks.cashback_slabs[0].cashback_type == CashbackType.ABSOLUTE
+    assert all_cashbacks.cashback_slabs[0].cashback_value == 0
 
     deposit_amount = 7000
 
@@ -198,3 +201,8 @@ def test_cashback_on_deposit(seed_user):
         deposit_amount=deposit_amount,
         transaction_type=TransactionType.PAYMENT_GATEWAY,
         all_cashbacks=all_cashbacks) == cashback_slab_2.cashback_value
+    
+    assert user.calculate_cashback(
+        deposit_amount=deposit_amount,
+        transaction_type=TransactionType.PAYMENT_GATEWAY,
+        all_cashbacks=AllCashbacks(cashback_slabs = [])) == 0

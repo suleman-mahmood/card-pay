@@ -69,7 +69,16 @@ class AllCashbacks:
             )
 
     def _handle_invalid_slabs(self):
-        empty_slabs_exception(len(self.cashback_slabs))
+
+        if len(self.cashback_slabs) == 0:
+            self.cashback_slabs.insert(
+                0, CashbackSlab(
+                    start_amount=0,
+                    end_amount=10,
+                    cashback_type=CashbackType.ABSOLUTE,
+                    cashback_value=0
+                )
+            )
 
         first_slab_start_amount = self.cashback_slabs[0].start_amount
         if first_slab_start_amount != 0:
