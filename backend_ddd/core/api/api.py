@@ -107,8 +107,7 @@ def pay_pro_callback():
 # @app.route(PREFIX + "/create-test-wallet", methods=["POST"])
 # @utils.authenticate_token
 # @utils.authenticate_user_type(allowed_user_types = [auth_mdl.UserType.ADMIN])
-# @utils.handle_exceptions_uow
-# def create_test_wallet(uid, uow):
+# # def create_test_wallet(uid, uow):
 #     req = request.get_json(force=True)
 
 #     with uow as uow:
@@ -122,8 +121,7 @@ def pay_pro_callback():
 
 # TODO: Check where this is used and then remove if not required
 # @app.route(PREFIX + "/execute-transaction", methods=["POST"])
-# @utils.handle_exceptions_uow
-# @utils.handle_missing_payload
+# # @utils.handle_missing_payload
 # def execute_transaction():
 #     req = request.get_json(force=True)
 

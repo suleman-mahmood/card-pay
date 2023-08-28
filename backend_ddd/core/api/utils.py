@@ -1,5 +1,5 @@
 from uuid import uuid5, NAMESPACE_OID
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Tuple
 from functools import wraps
 from firebase_admin import auth
 from flask import request

@@ -9,6 +9,7 @@ from core.authentication.entrypoint import commands as auth_cmd
 from core.marketing.domain import exceptions as mktg_ex
 from core.payment.entrypoint import queries as payment_qry
 from core.payment.entrypoint import commands as payment_cmd
+from core.payment.domain import exceptions as pmt_ex
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
@@ -30,17 +31,22 @@ retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 )
 def create_closed_loop():
     req = request.get_json(force=True)
-
     uow = UnitOfWork()
-    auth_cmd.create_closed_loop(
-        name=req["name"],
-        logo_url=req["logo_url"],
-        description=req["description"],
-        verification_type=req["verification_type"],
-        regex=req["regex"],
-        uow=uow,
-    )
-    uow.commit_close_connection()
+
+    try:
+        auth_cmd.create_closed_loop(
+            name=req["name"],
+            logo_url=req["logo_url"],
+            description=req["description"],
+            verification_type=req["verification_type"],
+            regex=req["regex"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
 
     return utils.Response(
         message="Closed loop created successfully",
@@ -55,14 +61,19 @@ def create_closed_loop():
 @utils.validate_json_payload(required_parameters=["weightage_type", "weightage_value"])
 def add_weightage(uid):
     req = request.get_json(force=True)
-
     uow = UnitOfWork()
-    mktg_cmd.add_weightage(
-        weightage_type=req["weightage_type"],
-        weightage_value=req["weightage_value"],
-        uow=uow,
-    )
-    uow.commit_close_connection()
+
+    try:
+        mktg_cmd.add_weightage(
+            weightage_type=req["weightage_type"],
+            weightage_value=req["weightage_value"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
 
     return utils.Response(
         message="weightage added successfully",
@@ -75,10 +86,10 @@ def add_weightage(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(required_parameters=["weightage_type", "weightage_value"])
-def set_weightage(uid):
+def set_weightage(uow, uid):
     req = request.get_json(force=True)
-
     uow = UnitOfWork()
+
     try:
         mktg_cmd.set_weightage(
             weightage_type=req["weightage_type"],
@@ -88,16 +99,16 @@ def set_weightage(uid):
         uow.commit_close_connection()
     except mktg_ex.InvalidWeightageException as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
+        raise e
     
-    else:
-        return utils.Response(
-            message="weightage set successfully",
-            status_code=200,
-        ).__dict__
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message="weightage set successfully",
+        status_code=200,
+    ).__dict__
 
 
 @retool.route("/set-cashback-slabs", methods=["POST"])
@@ -107,27 +118,28 @@ def set_weightage(uid):
 @utils.validate_json_payload(required_parameters=["cashback_slabs"])
 def set_cashback_slabs(uid):
     req = request.get_json(force=True)
-
     uow = UnitOfWork()
     cashback_slabs = req["cashback_slabs"]
+
     try:
         mktg_cmd.set_cashback_slabs(
             cashback_slabs=cashback_slabs,
             uow=uow,
         )
         uow.commit_close_connection()
+
     except mktg_ex.InvalidSlabException as e:
         uow.close_connection()
-        return utils.Response(
-            message=str(e),
-            status_code=400,
-        ).__dict__
+        raise e
 
-    else:
-        return utils.Response(
-            message="cashback slabs set successfully",
-            status_code=200,
-        ).__dict__
+    except Exception as e:
+        uow.close_connection()
+        raise e
+    
+    return utils.Response(
+        message="cashback slabs set successfully",
+        status_code=200,
+    ).__dict__
 
 
 # retool auth admin routes
@@ -167,19 +179,23 @@ def auth_retools_get_all_closed_loops_with_user_counts():
 )
 def auth_retools_update_closed_loop():
     req = request.get_json(force=True)
-
     uow = UnitOfWork()
-    auth_qry.update_closed_loop(
-        closed_loop_id=req["id"],
-        name=req["name"],
-        logo_url=req["logo_url"],
-        description=req["description"],
-        verification_type=req["verification_type"],
-        regex=req["regex"],
-        uow=uow,
-    )
-    uow.commit_close_connection()
 
+    try:
+        auth_qry.update_closed_loop(
+            closed_loop_id=req["id"],
+            name=req["name"],
+            logo_url=req["logo_url"],
+            description=req["description"],
+            verification_type=req["verification_type"],
+            regex=req["regex"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except Exception as e:
+        uow.close_connection()
+        raise e
+        
     return utils.Response(
         message="Closed loop updated successfully",
         status_code=200,
@@ -245,22 +261,35 @@ def auth_retools_get_information_of_all_users_of_a_closed_loop():
 @utils.validate_json_payload(required_parameters=["personal_email", "password", "phone_number", "full_name", "longitude", "latitude", "closed_loop_id"])
 def auth_retools_create_vendor():
     req = request.get_json(force=True)
-
     uow = UnitOfWork()
-    auth_cmd.create_vendor_through_retool(
-        personal_email=req["personal_email"],
-        password=req["password"],
-        phone_number=req["phone_number"],
-        full_name=req["full_name"],
-        location=(
-            float(req["longitude"]),
-            float(req["latitude"])
-        ),
-        closed_loop_id=req["closed_loop_id"],
-        unique_identifier="",
-        uow=uow,
-    )
-    uow.commit_close_connection()
+
+    try:
+        auth_cmd.create_vendor_through_retool(
+            personal_email=req["personal_email"],
+            password=req["password"],
+            phone_number=req["phone_number"],
+            full_name=req["full_name"],
+            location=(
+                float(req["longitude"]),
+                float(req["latitude"])
+            ),
+            closed_loop_id=req["closed_loop_id"],
+            unique_identifier="",
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except (
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
 
     return utils.Response(
         message="Vendor created successfully",
@@ -404,11 +433,26 @@ def payment_retools_reconcile_vendor():
 
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    payment_cmd.payment_retools_reconcile_vendor(
-        uow=uow,
-        vendor_wallet_id=req["vendor_wallet_id"],
-    )
-    uow.commit_close_connection()
+    
+    try:
+        payment_cmd.payment_retools_reconcile_vendor(
+            uow=uow,
+            vendor_wallet_id=req["vendor_wallet_id"],
+        )
+        uow.commit_close_connection()
+        
+    except (
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+    
+    except Exception as e:
+        uow.close_connection()
+        raise e
 
     return utils.Response(
         message="Vendor reconciled successfully",
