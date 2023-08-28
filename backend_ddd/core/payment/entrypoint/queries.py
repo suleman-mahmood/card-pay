@@ -133,7 +133,7 @@ def _helper_generate_list_of_transactions_for_admin(rows):
 
 
 def _helper_generate_list_of_transactions_for_general_case(rows):
-    "for general get functions | helper function to create multiple transaction objects"
+    "for general get functions | helper function to create multiple transaction objects. Dont return IDs here. Check references before changing return structure"
 
     transactions = [
         {
@@ -144,10 +144,8 @@ def _helper_generate_list_of_transactions_for_general_case(rows):
             "status": row[4],
             "created_at": row[5],
             "last_updated": row[6],
-            "sender_wallet_id": row[7],
-            "recipient_wallet_id": row[8],
-            "sender_name": row[9],
-            "recipient_name": row[10],
+            "sender_name": row[7],
+            "recipient_name": row[8],
         }
         for row in rows
     ]

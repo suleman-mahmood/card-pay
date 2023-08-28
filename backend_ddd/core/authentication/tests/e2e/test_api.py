@@ -169,8 +169,8 @@ def test_get_all_closed_loops_api(seed_api_customer, mocker, client):
     )
 
     payload = loads(response.data.decode())
-    payload["message"] = "User is not verified"
-    payload["status_code"] = 400
+    assert payload["message"] == "User is not verified"
+    assert response.status_code == 400
 
     _verify_phone_number(user_id, mocker, client)
 
@@ -209,8 +209,8 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
     )
 
     payload = loads(response.data.decode())
-    payload["message"] = "User is not verified"
-    payload["status_code"] = 400
+    assert payload["message"] == "User is not verified"
+    assert response.status_code == 400
 
     _verify_phone_number(user_id, mocker, client)
 
@@ -311,8 +311,8 @@ def test_change_pin_api(seed_api_customer, mocker, client):
     )
 
     payload = loads(response.data.decode())
-    payload["message"] = "User is not verified"
-    payload["status_code"] = 400
+    assert payload["message"] == "User is not verified"
+    assert response.status_code == 400
 
     _verify_phone_number(user_id, mocker, client)
     response = client.post(
@@ -339,8 +339,8 @@ def test_get_user_api(seed_api_customer, mocker, client):
     }
     response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
     payload = loads(response.data.decode())
-    payload["message"] = "User is not verified"
-    payload["status_code"] = 400
+    assert payload["message"] == "User is not verified"
+    assert response.status_code == 400
 
     _verify_phone_number(user_id, mocker, client)
     response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
@@ -372,8 +372,9 @@ def test_get_user_balance_api(seed_api_customer, mocker, client):
     )
 
     payload = loads(response.data.decode())
-    payload["message"] = "User is not verified"
-    payload["status_code"] = 400
+
+    assert response.status_code == 400
+    assert payload["message"] == "User is not verified"
 
     _verify_phone_number(user_id, mocker, client)
     response = client.get(

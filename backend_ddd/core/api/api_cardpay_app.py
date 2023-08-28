@@ -371,9 +371,7 @@ def execute_p2p_push_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
     unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=uid,
-        closed_loop_id=req["closed_loop_id"],
-        uow=uow,
+        user_id=uid, closed_loop_id = req["closed_loop_id"], uow=uow,
     )
 
     try:
@@ -421,9 +419,7 @@ def create_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
     unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=uid,
-        closed_loop_id= req["closed_loop_id"],
-        uow=uow,
+        user_id=uid, closed_loop_id=req["closed_loop_id"] ,uow=uow,
     )
 
     try:

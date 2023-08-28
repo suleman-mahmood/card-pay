@@ -655,8 +655,20 @@ def unique_identifier_already_exists(
     sql = """
         select unique_identifier
         from user_closed_loops
-        where closed_loop_id = %s
+        where closed_loop_id = %s and unique_identifier = %s
     """
-    uow.cursor.execute(sql, [closed_loop_id])
+    uow.cursor.execute(sql, [closed_loop_id, unique_identifier])
     result = uow.cursor.fetchone()
     return result is not None
+
+def get_unique_identifier_from_user_id_and_closed_loop_id(
+    user_id: str, closed_loop_id: str, uow: AbstractUnitOfWork
+) -> str:
+    sql = """
+        select unique_identifier
+        from user_closed_loops
+        where user_id = %s and closed_loop_id = %s
+    """
+    uow.cursor.execute(sql, [user_id, closed_loop_id])
+    result = uow.cursor.fetchone()
+    return result[0]
