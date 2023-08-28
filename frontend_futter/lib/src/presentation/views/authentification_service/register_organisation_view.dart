@@ -1,3 +1,4 @@
+import 'package:cardpay/src/config/extensions/validation.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -140,6 +141,9 @@ class RegisterOrganizationView extends HookWidget {
                 }
                 final regExp = RegExp(selectedClosedLoop.value.regex);
                 if (!regExp.hasMatch(uniqueIdentifierValue)) {
+                  return "Invalid roll number";
+                }
+                if (!uniqueIdentifierValue.isValidLumsRollNumber) {
                   return "Invalid roll number";
                 }
                 return null;

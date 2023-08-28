@@ -52,7 +52,7 @@ class PaymentEntry extends HookWidget {
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: text.length,
-                separatorBuilder: (context, index) => HeightBox(slab: 2),
+                separatorBuilder: (context, index) => HeightBox(slab: 1),
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   return Text(text[index],
@@ -68,7 +68,7 @@ class PaymentEntry extends HookWidget {
     return Column(
       children: [
         PaymentValueListenableBuilder(),
-        HeightBox(slab: 3),
+        HeightBox(slab: 2),
         Wrap(
           spacing: 9,
           runSpacing: 9,

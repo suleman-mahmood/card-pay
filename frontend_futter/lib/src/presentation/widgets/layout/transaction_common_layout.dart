@@ -46,7 +46,7 @@ class TransactionView extends HookWidget {
                   HeightBox(slab: 3),
                   if (rollNumber != null)
                     Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
+                      width: MediaQuery.of(context).size.width * 0.9,
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: AppColors.secondaryColor,
@@ -63,7 +63,7 @@ class TransactionView extends HookWidget {
                       ),
                     ),
                   PaymentEntry(controller: paymentController),
-                  HeightBox(slab: 3),
+                  HeightBox(slab: 1),
                   PrimaryButton(
                     color: backgroundColor,
                     text: buttonText,
@@ -71,7 +71,7 @@ class TransactionView extends HookWidget {
                       double.parse(paymentController.text),
                     ),
                   ),
-                  HeightBox(slab: 5),
+                  HeightBox(slab: 4),
                 ],
               ),
             ),

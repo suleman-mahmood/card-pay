@@ -8,13 +8,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CustomBox extends StatelessWidget {
   final String imagePath;
   final String text;
-  final PageRouteInfo route;
+  final PageRouteInfo? route;
+  final bool isDisabled;
+  final String disabledMessage;
 
   const CustomBox({
     Key? key,
     required this.imagePath,
     required this.text,
-    required this.route,
+    this.route,
+    this.isDisabled = false,
+    this.disabledMessage = "Coming Soon",
   }) : super(key: key);
 
   @override
@@ -57,8 +61,14 @@ class CustomBox extends StatelessWidget {
     }
 
     onTap() async {
-      userCubit.initialize();
-      context.router.push(route);
+      if (!isDisabled) {
+        userCubit.initialize();
+        context.router.push(route!);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(disabledMessage)),
+        );
+      }
     }
 
     return Material(

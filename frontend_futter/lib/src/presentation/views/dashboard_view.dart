@@ -193,9 +193,7 @@ class DashboardView extends HookWidget {
                 CustomBox(
                   imagePath: 'assets/images/Upwork-1.png',
                   text: PaymentStrings.request,
-                  // route: RequestRoute(),
-                  route:
-                      TransferRoute(), // TODO: change this after implementing the flow
+                  isDisabled: true,
                 ),
                 CustomBox(
                   imagePath: 'assets/images/Upwork-2.png',
