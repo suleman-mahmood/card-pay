@@ -87,7 +87,7 @@ class AllCashbacks:
                     start_amount=0,
                     end_amount=first_slab_start_amount,
                     cashback_type=self.cashback_slabs[0].cashback_type,
-                    cashback_value=self.cashback_slabs[0].cashback_value
+                    cashback_value= 0
                 )
             )
         self._helper_handle_invalid_slabs(-1)
@@ -164,9 +164,9 @@ class User():
         negative_amount_exception(deposit_amount)
         not_deposit_exception(transaction_type)
 
-        # If deposit amount is greater than the last slab, then the last slab will be used
+        # If deposit amount is greater than the last slab, then returned calculated cashback value should be 0
         if (deposit_amount >= all_cashbacks.cashback_slabs[-1].end_amount):
-            slab = all_cashbacks.cashback_slabs[-1]
+            return 0
 
         else:
             eligible_slab = [slab for slab in all_cashbacks.cashback_slabs if deposit_amount >=

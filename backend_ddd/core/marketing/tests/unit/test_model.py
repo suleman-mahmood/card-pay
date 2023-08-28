@@ -206,3 +206,28 @@ def test_cashback_on_deposit(seed_user):
         deposit_amount=deposit_amount,
         transaction_type=TransactionType.PAYMENT_GATEWAY,
         all_cashbacks=AllCashbacks(cashback_slabs = [])) == 0
+
+    cashback_slab_1 = CashbackSlab(
+        start_amount= 100,
+        end_amount= 5000,
+        cashback_type= CashbackType.PERCENTAGE,
+        cashback_value= 0.1
+    )
+
+    cashback_slab_2 = CashbackSlab(
+        start_amount= 5000,
+        end_amount= 10000,
+        cashback_type= CashbackType.ABSOLUTE,
+        cashback_value= 100
+    )
+
+    assert user.calculate_cashback(
+        deposit_amount=99,
+        transaction_type=TransactionType.PAYMENT_GATEWAY,
+        all_cashbacks=AllCashbacks(cashback_slabs = [cashback_slab_1, cashback_slab_2])) == 0
+    
+    assert user.calculate_cashback(
+        deposit_amount=10001,
+        transaction_type=TransactionType.PAYMENT_GATEWAY,
+        all_cashbacks=AllCashbacks(cashback_slabs = [cashback_slab_1, cashback_slab_2])) == 0
+    
