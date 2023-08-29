@@ -182,7 +182,7 @@ def auth_retools_update_closed_loop():
     uow = UnitOfWork()
 
     try:
-        auth_qry.update_closed_loop(
+        auth_cmd.auth_retools_update_closed_loop(
             closed_loop_id=req["id"],
             name=req["name"],
             logo_url=req["logo_url"],

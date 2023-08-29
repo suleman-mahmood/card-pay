@@ -443,35 +443,6 @@ def get_user_balance(user_id: str, uow: AbstractUnitOfWork):
     return balance
 
 
-def update_closed_loop(
-    closed_loop_id: str,
-    name: str,
-    logo_url: str,
-    description: str,
-    regex: str,
-    verification_type: str,
-    uow: AbstractUnitOfWork,
-):
-    """Update closed loop"""
-
-    sql = """
-        update closed_loops
-        set name = %s, logo_url = %s, description = %s, regex = %s, verification_type = %s
-        where id = %s
-    """
-    uow.cursor.execute(
-        sql,
-        [
-            name,
-            logo_url,
-            description,
-            regex,
-            verification_type,
-            closed_loop_id,
-        ],
-    )
-
-
 def get_user_count_of_all_closed_loops(uow: AbstractUnitOfWork):
     sql = """
         select cl.id, cl.name, count(ucl.user_id)

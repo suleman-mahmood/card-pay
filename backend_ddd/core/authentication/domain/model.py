@@ -44,6 +44,16 @@ class ClosedLoop:
     id: str = field(default_factory=lambda: str(uuid4()))
     created_at: datetime = datetime.now()
 
+    def update_closed_loop(
+        self,
+        name: str,
+        logo_url: str,
+        description: str,
+    ) -> None:
+        """Update closed loop"""
+        self.name = name
+        self.logo_url = logo_url
+        self.description = description
 
 class ClosedLoopUserState(str, Enum):
     """Closed loop enum"""

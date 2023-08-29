@@ -375,3 +375,25 @@ def create_vendor_through_retool(
     )
 
     return user
+
+
+def auth_retools_update_closed_loop(
+    closed_loop_id: str,
+    name: str,
+    logo_url: str,
+    description: str,
+    verification_type: str,
+    regex: Optional[str],
+    uow: AbstractUnitOfWork,
+):
+    """Update closed loop"""
+    with uow:
+        closed_loop = uow.closed_loops.get(closed_loop_id=closed_loop_id)
+        closed_loop.update_closed_loop(
+            name=name,
+            logo_url=logo_url,
+            description=description,
+        )
+        uow.closed_loops.save(closed_loop)
+
+    return closed_loop
