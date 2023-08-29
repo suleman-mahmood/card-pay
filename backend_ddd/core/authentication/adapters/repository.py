@@ -12,6 +12,7 @@ from ..domain.model import (
     Location,
     ClosedLoopUserState,
 )
+from core.authentication.adapters import exceptions as ex
 
 
 class ClosedLoopAbstractRepository(ABC):
@@ -221,6 +222,9 @@ class UserRepository(UserAbstractRepository):
         self.cursor.execute(sql, [user_id])
 
         row = self.cursor.fetchone()
+
+        if row is None:
+            raise ex.UserNotFoundException("User does not exist in db")
 
         user = User(
             id=row[0],

@@ -197,4 +197,5 @@ def test_get_user_recent_transcations_api(seed_api_customer, seed_api_admin, moc
     
     assert res["message"] == "User recent transactions returned successfully"
     assert res["status_code"] == 200
-    
+
+        

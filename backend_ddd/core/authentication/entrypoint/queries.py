@@ -20,7 +20,9 @@
 14. get information of all users of a closed loop
 """
 from core.authentication.entrypoint import exceptions as ex
-from ..domain import model as authentication_model
+from core.authentication.domain import model as auth_mdl
+from core.authentication.adapters import exceptions as auth_rep_ex
+from core.api import view_models as vm
 
 # from ..adapters import repository as authentication_repository
 from ...entrypoint.uow import AbstractUnitOfWork
@@ -36,7 +38,7 @@ def get_all_closed_loops(uow: AbstractUnitOfWork):
     uow.cursor.execute(sql)
     rows = uow.cursor.fetchall()
     closed_loops = [
-        authentication_model.ClosedLoop(
+        auth_mdl.ClosedLoop(
             id=row[0],
             name=row[1],
             logo_url=row[2],
@@ -100,7 +102,7 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
     """
     uow.cursor.execute(sql, [user_id])
     row = uow.cursor.fetchone()
-    user_type = authentication_model.UserType[row[0]]
+    user_type = auth_mdl.UserType[row[0]]
     return user_type
 
 
@@ -114,11 +116,11 @@ def get_user_from_email(user_email: str, uow: AbstractUnitOfWork):
     """
     uow.cursor.execute(sql, [user_email])
     row = uow.cursor.fetchone()
-    user = authentication_model.User(
+    user = auth_mdl.User(
         id=row[0],
-        personal_email=authentication_model.PersonalEmail(row[1]),
-        phone_number=authentication_model.PhoneNumber(row[2]),
-        user_type=authentication_model.UserType[row[3]],
+        personal_email=auth_mdl.PersonalEmail(row[1]),
+        phone_number=auth_mdl.PhoneNumber(row[2]),
+        user_type=auth_mdl.UserType[row[3]],
         pin=row[4],
         full_name=row[5],
         wallet_id=row[6],
@@ -126,7 +128,7 @@ def get_user_from_email(user_email: str, uow: AbstractUnitOfWork):
         is_phone_number_verified=row[8],
         otp=row[9],
         otp_generated_at=row[10],
-        location=authentication_model.Location(
+        location=auth_mdl.Location(
             latitude=float(row[11][1:-1].split(",")[0]),
             longitude=float(row[11][1:-1].split(",")[0]),
         ),
@@ -145,11 +147,11 @@ def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork):
     """
     uow.cursor.execute(sql, [phone_number])
     row = uow.cursor.fetchone()
-    user = authentication_model.User(
+    user = auth_mdl.User(
         id=row[0],
-        personal_email=authentication_model.PersonalEmail(row[1]),
-        phone_number=authentication_model.PhoneNumber(row[2]),
-        user_type=authentication_model.UserType[row[3]],
+        personal_email=auth_mdl.PersonalEmail(row[1]),
+        phone_number=auth_mdl.PhoneNumber(row[2]),
+        user_type=auth_mdl.UserType[row[3]],
         pin=row[4],
         full_name=row[5],
         wallet_id=row[6],
@@ -157,7 +159,7 @@ def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork):
         is_phone_number_verified=row[8],
         otp=row[9],
         otp_generated_at=row[10],
-        location=authentication_model.Location(
+        location=auth_mdl.Location(
             latitude=float(row[11][1:-1].split(",")[0]),
             longitude=float(row[11][1:-1].split(",")[0]),
         ),
@@ -179,11 +181,11 @@ def get_user_from_closed_loop_id_and_unique_identifier(
         """
     uow.cursor.execute(sql, [closed_loop_id, unique_identifier])
     row = uow.cursor.fetchone()
-    user = authentication_model.User(
+    user = auth_mdl.User(
         id=row[0],
-        personal_email=authentication_model.PersonalEmail(row[1]),
-        phone_number=authentication_model.PhoneNumber(row[2]),
-        user_type=authentication_model.UserType[row[3]],
+        personal_email=auth_mdl.PersonalEmail(row[1]),
+        phone_number=auth_mdl.PhoneNumber(row[2]),
+        user_type=auth_mdl.UserType[row[3]],
         pin=row[4],
         full_name=row[5],
         wallet_id=row[6],
@@ -191,7 +193,7 @@ def get_user_from_closed_loop_id_and_unique_identifier(
         is_phone_number_verified=row[8],
         otp=row[9],
         otp_generated_at=row[10],
-        location=authentication_model.Location(
+        location=auth_mdl.Location(
             latitude=float(row[11][1:-1].split(",")[0]),
             longitude=float(row[11][1:-1].split(",")[0]),
         ),
@@ -212,11 +214,11 @@ def get_all_active_users(uow: AbstractUnitOfWork):
     uow.cursor.execute(sql)
     rows = uow.cursor.fetchall()
     users = [
-        authentication_model.User(
+        auth_mdl.User(
             id=row[0],
-            personal_email=authentication_model.PersonalEmail(row[1]),
-            phone_number=authentication_model.PhoneNumber(row[2]),
-            user_type=authentication_model.UserType[row[3]],
+            personal_email=auth_mdl.PersonalEmail(row[1]),
+            phone_number=auth_mdl.PhoneNumber(row[2]),
+            user_type=auth_mdl.UserType[row[3]],
             pin=row[4],
             full_name=row[5],
             wallet_id=row[6],
@@ -224,7 +226,7 @@ def get_all_active_users(uow: AbstractUnitOfWork):
             is_phone_number_verified=row[8],
             otp=row[9],
             otp_generated_at=row[10],
-            location=authentication_model.Location(
+            location=auth_mdl.Location(
                 latitude=float(row[11][1:-1].split(",")[0]),
                 longitude=float(row[11][1:-1].split(",")[0]),
             ),
@@ -246,11 +248,11 @@ def get_all_inactive_users(uow: AbstractUnitOfWork):
     uow.cursor.execute(sql)
     rows = uow.cursor.fetchall()
     users = [
-        authentication_model.User(
+        auth_mdl.User(
             id=row[0],
-            personal_email=authentication_model.PersonalEmail(row[1]),
-            phone_number=authentication_model.PhoneNumber(row[2]),
-            user_type=authentication_model.UserType[row[3]],
+            personal_email=auth_mdl.PersonalEmail(row[1]),
+            phone_number=auth_mdl.PhoneNumber(row[2]),
+            user_type=auth_mdl.UserType[row[3]],
             pin=row[4],
             full_name=row[5],
             wallet_id=row[6],
@@ -258,7 +260,7 @@ def get_all_inactive_users(uow: AbstractUnitOfWork):
             is_phone_number_verified=row[8],
             otp=row[9],
             otp_generated_at=row[10],
-            location=authentication_model.Location(
+            location=auth_mdl.Location(
                 latitude=float(row[11][1:-1].split(",")[0]),
                 longitude=float(row[11][1:-1].split(",")[0]),
             ),
@@ -270,9 +272,7 @@ def get_all_inactive_users(uow: AbstractUnitOfWork):
     return users
 
 
-def get_all_users_of_a_user_type(
-    uow: AbstractUnitOfWork, user_type: authentication_model.UserType
-):
+def get_all_users_of_a_user_type(uow: AbstractUnitOfWork, user_type: auth_mdl.UserType):
     """Get all users of a user type"""
 
     sql = """
@@ -283,11 +283,11 @@ def get_all_users_of_a_user_type(
     uow.cursor.execute(sql, [user_type.name])
     rows = uow.cursor.fetchall()
     users = [
-        authentication_model.User(
+        auth_mdl.User(
             id=row[0],
-            personal_email=authentication_model.PersonalEmail(row[1]),
-            phone_number=authentication_model.PhoneNumber(row[2]),
-            user_type=authentication_model.UserType[row[3]],
+            personal_email=auth_mdl.PersonalEmail(row[1]),
+            phone_number=auth_mdl.PhoneNumber(row[2]),
+            user_type=auth_mdl.UserType[row[3]],
             pin=row[4],
             full_name=row[5],
             wallet_id=row[6],
@@ -295,7 +295,7 @@ def get_all_users_of_a_user_type(
             is_phone_number_verified=row[8],
             otp=row[9],
             otp_generated_at=row[10],
-            location=authentication_model.Location(
+            location=auth_mdl.Location(
                 latitude=float(row[11][1:-1].split(",")[0]),
                 longitude=float(row[11][1:-1].split(",")[0]),
             ),
@@ -319,7 +319,7 @@ def get_all_closed_loops_of_a_user(user_id: str, uow: AbstractUnitOfWork):
     rows = uow.cursor.fetchall()
 
     closed_loops = [
-        authentication_model.ClosedLoop(
+        auth_mdl.ClosedLoop(
             id=row[0],
             name=row[1],
             logo_url=row[2],
@@ -358,7 +358,7 @@ def get_all_closed_loops_of_a_user(user_id: str, uow: AbstractUnitOfWork):
 
     # #     rows = uow.cursor.fetchall()
     # #     closed_loops = [
-    # #         authentication_model.ClosedLoop(
+    # #         auth_mdl.ClosedLoop(
     # #             id=row[0],
     # #             name=row[1],
     # #             logo_url=row[2],
@@ -385,11 +385,11 @@ def get_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork)
     uow.cursor.execute(sql, [closed_loop_id])
     rows = uow.cursor.fetchall()
     users = [
-        authentication_model.User(
+        auth_mdl.User(
             id=row[0],
-            personal_email=authentication_model.PersonalEmail(row[1]),
-            phone_number=authentication_model.PhoneNumber(row[2]),
-            user_type=authentication_model.UserType[row[3]],
+            personal_email=auth_mdl.PersonalEmail(row[1]),
+            phone_number=auth_mdl.PhoneNumber(row[2]),
+            user_type=auth_mdl.UserType[row[3]],
             pin=row[4],
             full_name=row[5],
             wallet_id=row[6],
@@ -397,7 +397,7 @@ def get_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork)
             is_phone_number_verified=row[8],
             otp=row[9],
             otp_generated_at=row[10],
-            location=authentication_model.Location(
+            location=auth_mdl.Location(
                 latitude=float(row[11][1:-1].split(",")[0]),
                 longitude=float(row[11][1:-1].split(",")[0]),
             ),
@@ -632,6 +632,7 @@ def unique_identifier_already_exists(
     result = uow.cursor.fetchone()
     return result is not None
 
+
 def get_unique_identifier_from_user_id_and_closed_loop_id(
     user_id: str, closed_loop_id: str, uow: AbstractUnitOfWork
 ) -> str:
@@ -643,3 +644,41 @@ def get_unique_identifier_from_user_id_and_closed_loop_id(
     uow.cursor.execute(sql, [user_id, closed_loop_id])
     result = uow.cursor.fetchone()
     return result[0]
+
+
+def pin_setup_from_user_id(user_id: str, uow: AbstractUnitOfWork) -> bool:
+    sql = """
+        select pin
+        from users
+        where id = %s
+    """
+    uow.cursor.execute(sql, [user_id])
+    row = uow.cursor.fetchone()
+    return row[0] if row else False
+
+
+def user_checkpoints(
+    user_id: str,
+    uow: AbstractUnitOfWork,
+) -> vm.CheckpointsDTO:
+    verified_phone_otp = user_verification_status_from_user_id(user_id, uow)
+
+    try:
+        user = uow.users.get(user_id=user_id)
+        verified_closed_loop = any(
+            cl_user.status == auth_mdl.ClosedLoopUserState.VERIFIED
+            for cl_user in user.closed_loops.values()
+        )
+    except auth_rep_ex.UserNotFoundException:
+        verified_closed_loop = False
+
+    pin = pin_setup_from_user_id(user_id, uow)
+    pin_setup = False
+    if pin != "0000":
+        pin_setup = True
+
+    return vm.CheckpointsDTO(
+        verified_phone_otp=verified_phone_otp,
+        verified_closed_loop=verified_closed_loop,
+        pin_setup=pin_setup,
+    )

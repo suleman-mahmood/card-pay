@@ -56,7 +56,7 @@ def seed_auth_user():
             personal_email=PersonalEmail(value="mlkmoaz@gmail.com"),
             phone_number=PhoneNumber(value="03034952255"),
             user_type=UserType.CUSTOMER,
-            pin="1234",
+            pin="0000",
             full_name="Malik Muhammad Moaz",
             location=Location(latitude=0, longitude=0),
             wallet_id=user_id,

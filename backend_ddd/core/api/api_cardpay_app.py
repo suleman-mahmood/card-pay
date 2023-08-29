@@ -50,7 +50,7 @@ def create_user():
     except Exception as e:
         uow.close_connection()
         raise e
-    
+
     return utils.Response(
         message="User created successfully",
         status_code=201,
@@ -76,7 +76,7 @@ def create_customer():
     """
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    
+
     try:
         event_code, user_id = auth_cmd.create_user(
             personal_email=req["personal_email"],
@@ -137,7 +137,7 @@ def change_name(uid):
 def change_pin(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    
+
     try:
         auth_cmd.change_pin(
             user_id=uid,
@@ -196,7 +196,7 @@ def verify_otp(uid):
             uow=uow,
         )
         uow.commit_close_connection()
-    
+
     except auth_ex.InvalidOtpException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -231,7 +231,7 @@ def verify_phone_number(uid):
     except auth_ex.VerificationException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
-    
+
     except Exception as e:
         uow.close_connection()
         raise e
@@ -266,7 +266,7 @@ def register_closed_loop(uid):
     except auth_ex.UniqueIdentifierAlreadyExistsException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
-    
+
     except Exception as e:
         uow.close_connection()
         raise e
@@ -311,7 +311,7 @@ def verify_closed_loop(uid):
     except Exception as e:
         uow.close_connection()
         raise e
-    
+
     return utils.Response(
         message="Closed loop verified successfully",
         status_code=200,
@@ -334,7 +334,7 @@ def create_deposit_request(uid):
             uow=uow,
         )
         uow.commit_close_connection()
-    
+
     except (
         pmt_cmd_ex.DepositAmountTooSmallException,
         pmt_ex.TransactionNotAllowedException,
@@ -367,11 +367,12 @@ def create_deposit_request(uid):
     required_parameters=["recipient_unique_identifier", "amount", "closed_loop_id"]
 )
 def execute_p2p_push_transaction(uid):
-    
     req = request.get_json(force=True)
     uow = UnitOfWork()
     unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=uid, closed_loop_id = req["closed_loop_id"], uow=uow,
+        user_id=uid,
+        closed_loop_id=req["closed_loop_id"],
+        uow=uow,
     )
 
     try:
@@ -398,13 +399,11 @@ def execute_p2p_push_transaction(uid):
     except Exception as e:
         uow.close_connection()
         raise e
-    
-    return utils.Response(
-            message="p2p push transaction executed successfully",
-            status_code=201,
-        ).__dict__
 
-        
+    return utils.Response(
+        message="p2p push transaction executed successfully",
+        status_code=201,
+    ).__dict__
 
 
 @cardpay_app.route("/create-p2p-pull-transaction", methods=["POST"])
@@ -419,7 +418,9 @@ def create_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
     unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=uid, closed_loop_id=req["closed_loop_id"] ,uow=uow,
+        user_id=uid,
+        closed_loop_id=req["closed_loop_id"],
+        uow=uow,
     )
 
     try:
@@ -445,11 +446,11 @@ def create_p2p_pull_transaction(uid):
     except Exception as e:
         uow.close_connection()
         raise e
-    
+
     return utils.Response(
-            message="p2p pull transaction created successfully",
-            status_code=201,
-        ).__dict__
+        message="p2p pull transaction created successfully",
+        status_code=201,
+    ).__dict__
 
 
 @cardpay_app.route("/accept-p2p-pull-transaction", methods=["POST"])
@@ -468,7 +469,7 @@ def accept_p2p_pull_transaction(uid):
             uow=uow,
         )
         uow.commit_close_connection()
-    
+
     except (
         pmt_ex.TransactionNotAllowedException,
         mktg_ex.NegativeAmountException,
@@ -481,7 +482,7 @@ def accept_p2p_pull_transaction(uid):
     except Exception as e:
         uow.close_connection()
         raise e
-    
+
     return utils.Response(
         message="p2p pull transaction accepted successfully",
         status_code=200,
@@ -504,15 +505,15 @@ def decline_p2p_pull_transaction(uid):
             uow=uow,
         )
         uow.commit_close_connection()
-    
+
     except pmt_ex.TransactionNotAllowedException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
-    
+
     except Exception as e:
         uow.close_connection()
         raise e
-    
+
     return utils.Response(
         message="p2p pull transaction declined successfully",
         status_code=200,
@@ -589,9 +590,7 @@ def redeem_voucher(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(
-    required_parameters=["recipient_qr_id", "amount"]
-)
+@utils.validate_json_payload(required_parameters=["recipient_qr_id", "amount"])
 def execute_qr_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -635,7 +634,7 @@ def execute_qr_transaction(uid):
 def use_reference(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    
+
     try:
         mktg_cmd.use_reference(
             referee_id=req["referee_id"],
@@ -643,7 +642,7 @@ def use_reference(uid):
             uow=uow,
         )
         uow.commit_close_connection()
-        
+
     except (
         mktg_ex.NotVerifiedException,
         mktg_ex.InvalidReferenceException,
@@ -651,7 +650,7 @@ def use_reference(uid):
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
-    
+
     except Exception as e:
         uow.close_connection()
         raise e
@@ -742,3 +741,21 @@ def get_user_balance(uid):
         },
     ).__dict__
 
+
+@cardpay_app.route("/get-user-checkpoints", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+def get_user_checkpoint(uid):
+    uow = UnitOfWork()
+
+    checkpoints = auth_qry.user_checkpoints(
+        user_id=uid,
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="User Checkpoint returned successfully",
+        status_code=200,
+        data=checkpoints.__dict__,
+    ).__dict__
