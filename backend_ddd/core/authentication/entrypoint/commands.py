@@ -14,7 +14,7 @@ from core.authentication.entrypoint import queries as qry
 from core.authentication.entrypoint import exceptions as ex
 from core.payment.domain import model as pmt_mdl
 from core.authentication.domain import model as auth_mdl
-
+from core.payment.domain import exceptions as pmt_domain_exc
 PK_CODE = "92"
 LUMS_CLOSED_LOOP_ID = "ec3c471e-49e7-46a6-9f2c-5fd6252b7518"
 
@@ -265,14 +265,17 @@ def _migrate_user(user_id: str, uow: AbstractUnitOfWork):
     fetched_wallet_balance = qry.wallet_balance_from_firestore(user_id=user_id, uow=uow)
     cardpay_wallet_id = pmt_qry.get_starred_wallet_id(uow=uow)
 
-    payment_commands.execute_transaction(
-        sender_wallet_id=cardpay_wallet_id,
-        recipient_wallet_id=user_id,
-        amount=fetched_wallet_balance,
-        transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
-        transaction_type=pmt_mdl.TransactionType.CARD_PAY,
-        uow=uow,
-    )
+    try:
+        payment_commands.execute_transaction(
+            sender_wallet_id=cardpay_wallet_id,
+            recipient_wallet_id=user_id,
+            amount=fetched_wallet_balance,
+            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+            transaction_type=pmt_mdl.TransactionType.CARD_PAY,
+            uow=uow,
+        )
+    except pmt_domain_exc.TransactionNotAllowedException:
+        pass
 
     sql = """
         update users_firestore
