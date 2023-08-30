@@ -240,7 +240,7 @@ class UserRepository(UserAbstractRepository):
             otp_generated_at=row[10],
             location=Location(
                 latitude=float(row[11][1:-1].split(",")[0]),
-                longitude=float(row[11][1:-1].split(",")[0]),
+                longitude=float(row[11][1:-1].split(",")[1]),
             ),
             created_at=row[12],
         )
