@@ -3,9 +3,7 @@ import requests
 import os
 import logging
 import json
-
 from datetime import datetime, timedelta
-
 from core.entrypoint.uow import AbstractUnitOfWork
 from ..domain.model import (
     Transaction,
@@ -28,8 +26,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class NotVerifiedException(Exception):
     """User is not verified"""
+
 
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
@@ -39,6 +39,7 @@ def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     uow.transactions.add_wallet(wallet)
 
     return wallet
+
 
 def execute_transaction_unique_identifier(
     sender_unique_identifier: str,
@@ -82,12 +83,15 @@ def execute_transaction(
     uow: AbstractUnitOfWork,
 ) -> Transaction:
     with uow:
+        if not auth_qry.user_verification_status_from_user_id(
+            user_id=sender_wallet_id, uow=uow
+        ):
+            raise NotVerifiedException("User is not verified")
+        if not auth_qry.user_verification_status_from_user_id(
+            user_id=recipient_wallet_id, uow=uow
+        ):
+            raise NotVerifiedException("User is not verified")
 
-        if not auth_qry.user_verification_status_from_user_id(user_id = sender_wallet_id, uow=uow):
-            raise NotVerifiedException("User is not verified")
-        if not auth_qry.user_verification_status_from_user_id(user_id = recipient_wallet_id, uow=uow):
-            raise NotVerifiedException("User is not verified")
-        
         tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
             mode=transaction_mode,
@@ -115,6 +119,60 @@ def execute_transaction(
             )
 
         uow.transactions.save(tx)
+
+    return tx
+
+
+# for testing purposes only
+def execute_multi_transaction(
+    sender_wallet_id: str,
+    recipient_wallet_id: str,
+    amount: int,
+    transaction_mode: TransactionMode,
+    transaction_type: TransactionType,
+    uow: AbstractUnitOfWork,
+    queue: Queue,
+) -> Transaction:
+    with uow:
+        if not auth_qry.user_verification_status_from_user_id(
+            user_id=sender_wallet_id, uow=uow
+        ):
+            raise NotVerifiedException("User is not verified")
+        if not auth_qry.user_verification_status_from_user_id(
+            user_id=recipient_wallet_id, uow=uow
+        ):
+            raise NotVerifiedException("User is not verified")
+
+        tx = uow.transactions.get_wallets_create_transaction(
+            amount=amount,
+            mode=transaction_mode,
+            transaction_type=transaction_type,
+            sender_wallet_id=sender_wallet_id,
+            recipient_wallet_id=recipient_wallet_id,
+        )
+
+        if utils.is_instant_transaction(transaction_type=transaction_type):
+            tx.execute_transaction()
+            uow.transactions.save(tx)
+
+            mktg_cmd.add_loyalty_points(
+                sender_wallet_id=sender_wallet_id,
+                recipient_wallet_id=recipient_wallet_id,
+                transaction_amount=amount,
+                transaction_type=transaction_type,
+                uow=uow,
+            )
+            mktg_cmd.give_cashback(
+                recipient_wallet_id=recipient_wallet_id,
+                deposited_amount=amount,
+                transaction_type=transaction_type,
+                uow=uow,
+            )
+
+        uow.transactions.save(tx)
+
+    uow.commit_close_connection()
+    queue.put(tx)
 
     return tx
 
@@ -443,7 +501,6 @@ def payment_retools_reconcile_vendor(
     card_pay_wallet_id = payment_qry.get_starred_wallet_id(
         uow=uow,
     )[0]
-    
 
     execute_transaction(
         sender_wallet_id=vendor_wallet_id,
@@ -456,13 +513,13 @@ def payment_retools_reconcile_vendor(
 
     return
 
-def execute_qr_transaction(
-        sender_wallet_id: str,
-        recipient_qr_id: str,
-        amount: int,
-        uow: AbstractUnitOfWork,
-) -> Transaction:
 
+def execute_qr_transaction(
+    sender_wallet_id: str,
+    recipient_qr_id: str,
+    amount: int,
+    uow: AbstractUnitOfWork,
+) -> Transaction:
     user_info = payment_qry.get_user_wallet_id_and_type_from_qr_id(
         qr_id=recipient_qr_id,
         uow=uow,
@@ -472,7 +529,7 @@ def execute_qr_transaction(
 
     if user_info is None:
         raise exc.InvalidQRCodeException("Invalid QR code")
-    
+
     elif user_info.user_type == auth_mdl.UserType.VENDOR:
         transaction_type = TransactionType.VIRTUAL_POS
 
