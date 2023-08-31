@@ -34,17 +34,17 @@ from uuid import uuid4
 import pytest
 from ...domain.exceptions import TransactionNotAllowedException
 
+# should be deprecated... (wallet creation handled in authentication)
+# def test_create_wallet():
+#    uow = UnitOfWork()
 
-def test_create_wallet():
-    uow = UnitOfWork()
+#    with uow:
+#        wallet = create_wallet(user_id=str(uuid4()), uow=uow)
 
-    with uow:
-        wallet = create_wallet(user_id=str(uuid4()), uow=uow)
-
-    assert wallet.balance == 0
+#    assert wallet.balance == 0
 
 
-def test_execute_transaction_multiple_users(seed_verified_auth_user):
+def test_execute_transaction_one_to_many_valid(seed_verified_auth_user):
     uow = UnitOfWork()
 
     sender = seed_verified_auth_user(uow)
@@ -56,7 +56,8 @@ def test_execute_transaction_multiple_users(seed_verified_auth_user):
         uow=uow,
     )
 
-    sender_wallet = get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
+    sender_wallet = get_wallet_from_wallet_id(
+        wallet_id=sender.wallet_id, uow=uow)
 
     recipient_wallets = [
         get_wallet_from_wallet_id(wallet_id=recipient.wallet_id, uow=uow)
@@ -96,23 +97,175 @@ def test_execute_transaction_multiple_users(seed_verified_auth_user):
         txns.append(txn)
 
     uow = UnitOfWork()
-    for txn in txns:
-        get_txn = uow.transactions.get(transaction_id=txn.id)
-        print("sender wallet balance: ", get_txn.sender_wallet.balance)
-        print(get_txn.id)
-        print(get_txn.recipient_wallet.balance)
+
+    fetched_txns = [uow.transactions.get(
+        transaction_id=txn.id) for txn in txns]
+    fetched_txns_amounts = [txn.amount for txn in fetched_txns]
+    assert fetched_txns[0].sender_wallet.balance == 997
+    assert len(set([txn.id for txn in fetched_txns])) == 3
+    assert sum(fetched_txns_amounts) == 3
 
     uow.close_connection()
 
-    # fetched_tx = uow.transactions.get(transaction_id=tx.id)
 
-    # assert fetched_tx.amount == 1000
-    # assert fetched_tx.mode == TransactionMode.APP_TRANSFER
-    # assert fetched_tx.transaction_type == TransactionType.P2P_PUSH
-    # assert fetched_tx.status == TransactionStatus.SUCCESSFUL
-    # assert fetched_tx.sender_wallet.id == sender_wallet.id
-    # assert fetched_tx.recipient_wallet.id == recipient_wallet.id
-    assert 1 == 1
+def test_execute_transaction_many_to_one(seed_verified_auth_user):
+    uow = UnitOfWork()
+
+    recipient = seed_verified_auth_user(uow)
+    senders = [seed_verified_auth_user(uow) for i in range(3)]
+
+    marketing_commands.add_weightage(
+        weightage_type="P2P_PUSH",
+        weightage_value=10,
+        uow=uow,
+    )
+
+    recipient_wallet = get_wallet_from_wallet_id(
+        wallet_id=recipient.wallet_id, uow=uow)
+
+    sender_wallets = [
+        get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
+        for sender in senders
+    ]
+
+    for sender in senders:
+        uow.transactions.add_1000_wallet(wallet_id=sender.id)
+
+    uow.close_connection()
+
+    queue = Queue()
+    processes = []
+
+    for sender_wallet in sender_wallets:
+        process = threading.Thread(
+            target=execute_multi_transaction,
+            args=(
+                sender_wallet.id,
+                recipient_wallet.id,
+                1,
+                TransactionMode.APP_TRANSFER,
+                TransactionType.P2P_PUSH,
+                UnitOfWork(),
+                queue,
+            ),
+        )
+
+        processes.append(process)
+        process.start()
+
+    for process in processes:
+        process.join()
+
+    txns: List[Transaction] = []
+    for i in range(3):
+        txn = queue.get()
+        txns.append(txn)
+
+    uow = UnitOfWork()
+
+    fetched_txns = [uow.transactions.get(
+        transaction_id=txn.id) for txn in txns]
+    fetched_txns_amounts = [txn.amount for txn in fetched_txns]
+    fetched_txns_sender_wallets_amounts = [
+        txn.sender_wallet.balance for txn in fetched_txns
+    ]
+    assert fetched_txns[0].recipient_wallet.balance == 3
+    assert sum(fetched_txns_sender_wallets_amounts) == (1000 * 3) - (1 * 3)
+    assert len(set([txn.id for txn in fetched_txns])) == 3
+    assert sum(fetched_txns_amounts) == 3
+
+    uow.close_connection()
+
+    queue = Queue()
+    processes = []
+
+    for sender_wallet in sender_wallets:
+        process = threading.Thread(
+            target=execute_multi_transaction,
+            args=(
+                sender_wallet.id,
+                recipient_wallet.id,
+                1000,  # invalid amount causes deadlock
+                TransactionMode.APP_TRANSFER,
+                TransactionType.P2P_PUSH,
+                UnitOfWork(),
+                queue,
+            ),
+        )
+
+        processes.append(process)
+        process.start()
+
+    for process in processes:
+        process.join()
+
+    #txns: List[Transaction] = []
+    # for i in range(3):
+    #    txn = queue.get()
+    #    txns.append(txn)
+
+    # uow.commit_close_connection()  # dead lock with commit_close_connection
+
+
+# def test_execute_transaction_one_to_many_invalid(seed_verified_auth_user):
+#    uow = UnitOfWork()
+
+#    sender = seed_verified_auth_user(uow)
+#    recipients = [seed_verified_auth_user(uow) for i in range(3)]
+
+#    marketing_commands.add_weightage(
+#        weightage_type="P2P_PUSH",
+#        weightage_value=10,
+#        uow=uow,
+#    )
+
+#    sender_wallet = get_wallet_from_wallet_id(wallet_id=sender.wallet_id, uow=uow)
+
+#    recipient_wallets = [
+#        get_wallet_from_wallet_id(wallet_id=recipient.wallet_id, uow=uow)
+#        for recipient in recipients
+#    ]
+
+#    uow.transactions.add_1000_wallet(wallet_id=sender_wallet.id)
+
+#    uow.commit_close_connection()
+
+#    queue = Queue()
+#    processes = []
+
+#    for recipient_wallet in recipient_wallets:
+#        process = threading.Thread(
+#            target=execute_multi_transaction,
+#            args=(
+#                sender_wallet.id,
+#                recipient_wallet.id,
+#                1000,  # paying total wallet amounts to multiple wallets causes deadlock
+#                TransactionMode.APP_TRANSFER,
+#                TransactionType.P2P_PUSH,
+#                UnitOfWork(),
+#                queue,
+#            ),
+#        )
+
+#        processes.append(process)
+#        process.start()
+
+#    for process in processes:
+#        process.join()
+
+#    txns: List[Transaction] = []
+#    for i in range(3):
+#        txn = queue.get()
+#        txns.append(txn)
+
+#    uow = UnitOfWork()
+
+#    fetched_txns = [uow.transactions.get(transaction_id=txn.id) for txn in txns]
+#    fetched_txns_amounts = [txn.amount for txn in fetched_txns]
+#    assert fetched_txns[0].sender_wallet.balance == 700
+#    assert sum(fetched_txns_amounts) == 300
+
+#    uow.close_connection()
 
 
 # def test_execute_transaction(seed_verified_auth_user):
@@ -345,31 +498,31 @@ def test_execute_transaction_multiple_users(seed_verified_auth_user):
 #        assert fetched_tx.status == TransactionStatus.SUCCESSFUL
 
 
-## Keep these commented, only for testing at certain times
+# Keep these commented, only for testing at certain times
 
-## def test_get_paypro_token():
-##     uow = UnitOfWork()
+# def test_get_paypro_token():
+#     uow = UnitOfWork()
 
-##     token = _get_paypro_auth_token(uow=uow)
-##     sleep(1)
-##     token_2 = _get_paypro_auth_token(uow=uow)
+#     token = _get_paypro_auth_token(uow=uow)
+#     sleep(1)
+#     token_2 = _get_paypro_auth_token(uow=uow)
 
-##     assert token == token_2
+#     assert token == token_2
 
 
-## def test_get_deposit_checkout_url():
-##     uow = UnitOfWork()
+# def test_get_deposit_checkout_url():
+#     uow = UnitOfWork()
 
-##     payment_url = get_deposit_checkout_url(
-##         amount=500,
-##         transaction_id=str(uuid4()),
-##         email="test@tdd.com",
-##         full_name="TDD test case",
-##         phone_number="03333333333",
-##         uow=uow,
-##     )
+#     payment_url = get_deposit_checkout_url(
+#         amount=500,
+#         transaction_id=str(uuid4()),
+#         email="test@tdd.com",
+#         full_name="TDD test case",
+#         phone_number="03333333333",
+#         uow=uow,
+#     )
 
-##     assert payment_url is not None
+#     assert payment_url is not None
 
 
 # def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_user):

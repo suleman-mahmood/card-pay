@@ -171,7 +171,7 @@ def execute_multi_transaction(
 
         uow.transactions.save(tx)
 
-    uow.commit_close_connection()
+    uow.close_connection()
     queue.put(tx)
 
     return tx
