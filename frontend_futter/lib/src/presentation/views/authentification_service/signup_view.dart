@@ -1,4 +1,5 @@
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
+import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
@@ -32,7 +33,6 @@ class SignupView extends HookWidget {
     final phoneNumberController = useTextEditingController();
     final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
     final formKey = useMemoized(() => GlobalKey<FormState>());
-
     final personalEmail = useState<String>('');
     final phoneNumber = useState<String>('');
     final fullName = useState<String>('');
@@ -40,6 +40,7 @@ class SignupView extends HookWidget {
     final confirmPassword = useState<String>('');
 
     final userCubit = BlocProvider.of<UserCubit>(context);
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
 
     void onPhoneNumberChanged(String newValue) {
       dropdownValue.value = newValue;
@@ -153,7 +154,7 @@ class SignupView extends HookWidget {
                   case UserSuccess:
                     if (state.eventCodes == EventCodes.OTP_SENT) {
                       // Login the user after a successful sign up
-                      userCubit.login(phoneNumber.value, password.value);
+                      loginCubit.login(phoneNumber.value, password.value);
 
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _showOTPBottomSheet();

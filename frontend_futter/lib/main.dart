@@ -2,6 +2,7 @@ import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/locator.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
@@ -34,6 +35,9 @@ class MainApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => CheckpointsCubit(locator<ApiRepository>()),
+          ),
+          BlocProvider(
+            create: (context) => LoginCubit(locator<SharedPreferences>()),
           ),
         ],
         child: MaterialApp.router(

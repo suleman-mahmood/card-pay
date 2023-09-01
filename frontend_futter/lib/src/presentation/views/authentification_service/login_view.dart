@@ -1,9 +1,9 @@
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
-import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,7 +70,7 @@ class LoginView extends HookWidget {
     final phoneNumber = useState<String>('3333462677');
     final password = useState<String>('abcd1234');
 
-    final userCubit = BlocProvider.of<UserCubit>(context);
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
     final checkPointsCubit = BlocProvider.of<CheckpointsCubit>(context);
 
     void onPhoneNumberChanged(String newValue) {
@@ -82,18 +82,19 @@ class LoginView extends HookWidget {
         return;
       }
 
-      await userCubit.login(phoneNumber.value, password.value);
+      await loginCubit.login(phoneNumber.value, password.value);
     }
 
     useEffect(() {
       someFunction() async {
-        await userCubit.loginWithBiometric();
+        await loginCubit.loginWithBiometric();
       }
 
       someFunction();
+
       return () {
         phoneNumberController.dispose();
-        userCubit.close();
+        loginCubit.close();
       };
     }, []);
     return AuthLayout(
@@ -149,28 +150,27 @@ class LoginView extends HookWidget {
                 onPressed: handleLogin,
               ),
               const HeightBox(slab: 2),
-              BlocBuilder<UserCubit, UserState>(
-                builder: (_, state) {
-                  switch (state.runtimeType) {
-                    case UserSuccess:
-                      if (state.eventCodes == EventCodes.USER_AUTHENTICATED) {
-                        checkPointsCubit.getCheckpoints();
-                      } else if (state.eventCodes ==
-                          EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC) {
-                        userCubit.login(state.phoneNumber, state.password);
-                      }
-                      return const SizedBox.shrink();
-                    case UserFailed:
-                      return Text(
-                        state.errorMessage,
-                        style: const TextStyle(color: Colors.red),
-                        textAlign: TextAlign.center,
-                      );
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                },
-              ),
+              BlocBuilder<LoginCubit, LoginState>(builder: (_, state) {
+                switch (state.runtimeType) {
+                  case ManualLoginSuccess:
+                    checkPointsCubit.getCheckpoints();
+                  case BiometricLoginSuccess:
+                    loginCubit.login(
+                      state.login.phoneNumber,
+                      state.login.password,
+                    );
+
+                  case UserFailed:
+                    return Text(
+                      state.errorMessage,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    );
+                  default:
+                    return const SizedBox.shrink();
+                }
+                return const SizedBox.shrink();
+              }),
               BlocBuilder<CheckpointsCubit, CheckpointsState>(
                 builder: (_, state) {
                   switch (state.runtimeType) {
