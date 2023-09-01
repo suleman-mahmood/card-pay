@@ -9,6 +9,7 @@
 - Install packages for backend using `pip install -r requirements.txt` from `backend_ddd`
 - To start the ngrok tunnel, run the command `ngrok http 5000`
     - Add auth token to get the verified http url or whatever that is but required warna weird errors
+- Prod deployment `gcloud app deploy`
 
 ### Cloud SQL
 - To connect to the PostgreSQL instance on the cloud, run `./cloud-sql-proxy cardpay-1:asia-south1:cardpay-dev -p 5433`
