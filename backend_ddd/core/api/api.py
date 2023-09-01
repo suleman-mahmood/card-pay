@@ -9,6 +9,7 @@ from flask import Flask, request, jsonify
 
 from core.api import utils
 from core.payment.entrypoint import commands as pmt_cmd
+from core.payment.entrypoint import exceptions as pmt_cmd_exc
 from core.authentication.domain import model as auth_mdl
 from core.entrypoint.uow import UnitOfWork
 from .api_cardpay_app import cardpay_app
@@ -84,23 +85,78 @@ def handle_exceptions(e: utils.CustomException):
 
 
 @app.route(PREFIX + "/pay-pro-callback", methods=["POST"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.PAYMENT_GATEWAY])
-@utils.handle_missing_payload
 def pay_pro_callback():
+    """This api will only be called by PayPro"""
     req = request.get_json(force=True)
 
-    uow = UnitOfWork()
-    pmt_cmd.pay_pro_callback(
-        uow=uow,
-        data=req[""],  # TODO: fill these later
-    )
-    uow.close_connection()
+    if request.get_json() is None:
+        return [
+            {
+                "StatusCode": "01",
+                "InvoiceID": None,
+                "Description": "Invalid Data. Username or password is invalid",
+            }
+        ], 200
 
-    return utils.Response(
-        message="callback processed successfully",
-        status_code=201,
-    ).__dict__
+    try:
+        user_name = req["username"]
+        password = req["password"]
+    except KeyError as e:
+        return [
+            {
+                "StatusCode": "01",
+                "InvoiceID": None,
+                "Description": "Invalid Data. Username or password is invalid",
+            }
+        ], 200
+
+    uow = UnitOfWork()
+    try:
+        success_invoice_ids, not_found_invoice_ids = pmt_cmd.pay_pro_callback(
+            user_name=user_name,
+            password=password,
+            csv_invoice_ids=req["csvinvoiceids"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except pmt_cmd_exc.InvalidPayProCredentialsException:
+        uow.close_connection()
+        return [
+            {
+                "StatusCode": "02",
+                "InvoiceID": None,
+                "Description": "Service Failure",
+            }
+        ], 200
+    except Exception:
+        uow.close_connection()
+        return [
+            {
+                "StatusCode": "02",
+                "InvoiceID": None,
+                "Description": "Service Failure",
+            }
+        ], 200
+
+    res = []
+    for invoice_id in success_invoice_ids:
+        res.append(
+            {
+                "StatusCode": "00",
+                "InvoiceID": invoice_id,
+                "Description": "Invoice successfully marked as paid",
+            }
+        )
+    for invoice_id in not_found_invoice_ids:
+        res.append(
+            {
+                "StatusCode": "03",
+                "InvoiceID": invoice_id,
+                "Description": "No records found.",
+            }
+        )
+
+    return res, 200
 
 
 # for testing purposes only ({{BASE_URL}}/api/v1/create-test-wallet)

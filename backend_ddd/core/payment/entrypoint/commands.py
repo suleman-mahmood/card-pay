@@ -5,6 +5,7 @@ import logging
 import json
 
 from datetime import datetime, timedelta
+from typing import List, Tuple
 
 from core.entrypoint.uow import AbstractUnitOfWork
 from ..domain.model import (
@@ -18,6 +19,7 @@ from ...payment.domain.model import TransactionType, TransactionMode
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain import model as auth_mdl
+from core.payment.domain import exceptions as pmt_mdl_exc
 from . import utils
 from time import sleep
 from queue import Queue
@@ -28,8 +30,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class NotVerifiedException(Exception):
     """User is not verified"""
+
 
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
@@ -39,6 +43,7 @@ def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     uow.transactions.add_wallet(wallet)
 
     return wallet
+
 
 def execute_transaction_unique_identifier(
     sender_unique_identifier: str,
@@ -82,12 +87,15 @@ def execute_transaction(
     uow: AbstractUnitOfWork,
 ) -> Transaction:
     with uow:
+        if not auth_qry.user_verification_status_from_user_id(
+            user_id=sender_wallet_id, uow=uow
+        ):
+            raise NotVerifiedException("User is not verified")
+        if not auth_qry.user_verification_status_from_user_id(
+            user_id=recipient_wallet_id, uow=uow
+        ):
+            raise NotVerifiedException("User is not verified")
 
-        if not auth_qry.user_verification_status_from_user_id(user_id = sender_wallet_id, uow=uow):
-            raise NotVerifiedException("User is not verified")
-        if not auth_qry.user_verification_status_from_user_id(user_id = recipient_wallet_id, uow=uow):
-            raise NotVerifiedException("User is not verified")
-        
         tx = uow.transactions.get_wallets_create_transaction(
             amount=amount,
             mode=transaction_mode,
@@ -425,6 +433,28 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
     return auth_token
 
 
+def pay_pro_callback(
+    user_name: str, password: str, csv_invoice_ids: str, uow: AbstractUnitOfWork
+) -> Tuple[List[str], List[str]]:
+    if user_name != os.environ.get("PAYPRO_USERNAME") and password != os.environ.get(
+        "PAYPRO_PASSWORD"
+    ):
+        raise exc.InvalidPayProCredentialsException("PayPro credentials are invalid")
+
+    invoice_ids = csv_invoice_ids.split(",")
+    not_found_invoice_ids = []
+    success_invoice_ids = []
+
+    for id in invoice_ids:
+        try:
+            accept_payment_gateway_transaction(transaction_id=id, uow=uow)
+            success_invoice_ids.append(id)
+        except pmt_mdl_exc.TransactionNotFoundException:
+            not_found_invoice_ids.append(id)
+
+    return success_invoice_ids, not_found_invoice_ids
+
+
 def _get_min_sec_repr_of_timedelta(td: timedelta):
     total_seconds = int(td.total_seconds())
     minutes, seconds = divmod(total_seconds, 60)
@@ -443,7 +473,6 @@ def payment_retools_reconcile_vendor(
     card_pay_wallet_id = payment_qry.get_starred_wallet_id(
         uow=uow,
     )[0]
-    
 
     execute_transaction(
         sender_wallet_id=vendor_wallet_id,
@@ -456,13 +485,13 @@ def payment_retools_reconcile_vendor(
 
     return
 
-def execute_qr_transaction(
-        sender_wallet_id: str,
-        recipient_qr_id: str,
-        amount: int,
-        uow: AbstractUnitOfWork,
-) -> Transaction:
 
+def execute_qr_transaction(
+    sender_wallet_id: str,
+    recipient_qr_id: str,
+    amount: int,
+    uow: AbstractUnitOfWork,
+) -> Transaction:
     user_info = payment_qry.get_user_wallet_id_and_type_from_qr_id(
         qr_id=recipient_qr_id,
         uow=uow,
@@ -472,7 +501,7 @@ def execute_qr_transaction(
 
     if user_info is None:
         raise exc.InvalidQRCodeException("Invalid QR code")
-    
+
     elif user_info.user_type == auth_mdl.UserType.VENDOR:
         transaction_type = TransactionType.VIRTUAL_POS
 
