@@ -263,7 +263,7 @@ def register_closed_loop(uid):
         )
         uow.commit_close_connection()
 
-    except auth_ex.UniqueIdentifierAlreadyExistsException as e:
+    except auth_cmd_ex.UniqueIdentifierAlreadyExistsException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -706,10 +706,7 @@ def get_user_recent_transactions(uid):
 @utils.user_verified
 def get_user(uid):
     uow = UnitOfWork()
-    user = auth_qry.get_user_from_user_id(
-        user_id=uid,
-        uow=uow,
-    )
+    user = auth_qry.get_user_from_user_id(user_id = uid, uow=uow)
     uow.close_connection()
 
     user.closed_loops = [c for c in user.closed_loops.values()]
