@@ -620,13 +620,13 @@ def user_verification_status_from_user_id(
     return row[0] if row else False
 
 
-def unique_identifier_already_exists(
+def verified_unique_identifier_already_exists(
     closed_loop_id: str, unique_identifier: str, uow: AbstractUnitOfWork
 ) -> bool:
     sql = """
         select unique_identifier
         from user_closed_loops
-        where closed_loop_id = %s and unique_identifier = %s
+        where closed_loop_id = %s and unique_identifier = %s and status = 'VERIFIED'::closed_loop_user_state_enum
     """
     uow.cursor.execute(sql, [closed_loop_id, unique_identifier])
     result = uow.cursor.fetchone()

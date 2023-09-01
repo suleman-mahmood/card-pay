@@ -21,6 +21,8 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     sender_id = seed_api_customer(mocker, client)
     recipient_id = seed_api_customer(mocker, client)
     closed_loop_id = _create_closed_loop_helper(client)
+    sender_unique_identifier = "26100274"
+    recipient_unique_identifier = "26100290"
 
     headers = {
         "Authorization": "Bearer pytest_auth_token",
@@ -30,8 +32,8 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     _verify_phone_number(recipient_id, mocker, client)
     _verify_phone_number(sender_id, mocker, client)
 
-    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
-    _register_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, "26100290")
+    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, sender_unique_identifier)
+    _register_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, recipient_unique_identifier)
    
     uow = UnitOfWork()
     sender = uow.users.get(user_id=sender_id)
@@ -41,16 +43,12 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
     _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
     
+
     otp = recipient.closed_loops[closed_loop_id].unique_identifier_otp
     _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
     
+
     uow = UnitOfWork()
-    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=recipient_id, uow=uow
-    )
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=sender_id, uow=uow
-    )
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
 

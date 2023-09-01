@@ -267,7 +267,7 @@ def register_closed_loop(uid):
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except Exception as e:
+    except (Exception) as e:
         uow.close_connection()
         raise e
 
@@ -308,7 +308,7 @@ def verify_closed_loop(uid):
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except Exception as e:
+    except (Exception, AssertionError) as e:
         uow.close_connection()
         raise e
 

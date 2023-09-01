@@ -183,49 +183,58 @@ def verify_phone_number(user_id: str, otp: str, uow: AbstractUnitOfWork):
     return user
 
 
-def register_closed_loop(
-    user_id: str,
+def _register_closed_loop(
+    user: auth_mdl.User,
     closed_loop_id: str,
     unique_identifier: Optional[str],
     uow: AbstractUnitOfWork,
 ):
-    """Request/Register to join a closed loop"""
-
-    user = uow.users.get(user_id=user_id)
-
-    if unique_identifier is not None:
-        if qry.unique_identifier_already_exists(
-            closed_loop_id=closed_loop_id,
-            unique_identifier=unique_identifier,
-            uow=uow,
-        ):
-            if (
-                user.closed_loops[closed_loop_id].status
-                == auth_mdl.ClosedLoopUserState.UN_VERIFIED
-            ):
-                if user.user_type is auth_mdl.UserType.CUSTOMER:
-                    comms_commands.send_email(
-                        subject="Verify closed loop | Otp",
-                        text=user.closed_loops[closed_loop_id].unique_identifier_otp,
-                        to=f"{unique_identifier}@lums.edu.pk",
-                    )
-                return user
-
-            raise ex.UniqueIdentifierAlreadyExistsException(
-                "User is already registered and verified in this closed loop"
-            )
-
     closed_loop_user = auth_mdl.ClosedLoopUser(
         closed_loop_id=closed_loop_id, unique_identifier=unique_identifier
     )
     user.register_closed_loop(closed_loop_user=closed_loop_user)
     uow.users.save(user)
 
-    if unique_identifier is not None and user.user_type is auth_mdl.UserType.CUSTOMER:
+
+def register_closed_loop(
+    user_id: str,
+    closed_loop_id: str,
+    unique_identifier: Optional[str],
+    uow: AbstractUnitOfWork,
+):
+    """Request/Register to join a closed loop.
+         Invariant: Multiple unverified closed_loop_users in a single closed loop with the same unique identifier can exist."""
+
+    user = uow.users.get(user_id=user_id)
+
+    if unique_identifier is None:
+        _register_closed_loop(
+            user=user,
+            closed_loop_id=closed_loop_id,
+            unique_identifier=unique_identifier,
+            uow=uow,
+        )
+        return user
+
+    if qry.verified_unique_identifier_already_exists(
+        closed_loop_id=closed_loop_id,
+        unique_identifier=unique_identifier,
+        uow=uow,
+    ):
+        raise ex.UniqueIdentifierAlreadyExistsException("This User already exists in this organization")
+
+    _register_closed_loop(
+        user=user,
+        closed_loop_id=closed_loop_id,
+        unique_identifier=unique_identifier,
+        uow=uow,
+    )
+
+    if user.user_type is auth_mdl.UserType.CUSTOMER:
         comms_commands.send_email(
             subject="Verify closed loop | Otp",
-            text=closed_loop_user.unique_identifier_otp,
-            to=f"{unique_identifier}@lums.edu.pk",  # TODO: fix this
+            text=user.closed_loops[closed_loop_id].unique_identifier_otp,
+            to=f"{unique_identifier}@lums.edu.pk",#TODO: fix this
         )
 
     return user
@@ -239,6 +248,13 @@ def verify_closed_loop(
 ):
     """Request/Register to join a closed loop"""
     user = uow.users.get(user_id=user_id)
+
+    assert not qry.verified_unique_identifier_already_exists(
+        closed_loop_id=closed_loop_id,
+        unique_identifier=user.closed_loops[closed_loop_id].unique_identifier,
+        uow=uow,
+    )
+
     user.verify_closed_loop(closed_loop_id=closed_loop_id, otp=unique_identifier_otp)
     uow.users.save(user)
 
