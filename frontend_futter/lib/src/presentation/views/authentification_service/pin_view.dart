@@ -13,38 +13,46 @@ import '../../widgets/layout/pin_numpad_layout.dart';
 @RoutePage()
 class PinView extends HookWidget {
   const PinView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final pinController = useTextEditingController();
     final showErrorMessage = useState(false);
     final isPinConfirmed = useState(false);
-    String enteredPin = '';
+    final error = useState('');
+
+    String prevPin = '';
 
     final userCubit = BlocProvider.of<UserCubit>(context);
 
-    void handleLogin() {
-      if (isPinConfirmed.value) {
-        String confirmPin = pinController.text;
+    void handlePinSetup() {
+      String newPin = pinController.text;
 
-        if (confirmPin.length == 4 && confirmPin == enteredPin) {
+      if (isPinConfirmed.value) {
+        if (newPin == prevPin && prevPin != '0000') {
           userCubit.changePin(pinController.text);
-        } else {
-          showErrorMessage.value = true;
-          isPinConfirmed.value = false;
-          enteredPin = '';
-          pinController.clear();
+          return;
         }
-      } else {
-        String entered = pinController.text;
-        if (entered.length == 4) {
-          isPinConfirmed.value = true;
-          enteredPin = entered;
-          pinController.clear();
-        } else {
-          showErrorMessage.value = true;
-          pinController.clear();
-        }
+
+        showErrorMessage.value = true;
+        isPinConfirmed.value = false;
+        error.value = AppStrings.passwordNotMatched;
+        prevPin = '';
+        pinController.clear();
+        return;
       }
+
+      if (newPin == '0000') {
+        showErrorMessage.value = true;
+        isPinConfirmed.value = false;
+        error.value = AppStrings.weakPassword;
+        pinController.clear();
+        return;
+      }
+
+      isPinConfirmed.value = true;
+      prevPin = newPin;
+      pinController.clear();
     }
 
     useEffect(() {
@@ -86,13 +94,13 @@ class PinView extends HookWidget {
             Expanded(flex: 1, child: Container()),
             if (showErrorMessage.value)
               Text(
-                AppStrings.error,
+                error.value,
                 style: AppTypography.errorText,
               ),
             Expanded(flex: 2, child: Container()),
             PinEntry(
               controller: pinController,
-              onPinEntered: handleLogin,
+              onPinEntered: handlePinSetup,
             ),
             Expanded(flex: 1, child: Container()),
           ],
