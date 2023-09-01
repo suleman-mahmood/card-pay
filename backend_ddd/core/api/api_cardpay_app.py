@@ -122,7 +122,7 @@ def change_name(uid):
     except auth_ex.InvalidNameException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
-        
+
     except Exception as e:
         uow.close_connection()
         raise e
@@ -154,7 +154,7 @@ def change_pin(uid):
     except auth_ex.InvalidPinException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
-    
+
     except Exception as e:
         uow.close_connection()
         raise e
@@ -306,6 +306,7 @@ def verify_closed_loop(uid):
             unique_identifier_otp=req["unique_identifier_otp"],
             uow=uow,
         )
+        uow.commit_close_connection()
     except (
         auth_ex.ClosedLoopException,
         auth_ex.VerificationException,

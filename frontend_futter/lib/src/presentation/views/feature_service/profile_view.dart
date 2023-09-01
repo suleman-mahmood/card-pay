@@ -1,11 +1,9 @@
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/screen_utills/box_decoration_all.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/greeting_card.dart';
-import 'package:cardpay/src/presentation/widgets/layout/profile_layout.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
@@ -34,7 +32,7 @@ class ProfileView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userCubit = BlocProvider.of<UserCubit>(context);
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
     final isLoading = true;
     // useEffect(() {
     //   someFunction() async {
@@ -44,7 +42,7 @@ class ProfileView extends HookWidget {
     //   someFunction();
     // }, []);
     void handleLogout() async {
-      await userCubit.logout();
+      await loginCubit.logout();
     }
 
     void _showBottomSheetDelete() {

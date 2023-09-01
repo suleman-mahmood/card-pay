@@ -1,5 +1,6 @@
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
@@ -9,7 +10,6 @@ import 'package:cardpay/src/presentation/widgets/layout/profile_layout.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
-import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ class EditProfileView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userCubit = BlocProvider.of<UserCubit>(context);
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
     // useEffect(() {
     //   someFunction() async {
     //     await userCubit.getUser();
@@ -32,7 +32,7 @@ class EditProfileView extends HookWidget {
     //   someFunction();
     // }, []);
     void handleLogout() async {
-      await userCubit.logout();
+      await loginCubit.logout();
     }
 
     Widget _buildAvatarWidget(String url) {
@@ -207,23 +207,6 @@ class EditProfileView extends HookWidget {
                   HeightBox(slab: 2),
                   Column(
                     children: [
-                      BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-                        switch (state.runtimeType) {
-                          case UserSuccess:
-                            if (state.eventCodes ==
-                                EventCodes.LOGOUT_SUCCESSFUL) {
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                context.router.pushAndPopUntil(
-                                  const IntroRoute(),
-                                  predicate: (route) => false,
-                                );
-                              });
-                            }
-                            return const SizedBox.shrink();
-                          default:
-                            return const SizedBox.shrink();
-                        }
-                      }),
                       Container(
                         child: Center(
                           child: PrimaryButton(
@@ -252,7 +235,7 @@ class EditProfileView extends HookWidget {
 
     useEffect(() {
       return () {
-        userCubit.close();
+        loginCubit.close();
       };
     }, []);
     return ProfileLayout(
@@ -378,6 +361,18 @@ class EditProfileView extends HookWidget {
                       ),
                     ),
                   ),
+                  BlocBuilder<LoginCubit, LoginState>(builder: (_, state) {
+                    switch (state.runtimeType) {
+                      case LogoutSuccess:
+                        context.router.pushAndPopUntil(
+                          const IntroRoute(),
+                          predicate: (route) => false,
+                        );
+                        return const SizedBox.shrink();
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  }),
                 ],
               ),
             ),

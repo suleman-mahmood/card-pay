@@ -31,7 +31,7 @@ class CreateDepositResponse {
   factory CreateDepositResponse.fromMap(Map<String, dynamic> map) {
     return CreateDepositResponse(
       message: map['message'] as String,
-      checkoutUrl: map['checkout_url'] as String,
+      checkoutUrl: map['data']['checkout_url'] as String,
     );
   }
 

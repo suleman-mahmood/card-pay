@@ -43,8 +43,7 @@ class LoginView extends HookWidget {
           },
         );
       } else if (state.checkPoints.verifiedPhoneOtp &&
-          state.checkPoints.verifiedClosedLoop == false &&
-          state.checkPoints.pinSetup == false) {
+          state.checkPoints.verifiedClosedLoop == false) {
         WidgetsBinding.instance.addPostFrameCallback(
           (_) {
             context.router.push(
@@ -90,7 +89,7 @@ class LoginView extends HookWidget {
         await loginCubit.loginWithBiometric();
       }
 
-      someFunction();
+      // someFunction();
 
       return () {
         phoneNumberController.dispose();
@@ -159,7 +158,6 @@ class LoginView extends HookWidget {
                       state.login.phoneNumber,
                       state.login.password,
                     );
-
                   case UserFailed:
                     return Text(
                       state.errorMessage,

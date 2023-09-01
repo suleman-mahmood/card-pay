@@ -434,24 +434,6 @@ class UserCubit extends BaseCubit<UserState, User> {
     });
   }
 
-  Future<void> logout() async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      try {
-        await firebase_auth.FirebaseAuth.instance.signOut();
-        emit(UserSuccess(
-          message: "Log out was successful",
-          eventCodes: EventCodes.LOGOUT_SUCCESSFUL,
-        ));
-      } on firebase_auth.FirebaseAuthException catch (e) {
-        emit(UserFailed(errorMessage: e.message ?? ''));
-      }
-    });
-  }
-
   // TODO: DEPRECATE this
   Future<void> initialize() async {
     if (isBusy) return;
