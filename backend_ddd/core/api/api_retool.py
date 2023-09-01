@@ -10,7 +10,7 @@ from core.marketing.domain import exceptions as mktg_ex
 from core.payment.entrypoint import queries as payment_qry
 from core.payment.entrypoint import commands as payment_cmd
 from core.payment.domain import exceptions as pmt_ex
-
+from core.marketing.entrypoint import commands as mktg_cmd
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
 
@@ -534,3 +534,21 @@ def payment_retools_get_reconciled_transactions():
             "transactions": transactions
         },
     ).__dict__
+
+@retool.route("/add-and-set-missing-marketing-weightages-to-zero", methods=["POST"])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+def add_and_set_missing_marketing_weightages_to_zero():
+    uow = UnitOfWork()
+
+    mktg_cmd.add_and_set_missing_weightages_to_zero(
+        uow=uow,
+    )
+    uow.commit_close_connection()
+
+    return utils.Response(
+        message="Weightages added and set successfully",
+        status_code=201,
+    ).__dict__
+
+   
