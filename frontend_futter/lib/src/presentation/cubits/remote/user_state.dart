@@ -8,7 +8,6 @@ abstract class UserState {
   final bool isPhoneNumberVerified;
   final bool pinSetup;
   final bool closedLoopVerified;
-
   final EventCodes eventCodes;
   final User user;
   final String phoneNumber;

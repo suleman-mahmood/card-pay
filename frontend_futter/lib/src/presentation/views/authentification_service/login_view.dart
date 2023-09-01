@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
@@ -20,6 +21,48 @@ class LoginView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    void navigateToNextScreen(CheckpointsState state) {
+      if (state.checkPoints.verifiedPhoneOtp &&
+          state.checkPoints.verifiedClosedLoop &&
+          state.checkPoints.pinSetup) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            context.router.push(
+              PaymentDashboardRoute(),
+            );
+          },
+        );
+      } else if (state.checkPoints.verifiedPhoneOtp &&
+          state.checkPoints.verifiedClosedLoop &&
+          state.checkPoints.pinSetup == false) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            context.router.push(
+              PinRoute(),
+            );
+          },
+        );
+      } else if (state.checkPoints.verifiedPhoneOtp &&
+          state.checkPoints.verifiedClosedLoop == false &&
+          state.checkPoints.pinSetup == false) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            context.router.push(
+              RegisterOrganizationRoute(),
+            );
+          },
+        );
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            context.router.push(
+              SignupRoute(),
+            );
+          },
+        );
+      }
+    }
+
     final phoneNumberController = useTextEditingController();
     final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
     final formKey = useMemoized(() => GlobalKey<FormState>());
@@ -28,15 +71,16 @@ class LoginView extends HookWidget {
     final password = useState<String>('abcd1234');
 
     final userCubit = BlocProvider.of<UserCubit>(context);
+    final checkPointsCubit = BlocProvider.of<CheckpointsCubit>(context);
 
     void onPhoneNumberChanged(String newValue) {
       dropdownValue.value = newValue;
     }
 
     void handleLogin() async {
-      // if (!formKey.currentState!.validate()) {
-      //   return;
-      // }
+      if (!formKey.currentState!.validate()) {
+        return;
+      }
 
       await userCubit.login(phoneNumber.value, password.value);
     }
@@ -105,26 +149,43 @@ class LoginView extends HookWidget {
                 onPressed: handleLogin,
               ),
               const HeightBox(slab: 2),
-              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-                switch (state.runtimeType) {
-                  case UserSuccess:
-                    if (state.eventCodes == EventCodes.USER_AUTHENTICATED) {
-                      context.router.push(PaymentDashboardRoute());
-                    } else if (state.eventCodes ==
-                        EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC) {
-                      userCubit.login(state.phoneNumber, state.password);
-                    }
-                    return const SizedBox.shrink();
-                  case UserFailed:
-                    return Text(
-                      state.errorMessage,
-                      style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              }),
+              BlocBuilder<UserCubit, UserState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case UserSuccess:
+                      if (state.eventCodes == EventCodes.USER_AUTHENTICATED) {
+                        checkPointsCubit.getCheckpoints();
+                      } else if (state.eventCodes ==
+                          EventCodes.USER_AUTHENTICATED_WITH_BIOMETRIC) {
+                        userCubit.login(state.phoneNumber, state.password);
+                      }
+                      return const SizedBox.shrink();
+                    case UserFailed:
+                      return Text(
+                        state.errorMessage,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      );
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
+              BlocBuilder<CheckpointsCubit, CheckpointsState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case CheckpointsSuccess:
+                      navigateToNextScreen(state);
+
+                      return const SizedBox.shrink();
+                    case CheckpointsFailed:
+                      context.router.push(const SignupRoute());
+                      return const SizedBox.shrink();
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
             ],
           ),
         ),

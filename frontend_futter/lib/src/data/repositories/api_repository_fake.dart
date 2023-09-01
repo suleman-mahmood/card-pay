@@ -1,3 +1,4 @@
+import 'package:cardpay/src/domain/models/checkpoints.dart';
 import 'package:cardpay/src/domain/models/closed_loop.dart';
 import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_customer_request.dart';
@@ -13,6 +14,7 @@ import 'package:cardpay/src/domain/models/responses/create_deposit_response.dart
 import 'package:cardpay/src/domain/models/responses/create_p2p_pull_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/execute_p2p_push_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
@@ -203,5 +205,16 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     );
 
     return Future.value(DataSuccess(CreateP2PPullTransactionRequest));
+  }
+
+  Future<DataState<GetCheckpointsResponse>> getCheckpoints(String user_id) {
+    return Future.value(DataSuccess(GetCheckpointsResponse(
+      checks: Checkpoints(
+        verifiedPhoneOtp: true,
+        verifiedClosedLoop: true,
+        pinSetup: true,
+      ),
+      message: 'Customer verify successfully',
+    )));
   }
 }

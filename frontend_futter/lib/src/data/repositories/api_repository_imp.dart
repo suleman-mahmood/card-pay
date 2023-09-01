@@ -13,6 +13,7 @@ import 'package:cardpay/src/domain/models/responses/create_deposit_response.dart
 import 'package:cardpay/src/domain/models/responses/create_p2p_pull_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/execute_p2p_push_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
@@ -158,6 +159,16 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     return getStateOf<CreateP2PPullTransactionResponse>(
       request: () => _pythonApiService.createP2PPullTransaction(
         createP2PPullTransactionRequest: request,
+        token: 'Bearer $token',
+      ),
+    );
+  }
+
+  Future<DataState<GetCheckpointsResponse>> getCheckpoints(
+    String token,
+  ) {
+    return getStateOf<GetCheckpointsResponse>(
+      request: () => _pythonApiService.getCheckpoints(
         token: 'Bearer $token',
       ),
     );
