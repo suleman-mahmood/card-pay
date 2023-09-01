@@ -274,7 +274,7 @@ def auth_retools_create_vendor():
                 float(req["latitude"])
             ),
             closed_loop_id=req["closed_loop_id"],
-            unique_identifier="",
+            unique_identifier=None,
             uow=uow,
         )
         uow.commit_close_connection()

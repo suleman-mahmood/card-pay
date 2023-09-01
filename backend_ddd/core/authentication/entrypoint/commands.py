@@ -357,7 +357,7 @@ def create_vendor_through_retool(
     assumption: each vendor can only belong to a single closed loop
     """
 
-    user_object = create_user(
+    _, user_id = create_user(
         personal_email=personal_email,
         password=password,
         phone_number=phone_number,
@@ -366,8 +366,6 @@ def create_vendor_through_retool(
         location=location,
         uow=uow,
     )
-
-    user_id = user_object[1]
 
     user = uow.users.get(user_id=user_id)
 
@@ -381,15 +379,6 @@ def create_vendor_through_retool(
         user_id=user_id,
         closed_loop_id=closed_loop_id,
         unique_identifier=unique_identifier,
-        uow=uow,
-    )
-
-    closed_loop_user = user.closed_loops[closed_loop_id]
-
-    user = verify_closed_loop(
-        user_id=user_id,
-        closed_loop_id=closed_loop_id,
-        unique_identifier_otp=closed_loop_user.unique_identifier_otp,
         uow=uow,
     )
 
