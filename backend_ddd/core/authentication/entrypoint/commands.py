@@ -15,8 +15,9 @@ from core.authentication.entrypoint import exceptions as ex
 from core.payment.domain import model as pmt_mdl
 from core.authentication.domain import model as auth_mdl
 from core.payment.domain import exceptions as pmt_domain_exc
+
 PK_CODE = "92"
-LUMS_CLOSED_LOOP_ID = "ec3c471e-49e7-46a6-9f2c-5fd6252b7518"
+LUMS_CLOSED_LOOP_ID = "a3024e7d-e59c-4c65-8066-ab0349248d2b"
 
 
 def create_closed_loop(
@@ -203,7 +204,8 @@ def register_closed_loop(
     uow: AbstractUnitOfWork,
 ):
     """Request/Register to join a closed loop.
-         Invariant: Multiple unverified closed_loop_users in a single closed loop with the same unique identifier can exist."""
+    Invariant: Multiple unverified closed_loop_users in a single closed loop with the same unique identifier can exist.
+    """
 
     user = uow.users.get(user_id=user_id)
 
@@ -221,7 +223,9 @@ def register_closed_loop(
         unique_identifier=unique_identifier,
         uow=uow,
     ):
-        raise ex.UniqueIdentifierAlreadyExistsException("This User already exists in this organization")
+        raise ex.UniqueIdentifierAlreadyExistsException(
+            "This User already exists in this organization"
+        )
 
     _register_closed_loop(
         user=user,
@@ -234,7 +238,7 @@ def register_closed_loop(
         comms_commands.send_email(
             subject="Verify closed loop | Otp",
             text=user.closed_loops[closed_loop_id].unique_identifier_otp,
-            to=f"{unique_identifier}@lums.edu.pk",#TODO: fix this
+            to=f"{unique_identifier}@lums.edu.pk",  # TODO: fix this
         )
 
     return user
@@ -265,20 +269,22 @@ def verify_closed_loop(
     assert unique_identifier is not None
 
     try:
-        fetched_user_id = qry.user_id_from_firestore(
+        firestore_user_id = qry.user_id_from_firestore(
             unique_identifier=unique_identifier, uow=uow
         )
     except ex.UserNotInFirestore:
         # This is not an old LUMS user, so just return
         return user
 
-    _migrate_user(user_id=fetched_user_id, uow=uow)
+    _migrate_user(user_id=user_id, firestore_user_id=firestore_user_id, uow=uow)
 
     return user
 
 
-def _migrate_user(user_id: str, uow: AbstractUnitOfWork):
-    fetched_wallet_balance = qry.wallet_balance_from_firestore(user_id=user_id, uow=uow)
+def _migrate_user(user_id: str, firestore_user_id: str, uow: AbstractUnitOfWork):
+    fetched_wallet_balance = qry.wallet_balance_from_firestore(
+        user_id=firestore_user_id, uow=uow
+    )
     cardpay_wallet_id = pmt_qry.get_starred_wallet_id(uow=uow)
 
     try:
@@ -306,7 +312,7 @@ def _migrate_user(user_id: str, uow: AbstractUnitOfWork):
     uow.cursor.execute(
         sql,
         {
-            "user_id": user_id,
+            "user_id": firestore_user_id,
         },
     )
 
