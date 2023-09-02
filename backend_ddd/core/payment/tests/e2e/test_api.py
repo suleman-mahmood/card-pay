@@ -1,5 +1,6 @@
 import threading
 import pytest
+import concurrent.futures
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import queries as auth_qry
@@ -15,12 +16,21 @@ from core.conftest import (
 )
 from json import loads
 from core.api import utils
+import httpx
+import asyncio
+import time
+import random
+
+
+def post_p2p_push_transaction(client, url, json_data, headers):
+    response = client.post(url, json=json_data, headers=headers)
+    return response
 
 
 def test_execute_p2p_push_one_to_many(
     seed_api_admin, seed_api_customer, mocker, client
 ):
-    NUMBER_OF_RECIPIENTS = 3
+    NUMBER_OF_RECIPIENTS = 10
 
     sender_id = seed_api_customer(mocker, client)
     recipient_ids = [
@@ -40,7 +50,11 @@ def test_execute_p2p_push_one_to_many(
     _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
     for recipient_id, _ in zip(recipient_ids, range(NUMBER_OF_RECIPIENTS)):
         _register_user_in_closed_loop(
-            mocker, client, recipient_id, closed_loop_id, f"2410016{_}"
+            mocker,
+            client,
+            recipient_id,
+            closed_loop_id,
+            str(random.randint(10000000, 99999999)),
         )
 
     uow = UnitOfWork()
@@ -73,29 +87,124 @@ def test_execute_p2p_push_one_to_many(
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
 
-    processes = []
+    post_requests = [
+        {
+            "recipient_unique_identifier": recipient_unique_identifier,
+            "amount": 10,
+            "closed_loop_id": closed_loop_id,
+        }
+        for recipient_unique_identifier in recipient_unique_identifiers
+    ]
 
-    for recipient_unique_identifier in recipient_unique_identifiers:
-        process = threading.Thread(
-            target=client.post,
-            args=(
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(post_requests)
+    ) as executor:
+        # Create a list to store the futures
+        futures = []
+
+        for request_data in post_requests:
+            future = executor.submit(
+                post_p2p_push_transaction,
+                client,
                 "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
-                {
-                    "recipient_unique_identifier": recipient_unique_identifiers,
-                    "amount": 100,
-                    "closed_loop_id": closed_loop_id,
-                },
+                request_data,
                 headers,
-            ),
-        )
+            )
+            futures.append(future)
 
-        processes.append(process)
-        process.start()
+        # Wait for all futures to complete
+        concurrent.futures.wait(futures)
 
-    for process in processes:
-        process.join()
+        # Extract and check the results of each POST request
+        for future, request_data in zip(futures, post_requests):
+            response = future.result()
+            payload = loads(response.data.decode())
 
-    # print(processes[0])
+            assert (
+                payload
+                == utils.Response(
+                    message="p2p push transaction executed successfully",
+                    status_code=201,
+                ).__dict__
+            )
+
+    post_requests = [
+        {
+            "recipient_unique_identifier": recipient_unique_identifier,
+            "amount": 90,
+            "closed_loop_id": closed_loop_id,
+        }
+        for recipient_unique_identifier in recipient_unique_identifiers
+    ]
+
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(post_requests)
+    ) as executor:
+        # Create a list to store the futures
+        futures = []
+
+        for request_data in post_requests:
+            future = executor.submit(
+                post_p2p_push_transaction,
+                client,
+                "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
+                request_data,
+                headers,
+            )
+            futures.append(future)
+
+        # Wait for all futures to complete
+        concurrent.futures.wait(futures)
+
+        # Extract and check the results of each POST request
+        for future, request_data in zip(futures, post_requests):
+            response = future.result()
+            payload = loads(response.data.decode())
+
+            assert (
+                payload
+                == utils.Response(
+                    message="p2p push transaction executed successfully",
+                    status_code=201,
+                ).__dict__
+            )
+
+    post_requests = [
+        {
+            "recipient_unique_identifier": recipient_unique_identifier,
+            "amount": 90,
+            "closed_loop_id": closed_loop_id,
+        }
+        for recipient_unique_identifier in recipient_unique_identifiers
+    ]
+
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(post_requests)
+    ) as executor:
+        # Create a list to store the futures
+        futures = []
+
+        for request_data in post_requests:
+            future = executor.submit(
+                post_p2p_push_transaction,
+                client,
+                "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
+                request_data,
+                headers,
+            )
+            futures.append(future)
+
+        # Wait for all futures to complete
+        concurrent.futures.wait(futures)
+
+        # Extract and check the results of each POST request
+        for future, request_data in zip(futures, post_requests):
+            response = future.result()
+            payload = loads(response.data.decode())
+
+            assert payload["message"] == "Insufficient balance in sender's wallet"
+            assert EventCode[payload["event_code"]] == EventCode.DEFAULT_EVENT
+            assert response.status_code == 400
 
 
 def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client):
