@@ -15,6 +15,7 @@ from core.marketing.domain import exceptions as mktg_ex
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.domain import exceptions as auth_ex
 from core.authentication.entrypoint import exceptions as auth_cmd_ex
+from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
 
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
@@ -403,11 +404,12 @@ def execute_p2p_push_transaction(uid):
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,
         mktg_ex.NotVerifiedException,
+        pmt_qry_ex.UserDoesNotExistException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except Exception as e:
+    except (Exception, AssertionError,) as e:
         uow.close_connection()
         raise e
 
@@ -450,11 +452,12 @@ def create_p2p_pull_transaction(uid):
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,
         mktg_ex.NotVerifiedException,
+        pmt_qry_ex.UserDoesNotExistException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except Exception as e:
+    except (Exception, AssertionError,) as e:
         uow.close_connection()
         raise e
 

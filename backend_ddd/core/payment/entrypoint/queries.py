@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 from datetime import datetime
 from dataclasses import dataclass
 from ...authentication.domain import model as auth_mdl
+from core.payment.entrypoint.queries_exceptions import UserDoesNotExistException
 
 def usecases():
     """
@@ -406,9 +407,14 @@ def get_wallet_id_from_unique_identifier(
         join user_closed_loops ucl on u.id = ucl.user_id
         where ucl.unique_identifier = %s
         and ucl.closed_loop_id = %s
+        and ucl.status = 'VERIFIED'::user_closed_loop_status_enum
     """
     uow.cursor.execute(sql, [unique_identifier, closed_loop_id])
-    row = uow.cursor.fetchone()
+    row = uow.cursor.fetchall()
+
+    if len(row) == 0:
+        raise UserDoesNotExistException(f"No user found against {unique_identifier}")
+    assert len(row) == 1
 
     return row[0]
 
