@@ -699,7 +699,7 @@ def get_all_closed_loops(uid):
 @utils.user_verified
 def get_user_recent_transactions(uid):
     uow = UnitOfWork()
-    txs = pmt_qry.get_all_transactions_of_a_user(
+    txs = pmt_qry.get_all_successful_transactions_of_a_user(
         user_id=uid,
         offset=0,
         page_size=50,

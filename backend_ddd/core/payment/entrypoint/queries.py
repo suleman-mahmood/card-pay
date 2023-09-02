@@ -204,7 +204,7 @@ def get_all_transactions_of_a_type(
         return transactions
 
 
-def get_all_transactions_of_a_user(
+def get_all_successful_transactions_of_a_user(
     user_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int
 ) -> List[Dict[str, str]]:
     """generel fuction | Get all transactions of a user"""
@@ -217,6 +217,7 @@ def get_all_transactions_of_a_user(
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
             where txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s
+            and txn.status = 'SUCCESSFUL'::transaction_status_enum
             order by txn.created_at desc
             limit %s offset %s
         """

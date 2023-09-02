@@ -184,7 +184,7 @@ def test_get_user_recent_transcations_api(seed_api_customer, seed_api_admin, moc
     )     
 
     uow = UnitOfWork()
-    txs = pmt_qry.get_all_transactions_of_a_user(
+    txs = pmt_qry.get_all_successful_transactions_of_a_user(
         user_id=sender_id,
         offset=0,
         page_size=50,
