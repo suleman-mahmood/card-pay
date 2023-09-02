@@ -12,3 +12,9 @@ class InvalidUserTypeException(Exception):
 
 class InvalidPayProCredentialsException(Exception):
     """PayPro credentials are invalid"""
+
+class PaymentUrlNotFoundException(Exception):
+    """exception raised for when payment url is not found"""
+
+class NotVerifiedException(Exception):
+    """User is not verified"""

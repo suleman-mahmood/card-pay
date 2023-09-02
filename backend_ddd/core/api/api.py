@@ -10,7 +10,9 @@ from flask import Flask, request, jsonify
 from core.api import utils
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_cmd_exc
+from core.payment.domain import exceptions as pmt_ex
 from core.authentication.domain import model as auth_mdl
+from core.marketing.domain import exceptions as mktg_ex
 from core.entrypoint.uow import UnitOfWork
 from .api_cardpay_app import cardpay_app
 from .api_retool import retool
@@ -119,7 +121,14 @@ def pay_pro_callback():
             uow=uow,
         )
         uow.commit_close_connection()
-    except pmt_cmd_exc.InvalidPayProCredentialsException:
+    except (
+        pmt_cmd_exc.InvalidPayProCredentialsException,
+        pmt_cmd_exc.PaymentUrlNotFoundException,
+        pmt_ex.TransactionNotAllowedException,
+        mktg_ex.NegativeAmountException,
+        mktg_ex.InvalidTransactionTypeException,
+        mktg_ex.NotVerifiedException,
+    ) as e:
         uow.close_connection()
         return [
             {

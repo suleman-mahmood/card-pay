@@ -349,10 +349,7 @@ def create_deposit_request(uid):
 
     except (
         pmt_cmd_ex.DepositAmountTooSmallException,
-        pmt_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        pmt_cmd_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))

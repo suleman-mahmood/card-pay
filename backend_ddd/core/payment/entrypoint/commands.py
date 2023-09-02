@@ -20,19 +20,15 @@ from core.marketing.entrypoint import commands as mktg_cmd
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain import model as auth_mdl
 from core.payment.domain import exceptions as pmt_mdl_exc
+from core.payment.entrypoint.exceptions import *
 from . import utils
 from time import sleep
 from queue import Queue
-from . import exceptions as exc
 from ..entrypoint import queries as payment_qry
 from uuid import uuid4
 from dotenv import load_dotenv
 
 load_dotenv()
-
-
-class NotVerifiedException(Exception):
-    """User is not verified"""
 
 
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
@@ -258,7 +254,7 @@ def create_deposit_request(
         user = uow.users.get(user_id=user_id)
 
     if amount < 1000:
-        raise exc.DepositAmountTooSmallException(
+        raise DepositAmountTooSmallException(
             "Deposit amount is less than the minimum allowed deposit"
         )
 
@@ -342,7 +338,11 @@ def get_deposit_checkout_url(
     pp_order_res.raise_for_status()
 
     response_data = pp_order_res.json()[1]
-    payment_url = response_data["Click2Pay"]
+    
+    try:
+        payment_url = response_data["Click2Pay"]
+    except:
+        raise PaymentUrlNotFoundException("PayPro response does not contain payment url, please try again")
 
     return payment_url
 
@@ -439,7 +439,7 @@ def pay_pro_callback(
     if user_name != os.environ.get("PAYPRO_USERNAME") and password != os.environ.get(
         "PAYPRO_PASSWORD"
     ):
-        raise exc.InvalidPayProCredentialsException("PayPro credentials are invalid")
+        raise InvalidPayProCredentialsException("PayPro credentials are invalid")
 
     invoice_ids = csv_invoice_ids.split(",")
     not_found_invoice_ids = []
@@ -500,7 +500,7 @@ def execute_qr_transaction(
     transaction_type = TransactionType.VIRTUAL_POS
 
     if user_info is None:
-        raise exc.InvalidQRCodeException("Invalid QR code")
+        raise InvalidQRCodeException("Invalid QR code")
 
     elif user_info.user_type == auth_mdl.UserType.VENDOR:
         transaction_type = TransactionType.VIRTUAL_POS
@@ -509,7 +509,7 @@ def execute_qr_transaction(
         transaction_type = TransactionType.P2P_PUSH
 
     else:
-        raise exc.InvalidUserTypeException("Invalid user type")
+        raise InvalidUserTypeException("Invalid user type")
 
     tx = execute_transaction(
         sender_wallet_id=sender_wallet_id,
