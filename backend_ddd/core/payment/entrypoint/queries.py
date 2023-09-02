@@ -192,7 +192,7 @@ def get_all_transactions_of_a_type(
             from transactions txn
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
-            where txn.transaction_type = %s
+            where txn.transaction_type = %s::transaction_type_enum
             order by txn.created_at desc
             limit %s offset %s
         """
@@ -243,7 +243,7 @@ def get_all_transactions_of_a_user_of_a_type(
             from transactions txn
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
-            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.transaction_type = %s
+            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.transaction_type = %s::transaction_type_enum
             order by txn.created_at desc
             limit %s offset %s
         """
@@ -407,7 +407,7 @@ def get_wallet_id_from_unique_identifier(
         join user_closed_loops ucl on u.id = ucl.user_id
         where ucl.unique_identifier = %s
         and ucl.closed_loop_id = %s
-        and ucl.status = 'VERIFIED'::user_closed_loop_status_enum
+        and ucl.status = 'VERIFIED'::closed_loop_user_state_enum
     """
     uow.cursor.execute(sql, [unique_identifier, closed_loop_id])
     row = uow.cursor.fetchall()
@@ -464,7 +464,7 @@ def payment_retools_get_customers_and_ventors_of_selected_closed_loop(
                 from users u
                 join user_closed_loops ucl on u.id = ucl.user_id
                 where ucl.closed_loop_id = %s
-                and u.user_type = 'CUSTOMER'
+                and u.user_type = 'CUSTOMER'::user_type_enum
             """
         uow.cursor.execute(sql, [closed_loop_id])
         rows = uow.cursor.fetchall()
@@ -485,7 +485,7 @@ def payment_retools_get_customers_and_ventors_of_selected_closed_loop(
                 from users u
                 join user_closed_loops ucl on u.id = ucl.user_id
                 where ucl.closed_loop_id = %s
-                and u.user_type = 'VENDOR'
+                and u.user_type = 'VENDOR'::user_type_enum
             """
 
         uow.cursor.execute(sql, [closed_loop_id])
@@ -550,7 +550,7 @@ def payment_retools_get_vendors_and_balance(
             join wallets w on u.wallet_id = w.id
             join user_closed_loops ucl on u.id = ucl.user_id
             where ucl.closed_loop_id = %s
-            and u.user_type = 'VENDOR'
+            and u.user_type = 'VENDOR'::user_type_enum
             and w.balance > 0
         """
 
@@ -577,7 +577,7 @@ def payment_retools_get_transactions_to_be_reconciled(
     with uow:
         last_reconciliation_timestamp = """
         select max(created_at) from transactions
-        where transaction_type = 'RECONCILIATION'
+        where transaction_type = 'RECONCILIATION'::transaction_type_enum
         and sender_wallet_id = %s;
 
         """
@@ -593,7 +593,7 @@ def payment_retools_get_transactions_to_be_reconciled(
             from transactions txn
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
-            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.status != 'PENDING'
+            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.status != 'PENDING'::transaction_status_enum
         """
 
         if row[0] is not None:
@@ -621,7 +621,7 @@ def payment_retools_get_vendors(
                 from users u
                 join user_closed_loops ucl on u.id = ucl.user_id
                 where ucl.closed_loop_id = %s
-                and u.user_type = 'VENDOR'
+                and u.user_type = 'VENDOR'::user_type_enum
             """
 
         uow.cursor.execute(sql, [closed_loop_id])
@@ -646,7 +646,7 @@ def payment_retools_get_reconciliation_history(
         sql = """
             select txn.id, txn.amount, txn.created_at, txn.last_updated
             from transactions txn
-            where txn.transaction_type = 'RECONCILIATION'
+            where txn.transaction_type = 'RECONCILIATION'::transaction_type_enum
             and txn.sender_wallet_id = %s
             order by txn.created_at desc
         """
@@ -680,7 +680,7 @@ def payment_retools_get_reconciled_transactions(
         # NOTE: the above time is not perfect to the millisecond
         previous_vendor_reconciliation_timestamp = """
         select max(created_at) from transactions
-        where transaction_type = 'RECONCILIATION'
+        where transaction_type = 'RECONCILIATION'::transaction_type_enum
         and created_at < %s
         and sender_wallet_id = %s
         """
@@ -709,7 +709,7 @@ def payment_retools_get_reconciled_transactions(
                     on txn.recipient_wallet_id = recipient.id
             where 
                 (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s)
-                and txn.status != 'PENDING'
+                and txn.status != 'PENDING'::transaction_status_enum
                 and txn.last_updated < %s
         """
         
