@@ -18,7 +18,7 @@ from core.payment.domain import exceptions as pmt_domain_exc
 
 PK_CODE = "92"
 LUMS_CLOSED_LOOP_ID = "a3024e7d-e59c-4c65-8066-ab0349248d2b"
-
+PAYPRO_USER_ID = "81c36687-a0c1-4ff1-9cf0-18095c94d946"
 
 def create_closed_loop(
     name: str,

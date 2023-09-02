@@ -20,6 +20,7 @@ from core.marketing.entrypoint import commands as mktg_cmd
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain import model as auth_mdl
 from core.payment.domain import exceptions as pmt_mdl_exc
+from core.authentication.entrypoint.commands import PAYPRO_USER_ID
 from core.payment.entrypoint.exceptions import *
 from . import utils
 from time import sleep
@@ -259,7 +260,7 @@ def create_deposit_request(
         )
 
     tx = execute_transaction(
-        sender_wallet_id=user_id,
+        sender_wallet_id=PAYPRO_USER_ID,
         recipient_wallet_id=user_id,
         amount=amount,
         transaction_mode=TransactionMode.APP_TRANSFER,
