@@ -392,6 +392,60 @@ def test_get_user_balance_api(seed_api_customer, mocker, client):
         ).__dict__
     )
 
+def test_authenticate_token(seed_api_customer, mocker, client):
+    user_id = seed_api_customer(mocker, client)
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+
+    headers = {
+        "Authorization": "pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    payload = loads(response.data.decode())
+    assert payload["message"] == "Unauthorized, invalid header"
+    assert response.status_code == 401
+
+    headers = {
+        "Authorization": "",
+        "Content-Type": "application/json",
+    }
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    payload = loads(response.data.decode())
+    assert payload["message"] == "Unauthorized, invalid header"
+    assert response.status_code == 401
+
+
+    headers = {
+        "Authorization": "Bearer ",
+        "Content-Type": "application/json",
+    }
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    payload = loads(response.data.decode())
+    assert payload["message"] == "Unauthorized, invalid header"
+    assert response.status_code == 401
+
+    headers = {
+        "Authorization": "Bearer",
+        "Content-Type": "application/json",
+    }
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    payload = loads(response.data.decode())
+    assert payload["message"] == "Unauthorized, invalid header"
+    assert response.status_code == 401
+    
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    _verify_phone_number(user_id, mocker, client)
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+
+    x = loads(response.data.decode())
+    assert x["message"] == "User returned successfully"
+    assert x["status_code"] == 200
+    assert x["data"]["id"] == user_id
+
 
 # TODO: need to write the test for create vendor
 
