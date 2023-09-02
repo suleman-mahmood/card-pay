@@ -14,6 +14,7 @@ from core.conftest import (
     _marketing_setup,
     _verify_phone_number,
 )
+from core.payment.entrypoint.queries import get_wallet_balance
 from json import loads
 from core.api import utils
 import httpx
@@ -27,10 +28,11 @@ def post_p2p_push_transaction(client, url, json_data, headers):
     return response
 
 
-def test_execute_p2p_push_one_to_many(
+def test_execute_p2p_push_one_to_many_valid(
     seed_api_admin, seed_api_customer, mocker, client
 ):
     NUMBER_OF_RECIPIENTS = 10
+    STARTING_BALANCE = 1000
 
     sender_id = seed_api_customer(mocker, client)
     recipient_ids = [
@@ -83,7 +85,7 @@ def test_execute_p2p_push_one_to_many(
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
 
-    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "10")
+    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "5")
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
 
@@ -161,22 +163,81 @@ def test_execute_p2p_push_one_to_many(
             response = future.result()
             payload = loads(response.data.decode())
 
-            assert (
-                payload
-                == utils.Response(
-                    message="p2p push transaction executed successfully",
-                    status_code=201,
-                ).__dict__
-            )
+            assert payload["message"] == "p2p push transaction executed successfully"
+            assert response.status_code == 200
+
+    uow = UnitOfWork()
+    sender_balance = get_wallet_balance(wallet_id=sender_id, uow=uow)
+    assert sender_balance == 0
+
+
+def test_execute_p2p_push_one_to_many_all_invalid(
+    seed_api_admin, seed_api_customer, mocker, client
+):
+    NUMBER_OF_RECIPIENTS = 10
+
+    sender_id = seed_api_customer(mocker, client)
+    recipient_ids = [
+        seed_api_customer(mocker, client) for _ in range(NUMBER_OF_RECIPIENTS)
+    ]
+    closed_loop_id = _create_closed_loop_helper(client)
+
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    _verify_phone_number(sender_id, mocker, client)
+    for recipient_id in recipient_ids:
+        _verify_phone_number(recipient_id, mocker, client)
+
+    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
+    for recipient_id, _ in zip(recipient_ids, range(NUMBER_OF_RECIPIENTS)):
+        _register_user_in_closed_loop(
+            mocker,
+            client,
+            recipient_id,
+            closed_loop_id,
+            str(random.randint(10000000, 99999999)),
+        )
+
+    uow = UnitOfWork()
+    sender = uow.users.get(user_id=sender_id)
+    recipients = [uow.users.get(user_id=recipient_id) for recipient_id in recipient_ids]
+    uow.close_connection()
+
+    otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
+    _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
+
+    otps = [
+        recipient.closed_loops[closed_loop_id].unique_identifier_otp
+        for recipient in recipients
+    ]
+    for recipient_id, otp in zip(recipient_ids, otps):
+        _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+
+    uow = UnitOfWork()
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
+        user_id=sender_id, uow=uow
+    )
+    recipient_unique_identifiers = [
+        auth_qry.get_unique_identifier_from_user_id(user_id=recipient_id, uow=uow)
+        for recipient_id in recipient_ids
+    ]
+    uow.transactions.add_1000_wallet(wallet_id=sender_id)
+    uow.commit_close_connection()
+
+    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "5")
 
     post_requests = [
         {
             "recipient_unique_identifier": recipient_unique_identifier,
-            "amount": 90,
+            "amount": 10000,
             "closed_loop_id": closed_loop_id,
         }
         for recipient_unique_identifier in recipient_unique_identifiers
     ]
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
 
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=len(post_requests)
@@ -205,6 +266,109 @@ def test_execute_p2p_push_one_to_many(
             assert payload["message"] == "Insufficient balance in sender's wallet"
             assert EventCode[payload["event_code"]] == EventCode.DEFAULT_EVENT
             assert response.status_code == 400
+
+
+def test_execute_p2p_push_one_to_many_half_valid_invalid(
+    seed_api_admin, seed_api_customer, mocker, client
+):
+    NUMBER_OF_RECIPIENTS = 10
+
+    sender_id = seed_api_customer(mocker, client)
+    recipient_ids = [
+        seed_api_customer(mocker, client) for _ in range(NUMBER_OF_RECIPIENTS)
+    ]
+    closed_loop_id = _create_closed_loop_helper(client)
+
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    _verify_phone_number(sender_id, mocker, client)
+    for recipient_id in recipient_ids:
+        _verify_phone_number(recipient_id, mocker, client)
+
+    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
+    for recipient_id, _ in zip(recipient_ids, range(NUMBER_OF_RECIPIENTS)):
+        _register_user_in_closed_loop(
+            mocker,
+            client,
+            recipient_id,
+            closed_loop_id,
+            str(random.randint(10000000, 99999999)),
+        )
+
+    uow = UnitOfWork()
+    sender = uow.users.get(user_id=sender_id)
+    recipients = [uow.users.get(user_id=recipient_id) for recipient_id in recipient_ids]
+    uow.close_connection()
+
+    otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
+    _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
+
+    otps = [
+        recipient.closed_loops[closed_loop_id].unique_identifier_otp
+        for recipient in recipients
+    ]
+    for recipient_id, otp in zip(recipient_ids, otps):
+        _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+
+    uow = UnitOfWork()
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
+        user_id=sender_id, uow=uow
+    )
+    recipient_unique_identifiers = [
+        auth_qry.get_unique_identifier_from_user_id(user_id=recipient_id, uow=uow)
+        for recipient_id in recipient_ids
+    ]
+    uow.transactions.add_1000_wallet(wallet_id=sender_id)
+    uow.commit_close_connection()
+
+    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "5")
+
+    post_requests = [
+        {
+            "recipient_unique_identifier": recipient_unique_identifier,
+            "amount": 200,
+            "closed_loop_id": closed_loop_id,
+        }
+        for recipient_unique_identifier in recipient_unique_identifiers
+    ]
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
+
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(post_requests)
+    ) as executor:
+        # Create a list to store the futures
+        futures = []
+
+        for request_data in post_requests:
+            future = executor.submit(
+                post_p2p_push_transaction,
+                client,
+                "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
+                request_data,
+                headers,
+            )
+            futures.append(future)
+
+        concurrent.futures.wait(futures)
+
+        payload_counts = {
+            "valid_txns": 0,
+            "invalid_txns": 0,
+        }
+        for future, request_data in zip(futures, post_requests):
+            response = future.result()
+            payload = loads(response.data.decode())
+
+            if response.status_code == 200:
+                payload_counts["valid_txns"] += 1
+            else:
+                payload_counts["invalid_txns"] += 1
+
+        assert payload_counts["valid_txns"] == 5
+        assert payload_counts["invalid_txns"] == 5
 
 
 def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client):
