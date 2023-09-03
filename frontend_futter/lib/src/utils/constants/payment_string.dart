@@ -53,6 +53,8 @@ class PaymentStrings {
   static const String chat = 'chat';
   static const String filterTransactions = 'Filtered Transactions';
   static const String enterAmount = 'Enter the amount you want to deposit';
+  static const String transferRollNumberInfo =
+      "Enter Recipient's Roll Number to send money";
   static const String enterPhone = 'Enter your phone number';
   static const String org = 'Select your organization';
   // Profile Strings

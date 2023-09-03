@@ -1,5 +1,7 @@
+import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -23,51 +25,27 @@ class DepositView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userCubit = BlocProvider.of<UserCubit>(context);
+    final depositCubit = BlocProvider.of<DepositCubit>(context);
 
-    return BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-      switch (state.runtimeType) {
-        case UserInitial:
-          return TransactionView(
-            title: DepositViewConstants.title,
-            buttonText: DepositViewConstants.buttonText,
-            backgroundColor: AppColors.mediumBlueColor,
-            onButtonPressed: (amount) => {
-              userCubit.createDepositRequest(amount),
-            },
-          );
-        case UserLoading:
-          return const Scaffold(
-            backgroundColor: AppColors.mediumBlueColor,
-            body: Column(
-              children: [
-                PaddingHorizontal(
-                    slab: 2,
-                    child: Header(
-                      title: DepositViewConstants.title,
-                    )),
-                Center(child: CircularProgressIndicator()),
-              ],
-            ),
-          );
-        case UserSuccess:
-          launchUrl(Uri.parse(state.checkoutUrl));
-          return const Scaffold(
-            backgroundColor: AppColors.mediumBlueColor,
-            body: Column(
-              children: [
-                PaddingHorizontal(
-                    slab: 2,
-                    child: Header(
-                      title: DepositViewConstants.title,
-                    )),
-                Center(child: CircularProgressIndicator()),
-              ],
-            ),
-          );
-        default:
-          return const SizedBox.shrink();
-      }
-    });
+    return Stack(
+      children: [
+        TransactionView(
+          title: DepositViewConstants.title,
+          buttonText: DepositViewConstants.buttonText,
+          backgroundColor: AppColors.mediumBlueColor,
+          onButtonPressed: (amount) => {
+            depositCubit.createDepositRequest(amount),
+          },
+        ),
+        BlocBuilder<DepositCubit, DepositState>(builder: (_, state) {
+          switch (state.runtimeType) {
+            case DepositLoading:
+              return const OverlayLoading();
+            default:
+              return const SizedBox.shrink();
+          }
+        }),
+      ],
+    );
   }
 }

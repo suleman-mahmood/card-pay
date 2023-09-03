@@ -29,6 +29,7 @@ class RegisterOrganizationView extends HookWidget {
     final showRollNumberField = useState<bool>(false);
     final uniqueIdentifier = useState<String>('');
     final selectedClosedLoop = useState<ClosedLoop>(ClosedLoop());
+    final formKey = useMemoized(() => GlobalKey<FormState>());
 
     final userCubit = BlocProvider.of<UserCubit>(context);
     final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
@@ -63,6 +64,17 @@ class RegisterOrganizationView extends HookWidget {
       );
     }
 
+    void handleRegisterClosedLoop() async {
+      if (!formKey.currentState!.validate()) {
+        return;
+      }
+
+      await userCubit.registerClosedLoop(
+        selectedClosedLoop.value.id,
+        uniqueIdentifier.value,
+      );
+    }
+
     return AuthLayout(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,14 +92,20 @@ class RegisterOrganizationView extends HookWidget {
                   context.router.push(const PinRoute());
                 }
                 return const SizedBox.shrink();
+              case UserFailed:
+                return Text(
+                  state.errorMessage,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                );
               default:
                 return const SizedBox.shrink();
             }
           }),
           const HeightBox(slab: 4),
-          Row(
+          const Row(
             children: [
-              const HeightBox(slab: 5),
+              HeightBox(slab: 5),
               Expanded(
                 flex: 2,
                 child: CustomDivider(
@@ -131,23 +149,23 @@ class RegisterOrganizationView extends HookWidget {
           Visibility(
             visible: showRollNumberField.value,
             maintainSize: false,
-            child: CustomInputField(
-              label: AppStrings.rollNumber,
-              hint: AppStrings.enterRollNumber,
-              onChanged: (v) => uniqueIdentifier.value = v,
-              validator: (uniqueIdentifierValue) {
-                if (uniqueIdentifierValue == null) {
-                  return "Please enter your roll number";
-                }
-                final regExp = RegExp(selectedClosedLoop.value.regex);
-                if (!regExp.hasMatch(uniqueIdentifierValue)) {
-                  return "Invalid roll number";
-                }
-                if (!uniqueIdentifierValue.isValidLumsRollNumber) {
-                  return "Invalid roll number";
-                }
-                return null;
-              },
+            child: Form(
+              key: formKey,
+              child: CustomInputField(
+                label: AppStrings.rollNumber,
+                hint: AppStrings.enterRollNumber,
+                onChanged: (v) => uniqueIdentifier.value = v,
+                validator: (uniqueIdentifierValue) {
+                  if (uniqueIdentifierValue == null) {
+                    return "Please enter your roll number";
+                  }
+                  final regExp = RegExp(selectedClosedLoop.value.regex);
+                  if (!regExp.hasMatch(uniqueIdentifierValue)) {
+                    return "Invalid roll number";
+                  }
+                  return null;
+                },
+              ),
             ),
           ),
           const HeightBox(slab: 4),
@@ -156,12 +174,7 @@ class RegisterOrganizationView extends HookWidget {
             child: Center(
               child: PrimaryButton(
                 text: AppStrings.create,
-                onPressed: () => {
-                  userCubit.registerClosedLoop(
-                    selectedClosedLoop.value.id,
-                    uniqueIdentifier.value,
-                  )
-                },
+                onPressed: handleRegisterClosedLoop,
               ),
             ),
           )

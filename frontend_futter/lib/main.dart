@@ -2,7 +2,9 @@ import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/locator.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/views/splash_view.dart';
 import 'package:flutter/material.dart';
@@ -32,18 +34,34 @@ class MainApp extends StatelessWidget {
               providers: [
                 BlocProvider(
                   create: (context) => UserCubit(
-                      locator<ApiRepository>(), locator<SharedPreferences>()),
+                    locator<ApiRepository>(),
+                    locator<SharedPreferences>(),
+                  ),
                 ),
                 BlocProvider(
-                  create: (context) =>
-                      ClosedLoopCubit(locator<ApiRepository>()),
+                  create: (context) => ClosedLoopCubit(
+                    locator<ApiRepository>(),
+                  ),
                 ),
                 BlocProvider(
-                  create: (context) =>
-                      CheckpointsCubit(locator<ApiRepository>()),
+                  create: (context) => CheckpointsCubit(
+                    locator<ApiRepository>(),
+                  ),
                 ),
                 BlocProvider(
-                  create: (context) => LoginCubit(locator<SharedPreferences>()),
+                  create: (context) => LoginCubit(
+                    locator<SharedPreferences>(),
+                  ),
+                ),
+                BlocProvider(
+                  create: (context) => TransferCubit(
+                    locator<ApiRepository>(),
+                  ),
+                ),
+                BlocProvider(
+                  create: (context) => DepositCubit(
+                    locator<ApiRepository>(),
+                  ),
                 ),
               ],
               child: MaterialApp.router(

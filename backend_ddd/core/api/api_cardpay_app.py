@@ -191,37 +191,6 @@ def user_toggle_active(uid):
     ).__dict__
 
 
-@cardpay_app.route("/verify-otp", methods=["POST"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
-@utils.user_verified
-@utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["user_id", "otp"])
-def verify_otp(uid):
-    req = request.get_json(force=True)
-    uow = UnitOfWork()
-    try:
-        auth_cmd.verify_otp(
-            user_id=uid,
-            otp=req["otp"],
-            uow=uow,
-        )
-        uow.commit_close_connection()
-
-    except auth_ex.InvalidOtpException as e:
-        uow.close_connection()
-        raise utils.CustomException(str(e))
-
-    except Exception as e:
-        uow.close_connection()
-        raise e
-
-    return utils.Response(
-        message="OTP verified successfully",
-        status_code=200,
-    ).__dict__
-
-
 @cardpay_app.route("/verify-phone-number", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
@@ -239,7 +208,10 @@ def verify_phone_number(uid):
         )
         uow.commit_close_connection()
 
-    except auth_ex.VerificationException as e:
+    except (
+        auth_ex.VerificationException,
+        auth_ex.InvalidOtpException,
+    ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -406,7 +378,10 @@ def execute_p2p_push_transaction(uid):
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except (Exception, AssertionError,) as e:
+    except (
+        Exception,
+        AssertionError,
+    ) as e:
         uow.close_connection()
         raise e
 
@@ -454,7 +429,10 @@ def create_p2p_pull_transaction(uid):
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except (Exception, AssertionError,) as e:
+    except (
+        Exception,
+        AssertionError,
+    ) as e:
         uow.close_connection()
         raise e
 

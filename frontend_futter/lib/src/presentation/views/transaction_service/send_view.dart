@@ -1,4 +1,6 @@
+import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:flutter/material.dart';
@@ -21,39 +23,36 @@ class SendView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final transferCubit = BlocProvider.of<TransferCubit>(context);
     final userCubit = BlocProvider.of<UserCubit>(context);
 
-    return BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-      print(state.runtimeType);
-      switch (state.runtimeType) {
-        case UserLoading:
-          return const Scaffold(
-            backgroundColor: AppColors.parrotColor,
-            body: Center(child: CircularProgressIndicator()),
-          );
-        case UserSuccess:
-          // TODO: fix this and pass data
-          if (state.eventCodes == EventCodes.TRANSFER_SUCCESSFUL) {
-            context.router.push(const ConfirmationRoute());
+    return Stack(
+      children: [
+        TransactionView(
+          title: PaymentStrings.transferMoney,
+          buttonText: PaymentStrings.continu,
+          rollNumber: uniqueIdentifier,
+          backgroundColor: AppColors.parrotColor,
+          onButtonPressed: (amount) {
+            if (uniqueIdentifier == null) {
+              return;
+            }
+            transferCubit.executeP2PPushTransaction(
+              uniqueIdentifier!,
+              amount,
+              userCubit.data.closedLoops[0].closedLoopId,
+            );
+          },
+        ),
+        BlocBuilder<TransferCubit, TransferState>(builder: (_, state) {
+          switch (state.runtimeType) {
+            case TransferLoading:
+              return const OverlayLoading();
+            default:
+              return const SizedBox.shrink();
           }
-          return const SizedBox.shrink();
-        default:
-          return TransactionView(
-            title: PaymentStrings.transferMoney,
-            buttonText: PaymentStrings.continu,
-            rollNumber: uniqueIdentifier,
-            backgroundColor: AppColors.parrotColor,
-            onButtonPressed: (amount) {
-              if (uniqueIdentifier == null) {
-                return;
-              }
-              userCubit.executeP2PPushTransaction(
-                uniqueIdentifier!,
-                amount,
-              );
-            },
-          );
-      }
-    });
+        }),
+      ],
+    );
   }
 }

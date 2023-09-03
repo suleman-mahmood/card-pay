@@ -1,8 +1,6 @@
 import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_customer_request.dart';
-import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
-import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
@@ -293,64 +291,6 @@ class UserCubit extends BaseCubit<UserState, User> {
           message: response.data!.message,
           transactions: response.data!.recentTransactions,
         ));
-      } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
-      }
-    });
-  }
-
-  Future<void> createDepositRequest(double amount) async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      final token =
-          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-              '';
-      final response = await _apiRepository.createDepositRequest(
-        request: CreateDepositRequest(amount: amount),
-        token: token,
-      );
-
-      if (response is DataSuccess) {
-        emit(UserSuccess(
-          message: response.data!.message,
-          checkoutUrl: response.data!.checkoutUrl,
-        ));
-      } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
-      }
-    });
-  }
-
-  Future<void> executeP2PPushTransaction(
-      String recipientUniqueIdentifier, double amount) async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      final token =
-          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-              '';
-      final response = await _apiRepository.executeP2PPushTransaction(
-        request: ExecuteP2PPushTransactionRequest(
-          recipientUniqueIdentifier: recipientUniqueIdentifier,
-          amount: amount,
-          closedLoopId: data.closedLoops[0].closedLoopId, // TODO: fix this
-        ),
-        token: token,
-      );
-
-      if (response is DataSuccess) {
-        emit(UserSuccess(message: response.data!.message));
       } else if (response is DataFailed) {
         emit(UserFailed(
           error: response.error,

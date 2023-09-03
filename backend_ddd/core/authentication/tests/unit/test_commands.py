@@ -151,19 +151,6 @@ def test_user_toggle_active(seed_auth_user):
     assert fetched_user.is_active == (not user.is_active)
 
 
-def test_verify_otp(seed_auth_user):
-    uow = UnitOfWork()
-    user = seed_auth_user(uow)
-
-    otp = user.otp
-    wrong_otp = "0000"
-
-    with pytest.raises(auth_ex.InvalidOtpException, match="Otps don't match"):
-        auth_cmd.verify_otp(user_id=user.id, otp=wrong_otp, uow=uow)
-
-    assert auth_cmd.verify_otp(user_id=user.id, otp=otp, uow=uow)
-
-
 def test_verify_phone_number(seed_auth_user):
     uow = UnitOfWork()
     user = seed_auth_user(uow)

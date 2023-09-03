@@ -24,6 +24,7 @@ import 'package:cardpay/src/domain/models/responses/verify_phone_number_response
 import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/data_state.dart';
+import 'package:dio/dio.dart';
 
 import '../../domain/repositories/api_repository.dart';
 import 'base/base_api_repository.dart';
@@ -53,6 +54,11 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Phone number verified successfully',
     );
 
+    // return Future.value(DataFailed(DioError(
+    //   requestOptions: RequestOptions(),
+    //   type: DioErrorType.unknown,
+    //   error: null,
+    // )));
     return Future.value(DataSuccess(verificationStatus));
   }
 

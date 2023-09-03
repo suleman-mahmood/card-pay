@@ -8,7 +8,7 @@ class AppStrings {
   static const String createAccountDesc =
       'Let\'s get you started by creating your account';
   static const String username = 'Full name';
-  static const String enterUsername = 'Enter your username';
+  static const String enterUsername = 'Enter your full name';
   static const String email = 'Email address';
   static const String enterEmail = 'Enter your email';
   static const String password = 'Password';

@@ -18,7 +18,8 @@ from core.payment.domain import exceptions as pmt_domain_exc
 
 PK_CODE = "92"
 LUMS_CLOSED_LOOP_ID = "a3024e7d-e59c-4c65-8066-ab0349248d2b"
-PAYPRO_USER_ID = "81c36687-a0c1-4ff1-9cf0-18095c94d946"
+PAYPRO_USER_ID = "fa976abe-0e30-49f5-8595-5abafd270fbb"
+
 
 def create_closed_loop(
     name: str,
@@ -159,16 +160,6 @@ def user_toggle_active(user_id: str, uow: AbstractUnitOfWork):
     with uow:
         user = uow.users.get(user_id=user_id)
         user.toggle_active()
-        uow.users.save(user)
-
-    return user
-
-
-def verify_otp(user_id: str, otp: str, uow: AbstractUnitOfWork):
-    """Verify OTP"""
-    with uow:
-        user = uow.users.get(user_id=user_id)
-        user.verify_otp(otp)
         uow.users.save(user)
 
     return user
