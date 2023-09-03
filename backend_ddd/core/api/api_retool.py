@@ -551,4 +551,22 @@ def add_and_set_missing_marketing_weightages_to_zero():
         status_code=201,
     ).__dict__
 
-   
+@retool.route("/qr-retool-get-all-vendor-names-and-qr-ids-of-a-closed-loop", methods=["GET"])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_json_payload(required_parameters=["closed_loop_id"])
+def qr_retool_get_all_vendor_names_and_qr_ids_of_a_closed_loop():
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+
+    vendors = payment_qry.get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
+        closed_loop_id=req["closed_loop_id"],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Vendors returned successfully",
+        status_code=200,
+        data=vendors,
+    ).__dict__

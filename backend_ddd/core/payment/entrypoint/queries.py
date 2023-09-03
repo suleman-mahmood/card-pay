@@ -6,7 +6,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from ...authentication.domain import model as auth_mdl
 from core.payment.entrypoint.queries_exceptions import UserDoesNotExistException
-
+from core.payment.entrypoint import view_models as auth_vm
 def usecases():
     """
     1. get wallet balance from wallet_id    || later update to get balance from user_id
@@ -757,3 +757,36 @@ def get_user_wallet_id_and_type_from_qr_id(
     )
 
     return user_info
+
+def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
+        closed_loop_id: str,
+        uow: AbstractUnitOfWork,
+) -> List[auth_vm.VendorQrIdDTO]:
+    sql = """
+
+        select u.id, u.full_name, w.qr_id
+        from users u
+            join wallets w on u.wallet_id = w.id
+            join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s
+            and u.user_type = 'VENDOR'::user_type_enum
+            and u.is_active = true
+            and u.is_phone_number_verified = true
+            and ucl.status = 'VERIFIED'::closed_loop_user_state_enum
+        """
+    
+    uow.cursor.execute(sql, [closed_loop_id])
+    rows = uow.cursor.fetchall()
+
+    vendors = [
+        auth_vm.VendorQrIdDTO(
+            id=row[0],
+            full_name=row[1],
+            qr_id=row[2]
+        )
+        for row in rows
+    ]
+
+    return vendors
+
+
