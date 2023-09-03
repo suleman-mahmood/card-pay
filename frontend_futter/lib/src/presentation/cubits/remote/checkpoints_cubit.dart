@@ -1,4 +1,4 @@
-import 'package:cardpay/src/domain/models/closed_loop.dart';
+import 'package:cardpay/src/domain/models/checkpoints.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/data_state.dart';
@@ -6,35 +6,42 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 
-part 'closed_loop_state.dart';
+part 'checkpoints_state.dart';
 
-class ClosedLoopCubit extends BaseCubit<ClosedLoopState, ClosedLoop> {
+class CheckpointsCubit extends BaseCubit<CheckpointsState, Checkpoints> {
   final ApiRepository _apiRepository;
 
-  ClosedLoopCubit(this._apiRepository)
+  CheckpointsCubit(this._apiRepository)
       : super(
-          ClosedLoopInitial(),
-          ClosedLoop(),
+          CheckpointsInitial(),
+          Checkpoints(),
         );
 
-  Future<void> getAllClosedLoops() async {
+  Future<void> init() async {
+    emit(CheckpointsInitial());
+  }
+
+  Future<void> getCheckpoints() async {
     if (isBusy) return;
 
     await run(() async {
-      emit(const ClosedLoopLoading());
-
+      emit(CheckpointsLoading());
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
-      final response = await _apiRepository.getAllClosedLoops(token);
+      final response = await _apiRepository.getCheckpoints(token);
 
       if (response is DataSuccess) {
-        emit(ClosedLoopSuccess(
+        data.verifiedPhoneOtp = response.data!.checks.verifiedPhoneOtp;
+        data.verifiedClosedLoop = response.data!.checks.verifiedClosedLoop;
+        data.pinSetup = response.data!.checks.pinSetup;
+
+        emit(CheckpointsSuccess(
           message: response.data!.message,
-          closedLoops: response.data!.closedLoops,
+          checkPoints: data,
         ));
       } else if (response is DataFailed) {
-        emit(ClosedLoopFailed(
+        emit(CheckpointsFailed(
           error: response.error,
           errorMessage: response.error?.response?.data["message"],
         ));

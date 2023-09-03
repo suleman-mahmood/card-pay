@@ -15,6 +15,7 @@ from core.marketing.domain import exceptions as mktg_ex
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.domain import exceptions as auth_ex
 from core.authentication.entrypoint import exceptions as auth_cmd_ex
+from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
 
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
@@ -118,6 +119,11 @@ def change_name(uid):
             uow=uow,
         )
         uow.commit_close_connection()
+
+    except auth_ex.InvalidNameException as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
     except Exception as e:
         uow.close_connection()
         raise e
@@ -145,6 +151,11 @@ def change_pin(uid):
             uow=uow,
         )
         uow.commit_close_connection()
+
+    except auth_ex.InvalidPinException as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
     except Exception as e:
         uow.close_connection()
         raise e
@@ -263,7 +274,7 @@ def register_closed_loop(uid):
         )
         uow.commit_close_connection()
 
-    except auth_ex.UniqueIdentifierAlreadyExistsException as e:
+    except auth_cmd_ex.UniqueIdentifierAlreadyExistsException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -296,6 +307,7 @@ def verify_closed_loop(uid):
             unique_identifier_otp=req["unique_identifier_otp"],
             uow=uow,
         )
+        uow.commit_close_connection()
     except (
         auth_ex.ClosedLoopException,
         auth_ex.VerificationException,
@@ -308,7 +320,7 @@ def verify_closed_loop(uid):
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except Exception as e:
+    except (Exception, AssertionError) as e:
         uow.close_connection()
         raise e
 
@@ -337,10 +349,7 @@ def create_deposit_request(uid):
 
     except (
         pmt_cmd_ex.DepositAmountTooSmallException,
-        pmt_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        pmt_cmd_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -392,11 +401,12 @@ def execute_p2p_push_transaction(uid):
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,
         mktg_ex.NotVerifiedException,
+        pmt_qry_ex.UserDoesNotExistException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except Exception as e:
+    except (Exception, AssertionError,) as e:
         uow.close_connection()
         raise e
 
@@ -439,11 +449,12 @@ def create_p2p_pull_transaction(uid):
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,
         mktg_ex.NotVerifiedException,
+        pmt_qry_ex.UserDoesNotExistException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except Exception as e:
+    except (Exception, AssertionError,) as e:
         uow.close_connection()
         raise e
 
@@ -685,7 +696,7 @@ def get_all_closed_loops(uid):
 @utils.user_verified
 def get_user_recent_transactions(uid):
     uow = UnitOfWork()
-    txs = pmt_qry.get_all_transactions_of_a_user(
+    txs = pmt_qry.get_all_successful_transactions_of_a_user(
         user_id=uid,
         offset=0,
         page_size=50,
@@ -706,10 +717,7 @@ def get_user_recent_transactions(uid):
 @utils.user_verified
 def get_user(uid):
     uow = UnitOfWork()
-    user = auth_qry.get_user_from_user_id(
-        user_id=uid,
-        uow=uow,
-    )
+    user = auth_qry.get_user_from_user_id(user_id=uid, uow=uow)
     uow.close_connection()
 
     user.closed_loops = [c for c in user.closed_loops.values()]

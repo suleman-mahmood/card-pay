@@ -1,8 +1,5 @@
-import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
-import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -29,17 +26,8 @@ class IntroView extends HookWidget {
       end: Offset.zero,
       duration: const Duration(milliseconds: 2000),
     );
-    final userCubit = BlocProvider.of<UserCubit>(context);
 
     final nextRoute = useState<PageRouteInfo>(const SignupRoute());
-
-    useEffect(() {
-      someFunction() async {
-        await userCubit.loadCheckpoints();
-      }
-
-      someFunction();
-    }, []);
 
     return AuthLayout(
       showBackButton: false,
@@ -66,41 +54,6 @@ class IntroView extends HookWidget {
                   context.router.push(nextRoute.value);
                 },
               ),
-            ),
-            BlocBuilder<UserCubit, UserState>(
-              builder: (_, state) {
-                switch (state.runtimeType) {
-                  case UserSuccess:
-                    if (state.isPhoneNumberVerified &&
-                        state.closedLoopVerified &&
-                        state.pinSetup) {
-                      WidgetsBinding.instance.addPostFrameCallback(
-                        (_) {
-                          nextRoute.value = const SignupRoute();
-                        },
-                      );
-                    } else if (state.isPhoneNumberVerified &&
-                        state.closedLoopVerified &&
-                        state.pinSetup == false) {
-                      WidgetsBinding.instance.addPostFrameCallback(
-                        (_) {
-                          nextRoute.value = const PinRoute();
-                        },
-                      );
-                    } else if (state.isPhoneNumberVerified &&
-                        state.closedLoopVerified == false &&
-                        state.pinSetup == false) {
-                      WidgetsBinding.instance.addPostFrameCallback(
-                        (_) {
-                          nextRoute.value = const RegisterOrganizationRoute();
-                        },
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  default:
-                    return const SizedBox.shrink();
-                }
-              },
             ),
             const HeightBox(slab: 3),
             Row(

@@ -115,12 +115,6 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const LoginView(),
       );
     },
-    SplashRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const SplashView(),
-      );
-    },
     DashboardRoute.name: (routeData) {
       final args = routeData.argsAs<DashboardRouteArgs>(
           orElse: () => const DashboardRouteArgs());
@@ -130,6 +124,12 @@ abstract class _$AppRouter extends RootStackRouter {
           key: args.key,
           scaffoldKey: args.scaffoldKey,
         ),
+      );
+    },
+    SplashRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const SplashView(),
       );
     },
     IntroRoute.name: (routeData) {
@@ -439,20 +439,6 @@ class LoginRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [SplashView]
-class SplashRoute extends PageRouteInfo<void> {
-  const SplashRoute({List<PageRouteInfo>? children})
-      : super(
-          SplashRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'SplashRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
 /// [DashboardView]
 class DashboardRoute extends PageRouteInfo<DashboardRouteArgs> {
   DashboardRoute({
@@ -488,6 +474,20 @@ class DashboardRouteArgs {
   String toString() {
     return 'DashboardRouteArgs{key: $key, scaffoldKey: $scaffoldKey}';
   }
+}
+
+/// generated route for
+/// [SplashView]
+class SplashRoute extends PageRouteInfo<void> {
+  const SplashRoute({List<PageRouteInfo>? children})
+      : super(
+          SplashRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'SplashRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for

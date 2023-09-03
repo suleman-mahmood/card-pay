@@ -20,7 +20,7 @@ drop type if exists closed_loop_user_state_enum cascade;
 drop type if exists cashback_type_enum cascade;
 
 create type  transaction_mode_enum as enum ('QR', 'RFID', 'NFC', 'BARCODE', 'APP_TRANSFER');
-create type transaction_type_enum as enum ('POS', 'P2P_PUSH', 'P2P_PULL', 'VOUCHER', 'VIRTUAL_POS', 'PAYMENT_GATEWAY', 'CARD_PAY', 'CASH_BACK', 'REFERRAL');
+create type transaction_type_enum as enum ('POS', 'P2P_PUSH', 'P2P_PULL', 'VOUCHER', 'VIRTUAL_POS', 'PAYMENT_GATEWAY', 'CARD_PAY', 'CASH_BACK', 'REFERRAL','RECONCILIATION');
 create type transaction_status_enum as enum ('PENDING', 'FAILED', 'SUCCESSFUL', 'EXPIRED', 'DECLINED');
 create type closed_loop_verification_type as enum ('NONE','ROLLNUMBER','EMAIL','MEMBERSHIP_ID');
 create type user_type_enum as enum ('CUSTOMER','VENDOR','ADMIN','PAYMENT_GATEWAY','CARDPAY');
@@ -31,7 +31,8 @@ create type cashback_type_enum as enum ('PERCENTAGE','ABSOLUTE');
 create table wallets (
     id uuid primary key,
     balance integer not null constraint  non_negative_integer check (balance >= 0),
-    created_at timestamp not null default current_timestamp
+    created_at timestamp not null default current_timestamp,
+    qr_id uuid unique
 );
 
 create table starred_wallet_id (
@@ -89,7 +90,6 @@ create table user_closed_loops (
     unique_identifier_otp varchar(4) not null,
     status closed_loop_user_state_enum not null,
     created_at timestamp not null default current_timestamp,
-    unique (closed_loop_id, unique_identifier),
     primary key (user_id, closed_loop_id)
 );
 

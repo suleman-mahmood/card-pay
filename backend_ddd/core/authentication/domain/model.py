@@ -5,7 +5,7 @@ from typing import Optional, Dict, Tuple
 from enum import Enum
 from datetime import datetime
 from .utils import _generate_4_digit_otp
-from .exceptions import InvalidOtpException, ClosedLoopException, VerificationException
+from .exceptions import InvalidOtpException, ClosedLoopException, VerificationException, InvalidPinException, InvalidNameException
 
 
 def behaviour():
@@ -151,10 +151,25 @@ class User:
 
     def change_name(self, name: str) -> None:
         """to change name"""
+        if name == "":
+            raise InvalidNameException("empty name passed")
+
         self.full_name = name
 
     def set_pin(self, pin: str) -> None:
         """to set/update pin"""
+        if len(pin) != 4:
+            raise InvalidPinException("pin is not 4 digits long")
+        
+        if pin == self.pin:
+            raise InvalidPinException("passed pin is same as old pin")
+
+        if not pin.isnumeric():
+            raise InvalidPinException("pin contains non numeric characters")
+
+        if pin == "0000":
+            raise InvalidPinException("forbidden pin passed")
+
         self.pin = pin
 
     def toggle_active(self) -> bool:

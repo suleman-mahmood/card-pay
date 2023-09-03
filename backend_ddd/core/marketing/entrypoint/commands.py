@@ -138,3 +138,19 @@ def set_cashback_slabs(
         ]
 
         uow.cashback_slabs.save_all(AllCashbacks(cashback_slabs=slab_list))
+
+
+def add_and_set_missing_weightages_to_zero(
+    uow: AbstractUnitOfWork,
+):
+   with uow:
+       
+         for transaction_type in TransactionType:
+              try:
+                uow.weightages.get(transaction_type)
+              except mktg_ex.WeightageNotFoundException:
+                add_weightage(
+                    weightage_type=transaction_type.name,
+                    weightage_value=0,
+                    uow=uow,
+                )

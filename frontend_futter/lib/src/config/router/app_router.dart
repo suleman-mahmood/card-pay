@@ -14,7 +14,6 @@ import 'package:cardpay/src/presentation/views/transaction_service/deposite_view
 import 'package:cardpay/src/presentation/views/transaction_service/transfer_view.dart';
 import 'package:cardpay/src/presentation/views/transaction_service/request_view.dart';
 import 'package:cardpay/src/presentation/views/transaction_service/send_view.dart';
-// import 'package:cardpay/src/presentation/views/history_transaction_view.dart';
 import 'package:cardpay/src/presentation/views/transaction_service/history_transaction_view.dart';
 import 'package:cardpay/src/presentation/views/transaction_service/request_amount_view.dart';
 import 'package:cardpay/src/presentation/views/transaction_service/filtered_history_view.dart';
@@ -29,8 +28,8 @@ part 'app_router.gr.dart';
 class AppRouter extends _$AppRouter {
   @override
   List<AutoRoute> get routes => [
-        AutoRoute(page: SplashRoute.page, initial: true),
         CustomRoute(
+          initial: true,
           page: IntroRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),

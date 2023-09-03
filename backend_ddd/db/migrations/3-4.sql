@@ -1,1 +1,0 @@
-alter table wallets add column qr_id uuid unique;

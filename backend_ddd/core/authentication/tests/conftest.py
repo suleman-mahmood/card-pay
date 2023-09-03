@@ -18,15 +18,18 @@ from core.authentication.entrypoint import commands as auth_commands
 @pytest.fixture
 def seed_user():
     def _seed_user() -> User:
+        
+        uid = str(uuid4())
+
         return User(
-            id=str(uuid4()),
+            id=uid,
             personal_email=PersonalEmail(value="sulemanmahmood99@gmail.com"),
             user_type=UserType.CUSTOMER,
-            phone_number=PhoneNumber(value="+923000000000"),
-            pin="1234",
+            phone_number=PhoneNumber(value="3000000000"),
+            pin="0000",
             full_name="Suleman Mahmood",
             location=Location(latitude=0, longitude=0),
-            wallet_id=str(uuid4()),
+            wallet_id=uid,
         )
 
     return _seed_user
@@ -58,7 +61,7 @@ def seed_auth_user():
             user_type=UserType.CUSTOMER,
             pin="0000",
             full_name="Malik Muhammad Moaz",
-            location=Location(latitude=0, longitude=0),
+            location=Location(latitude=13.2311, longitude=98.4888),
             wallet_id=user_id,
         )
 

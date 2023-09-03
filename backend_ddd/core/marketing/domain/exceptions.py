@@ -34,6 +34,8 @@ class InvalidSlabException(Exception):
 class NotVerifiedException(Exception):
     """exception raised for user not verified"""
 
+class WeightageNotFoundException(Exception):
+    """exception raised for missing weightage"""
 
 def negative_amount_exception(amount: int):
     if amount < 0:
@@ -125,4 +127,3 @@ def negative_weightage_exception(weightage_value: float):
         raise InvalidWeightageException(
             "Negative weightage value passed, weightage value cannot be negative"
         )
-

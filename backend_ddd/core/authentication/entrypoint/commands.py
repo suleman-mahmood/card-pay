@@ -15,9 +15,10 @@ from core.authentication.entrypoint import exceptions as ex
 from core.payment.domain import model as pmt_mdl
 from core.authentication.domain import model as auth_mdl
 from core.payment.domain import exceptions as pmt_domain_exc
-PK_CODE = "92"
-LUMS_CLOSED_LOOP_ID = "ec3c471e-49e7-46a6-9f2c-5fd6252b7518"
 
+PK_CODE = "92"
+LUMS_CLOSED_LOOP_ID = "a3024e7d-e59c-4c65-8066-ab0349248d2b"
+PAYPRO_USER_ID = "81c36687-a0c1-4ff1-9cf0-18095c94d946"
 
 def create_closed_loop(
     name: str,
@@ -183,48 +184,60 @@ def verify_phone_number(user_id: str, otp: str, uow: AbstractUnitOfWork):
     return user
 
 
-def register_closed_loop(
-    user_id: str,
+def _register_closed_loop(
+    user: auth_mdl.User,
     closed_loop_id: str,
     unique_identifier: Optional[str],
     uow: AbstractUnitOfWork,
 ):
-    """Request/Register to join a closed loop"""
-
-    user = uow.users.get(user_id=user_id)
-
-    if unique_identifier is not None:
-        if qry.unique_identifier_already_exists(
-            closed_loop_id=closed_loop_id,
-            unique_identifier=unique_identifier,
-            uow=uow,
-        ):
-            if (
-                user.closed_loops[closed_loop_id].status
-                == auth_mdl.ClosedLoopUserState.UN_VERIFIED
-            ):
-                if user.user_type is auth_mdl.UserType.CUSTOMER:
-                    comms_commands.send_email(
-                        subject="Verify closed loop | Otp",
-                        text=user.closed_loops[closed_loop_id].unique_identifier_otp,
-                        to=f"{unique_identifier}@lums.edu.pk",
-                    )
-                return user
-
-            raise ex.UniqueIdentifierAlreadyExistsException(
-                "User is already registered and verified in this closed loop"
-            )
-
     closed_loop_user = auth_mdl.ClosedLoopUser(
         closed_loop_id=closed_loop_id, unique_identifier=unique_identifier
     )
     user.register_closed_loop(closed_loop_user=closed_loop_user)
     uow.users.save(user)
 
-    if unique_identifier is not None and user.user_type is auth_mdl.UserType.CUSTOMER:
+
+def register_closed_loop(
+    user_id: str,
+    closed_loop_id: str,
+    unique_identifier: Optional[str],
+    uow: AbstractUnitOfWork,
+):
+    """Request/Register to join a closed loop.
+    Invariant: Multiple unverified closed_loop_users in a single closed loop with the same unique identifier can exist.
+    """
+
+    user = uow.users.get(user_id=user_id)
+
+    if unique_identifier is None:
+        _register_closed_loop(
+            user=user,
+            closed_loop_id=closed_loop_id,
+            unique_identifier=unique_identifier,
+            uow=uow,
+        )
+        return user
+
+    if qry.verified_unique_identifier_already_exists(
+        closed_loop_id=closed_loop_id,
+        unique_identifier=unique_identifier,
+        uow=uow,
+    ):
+        raise ex.UniqueIdentifierAlreadyExistsException(
+            "This User already exists in this organization"
+        )
+
+    _register_closed_loop(
+        user=user,
+        closed_loop_id=closed_loop_id,
+        unique_identifier=unique_identifier,
+        uow=uow,
+    )
+
+    if user.user_type is auth_mdl.UserType.CUSTOMER:
         comms_commands.send_email(
             subject="Verify closed loop | Otp",
-            text=closed_loop_user.unique_identifier_otp,
+            text=user.closed_loops[closed_loop_id].unique_identifier_otp,
             to=f"{unique_identifier}@lums.edu.pk",  # TODO: fix this
         )
 
@@ -239,6 +252,13 @@ def verify_closed_loop(
 ):
     """Request/Register to join a closed loop"""
     user = uow.users.get(user_id=user_id)
+
+    assert not qry.verified_unique_identifier_already_exists(
+        closed_loop_id=closed_loop_id,
+        unique_identifier=user.closed_loops[closed_loop_id].unique_identifier,
+        uow=uow,
+    )
+
     user.verify_closed_loop(closed_loop_id=closed_loop_id, otp=unique_identifier_otp)
     uow.users.save(user)
 
@@ -249,20 +269,22 @@ def verify_closed_loop(
     assert unique_identifier is not None
 
     try:
-        fetched_user_id = qry.user_id_from_firestore(
+        firestore_user_id = qry.user_id_from_firestore(
             unique_identifier=unique_identifier, uow=uow
         )
     except ex.UserNotInFirestore:
         # This is not an old LUMS user, so just return
         return user
 
-    _migrate_user(user_id=fetched_user_id, uow=uow)
+    _migrate_user(user_id=user_id, firestore_user_id=firestore_user_id, uow=uow)
 
     return user
 
 
-def _migrate_user(user_id: str, uow: AbstractUnitOfWork):
-    fetched_wallet_balance = qry.wallet_balance_from_firestore(user_id=user_id, uow=uow)
+def _migrate_user(user_id: str, firestore_user_id: str, uow: AbstractUnitOfWork):
+    fetched_wallet_balance = qry.wallet_balance_from_firestore(
+        user_id=firestore_user_id, uow=uow
+    )
     cardpay_wallet_id = pmt_qry.get_starred_wallet_id(uow=uow)
 
     try:
@@ -290,7 +312,7 @@ def _migrate_user(user_id: str, uow: AbstractUnitOfWork):
     uow.cursor.execute(
         sql,
         {
-            "user_id": user_id,
+            "user_id": firestore_user_id,
         },
     )
 
@@ -341,7 +363,7 @@ def create_vendor_through_retool(
     assumption: each vendor can only belong to a single closed loop
     """
 
-    user_object = create_user(
+    _, user_id = create_user(
         personal_email=personal_email,
         password=password,
         phone_number=phone_number,
@@ -350,8 +372,6 @@ def create_vendor_through_retool(
         location=location,
         uow=uow,
     )
-
-    user_id = user_object[1]
 
     user = uow.users.get(user_id=user_id)
 
@@ -365,15 +385,6 @@ def create_vendor_through_retool(
         user_id=user_id,
         closed_loop_id=closed_loop_id,
         unique_identifier=unique_identifier,
-        uow=uow,
-    )
-
-    closed_loop_user = user.closed_loops[closed_loop_id]
-
-    user = verify_closed_loop(
-        user_id=user_id,
-        closed_loop_id=closed_loop_id,
-        unique_identifier_otp=closed_loop_user.unique_identifier_otp,
         uow=uow,
     )
 

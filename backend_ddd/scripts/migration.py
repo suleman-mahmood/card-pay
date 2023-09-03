@@ -85,7 +85,7 @@ class TransactionType(str, Enum):
 Initializing Firebase connection
 """
 
-cred = credentials.Certificate("credentials.json")
+cred = credentials.Certificate("scripts/credentials.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()

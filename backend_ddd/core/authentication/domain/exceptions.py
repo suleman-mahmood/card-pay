@@ -6,3 +6,9 @@ class ClosedLoopException(Exception):
 
 class VerificationException(Exception):
     """exception raised for when a user defies verification logic"""
+
+class InvalidPinException(Exception):
+    """exception raised for when a user enters an invalid pin"""
+
+class InvalidNameException(Exception):
+    """exception raised for when a user enters an invalid name"""

@@ -7,6 +7,7 @@ from ..domain.model import (
     Weightage,
 )
 from ...payment.domain.model import TransactionType
+from ..domain import exceptions as mktg_exc
 
 from typing import List, Dict
 
@@ -113,6 +114,11 @@ class WeightageRepository(WeightageAbstractRepository):
 
         row = self.cursor.fetchone()
 
+        if row is None:
+            raise mktg_exc.WeightageNotFoundException(
+                "Weightage not found"
+            )        
+        
         return Weightage(
             weightage_type=TransactionType[row[0]],
             weightage_value=row[1],

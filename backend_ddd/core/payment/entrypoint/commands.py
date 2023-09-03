@@ -4,6 +4,7 @@ import os
 import logging
 import json
 from datetime import datetime, timedelta
+from typing import List, Tuple
 from core.entrypoint.uow import AbstractUnitOfWork
 from ..domain.model import (
     Transaction,
@@ -16,10 +17,12 @@ from ...payment.domain.model import TransactionType, TransactionMode
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain import model as auth_mdl
+from core.payment.domain import exceptions as pmt_mdl_exc
+from core.authentication.entrypoint.commands import PAYPRO_USER_ID
+from core.payment.entrypoint.exceptions import *
 from . import utils
 from time import sleep
 from queue import Queue
-from . import exceptions as exc
 from ..entrypoint import queries as payment_qry
 from uuid import uuid4
 from dotenv import load_dotenv
@@ -254,12 +257,12 @@ def create_deposit_request(
         user = uow.users.get(user_id=user_id)
 
     if amount < 1000:
-        raise exc.DepositAmountTooSmallException(
+        raise DepositAmountTooSmallException(
             "Deposit amount is less than the minimum allowed deposit"
         )
 
     tx = execute_transaction(
-        sender_wallet_id=user_id,
+        sender_wallet_id=PAYPRO_USER_ID,
         recipient_wallet_id=user_id,
         amount=amount,
         transaction_mode=TransactionMode.APP_TRANSFER,
@@ -338,7 +341,11 @@ def get_deposit_checkout_url(
     pp_order_res.raise_for_status()
 
     response_data = pp_order_res.json()[1]
-    payment_url = response_data["Click2Pay"]
+    
+    try:
+        payment_url = response_data["Click2Pay"]
+    except:
+        raise PaymentUrlNotFoundException("PayPro response does not contain payment url, please try again")
 
     return payment_url
 
@@ -429,6 +436,28 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
     return auth_token
 
 
+def pay_pro_callback(
+    user_name: str, password: str, csv_invoice_ids: str, uow: AbstractUnitOfWork
+) -> Tuple[List[str], List[str]]:
+    if user_name != os.environ.get("PAYPRO_USERNAME") and password != os.environ.get(
+        "PAYPRO_PASSWORD"
+    ):
+        raise InvalidPayProCredentialsException("PayPro credentials are invalid")
+
+    invoice_ids = csv_invoice_ids.split(",")
+    not_found_invoice_ids = []
+    success_invoice_ids = []
+
+    for id in invoice_ids:
+        try:
+            accept_payment_gateway_transaction(transaction_id=id, uow=uow)
+            success_invoice_ids.append(id)
+        except pmt_mdl_exc.TransactionNotFoundException:
+            not_found_invoice_ids.append(id)
+
+    return success_invoice_ids, not_found_invoice_ids
+
+
 def _get_min_sec_repr_of_timedelta(td: timedelta):
     total_seconds = int(td.total_seconds())
     minutes, seconds = divmod(total_seconds, 60)
@@ -483,7 +512,7 @@ def execute_qr_transaction(
         transaction_type = TransactionType.P2P_PUSH
 
     else:
-        raise exc.InvalidUserTypeException("Invalid user type")
+        raise InvalidUserTypeException("Invalid user type")
 
     tx = execute_transaction(
         sender_wallet_id=sender_wallet_id,

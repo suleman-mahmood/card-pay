@@ -393,6 +393,8 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     sender_id = seed_api_customer(mocker, client)
     recipient_id = seed_api_customer(mocker, client)
     closed_loop_id = _create_closed_loop_helper(client)
+    sender_unique_identifier = "26100274"
+    recipient_unique_identifier = "26100290"
 
     headers = {
         "Authorization": "Bearer pytest_auth_token",
@@ -425,6 +427,7 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
         user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
     )
+
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
 
@@ -566,7 +569,7 @@ def test_get_user_recent_transcations_api(
     )
 
     uow = UnitOfWork()
-    txs = pmt_qry.get_all_transactions_of_a_user(
+    txs = pmt_qry.get_all_successful_transactions_of_a_user(
         user_id=sender_id,
         offset=0,
         page_size=50,

@@ -40,14 +40,14 @@ def authenticate_token(f):
     def decorated_function(*args, **kwargs):
         # Fetch the token from the request headers
         auth_header = request.headers.get("Authorization")
-        if not auth_header:
+
+        bearer,_,token = auth_header.partition(" ")
+        
+        if bearer != "Bearer" or token == "":
             raise CustomException(
-                message="Unauthorized, no header provided",
+                message="Unauthorized, invalid header",
                 status_code=401,
             )
-
-        # Extract the token from the Authorization header
-        token = auth_header.split("Bearer ")[1]
 
         try:
             uid = _get_uid_from_bearer(token)
