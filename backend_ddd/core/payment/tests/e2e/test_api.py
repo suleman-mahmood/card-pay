@@ -1,5 +1,7 @@
 import threading
 import pytest
+import time
+from json import loads
 import concurrent.futures
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import commands as auth_cmd
@@ -15,15 +17,16 @@ from core.conftest import (
     _verify_phone_number,
 )
 from core.payment.entrypoint.queries import get_wallet_balance
-from json import loads
 from core.api import utils
-import httpx
-import asyncio
-import time
-import random
+from core.authentication.tests.e2e import test_api as auth_test_api
 
 
-def post_p2p_push_transaction(client, url, json_data, headers):
+def _post_p2p_push_transaction(client, url, json_data, headers):
+    """
+    A python function to make a POST request to the execute-p2p-push-transaction endpoint.
+    Threads do badtameezi when you try client.post directly in the thread.
+    """
+
     response = client.post(url, json=json_data, headers=headers)
     return response
 
@@ -31,8 +34,12 @@ def post_p2p_push_transaction(client, url, json_data, headers):
 def test_execute_p2p_push_one_to_many_valid(
     seed_api_admin, seed_api_customer, mocker, client
 ):
+    """
+    Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
+    All transactions are valid and should be executed successfully. In the end the sender wallet balance should be 0.
+    """
+
     NUMBER_OF_RECIPIENTS = 10
-    STARTING_BALANCE = 1000
 
     sender_id = seed_api_customer(mocker, client)
     recipient_ids = [
@@ -56,7 +63,7 @@ def test_execute_p2p_push_one_to_many_valid(
             client,
             recipient_id,
             closed_loop_id,
-            str(random.randint(10000000, 99999999)),
+            auth_test_api._get_random_unique_identifier(),
         )
 
     uow = UnitOfWork()
@@ -75,11 +82,11 @@ def test_execute_p2p_push_one_to_many_valid(
         _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=sender_id, uow=uow
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
     )
     recipient_unique_identifiers = [
-        auth_qry.get_unique_identifier_from_user_id(user_id=recipient_id, uow=uow)
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow)
         for recipient_id in recipient_ids
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
@@ -103,20 +110,17 @@ def test_execute_p2p_push_one_to_many_valid(
     ) as executor:
         # Create a list to store the futures
         futures = []
-
         for request_data in post_requests:
             future = executor.submit(
-                post_p2p_push_transaction,
+                _post_p2p_push_transaction,
                 client,
                 "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
                 request_data,
                 headers,
             )
             futures.append(future)
-
         # Wait for all futures to complete
         concurrent.futures.wait(futures)
-
         # Extract and check the results of each POST request
         for future, request_data in zip(futures, post_requests):
             response = future.result()
@@ -147,7 +151,7 @@ def test_execute_p2p_push_one_to_many_valid(
 
         for request_data in post_requests:
             future = executor.submit(
-                post_p2p_push_transaction,
+                _post_p2p_push_transaction,
                 client,
                 "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
                 request_data,
@@ -174,6 +178,11 @@ def test_execute_p2p_push_one_to_many_valid(
 def test_execute_p2p_push_one_to_many_all_invalid(
     seed_api_admin, seed_api_customer, mocker, client
 ):
+    """
+    Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
+    All transactions are invalid and should be respond with an 'insufficient balance in sender' exception. 
+    In the end the sender wallet balance should be exactly the same as in the beginning.
+    """
     NUMBER_OF_RECIPIENTS = 10
 
     sender_id = seed_api_customer(mocker, client)
@@ -198,7 +207,7 @@ def test_execute_p2p_push_one_to_many_all_invalid(
             client,
             recipient_id,
             closed_loop_id,
-            str(random.randint(10000000, 99999999)),
+            auth_test_api._get_random_unique_identifier(),
         )
 
     uow = UnitOfWork()
@@ -217,11 +226,11 @@ def test_execute_p2p_push_one_to_many_all_invalid(
         _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=sender_id, uow=uow
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
     )
     recipient_unique_identifiers = [
-        auth_qry.get_unique_identifier_from_user_id(user_id=recipient_id, uow=uow)
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow)
         for recipient_id in recipient_ids
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
@@ -247,7 +256,7 @@ def test_execute_p2p_push_one_to_many_all_invalid(
 
         for request_data in post_requests:
             future = executor.submit(
-                post_p2p_push_transaction,
+                _post_p2p_push_transaction,
                 client,
                 "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
                 request_data,
@@ -267,10 +276,20 @@ def test_execute_p2p_push_one_to_many_all_invalid(
             assert EventCode[payload["event_code"]] == EventCode.DEFAULT_EVENT
             assert response.status_code == 400
 
+    uow = UnitOfWork()
+    sender_balance = get_wallet_balance(wallet_id=sender_id, uow=uow)
+    assert sender_balance == 1000
+
 
 def test_execute_p2p_push_one_to_many_half_valid_invalid(
     seed_api_admin, seed_api_customer, mocker, client
 ):
+    """
+    Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
+    Half transactions are invalid and half are valid and should be respond with an 'insufficient balance in sender' exception
+    for half and 'executed successfully' for half. In the end the sender wallet balance should be exactly the same as in the beginning.
+    """
+
     NUMBER_OF_RECIPIENTS = 10
 
     sender_id = seed_api_customer(mocker, client)
@@ -295,7 +314,7 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
             client,
             recipient_id,
             closed_loop_id,
-            str(random.randint(10000000, 99999999)),
+            auth_test_api._get_random_unique_identifier(),
         )
 
     uow = UnitOfWork()
@@ -314,11 +333,11 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
         _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=sender_id, uow=uow
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
     )
     recipient_unique_identifiers = [
-        auth_qry.get_unique_identifier_from_user_id(user_id=recipient_id, uow=uow)
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow)
         for recipient_id in recipient_ids
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
@@ -344,7 +363,7 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
 
         for request_data in post_requests:
             future = executor.submit(
-                post_p2p_push_transaction,
+                _post_p2p_push_transaction,
                 client,
                 "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
                 request_data,
@@ -354,21 +373,20 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
 
         concurrent.futures.wait(futures)
 
-        payload_counts = {
-            "valid_txns": 0,
-            "invalid_txns": 0,
-        }
+        valid_txns = 0
+        invalid_txns = 0
+
         for future, request_data in zip(futures, post_requests):
             response = future.result()
             payload = loads(response.data.decode())
 
             if response.status_code == 200:
-                payload_counts["valid_txns"] += 1
+                valid_txns += 1
             else:
-                payload_counts["invalid_txns"] += 1
+                invalid_txns += 1
 
-        assert payload_counts["valid_txns"] == 5
-        assert payload_counts["invalid_txns"] == 5
+        assert valid_txns == 5
+        assert invalid_txns == 5
 
 
 def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client):
@@ -401,11 +419,11 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=recipient_id, uow=uow
+    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+        user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
     )
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=sender_id, uow=uow
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
     )
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
@@ -501,11 +519,11 @@ def test_get_user_recent_transcations_api(
     _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=recipient_id, uow=uow
+    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+        user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
     )
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
-        user_id=sender_id, uow=uow
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
     )
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()

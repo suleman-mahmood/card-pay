@@ -31,9 +31,9 @@ class NotVerifiedException(Exception):
     """User is not verified"""
 
 
+# please only call this from create_user
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
-    # please only call this from create_user
     qr_id = str(uuid4())
     wallet = Wallet(id=user_id, qr_id=qr_id)
     uow.transactions.add_wallet(wallet)
@@ -119,60 +119,6 @@ def execute_transaction(
             )
 
         uow.transactions.save(tx)
-
-    return tx
-
-
-# for testing purposes only
-def execute_multi_transaction(
-    sender_wallet_id: str,
-    recipient_wallet_id: str,
-    amount: int,
-    transaction_mode: TransactionMode,
-    transaction_type: TransactionType,
-    uow: AbstractUnitOfWork,
-    queue: Queue,
-) -> Transaction:
-    with uow:
-        if not auth_qry.user_verification_status_from_user_id(
-            user_id=sender_wallet_id, uow=uow
-        ):
-            raise NotVerifiedException("User is not verified")
-        if not auth_qry.user_verification_status_from_user_id(
-            user_id=recipient_wallet_id, uow=uow
-        ):
-            raise NotVerifiedException("User is not verified")
-
-        tx = uow.transactions.get_wallets_create_transaction(
-            amount=amount,
-            mode=transaction_mode,
-            transaction_type=transaction_type,
-            sender_wallet_id=sender_wallet_id,
-            recipient_wallet_id=recipient_wallet_id,
-        )
-
-        if utils.is_instant_transaction(transaction_type=transaction_type):
-            tx.execute_transaction()
-            uow.transactions.save(tx)
-
-            mktg_cmd.add_loyalty_points(
-                sender_wallet_id=sender_wallet_id,
-                recipient_wallet_id=recipient_wallet_id,
-                transaction_amount=amount,
-                transaction_type=transaction_type,
-                uow=uow,
-            )
-            mktg_cmd.give_cashback(
-                recipient_wallet_id=recipient_wallet_id,
-                deposited_amount=amount,
-                transaction_type=transaction_type,
-                uow=uow,
-            )
-
-        uow.transactions.save(tx)
-
-    uow.close_connection()
-    queue.put(tx)
 
     return tx
 
