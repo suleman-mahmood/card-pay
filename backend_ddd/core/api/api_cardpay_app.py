@@ -16,6 +16,7 @@ from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.domain import exceptions as auth_ex
 from core.authentication.entrypoint import exceptions as auth_cmd_ex
 from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
+from core.entrypoint import queries as app_queries
 
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
@@ -406,7 +407,10 @@ def execute_p2p_push_transaction(uid):
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except (Exception, AssertionError,) as e:
+    except (
+        Exception,
+        AssertionError,
+    ) as e:
         uow.close_connection()
         raise e
 
@@ -454,7 +458,10 @@ def create_p2p_pull_transaction(uid):
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except (Exception, AssertionError,) as e:
+    except (
+        Exception,
+        AssertionError,
+    ) as e:
         uow.close_connection()
         raise e
 
@@ -766,4 +773,17 @@ def get_user_checkpoint(uid):
         message="User Checkpoint returned successfully",
         status_code=200,
         data=checkpoints.__dict__,
+    ).__dict__
+
+
+@cardpay_app.route("/get-latest-force-update-version", methods=["GET"])
+def get_latest_force_update_version():
+    uow = UnitOfWork()
+    version = app_queries.get_latest_force_update_version(uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="App latest and force update version returned successfully",
+        status_code=200,
+        data=version,
     ).__dict__
