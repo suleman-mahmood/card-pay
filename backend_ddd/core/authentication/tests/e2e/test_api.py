@@ -448,7 +448,6 @@ def test_authenticate_token(seed_api_customer, mocker, client):
 
 
 # TODO: need to write the test for create vendor
-
 # def test_auth_retools_create_vendor(mocker, client):
 
 #     uow = UnitOfWork()
@@ -463,30 +462,46 @@ def test_authenticate_token(seed_api_customer, mocker, client):
 #     closed_loop_id = auth_qry._get_latest_closed_loop_id(
 #         uow
 #     )
-#     uow.commit_close_connection()
 
 #     user_id = str(uuid4())
 #     SECRET_KEY = os.environ["RETOOL_SECRET"]
 
 #     mocker.patch("core.api.utils.firebaseUidToUUID", return_value=user_id)
-#     mocker.patch("core.authentication.entrypoint.commands.firebase_create_user", side_effect=Exception("Uesr already exists"))
 #     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
 
+#     #passing incorrect secret key
 #     response = client.post(
 #         "http://127.0.0.1:5000/api/v1/auth-retools-create-vendor",
 #         json={
 #             "personal_email": "zak@zak.com",
 #             "password": "cardpay123",
-#             "phone_number": "090078601",
+#             "phone_number": "3763936384",
 #             "full_name": "Zain vendor retool",
 #             "longitude": 24.8607,
 #             "latitude": 67.0011,
 #             "closed_loop_id": closed_loop_id,
-#             "RETOOL_SECRET": SECRET_KEY,
+#             "RETOOL_SECRET": "",
 #         }
 #     )
 
-#     assert loads(response.data.decode()) == utils.Response(
-#         message="Vendor created successfully",
-#         status_code=201,
-#     ).__dict__
+#     print(loads(response.data.decode()))
+#     print(response.status_code)
+
+    # response = client.post(
+    #     "http://127.0.0.1:5000/api/v1/auth-retools-create-vendor",
+    #     json={
+    #         "personal_email": "zak@zak.com",
+    #         "password": "cardpay123",
+    #         "phone_number": "3763936384",
+    #         "full_name": "Zain vendor retool",
+    #         "longitude": 24.8607,
+    #         "latitude": 67.0011,
+    #         "closed_loop_id": closed_loop_id,
+    #         "RETOOL_SECRET": SECRET_KEY,
+    #     }
+    # )
+
+    # assert loads(response.data.decode()) == utils.Response(
+    #     message="Vendor created successfully",
+    #     status_code=201,
+    # ).__dict__

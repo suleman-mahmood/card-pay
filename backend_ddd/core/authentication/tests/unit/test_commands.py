@@ -288,3 +288,94 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
             unique_identifier_otp=otp,
             uow=uow,
         )
+
+
+def test_update_closed_loop(seed_auth_closed_loop):
+
+    uow = UnitOfWork()
+    closed_loop = seed_auth_closed_loop(uow)
+
+    auth_cmd.auth_retools_update_closed_loop(
+        closed_loop_id=closed_loop.id,
+        name="Updated Name",
+        description=closed_loop.description,
+        logo_url=closed_loop.logo_url,
+        regex=closed_loop.regex,
+        verification_type=closed_loop.verification_type,
+        uow=uow,
+    )
+
+    fetched_closed_loop = uow.closed_loops.get(closed_loop.id)
+
+    assert fetched_closed_loop.name == "Updated Name"
+
+    uow.close_connection()
+
+def test_create_vendor(seed_auth_closed_loop, mocker):
+
+
+    uow = UnitOfWork()
+    closed_loop = seed_auth_closed_loop(uow)
+    uid = str(uuid4())
+
+    mocker.patch("core.api.utils.firebaseUidToUUID", return_value=uid)
+    user = auth_cmd.create_vendor_through_retool(
+        personal_email="vendor@test.com",
+        password="vendor1234",
+        phone_number="3123456789",
+        full_name="Vendor Name",
+        location=(20.8752 , 56.2123),
+        closed_loop_id=closed_loop.id,
+        unique_identifier=None,
+        uow=uow,
+    )
+
+    fetched_user = uow.users.get(user_id=user.id)
+
+    assert fetched_user.personal_email.value == "vendor@test.com"
+    assert fetched_user.phone_number.value == "+923123456789"
+    assert fetched_user.user_type == auth_mdl.UserType.VENDOR
+    assert fetched_user.full_name == "Vendor Name"
+    assert fetched_user.location.latitude == 20.8752
+    assert fetched_user.location.longitude == 56.2123
+    assert fetched_user.closed_loops[closed_loop.id].closed_loop_id == closed_loop.id
+
+    # vendor should be active and vendors closed loop account should be verified
+    assert fetched_user.is_active == True
+    assert fetched_user.is_phone_number_verified == True
+    assert fetched_user.closed_loops[closed_loop.id].status == auth_mdl.ClosedLoopUserState.VERIFIED
+
+
+    # creating a vendor with same phone number
+    # since the vendor is verified, it should throw an exception and user detaild should not be updated
+    mocker.patch("core.authentication.entrypoint.commands.firebase_create_user", side_effect=Exception("User already exists"))
+
+    with pytest.raises(auth_ex.VerificationException, match = "Phone number already verified"):
+        auth_cmd.create_vendor_through_retool(
+            personal_email="abc@abc.com",
+            password="abc1234342",
+            phone_number="3123456789",
+            full_name="New Name",
+            location=(10,20),
+            closed_loop_id=closed_loop.id,
+            unique_identifier=None,
+            uow=uow,
+        )
+
+    fetched_user = uow.users.get(user_id=user.id)
+
+    assert fetched_user.personal_email.value == "vendor@test.com"
+    assert fetched_user.phone_number.value == "+923123456789"
+    assert fetched_user.user_type == auth_mdl.UserType.VENDOR
+    assert fetched_user.full_name == "Vendor Name"
+    assert fetched_user.location.latitude == 20.8752
+    assert fetched_user.location.longitude == 56.2123
+    assert fetched_user.closed_loops[closed_loop.id].closed_loop_id == closed_loop.id
+
+    # vendor should be active and vendors closed loop account should be verified
+    assert fetched_user.is_active == True
+    assert fetched_user.is_phone_number_verified == True
+    assert fetched_user.closed_loops[closed_loop.id].status == auth_mdl.ClosedLoopUserState.VERIFIED
+
+
+    uow.close_connection()
