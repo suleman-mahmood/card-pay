@@ -17,6 +17,10 @@ class CheckpointsCubit extends BaseCubit<CheckpointsState, Checkpoints> {
           Checkpoints(),
         );
 
+  Future<void> init() async {
+    emit(CheckpointsInitial());
+  }
+
   Future<void> getCheckpoints() async {
     if (isBusy) return;
 

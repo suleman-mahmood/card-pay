@@ -3,11 +3,13 @@ part of 'closed_loop_cubit.dart';
 @immutable
 abstract class ClosedLoopState {
   final String message;
+  final String errorMessage;
   final DioError? error;
   final List<ClosedLoop> closedLoops;
 
   const ClosedLoopState({
     this.message = '',
+    this.errorMessage = '',
     this.error,
     this.closedLoops = const [],
   });
@@ -27,5 +29,5 @@ class ClosedLoopSuccess extends ClosedLoopState {
 }
 
 class ClosedLoopFailed extends ClosedLoopState {
-  const ClosedLoopFailed({super.error});
+  const ClosedLoopFailed({super.error, super.errorMessage});
 }

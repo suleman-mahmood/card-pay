@@ -47,6 +47,15 @@ class DashboardView extends HookWidget {
       someFunction();
     }, []);
 
+    String displayName(String fullName) {
+      final words = fullName.split(" ");
+
+      if (words.isEmpty) {
+        return "";
+      }
+      return words[0];
+    }
+
     return PaddingAll(
       slab: 1,
       child: SingleChildScrollView(
@@ -68,14 +77,9 @@ class DashboardView extends HookWidget {
                       case UserSuccess || UserInitial:
                         return GreetingRow(
                           greeting: PaymentStrings.greet,
-                          name: state.user.fullName,
+                          name: displayName(state.user.fullName),
                           imagePath: 'assets/images/talha.jpg',
                         );
-                      // case UserFailed:
-                      //   return Text(
-                      //     state.error!.response!.data['message'],
-                      //     style: const TextStyle(color: Colors.red),
-                      //   );
                       default:
                         return const SizedBox.shrink();
                     }
@@ -110,12 +114,6 @@ class DashboardView extends HookWidget {
                       topRightImage: 'assets/images/balance_corner.png',
                       bottomLeftImage: 'assets/images/balance_corner2.png',
                     );
-                  // case UserFailed:
-                  //   return const SizedBox.shrink();
-                  // return Text(
-                  //   state.error!.response!.data['message'],
-                  //   style: const TextStyle(color: Colors.red),
-                  // );
                   default:
                     return const SizedBox.shrink();
                 }
@@ -159,11 +157,6 @@ class DashboardView extends HookWidget {
                         },
                       ),
                     );
-                  // case UserFailed:
-                  //   return Text(
-                  //     state.error!.response!.data['message'],
-                  //     style: const TextStyle(color: Colors.red),
-                  //   );
                   default:
                     return const SizedBox.shrink();
                 }
@@ -191,7 +184,7 @@ class DashboardView extends HookWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomBox(
-                  imagePath: 'assets/images/Upwork-1.png',
+                  imagePath: 'assets/images/request-disabled.png',
                   text: PaymentStrings.request,
                   isDisabled: true,
                 ),

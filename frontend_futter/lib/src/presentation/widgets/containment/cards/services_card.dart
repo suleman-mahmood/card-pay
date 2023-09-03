@@ -64,11 +64,12 @@ class CustomBox extends StatelessWidget {
       if (!isDisabled) {
         userCubit.initialize();
         context.router.push(route!);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(disabledMessage)),
-        );
       }
+      // else {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text(disabledMessage)),
+      //   );
+      // }
     }
 
     return Material(

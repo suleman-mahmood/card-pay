@@ -1,6 +1,5 @@
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
-import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
@@ -22,44 +21,26 @@ class LoginView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     void navigateToNextScreen(CheckpointsState state) {
+      PageRouteInfo route = SignupRoute();
+
       if (state.checkPoints.verifiedPhoneOtp &&
           state.checkPoints.verifiedClosedLoop &&
           state.checkPoints.pinSetup) {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) {
-            context.router.push(
-              PaymentDashboardRoute(),
-            );
-          },
-        );
+        route = PaymentDashboardRoute();
       } else if (state.checkPoints.verifiedPhoneOtp &&
           state.checkPoints.verifiedClosedLoop &&
           state.checkPoints.pinSetup == false) {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) {
-            context.router.push(
-              PinRoute(),
-            );
-          },
-        );
+        route = PinRoute();
       } else if (state.checkPoints.verifiedPhoneOtp &&
           state.checkPoints.verifiedClosedLoop == false) {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) {
-            context.router.push(
-              RegisterOrganizationRoute(),
-            );
-          },
-        );
-      } else {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) {
-            context.router.push(
-              SignupRoute(),
-            );
-          },
-        );
+        route = RegisterOrganizationRoute();
       }
+
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          context.router.push(route);
+        },
+      );
     }
 
     final phoneNumberController = useTextEditingController();
@@ -93,7 +74,6 @@ class LoginView extends HookWidget {
 
       return () {
         phoneNumberController.dispose();
-        loginCubit.close();
       };
     }, []);
     return AuthLayout(
@@ -158,7 +138,7 @@ class LoginView extends HookWidget {
                       state.login.phoneNumber,
                       state.login.password,
                     );
-                  case UserFailed:
+                  case LoginFailed:
                     return Text(
                       state.errorMessage,
                       style: const TextStyle(color: Colors.red),

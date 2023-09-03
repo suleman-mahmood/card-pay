@@ -12,12 +12,9 @@ import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/data_state.dart';
-import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
-import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'user_state.dart';
@@ -49,11 +46,10 @@ class UserCubit extends BaseCubit<UserState, User> {
       );
 
       if (response is DataSuccess) {
-        data.id = response.data!.userId;
+        final userId = response.data!.userId;
+        data.id = userId;
 
-        await _prefs.setString('user_id', response.data!.userId);
-        await _prefs.setString('user_full_name', fullName);
-        await _prefs.setString('user_personal_email', personalEmail);
+        await _prefs.setString('user_id', userId);
         await _prefs.setString('user_phone_number', phoneNumber);
         await _prefs.setString('user_password', password);
 
@@ -89,7 +85,6 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       if (response is DataSuccess) {
         data.isPhoneNumberVerified = true;
-        await _prefs.setString('isPhoneNumberVerified', 'true');
 
         emit(UserSuccess(
           message: response.data!.message,
@@ -162,7 +157,6 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       if (response is DataSuccess) {
         data.closedLoopVerified = true;
-        await _prefs.setString('closedLoopVerified', 'true');
 
         emit(UserSuccess(
           message: response.data!.message,
@@ -197,7 +191,6 @@ class UserCubit extends BaseCubit<UserState, User> {
 
       if (response is DataSuccess) {
         data.pinSetup = true;
-        await _prefs.setString('pinSetup', 'true');
 
         emit(UserSuccess(
           message: response.data!.message,
@@ -209,40 +202,6 @@ class UserCubit extends BaseCubit<UserState, User> {
           errorMessage: response.error?.response?.data["message"],
         ));
       }
-    });
-  }
-
-  Future<void> loadCheckpoints() async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      // Just to reset my variables, only for testing purposes
-      // _prefs.setString('isPhoneNumberVerified', '');
-      // _prefs.setString('closedLoopVerified', '');
-      // _prefs.setString('pinSetup', '');
-
-      // TODO(refactor): Change these to setBool -_-
-      final isPhoneNumberVerified =
-          (_prefs.getString('isPhoneNumberVerified') ?? '') == 'true';
-      final closedLoopVerified =
-          (_prefs.getString('closedLoopVerified') ?? '') == 'true';
-      final pinSetup = (_prefs.getString('pinSetup') ?? '') == 'true';
-
-      data.isPhoneNumberVerified = isPhoneNumberVerified;
-      data.closedLoopVerified = closedLoopVerified;
-      data.pinSetup = pinSetup;
-
-      emit(
-        UserSuccess(
-          message: "Successfully loaded checkpoints from local storage",
-          eventCodes: EventCodes.USER_AUTHENTICATED,
-          isPhoneNumberVerified: isPhoneNumberVerified,
-          closedLoopVerified: closedLoopVerified,
-          pinSetup: pinSetup,
-        ),
-      );
     });
   }
 
@@ -327,9 +286,8 @@ class UserCubit extends BaseCubit<UserState, User> {
               '';
       final response = await _apiRepository.getUserRecentTransactions(token);
 
-      data.recentTransactions = response.data!.recentTransactions;
-
       if (response is DataSuccess) {
+        data.recentTransactions = response.data!.recentTransactions;
         emit(UserSuccess(
           user: data,
           message: response.data!.message,

@@ -34,7 +34,10 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, ClosedLoop> {
           closedLoops: response.data!.closedLoops,
         ));
       } else if (response is DataFailed) {
-        emit(ClosedLoopFailed(error: response.error));
+        emit(ClosedLoopFailed(
+          error: response.error,
+          errorMessage: response.error?.response?.data["message"],
+        ));
       }
     });
   }
