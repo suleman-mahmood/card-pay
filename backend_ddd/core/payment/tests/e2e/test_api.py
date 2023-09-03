@@ -56,7 +56,13 @@ def test_execute_p2p_push_one_to_many_valid(
     for recipient_id in recipient_ids:
         _verify_phone_number(recipient_id, mocker, client)
 
-    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
+    _register_user_in_closed_loop(
+        mocker,
+        client,
+        sender_id,
+        closed_loop_id,
+        auth_test_api._get_random_unique_identifier(),
+    )
     for recipient_id, _ in zip(recipient_ids, range(NUMBER_OF_RECIPIENTS)):
         _register_user_in_closed_loop(
             mocker,
@@ -82,11 +88,15 @@ def test_execute_p2p_push_one_to_many_valid(
         _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+    sender_unique_identifier = (
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+        )
     )
     recipient_unique_identifiers = [
-        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow)
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
+        )
         for recipient_id in recipient_ids
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
@@ -180,7 +190,7 @@ def test_execute_p2p_push_one_to_many_all_invalid(
 ):
     """
     Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
-    All transactions are invalid and should be respond with an 'insufficient balance in sender' exception. 
+    All transactions are invalid and should be respond with an 'insufficient balance in sender' exception.
     In the end the sender wallet balance should be exactly the same as in the beginning.
     """
     NUMBER_OF_RECIPIENTS = 10
@@ -200,7 +210,13 @@ def test_execute_p2p_push_one_to_many_all_invalid(
     for recipient_id in recipient_ids:
         _verify_phone_number(recipient_id, mocker, client)
 
-    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
+    _register_user_in_closed_loop(
+        mocker,
+        client,
+        sender_id,
+        closed_loop_id,
+        auth_test_api._get_random_unique_identifier(),
+    )
     for recipient_id, _ in zip(recipient_ids, range(NUMBER_OF_RECIPIENTS)):
         _register_user_in_closed_loop(
             mocker,
@@ -226,11 +242,15 @@ def test_execute_p2p_push_one_to_many_all_invalid(
         _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+    sender_unique_identifier = (
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+        )
     )
     recipient_unique_identifiers = [
-        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow)
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
+        )
         for recipient_id in recipient_ids
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
@@ -333,11 +353,15 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
         _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+    sender_unique_identifier = (
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+        )
     )
     recipient_unique_identifiers = [
-        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow)
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
+        )
         for recipient_id in recipient_ids
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
@@ -421,11 +445,15 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
+    recipient_unique_identifier = (
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
+        )
     )
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+    sender_unique_identifier = (
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+        )
     )
 
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
@@ -522,11 +550,15 @@ def test_get_user_recent_transcations_api(
     _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
-    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
+    recipient_unique_identifier = (
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
+        )
     )
-    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-        user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+    sender_unique_identifier = (
+        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+            user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+        )
     )
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
