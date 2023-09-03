@@ -3,3 +3,4 @@
 .env
 backend_ddd/api/credentials-dev.json
 .DS_Store
+.idea

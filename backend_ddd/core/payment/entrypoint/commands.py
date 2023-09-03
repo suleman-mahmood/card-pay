@@ -3,10 +3,8 @@ import requests
 import os
 import logging
 import json
-
 from datetime import datetime, timedelta
 from typing import List, Tuple
-
 from core.entrypoint.uow import AbstractUnitOfWork
 from ..domain.model import (
     Transaction,
@@ -32,9 +30,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+class NotVerifiedException(Exception):
+    """User is not verified"""
+
+
+# please only call this from create_user
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
-    # please only call this from create_user
     qr_id = str(uuid4())
     wallet = Wallet(id=user_id, qr_id=qr_id)
     uow.transactions.add_wallet(wallet)
@@ -501,7 +503,7 @@ def execute_qr_transaction(
     transaction_type = TransactionType.VIRTUAL_POS
 
     if user_info is None:
-        raise InvalidQRCodeException("Invalid QR code")
+        raise exc.InvalidQRCodeException("Invalid QR code")
 
     elif user_info.user_type == auth_mdl.UserType.VENDOR:
         transaction_type = TransactionType.VIRTUAL_POS

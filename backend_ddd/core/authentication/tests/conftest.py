@@ -66,7 +66,9 @@ def seed_auth_user():
         )
 
         with uow:
-            uow.transactions.add_wallet(wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4())))
+            uow.transactions.add_wallet(
+                wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()))
+            )
             uow.users.add(user)
 
         return user
@@ -76,7 +78,7 @@ def seed_auth_user():
 
 @pytest.fixture
 def seed_verified_auth_user(seed_auth_user):
-    def _seed_auth_user(uow:AbstractUnitOfWork) -> User:
+    def _seed_auth_user(uow: AbstractUnitOfWork) -> User:
         user = seed_auth_user(uow)
         auth_commands.verify_phone_number(
             user_id=user.id,
@@ -102,6 +104,7 @@ def seed_auth_closed_loop():
 
     return _seed_auth_closed_loop
 
+
 @pytest.fixture
 def seed_auth_vendor():
     def _seed_auth_vendor(uow: AbstractUnitOfWork) -> User:
@@ -118,16 +121,19 @@ def seed_auth_vendor():
         )
 
         with uow:
-            uow.transactions.add_wallet(wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4())))
+            uow.transactions.add_wallet(
+                wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()))
+            )
             uow.users.add(user)
 
         return user
 
     return _seed_auth_vendor
 
+
 @pytest.fixture
 def seed_verified_auth_vendor(seed_auth_vendor):
-    def _seed_auth_vendor(uow:AbstractUnitOfWork) -> User:
+    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> User:
         user = seed_auth_vendor(uow)
         auth_commands.verify_phone_number(
             user_id=user.id,
@@ -137,3 +143,59 @@ def seed_verified_auth_vendor(seed_auth_vendor):
         return user
 
     return _seed_auth_vendor
+
+
+# work on this layta
+@pytest.fixture
+def seed_p2p_admin_customer_mocker_client():
+    def _seed_p2p_admin_customer_mocker_client(mocker, client):
+        sender_id = seed_api_customer(mocker, client)
+        recipient_id = seed_api_customer(mocker, client)
+        closed_loop_id = _create_closed_loop_helper(client)
+
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    _verify_phone_number(recipient_id, mocker, client)
+    _verify_phone_number(sender_id, mocker, client)
+
+    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
+    _register_user_in_closed_loop(
+        mocker, client, recipient_id, closed_loop_id, "26100290"
+    )
+
+    uow = UnitOfWork()
+    sender = uow.users.get(user_id=sender_id)
+    recipient = uow.users.get(user_id=recipient_id)
+    uow.close_connection()
+
+    otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
+    _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
+
+    otp = recipient.closed_loops[closed_loop_id].unique_identifier_otp
+    _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+
+    uow = UnitOfWork()
+    recipient_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
+        user_id=recipient_id, uow=uow
+    )
+    sender_unique_identifier = auth_qry.get_unique_identifier_from_user_id(
+        user_id=sender_id, uow=uow
+    )
+    uow.transactions.add_1000_wallet(wallet_id=sender_id)
+    uow.commit_close_connection()
+
+    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "10")
+
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
+        json={
+            "recipient_unique_identifier": recipient_unique_identifier,
+            "amount": 100,
+            "closed_loop_id": closed_loop_id,
+        },
+        headers=headers,
+    )
