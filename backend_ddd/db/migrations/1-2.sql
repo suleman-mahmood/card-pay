@@ -10,6 +10,7 @@ drop table if exists payment_gateway_tokens cascade;
 drop table if exists wallets_firestore cascade;
 drop table if exists users_firestore cascade;
 drop table if exists transactions_firestore cascade;
+drop table if exists version_history cascade;
 
 drop type if exists transaction_mode_enum cascade;
 drop type if exists transaction_type_enum cascade;
@@ -157,4 +158,12 @@ create table transactions_firestore (
     last_updated timestamp not null default current_timestamp,
 
     migrated boolean not null default false -- The only difference here
+);
+
+
+create table version_history (
+    id uuid primary key,
+    latest_version varchar(20) not null,
+    force_update_version  varchar(20) not null,
+    created_at timestamp not null default current_timestamp
 );
