@@ -199,3 +199,51 @@ def seed_p2p_admin_customer_mocker_client():
         },
         headers=headers,
     )
+
+@pytest.fixture
+def seed_auth_cardpay():
+    def _seed_auth_cardpay(uow: AbstractUnitOfWork) -> User:
+        user_id = str(uuid4())
+        user = User(
+            id=user_id,
+            personal_email=PersonalEmail(value="cpay@gmail.com"),
+            phone_number=PhoneNumber(value="+923123456987"),
+            user_type=UserType.CARDPAY,
+            pin="1234",
+            full_name="Card Pay",
+            location=Location(latitude=0, longitude=0),
+            wallet_id=user_id,
+        )
+
+        uow.transactions.add_wallet(
+            wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()))
+        )
+        uow.users.add(user)
+
+        delete_sql = """
+            delete from starred_wallet_id
+        """
+        uow.cursor.execute(delete_sql)
+
+        sql = """
+            insert into starred_wallet_id
+            values (%s)
+        """
+        uow.cursor.execute(sql, [user_id])
+        
+        return user
+
+    return _seed_auth_cardpay
+
+@pytest.fixture
+def seed_verified_auth_cardpay(seed_auth_cardpay):
+    def _seed_auth_cardpay(uow: AbstractUnitOfWork) -> User:
+        user = seed_auth_cardpay(uow)
+        auth_commands.verify_phone_number(
+            user_id=user.id,
+            otp=user.otp,
+            uow=uow,
+        )
+        return user
+
+    return _seed_auth_cardpay
