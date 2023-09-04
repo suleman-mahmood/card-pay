@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
@@ -22,6 +24,8 @@ class QrView extends HookWidget {
     final userCubit = BlocProvider.of<UserCubit>(context);
     final controller = QRCodeDartScanController();
 
+    final qrValue = useState<String>("");
+
     return SafeArea(
       child: Scaffold(
         body: Stack(
@@ -31,9 +35,20 @@ class QrView extends HookWidget {
               typeScan: TypeScan.live,
               controller: controller,
               onCapture: (Result result) {
-                final qrData = result.text;
                 controller.setScanEnabled(false);
-                userCubit.fetchQrInfo(qrData);
+                qrValue.value = result.text;
+                Map<String, dynamic> jsonMap = json.decode(result.text);
+
+                context.router
+                    .push(SendRoute(
+                  uniqueIdentifier: jsonMap["name"],
+                  qrId: jsonMap["qr_id"],
+                ))
+                    .then(
+                  (_) {
+                    controller.setScanEnabled(true);
+                  },
+                );
               },
             ),
             PaddingAll(
@@ -55,28 +70,6 @@ class QrView extends HookWidget {
               ),
             ),
             PaddingHorizontal(slab: 2, child: Header(title: '')),
-
-            // Show conditional loading
-            BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-              switch (state.runtimeType) {
-                case UserSuccess:
-                  if (state.eventCodes != EventCodes.QR_DATA_FETCHED) {
-                    return const SizedBox.shrink();
-                  }
-                  userCubit.initialize();
-                  context.router
-                      .push(SendRoute(uniqueIdentifier: state.qrTitle))
-                      .then((_) {
-                    controller.setScanEnabled(true);
-                  });
-
-                  return const SizedBox.shrink();
-                case UserLoading:
-                  return const OverlayLoading();
-                default:
-                  return const SizedBox.shrink();
-              }
-            }),
           ],
         ),
       ),

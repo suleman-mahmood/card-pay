@@ -19,7 +19,13 @@ class SendViewConstants {
 @RoutePage()
 class SendView extends HookWidget {
   final String? uniqueIdentifier;
-  const SendView({Key? key, this.uniqueIdentifier}) : super(key: key);
+  final String? qrId;
+
+  const SendView({
+    Key? key,
+    this.uniqueIdentifier,
+    this.qrId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +43,19 @@ class SendView extends HookWidget {
             if (uniqueIdentifier == null) {
               return;
             }
-            transferCubit.executeP2PPushTransaction(
-              uniqueIdentifier!,
-              amount,
-              userCubit.data.closedLoops[0].closedLoopId,
-            );
+
+            if (qrId == null) {
+              transferCubit.executeP2PPushTransaction(
+                uniqueIdentifier!,
+                amount,
+                userCubit.data.closedLoops[0].closedLoopId,
+              );
+            } else {
+              transferCubit.executeQrTransaction(
+                qrId ?? '',
+                amount,
+              );
+            }
           },
         ),
         BlocBuilder<TransferCubit, TransferState>(builder: (_, state) {

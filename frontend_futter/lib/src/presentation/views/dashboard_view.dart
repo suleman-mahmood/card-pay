@@ -145,14 +145,13 @@ class DashboardView extends HookWidget {
                         ),
                         itemBuilder: (_, index) {
                           return TransactionContainer(
-                            icon: Icons.send,
-                            firstText: PaymentStrings.rollNumber,
-                            secondText: state
-                                .user.recentTransactions[index].amount
+                            senderName:
+                                state.user.recentTransactions[index].senderName,
+                            recipientName: state
+                                .user.recentTransactions[index].recipientName,
+                            amount: state.user.recentTransactions[index].amount
                                 .toString(),
-                            firstTextColor: AppColors.blackColor,
-                            secondTextColor: AppColors.redColor,
-                            iconColor: AppColors.primaryColor,
+                            currentUserName: state.user.fullName,
                           );
                         },
                       ),

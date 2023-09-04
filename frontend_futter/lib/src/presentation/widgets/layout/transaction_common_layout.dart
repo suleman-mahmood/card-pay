@@ -3,10 +3,8 @@ import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/deposite_view.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
-import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -21,7 +19,7 @@ class TransactionView extends HookWidget {
   final String buttonText;
   final String? rollNumber;
   final Color backgroundColor;
-  final void Function(double) onButtonPressed;
+  final void Function(int) onButtonPressed;
 
   const TransactionView({
     super.key,
@@ -110,7 +108,7 @@ class TransactionView extends HookWidget {
                     onPressed: () {
                       if (paymentController.text.isEmpty) return;
                       onButtonPressed(
-                        double.parse(paymentController.text),
+                        int.parse(paymentController.text),
                       );
                     },
                   ),

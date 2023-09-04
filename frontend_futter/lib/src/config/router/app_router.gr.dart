@@ -88,6 +88,7 @@ abstract class _$AppRouter extends RootStackRouter {
         child: SendView(
           key: args.key,
           uniqueIdentifier: args.uniqueIdentifier,
+          qrId: args.qrId,
         ),
       );
     },
@@ -351,12 +352,14 @@ class SendRoute extends PageRouteInfo<SendRouteArgs> {
   SendRoute({
     Key? key,
     String? uniqueIdentifier,
+    String? qrId,
     List<PageRouteInfo>? children,
   }) : super(
           SendRoute.name,
           args: SendRouteArgs(
             key: key,
             uniqueIdentifier: uniqueIdentifier,
+            qrId: qrId,
           ),
           initialChildren: children,
         );
@@ -370,15 +373,18 @@ class SendRouteArgs {
   const SendRouteArgs({
     this.key,
     this.uniqueIdentifier,
+    this.qrId,
   });
 
   final Key? key;
 
   final String? uniqueIdentifier;
 
+  final String? qrId;
+
   @override
   String toString() {
-    return 'SendRouteArgs{key: $key, uniqueIdentifier: $uniqueIdentifier}';
+    return 'SendRouteArgs{key: $key, uniqueIdentifier: $uniqueIdentifier, qrId: $qrId}';
   }
 }
 

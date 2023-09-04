@@ -41,12 +41,10 @@ class TransactionList extends HookWidget {
                 return PaddingHorizontal(
                   slab: 1,
                   child: TransactionContainer(
-                    icon: Icons.send,
-                    firstText: transaction.id,
-                    secondText: transaction.amount.toString(),
-                    firstTextColor: color,
-                    secondTextColor: color,
-                    iconColor: color,
+                    amount: transaction.amount.toString(),
+                    senderName: transaction.senderName,
+                    recipientName: transaction.recipientName,
+                    currentUserName: state.user.fullName,
                   ),
                 );
               },

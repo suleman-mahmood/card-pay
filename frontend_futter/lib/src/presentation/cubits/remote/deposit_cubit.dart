@@ -14,7 +14,7 @@ class DepositCubit extends BaseCubit<DepositState, Deposit> {
 
   DepositCubit(this._apiRepository) : super(DepositInitial(), Deposit());
 
-  Future<void> createDepositRequest(double amount) async {
+  Future<void> createDepositRequest(int amount) async {
     if (isBusy) return;
 
     await run(() async {

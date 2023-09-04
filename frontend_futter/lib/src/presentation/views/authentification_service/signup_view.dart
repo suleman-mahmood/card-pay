@@ -107,7 +107,7 @@ class SignupView extends HookWidget {
     useEffect(() {
       return () {
         phoneNumberController.dispose();
-        userCubit.close();
+        // userCubit.close();
       };
     }, []);
 

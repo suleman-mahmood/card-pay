@@ -3,6 +3,7 @@ import 'package:cardpay/src/domain/models/requests/create_customer_request.dart'
 import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
+import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
@@ -11,6 +12,7 @@ import 'package:cardpay/src/domain/models/responses/create_customer_response.dar
 import 'package:cardpay/src/domain/models/responses/create_deposit_response.dart';
 import 'package:cardpay/src/domain/models/responses/create_p2p_pull_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/execute_p2p_push_transaction_response.dart';
+import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
@@ -63,6 +65,11 @@ abstract class ApiRepository {
   Future<DataState<ExecuteP2PPushTransactionResponse>>
       executeP2PPushTransaction({
     required ExecuteP2PPushTransactionRequest request,
+    required String token,
+  });
+
+  Future<DataState<ExecuteQrTransactionResponse>> executeQrTransaction({
+    required ExecuteQrTransactionRequest request,
     required String token,
   });
 

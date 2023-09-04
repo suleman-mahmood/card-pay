@@ -235,7 +235,7 @@ class EditProfileView extends HookWidget {
 
     useEffect(() {
       return () {
-        loginCubit.close();
+        // loginCubit.close();
       };
     }, []);
     return ProfileLayout(

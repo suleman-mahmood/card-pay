@@ -2,11 +2,11 @@
 import 'dart:convert';
 
 class CreateDepositRequest {
-  final double amount;
+  final int amount;
 
   const CreateDepositRequest({required this.amount});
 
-  CreateDepositRequest copyWith({double? amount}) {
+  CreateDepositRequest copyWith({int? amount}) {
     return CreateDepositRequest(amount: amount ?? this.amount);
   }
 

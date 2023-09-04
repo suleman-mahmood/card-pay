@@ -3,7 +3,7 @@ import 'dart:convert';
 
 class ExecuteP2PPushTransactionRequest {
   final String recipientUniqueIdentifier;
-  final double amount;
+  final int amount;
   final String closedLoopId;
 
   const ExecuteP2PPushTransactionRequest({
@@ -14,7 +14,7 @@ class ExecuteP2PPushTransactionRequest {
 
   ExecuteP2PPushTransactionRequest copyWith({
     String? recipientUniqueIdentifier,
-    double? amount,
+    int? amount,
     String? closedLoopId,
   }) {
     return ExecuteP2PPushTransactionRequest(

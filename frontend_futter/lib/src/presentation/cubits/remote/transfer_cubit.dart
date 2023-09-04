@@ -1,4 +1,5 @@
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
+import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/transfer.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
@@ -15,8 +16,11 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
 
   TransferCubit(this._apiRepository) : super(TransferInitial(), Transfer());
 
-  Future<void> executeP2PPushTransaction(String recipientUniqueIdentifier,
-      double amount, String closedLoopId) async {
+  Future<void> executeP2PPushTransaction(
+    String recipientUniqueIdentifier,
+    int amount,
+    String closedLoopId,
+  ) async {
     if (isBusy) return;
 
     await run(() async {
@@ -31,6 +35,31 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
           amount: amount,
           closedLoopId: closedLoopId,
         ),
+        token: token,
+      );
+
+      if (response is DataSuccess) {
+        emit(TransferSuccess(message: response.data!.message));
+      } else if (response is DataFailed) {
+        emit(TransferFailed(
+          error: response.error,
+          errorMessage: response.error?.response?.data["message"],
+        ));
+      }
+    });
+  }
+
+  Future<void> executeQrTransaction(String qrId, int amount) async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(TransferLoading());
+
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.executeQrTransaction(
+        request: ExecuteQrTransactionRequest(qrId: qrId, amount: amount),
         token: token,
       );
 

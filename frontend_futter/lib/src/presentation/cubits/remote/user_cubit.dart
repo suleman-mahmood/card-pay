@@ -302,7 +302,7 @@ class UserCubit extends BaseCubit<UserState, User> {
 
   Future<void> createP2PPullTransaction(
     String senderUniqueIdentifier,
-    double amount,
+    int amount,
   ) async {
     if (isBusy) return;
 
@@ -338,27 +338,6 @@ class UserCubit extends BaseCubit<UserState, User> {
 
     await run(() async {
       emit(UserInitial(user: data));
-    });
-  }
-
-  Future<void> fetchQrInfo(
-    String qrData,
-  ) async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      Future.delayed(const Duration(seconds: 1), () {
-        emit(
-          UserSuccess(
-            qrTitle: 'The Bunker',
-            eventCodes: EventCodes.QR_DATA_FETCHED,
-          ),
-        );
-      });
-
-      // TODO: Proper API implementation
     });
   }
 }
