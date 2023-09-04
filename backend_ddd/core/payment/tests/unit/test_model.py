@@ -21,7 +21,7 @@ def behaviour():
     # view
     # transfer
         # p2p
-        # pos 
+        # pos
         # virtual pos
     """
 
@@ -74,7 +74,7 @@ def test_initiate_deposit(seed_wallet):
         recipient_wallet=wallet,
         sender_wallet=pg_wallet,
     )
-            
+
     tx.execute_transaction()
 
     assert tx.recipient_wallet.balance == 1000
@@ -267,18 +267,21 @@ def test_redeemed_voucher(seed_wallet):
     assert sender_wallet.balance == 0
     assert str(e_info.value) == "Constraint violated, voucher is no longer valid"
 
+
 def test_amount_negative(seed_wallet):
     customer_wallet = seed_wallet()
     vendor_wallet = seed_wallet()
 
     tx = Transaction(
-        amount= -1000,
+        amount=-1000,
         mode=TransactionMode.QR,
         transaction_type=TransactionType.POS,
         recipient_wallet=vendor_wallet,
         sender_wallet=customer_wallet,
     )
-    with pytest.raises(TransactionNotAllowedException, match="Amount is zero or negative"):
+    with pytest.raises(
+        TransactionNotAllowedException, match="Amount is zero or negative"
+    ):
         tx.execute_transaction()
 
     assert tx.sender_wallet.balance == 0
@@ -288,11 +291,11 @@ def test_amount_negative(seed_wallet):
     assert tx.mode == TransactionMode.QR
     assert tx.transaction_type == TransactionType.POS
 
+
 def test_amount_fractional(seed_wallet):
     wallet1 = seed_wallet()
     wallet2 = seed_wallet()
     wallet1.balance = 1000
-
 
     tx = Transaction(
         amount=500.5,
@@ -301,13 +304,15 @@ def test_amount_fractional(seed_wallet):
         recipient_wallet=wallet2,
         sender_wallet=wallet1,
     )
-    with pytest.raises(TransactionNotAllowedException, match="Constraint violated, amount is not an integer"):
+    with pytest.raises(
+        TransactionNotAllowedException,
+        match="Constraint violated, amount is not an integer",
+    ):
         tx.execute_transaction()
-    
-    tx.amount = 500.0 # legal amount
+
+    tx.amount = 500  # legal amount
 
     tx.execute_transaction()
 
     assert tx.sender_wallet.balance == 500
     assert tx.recipient_wallet.balance == 500
-    

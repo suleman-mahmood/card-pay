@@ -17,6 +17,7 @@ def test_get_latest_force_update_version():
     uow = UnitOfWork()
     uow.cursor.execute(sql, (str(uuid4()), "1.0.0", "1.0.0"))
     version: app_view_model.Version = app_queries.get_latest_force_update_version(uow)
+    uow.close_connection()
 
     assert version.latest_version == "1.0.0"
     assert version.force_update_version == "1.0.0"

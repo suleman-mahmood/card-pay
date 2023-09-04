@@ -49,7 +49,7 @@ class TransactionType(str, Enum):
     CARD_PAY = 7  # source of tokens in cardpay
     CASH_BACK = 8  # Marketing
     REFERRAL = 9  # Marketing
-    RECONCILIATION = 10 # reconciliation to cardpay by vendors
+    RECONCILIATION = 10  # reconciliation to cardpay by vendors
 
 
 @dataclass
@@ -82,7 +82,7 @@ class Transaction:
                 "Insufficient balance in sender's wallet"
             )
 
-        if not self.amount.is_integer():
+        if not isinstance(self.amount, int):
             raise TransactionNotAllowedException(
                 "Constraint violated, amount is not an integer"
             )
