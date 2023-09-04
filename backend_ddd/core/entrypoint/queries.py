@@ -16,12 +16,12 @@ def get_latest_force_update_version(uow: AbstractUnitOfWork):
     """
 
     result = uow.cursor.execute(sql)
-    row = uow.cursor.fetchall()
+    row = uow.cursor.fetchone()
 
     version = {
-        "force_update_version": row[0][0],
-        "latest_version": row[0][1],
-        "created_at": row[0][2],
+        "force_update_version": row[0],
+        "latest_version": row[1],
+        "created_at": row[2],
     }
 
     return version
