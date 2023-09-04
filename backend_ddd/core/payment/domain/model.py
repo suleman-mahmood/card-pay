@@ -82,6 +82,11 @@ class Transaction:
                 "Insufficient balance in sender's wallet"
             )
 
+        if not self.amount.is_integer():
+            raise TransactionNotAllowedException(
+                "Constraint violated, amount is not an integer"
+            )
+
         if self.amount <= 0:
             self.status = TransactionStatus.FAILED
             raise TransactionNotAllowedException("Amount is zero or negative")

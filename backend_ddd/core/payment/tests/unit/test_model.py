@@ -287,3 +287,27 @@ def test_amount_negative(seed_wallet):
     assert tx.status == TransactionStatus.FAILED
     assert tx.mode == TransactionMode.QR
     assert tx.transaction_type == TransactionType.POS
+
+def test_amount_fractional(seed_wallet):
+    wallet1 = seed_wallet()
+    wallet2 = seed_wallet()
+    wallet1.balance = 1000
+
+
+    tx = Transaction(
+        amount=500.5,
+        mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.P2P_PUSH,
+        recipient_wallet=wallet2,
+        sender_wallet=wallet1,
+    )
+    with pytest.raises(TransactionNotAllowedException, match="Constraint violated, amount is not an integer"):
+        tx.execute_transaction()
+    
+    tx.amount = 500.0 # legal amount
+
+    tx.execute_transaction()
+
+    assert tx.sender_wallet.balance == 500
+    assert tx.recipient_wallet.balance == 500
+    
