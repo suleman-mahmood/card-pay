@@ -60,8 +60,10 @@ class TransactionView extends HookWidget {
                           textAlign: TextAlign.center,
                         );
                       case TransferSuccess:
-                        // TODO: fix this and pass data
-                        context.router.push(const ConfirmationRoute());
+                        context.router.push(ConfirmationRoute(
+                          uniqueIdentifier: rollNumber ?? '',
+                          amount: int.parse(paymentController.text),
+                        ));
                         return const SizedBox.shrink();
                       default:
                         return const SizedBox.shrink();

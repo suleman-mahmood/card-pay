@@ -43,3 +43,7 @@ class CheckpointsFailed extends CheckpointsState {
     super.errorMessage,
   });
 }
+
+class CheckpointsUnknownFailure extends CheckpointsState {
+  CheckpointsUnknownFailure({super.errorMessage});
+}

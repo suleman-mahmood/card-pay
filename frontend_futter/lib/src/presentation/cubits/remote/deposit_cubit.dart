@@ -34,10 +34,16 @@ class DepositCubit extends BaseCubit<DepositState, Deposit> {
           checkoutUrl: response.data!.checkoutUrl,
         ));
       } else if (response is DataFailed) {
-        emit(DepositFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(DepositUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(DepositFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }

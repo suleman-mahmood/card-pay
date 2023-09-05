@@ -1,6 +1,5 @@
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/payment_dashboard_view.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -13,73 +12,74 @@ import 'package:cardpay/src/utils/constants/payment_string.dart';
 
 @RoutePage()
 class ConfirmationView extends HookWidget {
-  const ConfirmationView({super.key});
+  final int amount;
+  final String uniqueIdentifier;
 
-  Widget buildConfirmationViewContent(BuildContext context) {
-    return Column(
-      children: [
-        buildHeader(),
-        const HeightBox(slab: 3),
-        buildSuccessImage(),
-        const HeightBox(slab: 3),
-        buildSuccessLabel(),
-        const HeightBox(slab: 2),
-        buildBalanceLabel(),
-        const HeightBox(slab: 2),
-        buildConfirmationContainer(),
-        PrimaryButton(
-          text: PaymentStrings.done,
-          color: AppColors.parrotColor,
-          onPressed: () => context.router.push(PaymentDashboardRoute()),
-        ),
-        const HeightBox(slab: 5),
-      ],
-    );
-  }
-
-  Widget buildHeader() {
-    return const Header(
-      title: PaymentStrings.receipt,
-      color: Colors.black,
-      showMainHeading: true,
-    );
-  }
-
-  Widget buildSuccessImage() {
-    return Image.asset('assets/images/tickbox.png');
-  }
-
-  Widget buildSuccessLabel() {
-    return Text(PaymentStrings.successful,
-        style: AppTypography.mainHeading.copyWith(
-          color: AppColors.parrotColor,
-        ));
-  }
-
-  Widget buildBalanceLabel() {
-    return Text(
-      PaymentStrings.balanceRupee,
-      style: AppTypography.introHeading,
-    );
-  }
-
-  Widget buildConfirmationContainer() {
-    return Expanded(
-      child: ConfirmationContainer(
-        title1: PaymentStrings.send,
-        text1: PaymentStrings.rollNumber,
-        title2: AppStrings.date,
-        text2: AppStrings.dateToday,
-      ),
-    );
-  }
+  const ConfirmationView({
+    super.key,
+    required this.amount,
+    required this.uniqueIdentifier,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // return PaymentLayout(
-    //   showBottomBar: false,
+    Widget buildHeader() {
+      return const Header(
+        title: PaymentStrings.receipt,
+        color: Colors.black,
+        showMainHeading: true,
+      );
+    }
+
+    Widget buildSuccessImage() {
+      return Image.asset('assets/images/tickbox.png');
+    }
+
+    Widget buildSuccessLabel() {
+      return Text(PaymentStrings.successful,
+          style: AppTypography.mainHeading.copyWith(
+            color: AppColors.parrotColor,
+          ));
+    }
+
+    Widget buildBalanceLabel() {
+      return Text(
+        amount.toString(),
+        style: AppTypography.introHeading,
+      );
+    }
+
+    Widget buildConfirmationContainer() {
+      return Expanded(
+        child: ConfirmationContainer(
+          title1: PaymentStrings.send,
+          text1: uniqueIdentifier,
+          title2: AppStrings.date,
+          text2: AppStrings.dateToday,
+        ),
+      );
+    }
+
     return Scaffold(
-      body: buildConfirmationViewContent(context),
+      body: Column(
+        children: [
+          buildHeader(),
+          const HeightBox(slab: 3),
+          buildSuccessImage(),
+          const HeightBox(slab: 3),
+          buildSuccessLabel(),
+          const HeightBox(slab: 2),
+          buildBalanceLabel(),
+          const HeightBox(slab: 2),
+          buildConfirmationContainer(),
+          PrimaryButton(
+            text: PaymentStrings.done,
+            color: AppColors.parrotColor,
+            onPressed: () => context.router.push(PaymentDashboardRoute()),
+          ),
+          const HeightBox(slab: 5),
+        ],
+      ),
     );
   }
 }

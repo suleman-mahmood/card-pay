@@ -4,7 +4,6 @@ import 'package:cardpay/src/domain/models/transfer.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/data_state.dart';
-import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -15,6 +14,10 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
   final ApiRepository _apiRepository;
 
   TransferCubit(this._apiRepository) : super(TransferInitial(), Transfer());
+
+  Future<void> init() async {
+    emit(TransferInitial());
+  }
 
   Future<void> executeP2PPushTransaction(
     String recipientUniqueIdentifier,
@@ -41,10 +44,16 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
       if (response is DataSuccess) {
         emit(TransferSuccess(message: response.data!.message));
       } else if (response is DataFailed) {
-        emit(TransferFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(TransferUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(TransferFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }
@@ -66,10 +75,16 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
       if (response is DataSuccess) {
         emit(TransferSuccess(message: response.data!.message));
       } else if (response is DataFailed) {
-        emit(TransferFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(TransferUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(TransferFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }

@@ -70,7 +70,7 @@ class LoginView extends HookWidget {
         await loginCubit.loginWithBiometric();
       }
 
-      // someFunction();
+      someFunction();
 
       return () {
         phoneNumberController.dispose();

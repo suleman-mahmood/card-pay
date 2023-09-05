@@ -15,10 +15,15 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
-    LoginRoute.name: (routeData) {
+    ConfirmationRoute.name: (routeData) {
+      final args = routeData.argsAs<ConfirmationRouteArgs>();
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const LoginView(),
+        child: ConfirmationView(
+          key: args.key,
+          amount: args.amount,
+          uniqueIdentifier: args.uniqueIdentifier,
+        ),
       );
     },
     PinRoute.name: (routeData) {
@@ -162,9 +167,52 @@ abstract class _$AppRouter extends RootStackRouter {
 }
 
 /// generated route for
-/// [LoginView]
-class LoginRoute extends PageRouteInfo<void> {
-  const LoginRoute({List<PageRouteInfo>? children})
+/// [ConfirmationView]
+class ConfirmationRoute extends PageRouteInfo<ConfirmationRouteArgs> {
+  ConfirmationRoute({
+    Key? key,
+    required int amount,
+    required String uniqueIdentifier,
+    List<PageRouteInfo>? children,
+  }) : super(
+          ConfirmationRoute.name,
+          args: ConfirmationRouteArgs(
+            key: key,
+            amount: amount,
+            uniqueIdentifier: uniqueIdentifier,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'ConfirmationRoute';
+
+  static const PageInfo<ConfirmationRouteArgs> page =
+      PageInfo<ConfirmationRouteArgs>(name);
+}
+
+class ConfirmationRouteArgs {
+  const ConfirmationRouteArgs({
+    this.key,
+    required this.amount,
+    required this.uniqueIdentifier,
+  });
+
+  final Key? key;
+
+  final int amount;
+
+  final String uniqueIdentifier;
+
+  @override
+  String toString() {
+    return 'ConfirmationRouteArgs{key: $key, amount: $amount, uniqueIdentifier: $uniqueIdentifier}';
+  }
+}
+
+/// generated route for
+/// [TransactionHistoryView]
+class TransactionHistoryRoute extends PageRouteInfo<void> {
+  const TransactionHistoryRoute({List<PageRouteInfo>? children})
       : super(
           LoginRoute.name,
           initialChildren: children,

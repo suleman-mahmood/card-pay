@@ -34,10 +34,16 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, ClosedLoop> {
           closedLoops: response.data!.closedLoops,
         ));
       } else if (response is DataFailed) {
-        emit(ClosedLoopFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(ClosedLoopUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(ClosedLoopFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }

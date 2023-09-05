@@ -8,9 +8,6 @@ class PaymentStrings {
 
   static const String email = '24100245@lums.edu.pk';
 
-  static const String balance = 'Rs.500';
-  static const String balanceRupee = 'Rs.1000';
-
   static const String username = 'Username';
   static const String rollNumber = '24100245';
   static const String anyRollNumber = '24XXXXXX';

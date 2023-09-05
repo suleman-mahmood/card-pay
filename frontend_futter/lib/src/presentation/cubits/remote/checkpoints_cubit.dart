@@ -41,10 +41,16 @@ class CheckpointsCubit extends BaseCubit<CheckpointsState, Checkpoints> {
           checkPoints: data,
         ));
       } else if (response is DataFailed) {
-        emit(CheckpointsFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(CheckpointsUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(CheckpointsFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }

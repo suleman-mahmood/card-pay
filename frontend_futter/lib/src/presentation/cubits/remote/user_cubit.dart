@@ -10,6 +10,7 @@ import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/data_state.dart';
+import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:meta/meta.dart';
@@ -56,10 +57,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           eventCodes: response.data!.eventCode,
         ));
       } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }
@@ -89,10 +96,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           eventCodes: EventCodes.OTP_VERIFIED,
         ));
       } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }
@@ -123,12 +136,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           eventCodes: EventCodes.ORGANIZATION_REGISTERED,
         ));
       } else if (response is DataFailed) {
-        emit(
-          UserFailed(
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
             error: response.error,
             errorMessage: response.error?.response?.data["message"],
-          ),
-        );
+          ));
+        }
       }
     });
   }
@@ -161,10 +178,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           eventCodes: EventCodes.ORGANIZATION_VERIFIED,
         ));
       } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }
@@ -195,10 +218,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           eventCodes: EventCodes.PIN_REGISTERED,
         ));
       } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }
@@ -237,10 +266,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           transactions: data.recentTransactions,
         ));
       } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }
@@ -265,10 +300,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           transactions: data.recentTransactions,
         ));
       } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }
@@ -292,10 +333,16 @@ class UserCubit extends BaseCubit<UserState, User> {
           transactions: response.data!.recentTransactions,
         ));
       } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }
@@ -324,10 +371,16 @@ class UserCubit extends BaseCubit<UserState, User> {
       if (response is DataSuccess) {
         emit(UserSuccess(message: response.data!.message));
       } else if (response is DataFailed) {
-        emit(UserFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(UserUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(UserFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }

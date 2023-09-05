@@ -31,3 +31,7 @@ class DepositSuccess extends DepositState {
 class DepositFailed extends DepositState {
   DepositFailed({super.error, super.errorMessage});
 }
+
+class DepositUnknownFailure extends DepositState {
+  DepositUnknownFailure({super.errorMessage});
+}

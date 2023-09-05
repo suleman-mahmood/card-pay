@@ -1,10 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
+import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/views/transaction_service/payment_dashboard_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
@@ -19,9 +21,6 @@ class TransactionHistoryView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return PaymentLayout(
-    // useHorizontalPadding: false,
-    // backgroundColor: AppColors.purpleColor,
     return Stack(
       children: [
         Align(
@@ -57,13 +56,22 @@ class TransactionHistoryView extends HookWidget {
             ),
           ),
         ),
-        const PaddingHorizontal(
-          slab: 2,
-          child: Header(
-            title: PaymentStrings.history,
-            showMainHeading: true,
-            mainHeadingText: PaymentStrings.balance,
-          ),
+        BlocBuilder<UserCubit, UserState>(
+          builder: (_, state) {
+            switch (state.runtimeType) {
+              case UserSuccess || UserInitial:
+                return PaddingHorizontal(
+                  slab: 2,
+                  child: Header(
+                    title: PaymentStrings.history,
+                    showMainHeading: true,
+                    mainHeadingText: "Rs.${state.user.balance.toString()}",
+                  ),
+                );
+              default:
+                return const SizedBox.shrink();
+            }
+          },
         ),
       ],
     );

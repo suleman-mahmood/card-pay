@@ -66,3 +66,7 @@ class UserSuccess extends UserState {
 class UserFailed extends UserState {
   UserFailed({super.error, super.errorMessage});
 }
+
+class UserUnknownFailure extends UserState {
+  UserUnknownFailure({super.errorMessage});
+}

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
@@ -29,6 +30,7 @@ class DashboardView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final userCubit = BlocProvider.of<UserCubit>(context);
+    final transferCubit = BlocProvider.of<TransferCubit>(context);
     final isLoading = true;
 
     // TODO: Have separte loading for full name, balance and recent transactions
@@ -39,6 +41,8 @@ class DashboardView extends HookWidget {
 
       // This definitely works
       someFunction() async {
+        transferCubit.init();
+
         await userCubit.getUser();
         await userCubit.getUserBalance();
         await userCubit.getUserRecentTransactions();
@@ -188,10 +192,11 @@ class DashboardView extends HookWidget {
                   isDisabled: true,
                 ),
                 CustomBox(
-                  imagePath: 'assets/images/Upwork-2.png',
+                  imagePath: 'assets/images/faqs-disabled.png',
                   text: PaymentStrings.faq,
                   route: FaqsRoute(),
-                )
+                  isDisabled: true,
+                ),
               ],
             ),
           ],

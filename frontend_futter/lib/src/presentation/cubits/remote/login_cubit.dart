@@ -1,6 +1,6 @@
 import 'package:cardpay/src/domain/models/login.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
-import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
+import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/services.dart';
@@ -30,6 +30,10 @@ class LoginCubit extends BaseCubit<LoginState, Login> {
           email: emailAddress,
           password: password,
         );
+
+        await _prefs.setString('user_phone_number', phoneNumber);
+        await _prefs.setString('user_password', password);
+
         emit(ManualLoginSuccess(
           message: "Sign in was successful",
         ));
@@ -56,8 +60,13 @@ class LoginCubit extends BaseCubit<LoginState, Login> {
           final userPhoneNumber = _prefs.getString('user_phone_number');
           final password = _prefs.getString('user_password');
 
+          printWarning(userPhoneNumber ?? '');
+          printWarning(password ?? '');
+
           if (userPhoneNumber == null || password == null) {
-            emit(LoginFailed(errorMessage: 'Credentials not linked on device'));
+            emit(LoginFailed(
+                errorMessage:
+                    'Credentials not linked on device, login manually'));
             return;
           }
 

@@ -29,3 +29,7 @@ class TransferSuccess extends TransferState {
 class TransferFailed extends TransferState {
   TransferFailed({super.error, super.errorMessage});
 }
+
+class TransferUnknownFailure extends TransferState {
+  TransferUnknownFailure({super.errorMessage});
+}

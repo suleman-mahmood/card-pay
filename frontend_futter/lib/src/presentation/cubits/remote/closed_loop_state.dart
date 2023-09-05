@@ -31,3 +31,7 @@ class ClosedLoopSuccess extends ClosedLoopState {
 class ClosedLoopFailed extends ClosedLoopState {
   const ClosedLoopFailed({super.error, super.errorMessage});
 }
+
+class ClosedLoopUnknownFailure extends ClosedLoopState {
+  const ClosedLoopUnknownFailure({super.errorMessage});
+}

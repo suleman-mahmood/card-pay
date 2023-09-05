@@ -48,7 +48,7 @@ class RequestAmountView extends HookWidget {
         case UserSuccess:
           // TODO: fix this and pass data
           if (state.eventCodes == EventCodes.REQUEST_SUCCESSFUL) {
-            context.router.push(const ConfirmationRoute());
+            // context.router.push(ConfirmationRoute());
           }
           return const SizedBox.shrink();
         default:
