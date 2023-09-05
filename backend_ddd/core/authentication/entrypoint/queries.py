@@ -446,79 +446,79 @@ def get_user_balance(user_id: str, uow: AbstractUnitOfWork):
 #     return closed_loops_user_count
 
 
-# def get_information_of_all_users_of_a_closed_loop(
-#     closed_loop_id: str, uow: AbstractUnitOfWork
-# ):
-#     """Get information of all users of a closed loop"""
-#     sql = """
-#         select
-#         u.id, u.personal_email, u.phone_number, u.user_type, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.location, u.loyalty_points, u.referral_id, u.created_at,
-#         ucl.unique_identifier, ucl.closed_loop_user_id, ucl.created_at 
-#         from users u
-#         join user_closed_loops ucl on u.id = ucl.user_id
-#         where ucl.closed_loop_id = %s
-#     """
-#     uow.cursor.execute(sql, [closed_loop_id])
+def get_information_of_all_users_of_a_closed_loop(
+    closed_loop_id: str, uow: AbstractUnitOfWork
+):
+    """Get information of all users of a closed loop"""
+    sql = """
+        select
+        u.id, u.personal_email, u.phone_number, u.user_type, u.full_name, u.wallet_id, u.is_active, u.is_phone_number_verified, u.location, u.loyalty_points, u.referral_id, u.created_at,
+        ucl.unique_identifier, ucl.closed_loop_user_id, ucl.created_at 
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s
+    """
+    uow.cursor.execute(sql, [closed_loop_id])
 
-#     rows = uow.cursor.fetchall()
-#     users = [
-#         {
-#             "id": row[0],
-#             "personal_email": row[1],
-#             "phone_number": row[2],
-#             "user_type": row[3],
-#             "full_name": row[4],
-#             "wallet_id": row[5],
-#             "is_active": row[6],
-#             "is_phone_number_verified": row[7],
-#             "location": row[8],
-#             "loyalty_points": row[9],
-#             "referral_id": row[10],
-#             "card_pay_joining_date": row[11],
-#             "closed_loop_unique_identifier": row[12],
-#             "closed_loop_user_id": row[13],
-#             "closed_loop_joining_date": row[14],
-#         }
-#         for row in rows
-#     ]
-#     return users
+    rows = uow.cursor.fetchall()
+    users = [
+        {
+            "id": row[0],
+            "personal_email": row[1],
+            "phone_number": row[2],
+            "user_type": row[3],
+            "full_name": row[4],
+            "wallet_id": row[5],
+            "is_active": row[6],
+            "is_phone_number_verified": row[7],
+            "location": row[8],
+            "loyalty_points": row[9],
+            "referral_id": row[10],
+            "card_pay_joining_date": row[11],
+            "closed_loop_unique_identifier": row[12],
+            "closed_loop_user_id": row[13],
+            "closed_loop_joining_date": row[14],
+        }
+        for row in rows
+    ]
+    return users
 
 
-# def get_active_inactive_counts_of_a_closed_loop(
-#     closed_loop_id: str, uow: AbstractUnitOfWork
-# ):
-#     """Get active inactive counts of a closed loop"""
+def get_active_inactive_counts_of_a_closed_loop(
+    closed_loop_id: str, uow: AbstractUnitOfWork
+):
+    """Get active inactive counts of a closed loop"""
 
-#     active_sql = """
-#         select
-#         count(u.id)
-#         from users u
-#         join user_closed_loops ucl on u.id = ucl.user_id
-#         where ucl.closed_loop_id = %s and u.is_active = true
-#     """
-#     uow.cursor.execute(active_sql, [closed_loop_id])
-#     active_count = uow.cursor.fetchone()[0]
+    active_sql = """
+        select
+        count(u.id)
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s and u.is_active = true
+    """
+    uow.cursor.execute(active_sql, [closed_loop_id])
+    active_count = uow.cursor.fetchone()[0]
 
-#     inactive_sql = """
-#         select
-#         count(u.id)
-#         from users u
-#         join user_closed_loops ucl on u.id = ucl.user_id
-#         where ucl.closed_loop_id = %s and u.is_active = false
-#     """
-#     uow.cursor.execute(inactive_sql, [closed_loop_id])
-#     inactive_count = uow.cursor.fetchone()[0]
+    inactive_sql = """
+        select
+        count(u.id)
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.closed_loop_id = %s and u.is_active = false
+    """
+    uow.cursor.execute(inactive_sql, [closed_loop_id])
+    inactive_count = uow.cursor.fetchone()[0]
 
-#     return [
-#         {
-#             "label": "active",
-#             "count": active_count,
-#         },
-#         {
-#             "label": "inactive",
-#             "count": inactive_count,
-#         },
-#     ]
+    return [
+        {
+            "label": "active",
+            "count": active_count,
+        },
+        {
+            "label": "inactive",
+            "count": inactive_count,
+        },
+    ]
 
 
 def get_unique_identifier_from_user_id(user_id: str, uow: AbstractUnitOfWork) -> str:
