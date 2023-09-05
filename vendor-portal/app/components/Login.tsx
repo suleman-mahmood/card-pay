@@ -38,7 +38,7 @@ function Login() {
     e.preventDefault();
     if (validateInput(phone)) {
       if (phone.length == 10 && phone[0] != "0") {
-        setPhoneToSend("92" + phone + " @cardpay.com.pk");
+        setPhoneToSend("92" + phone + "@cardpay.com.pk");
       }
       if (phone.length == 11 && phone[0] == "0") {
         setPhoneToSend("92" + phone.slice(1) + "@cardpay.com.pk");
