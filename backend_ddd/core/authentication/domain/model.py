@@ -5,7 +5,13 @@ from typing import Optional, Dict, Tuple
 from enum import Enum
 from datetime import datetime
 from .utils import _generate_4_digit_otp
-from .exceptions import InvalidOtpException, ClosedLoopException, VerificationException, InvalidPinException, InvalidNameException
+from .exceptions import (
+    InvalidOtpException,
+    ClosedLoopException,
+    VerificationException,
+    InvalidPinException,
+    InvalidNameException,
+)
 
 
 def behaviour():
@@ -55,6 +61,7 @@ class ClosedLoop:
         self.logo_url = logo_url
         self.description = description
 
+
 class ClosedLoopUserState(str, Enum):
     """Closed loop enum"""
 
@@ -73,7 +80,7 @@ class ClosedLoopUser:
     unique_identifier_otp: str = field(default_factory=_generate_4_digit_otp)
     status: ClosedLoopUserState = ClosedLoopUserState.UN_VERIFIED
     created_at: datetime = datetime.now()
-        
+
     def verify_unique_identifier(self, otp: Optional[str]) -> None:
         """Verify unique identifier"""
         if self.status == ClosedLoopUserState.VERIFIED:
@@ -155,7 +162,7 @@ class User:
         """to set/update pin"""
         if len(pin) != 4:
             raise InvalidPinException("pin is not 4 digits long")
-        
+
         if pin == self.pin:
             raise InvalidPinException("passed pin is same as old pin")
 
@@ -179,7 +186,7 @@ class User:
             raise InvalidOtpException("Otps don't match")
 
         self._generate_new_otp()
-        return True #TODO: Refactor and remove this
+        return True  # TODO: Refactor and remove this
 
     def _generate_new_otp(self) -> None:
         """Generate OTP"""

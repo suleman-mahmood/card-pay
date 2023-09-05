@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from ...authentication.domain import model as auth_mdl
 from core.payment.entrypoint.queries_exceptions import UserDoesNotExistException
 from core.payment.entrypoint import view_models as auth_vm
+
+
 def usecases():
     """
     1. get wallet balance from wallet_id    || later update to get balance from user_id
@@ -419,10 +421,10 @@ def get_wallet_id_from_unique_identifier(
 
     return row[0]
 
+
 def payment_retools_get_all_closed_loops(
     uow: AbstractUnitOfWork,
 ):
-
     with uow:
         sql = """
                 select id, name
@@ -432,22 +434,14 @@ def payment_retools_get_all_closed_loops(
         uow.cursor.execute(sql)
         rows = uow.cursor.fetchall()
 
-        closed_loops = [
-            {
-                "id": row[0],
-                "name": row[1]
-            }
-            for row in rows
-        ]
+        closed_loops = [{"id": row[0], "name": row[1]} for row in rows]
 
     return closed_loops
 
 
 def payment_retools_get_customers_and_ventors_of_selected_closed_loop(
-        uow: AbstractUnitOfWork,
-        closed_loop_id: str
+    uow: AbstractUnitOfWork, closed_loop_id: str
 ):
-
     with uow:
         sql = """
                 select count(*)
@@ -504,20 +498,16 @@ def payment_retools_get_customers_and_ventors_of_selected_closed_loop(
         ]
 
         counts = [
-            {
-                "customers": len(customers),
-                "vendors": len(vendors),
-                "total": user_count
-            }
+            {"customers": len(customers), "vendors": len(vendors), "total": user_count}
         ]
 
     return customers, vendors, counts
 
-def payment_retools_get_all_transactions_of_selected_user(
-        user_id: str,
-        uow: AbstractUnitOfWork,
-):
 
+def payment_retools_get_all_transactions_of_selected_user(
+    user_id: str,
+    uow: AbstractUnitOfWork,
+):
     with uow:
         sql = """
             select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
@@ -534,16 +524,15 @@ def payment_retools_get_all_transactions_of_selected_user(
         uow.cursor.execute(sql, [user_id, user_id])
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions_for_general_case(
-            rows)
+        transactions = _helper_generate_list_of_transactions_for_general_case(rows)
 
     return transactions
 
-def payment_retools_get_vendors_and_balance(
-        closed_loop_id: str,
-        uow: AbstractUnitOfWork,
-):
 
+def payment_retools_get_vendors_and_balance(
+    closed_loop_id: str,
+    uow: AbstractUnitOfWork,
+):
     with uow:
         sql = """
             select u.id, u.full_name, u.wallet_id, w.balance
@@ -571,10 +560,9 @@ def payment_retools_get_vendors_and_balance(
 
 
 def payment_retools_get_transactions_to_be_reconciled(
-        vendor_id: str,
-        uow: AbstractUnitOfWork,
+    vendor_id: str,
+    uow: AbstractUnitOfWork,
 ):
-
     with uow:
         last_reconciliation_timestamp = """
         select max(created_at) from transactions
@@ -594,7 +582,7 @@ def payment_retools_get_transactions_to_be_reconciled(
             from transactions txn
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
-            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.status != 'PENDING'::transaction_status_enum
+            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.status == 'SUCCESSFUL'::transaction_status_enum
         """
 
         if row[0] is not None:
@@ -606,16 +594,15 @@ def payment_retools_get_transactions_to_be_reconciled(
         uow.cursor.execute(sql, [vendor_id, vendor_id])
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions_for_general_case(
-            rows)
+        transactions = _helper_generate_list_of_transactions_for_general_case(rows)
 
     return transactions
 
-def payment_retools_get_vendors(
-        closed_loop_id: str,
-        uow: AbstractUnitOfWork,
-):
 
+def payment_retools_get_vendors(
+    closed_loop_id: str,
+    uow: AbstractUnitOfWork,
+):
     with uow:
         sql = """
                 select u.id, u.full_name, u.wallet_id
@@ -639,9 +626,10 @@ def payment_retools_get_vendors(
 
     return vendors
 
+
 def payment_retools_get_reconciliation_history(
-        vendor_id: str,
-        uow: AbstractUnitOfWork,
+    vendor_id: str,
+    uow: AbstractUnitOfWork,
 ):
     with uow:
         sql = """
@@ -667,16 +655,19 @@ def payment_retools_get_reconciliation_history(
 
     return transactions
 
-def payment_retools_get_reconciled_transactions(
-        reconciliation_timestamp: str,
-        vendor_id: str,
-        uow: AbstractUnitOfWork,
-):
-    
-    with uow:
 
-        datetime_obj = datetime.strptime(reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z")
-        formatted_reconciliation_timestamp = datetime_obj.strftime("%Y-%m-%d %H:%M:%S.%f")
+def payment_retools_get_reconciled_transactions(
+    reconciliation_timestamp: str,
+    vendor_id: str,
+    uow: AbstractUnitOfWork,
+):
+    with uow:
+        datetime_obj = datetime.strptime(
+            reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z"
+        )
+        formatted_reconciliation_timestamp = datetime_obj.strftime(
+            "%Y-%m-%d %H:%M:%S.%f"
+        )
 
         # NOTE: the above time is not perfect to the millisecond
         previous_vendor_reconciliation_timestamp = """
@@ -686,8 +677,11 @@ def payment_retools_get_reconciled_transactions(
         and sender_wallet_id = %s
         """
 
-        uow.cursor.execute(previous_vendor_reconciliation_timestamp, [str(formatted_reconciliation_timestamp), vendor_id])
-        
+        uow.cursor.execute(
+            previous_vendor_reconciliation_timestamp,
+            [str(formatted_reconciliation_timestamp), vendor_id],
+        )
+
         row = uow.cursor.fetchone()
 
         sql = """
@@ -713,31 +707,35 @@ def payment_retools_get_reconciled_transactions(
                 and txn.status != 'PENDING'::transaction_status_enum
                 and txn.last_updated < %s
         """
-        
+
         if row[0] is not None:
             previous_reconciliation_timestamp = row[0]
-            sql += f" and txn.last_updated >= '{str(previous_reconciliation_timestamp)}'"
+            sql += (
+                f" and txn.last_updated >= '{str(previous_reconciliation_timestamp)}'"
+            )
 
         sql += " order by txn.last_updated desc"
 
-        uow.cursor.execute(sql, [vendor_id, vendor_id, str(formatted_reconciliation_timestamp)])
+        uow.cursor.execute(
+            sql, [vendor_id, vendor_id, str(formatted_reconciliation_timestamp)]
+        )
         rows = uow.cursor.fetchall()
 
-        transactions = _helper_generate_list_of_transactions_for_general_case(
-            rows)
-        
+        transactions = _helper_generate_list_of_transactions_for_general_case(rows)
+
     return transactions
+
 
 @dataclass
 class UserWalletIDAndTypeDTO:
     user_wallet_id: str
     user_type: auth_mdl.UserType
 
+
 def get_user_wallet_id_and_type_from_qr_id(
     qr_id: str,
     uow: AbstractUnitOfWork,
 ) -> Optional[UserWalletIDAndTypeDTO]:
-    
     sql = """
         select w.id, u.user_type
         from wallets w
@@ -752,15 +750,15 @@ def get_user_wallet_id_and_type_from_qr_id(
         return None
 
     user_info = UserWalletIDAndTypeDTO(
-        user_wallet_id=row[0],
-        user_type= auth_mdl.UserType.__members__[row[1]]
+        user_wallet_id=row[0], user_type=auth_mdl.UserType.__members__[row[1]]
     )
 
     return user_info
 
+
 def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
-        closed_loop_id: str,
-        uow: AbstractUnitOfWork,
+    closed_loop_id: str,
+    uow: AbstractUnitOfWork,
 ) -> List[auth_vm.VendorQrIdDTO]:
     sql = """
 
@@ -774,19 +772,12 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
             and u.is_phone_number_verified = true
             and ucl.status = 'VERIFIED'::closed_loop_user_state_enum
         """
-    
+
     uow.cursor.execute(sql, [closed_loop_id])
     rows = uow.cursor.fetchall()
 
     vendors = [
-        auth_vm.VendorQrIdDTO(
-            id=row[0],
-            full_name=row[1],
-            qr_id=row[2]
-        )
-        for row in rows
+        auth_vm.VendorQrIdDTO(id=row[0], full_name=row[1], qr_id=row[2]) for row in rows
     ]
 
     return vendors
-
-

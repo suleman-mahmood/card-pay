@@ -14,8 +14,9 @@ from core.payment.domain import exceptions as pmt_ex
 from core.authentication.domain import model as auth_mdl
 from core.marketing.domain import exceptions as mktg_ex
 from core.entrypoint.uow import UnitOfWork
-from .api_cardpay_app import cardpay_app
-from .api_retool import retool
+from core.api.api_vendor_app import vendor_app
+from core.api.api_cardpay_app import cardpay_app
+from core.api.api_retool_app import retool
 
 from dotenv import load_dotenv
 
@@ -37,6 +38,7 @@ app.config["PROPAGATE_EXCEPTIONS"] = True
 
 app.register_blueprint(cardpay_app)
 app.register_blueprint(retool)
+app.register_blueprint(vendor_app)
 
 cred = firebase_admin.credentials.Certificate("core/api/credentials-dev.json")
 firebase_admin.initialize_app(cred)

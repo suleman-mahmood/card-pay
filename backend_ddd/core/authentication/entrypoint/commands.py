@@ -379,6 +379,14 @@ def create_vendor_through_retool(
         uow=uow,
     )
 
+    otp = user.closed_loops[closed_loop_id].unique_identifier_otp
+    verify_closed_loop(
+        user_id=user_id,
+        closed_loop_id=closed_loop_id,
+        unique_identifier_otp=otp,
+        uow=uow,
+    )
+
     return user
 
 
