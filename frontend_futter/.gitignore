@@ -47,3 +47,5 @@ app.*.map.json
 /linux
 /windows
 /web
+
+/lib/src/config/router/app_router.gr.dart
