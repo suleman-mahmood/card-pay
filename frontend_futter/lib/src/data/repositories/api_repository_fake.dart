@@ -23,7 +23,9 @@ import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
+import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
 import 'package:cardpay/src/domain/models/transaction.dart';
+import 'package:cardpay/src/domain/models/version.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/data_state.dart';
 import 'package:dio/dio.dart';
@@ -235,6 +237,16 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
         pinSetup: true,
       ),
       message: 'Customer verify successfully',
+    )));
+  }
+
+  Future<DataState<GetVersionsResponse>> getVersions() {
+    return Future.value(DataSuccess(GetVersionsResponse(
+      versions: Versions(
+        forceUpdateVersion: '1.0.0',
+        latestVersion: '1.5.0',
+      ),
+      message: 'Already updated version ',
     )));
   }
 }

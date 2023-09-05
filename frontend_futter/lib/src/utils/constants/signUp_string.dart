@@ -20,6 +20,10 @@ class AppStrings {
   static const String reEnterPassword = 'Please re-enter your password';
   static const String forgot = 'Forgot password ?';
   static const String date = 'Date';
+  static const String updateMessageAndroid =
+      'A new version of the app is available. Please update it from the Play Store to continue using the app.';
+  static const String updateMessageIOS =
+      'A new version of the app is available. Please update it from the App Store to continue using the app.';
 
   static const String dateToday = '18 Nov 2002';
   static const String sendSuccessful = 'Sent Successfully';

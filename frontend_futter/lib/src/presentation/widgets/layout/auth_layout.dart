@@ -1,10 +1,14 @@
+// i need ths isAppVersionLatestvalue out of this function too so you can use state and setstate to set this value in this file so that it is availble globally in this file
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/widgets/containment/dialoge_box.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
+import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -20,6 +24,9 @@ class AuthLayout extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final versionCubit = BlocProvider.of<VersionsCubit>(context);
+    versionCubit.getVersions();
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
@@ -55,6 +62,25 @@ class AuthLayout extends HookWidget {
                     default:
                       return const SizedBox();
                   }
+                },
+              ),
+              BlocBuilder<VersionsCubit, VersionsState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case VersionsSuccess:
+                      if (state.forceUpdate) {
+                        return const UpdateDialogBox(
+                          showMaybeLaterButton: false,
+                        );
+                      }
+                      if (state.normalUpdate) {
+                        return const UpdateDialogBox();
+                      }
+
+                    default:
+                      return const SizedBox();
+                  }
+                  return const SizedBox();
                 },
               ),
               if (showBackButton)

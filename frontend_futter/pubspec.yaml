@@ -36,6 +36,7 @@ dependencies:
   firebase_crashlytics: ^3.3.4
   upgrader: ^8.1.0
   shared_preferences: ^2.2.0
+  package_info_plus: ^4.1.0
 
 dev_dependencies:
   flutter_test:

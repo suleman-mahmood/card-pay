@@ -22,6 +22,7 @@ import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
+import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
 import 'package:cardpay/src/utils/data_state.dart';
 
 import '../../domain/repositories/api_repository.dart';
@@ -185,6 +186,12 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       request: () => _pythonApiService.getCheckpoints(
         token: 'Bearer $token',
       ),
+    );
+  }
+
+  Future<DataState<GetVersionsResponse>> getVersions() {
+    return getStateOf<GetVersionsResponse>(
+      request: () => _pythonApiService.getVersions(),
     );
   }
 }

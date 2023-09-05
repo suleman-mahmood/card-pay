@@ -21,6 +21,7 @@ import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
+import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
 import 'package:dio/dio.dart';
 import 'package:cardpay/src/utils/constants/strings.dart';
 import 'package:retrofit/retrofit.dart';
@@ -110,4 +111,6 @@ abstract class PythonApiService {
   Future<HttpResponse<GetCheckpointsResponse>> getCheckpoints({
     @Header("Authorization") String? token,
   });
+  @GET('/get-latest-force-update-version')
+  Future<HttpResponse<GetVersionsResponse>> getVersions();
 }

@@ -6,6 +6,7 @@ import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/views/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
@@ -44,9 +45,11 @@ class MainApp extends StatelessWidget {
                   ),
                 ),
                 BlocProvider(
-                  create: (context) => CheckpointsCubit(
-                    locator<ApiRepository>(),
-                  ),
+                  create: (context) => VersionsCubit(locator<ApiRepository>()),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      CheckpointsCubit(locator<ApiRepository>()),
                 ),
                 BlocProvider(
                   create: (context) => LoginCubit(

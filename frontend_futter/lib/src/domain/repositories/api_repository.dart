@@ -21,6 +21,7 @@ import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
+import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
 import 'package:cardpay/src/utils/data_state.dart';
 
 abstract class ApiRepository {
@@ -80,4 +81,5 @@ abstract class ApiRepository {
   Future<DataState<GetCheckpointsResponse>> getCheckpoints(
     String token,
   );
+  Future<DataState<GetVersionsResponse>> getVersions();
 }
