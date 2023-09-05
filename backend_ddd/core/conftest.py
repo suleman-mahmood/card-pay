@@ -1,5 +1,6 @@
 import pytest
 import os
+import sentry_sdk
 from core.api.api import app as flask_app
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import queries as auth_qry
@@ -25,7 +26,6 @@ def initialize_pytest_config(mocker):
     os.environ["TOKEN_VALIDITY"] = ""
     os.environ["SMS_API_TOKEN"] = ""
     os.environ["SMS_API_SECRET"] = ""
-    os.environ["SENTRY_DSN"] = ""
     os.environ["RETOOL_SECRET"] = ""
 
     mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
@@ -46,6 +46,7 @@ def initialize_pytest_config(mocker):
 @pytest.fixture()
 def app():
     app = flask_app
+    sentry_sdk.init(None) #Disable the initialized sentry
     app.config.update(
         {
             "TESTING": True,
