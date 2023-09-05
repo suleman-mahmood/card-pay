@@ -137,7 +137,11 @@ def set_cashback_slabs(
             for slab in cashback_slabs
         ]
 
-        uow.cashback_slabs.save_all(AllCashbacks(cashback_slabs=slab_list))
+        all_cashbacks = AllCashbacks(cashback_slabs=slab_list)
+        
+        all_cashbacks.handle_invalid_slabs()
+        
+        uow.cashback_slabs.save_all(all_cashbacks)
 
 
 def add_and_set_missing_weightages_to_zero(

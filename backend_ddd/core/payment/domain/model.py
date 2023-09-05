@@ -71,9 +71,6 @@ class Transaction:
     created_at: datetime = field(default_factory=datetime.now)
     last_updated: datetime = field(default_factory=datetime.now)
 
-    def __post_init__(self):
-        self.last_updated = self.created_at
-
     def execute_transaction(self):
         """for executing a transaction"""
         if self.amount > self.sender_wallet.balance:
@@ -100,6 +97,7 @@ class Transaction:
         self.sender_wallet.balance -= self.amount
         self.recipient_wallet.balance += self.amount
         self.status = TransactionStatus.SUCCESSFUL
+        self.last_updated = datetime.now()
 
     def accept_p2p_pull_transaction(self):
         """for accepting a p2p pull transaction"""
@@ -114,6 +112,7 @@ class Transaction:
             raise TransactionNotAllowedException("This is not a p2p pull transaction")
 
         self.status = TransactionStatus.DECLINED
+        self.last_updated = datetime.now()
 
     def redeem_voucher(self):
         """for validating and redeeming vouchers"""

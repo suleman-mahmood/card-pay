@@ -95,7 +95,7 @@ class AllCashbacks:
                 current_slab_ending_amount=self.cashback_slabs[idx].end_amount,
             )
 
-    def _handle_invalid_slabs(self):
+    def handle_invalid_slabs(self):
         if len(self.cashback_slabs) == 0:
             self.cashback_slabs.insert(
                 0,
@@ -123,8 +123,6 @@ class AllCashbacks:
         for i in range(len(self.cashback_slabs) - 1):
             self._helper_handle_invalid_slabs(i)
 
-    def __post_init__(self):
-        self._handle_invalid_slabs()
 
 
 @dataclass

@@ -73,18 +73,13 @@ class ClosedLoopUser:
     unique_identifier_otp: str = field(default_factory=_generate_4_digit_otp)
     status: ClosedLoopUserState = ClosedLoopUserState.UN_VERIFIED
     created_at: datetime = datetime.now()
-
-    def __post_init__(self):
-        """Post init hook"""
-        if self.unique_identifier is None:
-            self.status = ClosedLoopUserState.VERIFIED
-
-    def verify_unique_identifier(self, otp: str) -> None:
+        
+    def verify_unique_identifier(self, otp: Optional[str]) -> None:
         """Verify unique identifier"""
         if self.status == ClosedLoopUserState.VERIFIED:
             raise VerificationException("User is already in closed loop")
 
-        if self.unique_identifier_otp != otp:
+        if self.unique_identifier is not None and self.unique_identifier_otp != otp:
             raise InvalidOtpException("Unique identifier otp doesn't match")
 
         self.status = ClosedLoopUserState.VERIFIED

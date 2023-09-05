@@ -84,6 +84,7 @@ def test_register_open_closed_loop(seed_user, seed_closed_loop):
         unique_identifier=None,
     )
 
+    closed_loop_user.verify_unique_identifier(otp = None)
     user.register_closed_loop(closed_loop_user)
 
     assert len(user.closed_loops) == 1
