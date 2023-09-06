@@ -41,8 +41,14 @@ def authenticate_token(f):
         # Fetch the token from the request headers
         auth_header = request.headers.get("Authorization")
 
-        bearer,_,token = auth_header.partition(" ")
-        
+        if auth_header is None:
+            raise CustomException(
+                message="No authorization header provided",
+                status_code=401,
+            )
+
+        bearer, _, token = auth_header.partition(" ")
+
         if bearer != "Bearer" or token == "":
             raise CustomException(
                 message="Unauthorized, invalid header",
