@@ -70,6 +70,9 @@ class QrView extends HookWidget {
                   } on FormatException catch (e) {
                     jsonMap["name"] = "Unknown QR";
                     jsonMap["qr_id"] = '';
+                  } on TypeError catch (e) {
+                    jsonMap["name"] = "Unknown QR";
+                    jsonMap["qr_id"] = '';
                   }
 
                   if (controller.scanEnabled) {
