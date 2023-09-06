@@ -34,6 +34,7 @@ class DashboardView extends HookWidget {
   Widget build(BuildContext context) {
     final transferCubit = BlocProvider.of<TransferCubit>(context);
     final depositCubit = BlocProvider.of<DepositCubit>(context);
+    final userCubit = BlocProvider.of<UserCubit>(context);
 
     final userFullName = useState<String>('');
 
@@ -150,7 +151,7 @@ class DashboardView extends HookWidget {
                                 state.recentTransactions[index].recipientName,
                             amount: state.recentTransactions[index].amount
                                 .toString(),
-                            currentUserName: userFullName.value,
+                            currentUserName: userCubit.data.fullName,
                           );
                         },
                       ),
