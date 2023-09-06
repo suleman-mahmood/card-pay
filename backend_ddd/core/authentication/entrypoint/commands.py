@@ -395,8 +395,6 @@ def auth_retools_update_closed_loop(
     name: str,
     logo_url: str,
     description: str,
-    verification_type: str,
-    regex: Optional[str],
     uow: AbstractUnitOfWork,
 ):
     """Update closed loop"""

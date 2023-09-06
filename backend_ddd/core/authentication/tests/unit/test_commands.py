@@ -289,28 +289,6 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
             uow=uow,
         )
 
-
-def test_update_closed_loop(seed_auth_closed_loop):
-    uow = UnitOfWork()
-    closed_loop = seed_auth_closed_loop(uow)
-
-    auth_cmd.auth_retools_update_closed_loop(
-        closed_loop_id=closed_loop.id,
-        name="Updated Name",
-        description=closed_loop.description,
-        logo_url=closed_loop.logo_url,
-        regex=closed_loop.regex,
-        verification_type=closed_loop.verification_type,
-        uow=uow,
-    )
-
-    fetched_closed_loop = uow.closed_loops.get(closed_loop.id)
-
-    assert fetched_closed_loop.name == "Updated Name"
-
-    uow.close_connection()
-
-
 def test_create_vendor(seed_auth_closed_loop, mocker):
     uow = UnitOfWork()
     closed_loop = seed_auth_closed_loop(uow)
@@ -384,5 +362,28 @@ def test_create_vendor(seed_auth_closed_loop, mocker):
         fetched_user.closed_loops[closed_loop.id].status
         == auth_mdl.ClosedLoopUserState.VERIFIED
     )
+
+    uow.close_connection()
+
+
+def test_update_closed_loop(seed_auth_closed_loop):
+    uow = UnitOfWork()
+    closed_loop = seed_auth_closed_loop(uow)
+
+    auth_cmd.auth_retools_update_closed_loop(
+        closed_loop_id=closed_loop.id,
+        name="Updated Name",
+        logo_url="www.updated.com",
+        description="Updated Description",
+        uow=uow,
+    )
+
+    fetched_closed_loop = uow.closed_loops.get(closed_loop.id)
+
+    assert fetched_closed_loop.name == "Updated Name"
+    assert fetched_closed_loop.logo_url == "www.updated.com"
+    assert fetched_closed_loop.description == "Updated Description"
+    assert fetched_closed_loop.verification_type == closed_loop.verification_type
+    assert fetched_closed_loop.regex == closed_loop.regex
 
     uow.close_connection()

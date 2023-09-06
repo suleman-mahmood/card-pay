@@ -173,8 +173,6 @@ def auth_retools_get_all_closed_loops_with_user_counts():
         "name",
         "logo_url",
         "description",
-        "verification_type",
-        "regex",
     ]
 )
 def auth_retools_update_closed_loop():
@@ -187,8 +185,6 @@ def auth_retools_update_closed_loop():
             name=req["name"],
             logo_url=req["logo_url"],
             description=req["description"],
-            verification_type=req["verification_type"],
-            regex=req["regex"],
             uow=uow,
         )
         uow.commit_close_connection()
