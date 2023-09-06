@@ -582,7 +582,7 @@ def payment_retools_get_transactions_to_be_reconciled(
             from transactions txn
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
-            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.status == 'SUCCESSFUL'::transaction_status_enum
+            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.status = 'SUCCESSFUL'::transaction_status_enum
         """
 
         if row[0] is not None:
