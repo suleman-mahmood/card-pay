@@ -44,8 +44,8 @@ class ProfileView extends HookWidget {
 
     //   someFunction();
     // }, []);
-    void handleLogout() async {
-      await loginCubit.logout();
+    void handleLogout() {
+      loginCubit.logout();
     }
 
     void _showBottomSheetDelete() {

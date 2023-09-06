@@ -1,5 +1,8 @@
+import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
@@ -20,6 +23,8 @@ class LoginView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userCubit = BlocProvider.of<UserCubit>(context);
+
     void navigateToNextScreen(CheckpointsState state) {
       PageRouteInfo route = SignupRoute();
 
@@ -51,6 +56,9 @@ class LoginView extends HookWidget {
     final password = useState<String>('abcd1234');
 
     final loginCubit = BlocProvider.of<LoginCubit>(context);
+    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
+    final recentTransactionsCubit =
+        BlocProvider.of<RecentTransactionsCubit>(context);
     final checkPointsCubit = BlocProvider.of<CheckpointsCubit>(context);
 
     void onPhoneNumberChanged(String newValue) {
@@ -70,7 +78,7 @@ class LoginView extends HookWidget {
         await loginCubit.loginWithBiometric();
       }
 
-      someFunction();
+      // someFunction();
 
       return () {
         phoneNumberController.dispose();
@@ -131,6 +139,8 @@ class LoginView extends HookWidget {
               const HeightBox(slab: 2),
               BlocBuilder<LoginCubit, LoginState>(builder: (_, state) {
                 switch (state.runtimeType) {
+                  case LoginInitial:
+                    loginCubit.loginWithBiometric();
                   case ManualLoginSuccess:
                     checkPointsCubit.getCheckpoints();
                   case BiometricLoginSuccess:
@@ -153,6 +163,10 @@ class LoginView extends HookWidget {
                 builder: (_, state) {
                   switch (state.runtimeType) {
                     case CheckpointsSuccess:
+                      userCubit.getUser();
+                      balanceCubit.getUserBalance();
+                      recentTransactionsCubit.getUserRecentTransactions();
+
                       navigateToNextScreen(state);
 
                       return const SizedBox.shrink();

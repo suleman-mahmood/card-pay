@@ -3,11 +3,10 @@ import 'dart:convert';
 
 import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:collection/collection.dart';
-import 'package:intl/intl.dart';
 
 class GetUserRecentTransactionsResponse {
   final String message;
-  final List<TransactionResponse> recentTransactions;
+  final List<Transaction> recentTransactions;
 
   const GetUserRecentTransactionsResponse({
     required this.message,
@@ -16,7 +15,7 @@ class GetUserRecentTransactionsResponse {
 
   GetUserRecentTransactionsResponse copyWith({
     String? message,
-    List<TransactionResponse>? recentTransactions,
+    List<Transaction>? recentTransactions,
   }) {
     return GetUserRecentTransactionsResponse(
       message: message ?? this.message,
@@ -34,9 +33,9 @@ class GetUserRecentTransactionsResponse {
   factory GetUserRecentTransactionsResponse.fromMap(Map<String, dynamic> map) {
     return GetUserRecentTransactionsResponse(
       message: map['message'] as String,
-      recentTransactions: List<TransactionResponse>.from(
-        (map['data'] as List<dynamic>).map<TransactionResponse>(
-          (x) => TransactionResponse.fromMap(x as Map<String, dynamic>),
+      recentTransactions: List<Transaction>.from(
+        (map['data'] as List<dynamic>).map<Transaction>(
+          (x) => Transaction.fromMap(x as Map<String, dynamic>),
         ),
       ),
     );
@@ -63,126 +62,4 @@ class GetUserRecentTransactionsResponse {
 
   @override
   int get hashCode => message.hashCode ^ recentTransactions.hashCode;
-}
-
-class TransactionResponse {
-  final String id;
-  final int amount;
-  final TransactionMode mode;
-  final TransactionType transactionType;
-  final TransactionStatus status;
-  final DateTime createdAt;
-  final DateTime lastUpdated;
-  final String senderName;
-  final String recipientName;
-
-  const TransactionResponse({
-    required this.id,
-    required this.amount,
-    required this.mode,
-    required this.transactionType,
-    required this.status,
-    required this.createdAt,
-    required this.lastUpdated,
-    required this.senderName,
-    required this.recipientName,
-  });
-
-  TransactionResponse copyWith({
-    String? id,
-    int? amount,
-    TransactionMode? mode,
-    TransactionType? transactionType,
-    TransactionStatus? status,
-    DateTime? createdAt,
-    DateTime? lastUpdated,
-    String? senderName,
-    String? recipientName,
-  }) {
-    return TransactionResponse(
-      id: id ?? this.id,
-      amount: amount ?? this.amount,
-      mode: mode ?? this.mode,
-      transactionType: transactionType ?? this.transactionType,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      lastUpdated: lastUpdated ?? this.lastUpdated,
-      senderName: senderName ?? this.senderName,
-      recipientName: recipientName ?? this.recipientName,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'id': id,
-      'amount': amount,
-      'mode': mode.name,
-      'transaction_type': transactionType.name,
-      'status': status.name,
-      'created_at': createdAt.millisecondsSinceEpoch,
-      'last_updated': lastUpdated.millisecondsSinceEpoch,
-      'sender_name': senderName,
-      'recipient_name': recipientName,
-    };
-  }
-
-  factory TransactionResponse.fromMap(Map<String, dynamic> map) {
-    return TransactionResponse(
-      id: map['id'] as String,
-      amount: map['amount'] as int,
-      mode: TransactionMode.values.firstWhere(
-        (e) => e.name == map['mode'],
-      ),
-      transactionType: TransactionType.values.firstWhere(
-        (e) => e.name == map['transaction_type'],
-      ),
-      status: TransactionStatus.values.firstWhere(
-        (e) => e.name == map['status'],
-      ),
-      createdAt: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
-          .parse(map['created_at']),
-      lastUpdated: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
-          .parse(map['last_updated']),
-      senderName: map['sender_name'] as String,
-      recipientName: map['recipient_name'] as String,
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory TransactionResponse.fromJson(String source) =>
-      TransactionResponse.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() {
-    return 'TransactionResponse(id: $id, amount: $amount, mode: $mode, transactionType: $transactionType, status: $status, createdAt: $createdAt, lastUpdated: $lastUpdated, senderName: $senderName, recipientName: $recipientName)';
-  }
-
-  @override
-  bool operator ==(covariant TransactionResponse other) {
-    if (identical(this, other)) return true;
-
-    return other.id == id &&
-        other.amount == amount &&
-        other.mode == mode &&
-        other.transactionType == transactionType &&
-        other.status == status &&
-        other.createdAt == createdAt &&
-        other.lastUpdated == lastUpdated &&
-        other.senderName == senderName &&
-        other.recipientName == recipientName;
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^
-        amount.hashCode ^
-        mode.hashCode ^
-        transactionType.hashCode ^
-        status.hashCode ^
-        createdAt.hashCode ^
-        lastUpdated.hashCode ^
-        senderName.hashCode ^
-        recipientName.hashCode;
-  }
 }

@@ -1,8 +1,11 @@
 import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -23,6 +26,14 @@ class ConfirmationView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final depositCubit = BlocProvider.of<DepositCubit>(context);
+    final transferCubit = BlocProvider.of<TransferCubit>(context);
+
+    useEffect(() {
+      depositCubit.init();
+      transferCubit.init();
+    }, []);
+
     Widget buildHeader() {
       return const Header(
         title: PaymentStrings.receipt,

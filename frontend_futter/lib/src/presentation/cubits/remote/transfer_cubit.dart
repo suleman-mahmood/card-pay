@@ -64,6 +64,14 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
     await run(() async {
       emit(TransferLoading());
 
+      if (qrId.isEmpty) {
+        emit(TransferFailed(
+          errorMessage: "Invalid QR id",
+        ));
+
+        return;
+      }
+
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';

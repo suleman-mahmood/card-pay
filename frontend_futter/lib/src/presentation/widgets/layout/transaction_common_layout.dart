@@ -33,11 +33,20 @@ class TransactionView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final paymentController = useTextEditingController(text: '');
+    final depositCubit = BlocProvider.of<DepositCubit>(context);
+
     useEffect(() {
       return () {
         paymentController.dispose();
       };
     }, []);
+
+    showDepositUrl(String checkoutUrl) async {
+      await launchUrl(Uri.parse(checkoutUrl));
+
+      depositCubit.init();
+    }
+
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(
@@ -78,7 +87,7 @@ class TransactionView extends HookWidget {
                           textAlign: TextAlign.center,
                         );
                       case DepositSuccess:
-                        launchUrl(Uri.parse(state.checkoutUrl));
+                        showDepositUrl(state.checkoutUrl);
                         return const SizedBox.shrink();
                       default:
                         return const SizedBox.shrink();

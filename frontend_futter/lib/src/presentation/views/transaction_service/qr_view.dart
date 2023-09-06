@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:camera/camera.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
@@ -9,6 +10,7 @@ import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
+import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,35 +23,70 @@ class QrView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userCubit = BlocProvider.of<UserCubit>(context);
     final controller = QRCodeDartScanController();
 
     final qrValue = useState<String>("");
+    final cameraAspectRatio = useState<double>(9 / 16);
+
+    useEffect(() {
+      initializeCameras() async {
+        final cameras = await availableCameras();
+        if (cameras.isEmpty) {
+          return;
+        }
+
+        final camera = cameras.first;
+
+        final controller = CameraController(
+          camera,
+          ResolutionPreset.high,
+        );
+
+        await controller.initialize();
+
+        printWarning(controller.value.aspectRatio.toString());
+
+        cameraAspectRatio.value = controller.value.aspectRatio;
+      }
+
+      // initializeCameras();
+    }, []);
 
     return SafeArea(
       child: Scaffold(
         body: Stack(
           children: [
-            QRCodeDartScanView(
-              scanInvertedQRCode: true,
-              typeScan: TypeScan.live,
-              controller: controller,
-              onCapture: (Result result) {
-                controller.setScanEnabled(false);
-                qrValue.value = result.text;
-                Map<String, dynamic> jsonMap = json.decode(result.text);
+            AspectRatio(
+              aspectRatio: cameraAspectRatio.value,
+              child: QRCodeDartScanView(
+                scanInvertedQRCode: true,
+                typeScan: TypeScan.live,
+                controller: controller,
+                onCapture: (Result result) {
+                  qrValue.value = result.text;
+                  Map<String, dynamic> jsonMap = {};
+                  try {
+                    jsonMap = json.decode(result.text);
+                  } on FormatException catch (e) {
+                    jsonMap["name"] = "Unknown QR";
+                    jsonMap["qr_id"] = '';
+                  }
 
-                context.router
-                    .push(SendRoute(
-                  uniqueIdentifier: jsonMap["name"],
-                  qrId: jsonMap["qr_id"],
-                ))
-                    .then(
-                  (_) {
-                    controller.setScanEnabled(true);
-                  },
-                );
-              },
+                  if (controller.scanEnabled) {
+                    controller.setScanEnabled(false);
+                    context.router
+                        .push(SendRoute(
+                      uniqueIdentifier: jsonMap["name"],
+                      qrId: jsonMap["qr_id"],
+                    ))
+                        .then(
+                      (_) {
+                        controller.setScanEnabled(true);
+                      },
+                    );
+                  }
+                },
+              ),
             ),
             PaddingAll(
               slab: 5,

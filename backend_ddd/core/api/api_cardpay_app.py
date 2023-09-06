@@ -323,6 +323,7 @@ def create_deposit_request(uid):
     except (
         pmt_cmd_ex.DepositAmountTooSmallException,
         pmt_cmd_ex.NotVerifiedException,
+        pmt_cmd_ex.PaymentUrlNotFoundException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))

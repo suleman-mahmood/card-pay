@@ -4,13 +4,12 @@ import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_r
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
-import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
+import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:cardpay/src/domain/models/user.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/data_state.dart';
-import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:meta/meta.dart';

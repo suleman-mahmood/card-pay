@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:flutter/material.dart';
@@ -20,31 +21,23 @@ class TransactionList extends HookWidget {
   Widget build(BuildContext context) {
     final userCubit = BlocProvider.of<UserCubit>(context);
 
-    // useEffect(() {
-    //   userCubit.getUserRecentTransactions();
-    // }, []);
-
-    return BlocBuilder<UserCubit, UserState>(
+    return BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
       builder: (_, state) {
         switch (state.runtimeType) {
-          case UserLoading:
+          case RecentTransactionsLoading:
             return const Center(child: CircularProgressIndicator());
-          case UserSuccess:
+          case RecentTransactionsSuccess:
             return ListView.builder(
-              itemCount: state.user.recentTransactions.length,
+              itemCount: state.recentTransactions.length,
               itemBuilder: (context, index) {
-                final transaction = state.user.recentTransactions[index];
-                // generate a random number between 0 and 2
-                final randomNumber = Random().nextInt(3);
-                Color color = colors[randomNumber];
-
+                final transaction = state.recentTransactions[index];
                 return PaddingHorizontal(
                   slab: 1,
                   child: TransactionContainer(
                     amount: transaction.amount.toString(),
                     senderName: transaction.senderName,
                     recipientName: transaction.recipientName,
-                    currentUserName: state.user.fullName,
+                    currentUserName: userCubit.data.fullName,
                   ),
                 );
               },

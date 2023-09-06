@@ -152,7 +152,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
         GetUserRecentTransactionsResponse(
           message: 'Customer created successfully',
           recentTransactions: [
-            TransactionResponse(
+            Transaction(
               id: 'transaction-1',
               amount: 251,
               mode: TransactionMode.APP_TRANSFER,
@@ -163,7 +163,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
               senderName: 'Suleman',
               recipientName: 'Namelus',
             ),
-            TransactionResponse(
+            Transaction(
               id: 'transaction-2',
               amount: 501,
               mode: TransactionMode.APP_TRANSFER,

@@ -1,49 +1,46 @@
-import 'package:cardpay/src/domain/models/deposit.dart';
-import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
+import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/data_state.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
-part 'deposit_state.dart';
+part 'recent_transactions_state.dart';
 
-class DepositCubit extends BaseCubit<DepositState, Deposit> {
+class RecentTransactionsCubit
+    extends BaseCubit<RecentTransactionsState, List<Transaction>> {
   final ApiRepository _apiRepository;
 
-  DepositCubit(this._apiRepository) : super(DepositInitial(), Deposit());
+  RecentTransactionsCubit(this._apiRepository)
+      : super(RecentTransactionsInitial(), []);
 
-  Future<void> init() async {
-    emit(DepositInitial());
-  }
-
-  Future<void> createDepositRequest(int amount) async {
+  Future<void> getUserRecentTransactions() async {
     if (isBusy) return;
 
     await run(() async {
-      emit(DepositLoading());
+      emit(RecentTransactionsLoading());
 
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
-      final response = await _apiRepository.createDepositRequest(
-        request: CreateDepositRequest(amount: amount),
-        token: token,
-      );
+      final response = await _apiRepository.getUserRecentTransactions(token);
 
       if (response is DataSuccess) {
-        emit(DepositSuccess(
+        data.clear();
+        data.addAll(response.data!.recentTransactions);
+
+        emit(RecentTransactionsSuccess(
           message: response.data!.message,
-          checkoutUrl: response.data!.checkoutUrl,
+          recentTransactions: data,
         ));
       } else if (response is DataFailed) {
         if (response.error?.type.name == "unknown") {
-          emit(DepositUnknownFailure(
+          emit(RecentTransactionsUnknownFailure(
             errorMessage: "Unknown error, check internet connections",
           ));
         } else {
-          emit(DepositFailed(
+          emit(RecentTransactionsFailed(
             error: response.error,
             errorMessage: response.error?.response?.data["message"],
           ));

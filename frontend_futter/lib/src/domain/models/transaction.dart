@@ -31,38 +31,40 @@ enum TransactionType {
 }
 
 class Transaction {
-  final String id;
-  final double amount;
-  final TransactionMode mode;
-  final TransactionType transactionType;
-  final TransactionStatus status;
-  final DateTime createdAt;
-  final DateTime lastUpdated;
-  final String senderWalletId;
-  final String recipientWalletId;
+  String id;
+  int amount;
+  TransactionMode mode;
+  TransactionType transactionType;
+  TransactionStatus status;
+  DateTime createdAt;
+  DateTime lastUpdated;
+  String senderName;
+  String recipientName;
 
-  const Transaction({
-    required this.id,
-    required this.amount,
-    required this.mode,
-    required this.transactionType,
-    required this.status,
-    required this.createdAt,
-    required this.lastUpdated,
-    required this.senderWalletId,
-    required this.recipientWalletId,
-  });
+  Transaction({
+    DateTime? createdAt,
+    DateTime? lastUpdated,
+    this.id = '',
+    this.amount = 0,
+    this.mode = TransactionMode.APP_TRANSFER,
+    this.transactionType = TransactionType.P2P_PUSH,
+    this.status = TransactionStatus.PENDING,
+    this.senderName = '',
+    this.recipientName = '',
+  })  : createdAt = createdAt ?? DateTime(9999, 12, 31, 23, 59, 59, 999, 999),
+        lastUpdated =
+            lastUpdated ?? DateTime(9999, 12, 31, 23, 59, 59, 999, 999);
 
   Transaction copyWith({
     String? id,
-    double? amount,
+    int? amount,
     TransactionMode? mode,
     TransactionType? transactionType,
     TransactionStatus? status,
     DateTime? createdAt,
     DateTime? lastUpdated,
-    String? senderWalletId,
-    String? recipientWalletId,
+    String? senderName,
+    String? recipientName,
   }) {
     return Transaction(
       id: id ?? this.id,
@@ -72,8 +74,8 @@ class Transaction {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       lastUpdated: lastUpdated ?? this.lastUpdated,
-      senderWalletId: senderWalletId ?? this.senderWalletId,
-      recipientWalletId: recipientWalletId ?? this.recipientWalletId,
+      senderName: senderName ?? this.senderName,
+      recipientName: recipientName ?? this.recipientName,
     );
   }
 
@@ -86,15 +88,15 @@ class Transaction {
       'status': status.name,
       'created_at': createdAt.millisecondsSinceEpoch,
       'last_updated': lastUpdated.millisecondsSinceEpoch,
-      'sender_wallet_id': senderWalletId,
-      'recipient_wallet_id': recipientWalletId,
+      'sender_name': senderName,
+      'recipient_name': recipientName,
     };
   }
 
   factory Transaction.fromMap(Map<String, dynamic> map) {
     return Transaction(
       id: map['id'] as String,
-      amount: map['amount'] as double,
+      amount: map['amount'] as int,
       mode: TransactionMode.values.firstWhere(
         (e) => e.name == map['mode'],
       ),
@@ -108,8 +110,8 @@ class Transaction {
           .parse(map['created_at']),
       lastUpdated: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
           .parse(map['last_updated']),
-      senderWalletId: map['sender_wallet_id'] as String,
-      recipientWalletId: map['recipient_wallet_id'] as String,
+      senderName: map['sender_name'] as String,
+      recipientName: map['recipient_name'] as String,
     );
   }
 
@@ -120,7 +122,7 @@ class Transaction {
 
   @override
   String toString() {
-    return 'Transaction(id: $id, amount: $amount, mode: $mode, transactionType: $transactionType, status: $status, createdAt: $createdAt, lastUpdated: $lastUpdated, senderWalletId: $senderWalletId, recipientWalletId: $recipientWalletId)';
+    return 'Transaction(id: $id, amount: $amount, mode: $mode, transactionType: $transactionType, status: $status, createdAt: $createdAt, lastUpdated: $lastUpdated, senderName: $senderName, recipientName: $recipientName)';
   }
 
   @override
@@ -134,8 +136,8 @@ class Transaction {
         other.status == status &&
         other.createdAt == createdAt &&
         other.lastUpdated == lastUpdated &&
-        other.senderWalletId == senderWalletId &&
-        other.recipientWalletId == recipientWalletId;
+        other.senderName == senderName &&
+        other.recipientName == recipientName;
   }
 
   @override
@@ -147,7 +149,7 @@ class Transaction {
         status.hashCode ^
         createdAt.hashCode ^
         lastUpdated.hashCode ^
-        senderWalletId.hashCode ^
-        recipientWalletId.hashCode;
+        senderName.hashCode ^
+        recipientName.hashCode;
   }
 }

@@ -1,4 +1,7 @@
 import 'dart:math';
+import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
@@ -29,26 +32,14 @@ class DashboardView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userCubit = BlocProvider.of<UserCubit>(context);
     final transferCubit = BlocProvider.of<TransferCubit>(context);
-    final isLoading = true;
+    final depositCubit = BlocProvider.of<DepositCubit>(context);
 
-    // TODO: Have separte loading for full name, balance and recent transactions
+    final userFullName = useState<String>('');
+
     useEffect(() {
-      // userCubit.getUser();
-      // userCubit.getUserBalance();
-      // userCubit.getUserRecentTransactions();
-
-      // This definitely works
-      someFunction() async {
-        transferCubit.init();
-
-        await userCubit.getUser();
-        await userCubit.getUserBalance();
-        await userCubit.getUserRecentTransactions();
-      }
-
-      someFunction();
+      transferCubit.init();
+      depositCubit.init();
     }, []);
 
     String displayName(String fullName) {
@@ -74,11 +65,15 @@ class DashboardView extends HookWidget {
                   builder: (_, state) {
                     switch (state.runtimeType) {
                       case UserLoading:
-                        return ShimmerLoading(
-                          isLoading: isLoading,
+                        return const ShimmerLoading(
+                          isLoading: true,
                           child: CircleListItemLoading(),
                         );
                       case UserSuccess || UserInitial:
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          userFullName.value = state.user.fullName;
+                        });
+
                         return GreetingRow(
                           greeting: PaymentStrings.greet,
                           name: displayName(state.user.fullName),
@@ -104,17 +99,17 @@ class DashboardView extends HookWidget {
 
             // Balance wala section
             const HeightBox(slab: 3),
-            BlocBuilder<UserCubit, UserState>(
+            BlocBuilder<BalanceCubit, BalanceState>(
               builder: (_, state) {
                 switch (state.runtimeType) {
-                  case UserLoading:
-                    return ShimmerLoading(
-                      isLoading: isLoading,
+                  case BalanceLoading:
+                    return const ShimmerLoading(
+                      isLoading: true,
                       child: CardListItemLoading(),
                     );
-                  case UserSuccess || UserInitial:
+                  case BalanceSuccess:
                     return BalanceCard(
-                      balance: state.user.balance.toString(),
+                      balance: state.balance.amount.toString(),
                       topRightImage: 'assets/images/balance_corner.png',
                       bottomLeftImage: 'assets/images/balance_corner2.png',
                     );
@@ -134,28 +129,28 @@ class DashboardView extends HookWidget {
               ),
             ),
             HeightBox(slab: 1),
-            BlocBuilder<UserCubit, UserState>(
+            BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
               builder: (_, state) {
                 switch (state.runtimeType) {
-                  case UserLoading:
+                  case RecentTransactionsLoading:
                     return const CircularProgressIndicator();
-                  case UserSuccess || UserInitial:
+                  case RecentTransactionsSuccess:
                     return SizedBox(
                       height: 100,
                       child: ListView.builder(
                         itemCount: min(
                           2,
-                          state.user.recentTransactions.length,
+                          state.recentTransactions.length,
                         ),
                         itemBuilder: (_, index) {
                           return TransactionContainer(
                             senderName:
-                                state.user.recentTransactions[index].senderName,
-                            recipientName: state
-                                .user.recentTransactions[index].recipientName,
-                            amount: state.user.recentTransactions[index].amount
+                                state.recentTransactions[index].senderName,
+                            recipientName:
+                                state.recentTransactions[index].recipientName,
+                            amount: state.recentTransactions[index].amount
                                 .toString(),
-                            currentUserName: state.user.fullName,
+                            currentUserName: userFullName.value,
                           );
                         },
                       ),

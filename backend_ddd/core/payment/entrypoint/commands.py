@@ -341,11 +341,13 @@ def get_deposit_checkout_url(
     pp_order_res.raise_for_status()
 
     response_data = pp_order_res.json()[1]
-    
+
     try:
         payment_url = response_data["Click2Pay"]
     except:
-        raise PaymentUrlNotFoundException("PayPro response does not contain payment url, please try again")
+        raise PaymentUrlNotFoundException(
+            "PayPro response does not contain payment url, please try again"
+        )
 
     return payment_url
 
@@ -503,7 +505,7 @@ def execute_qr_transaction(
     transaction_type = TransactionType.VIRTUAL_POS
 
     if user_info is None:
-        raise exc.InvalidQRCodeException("Invalid QR code")
+        raise InvalidQRCodeException("Invalid QR code")
 
     elif user_info.user_type == auth_mdl.UserType.VENDOR:
         transaction_type = TransactionType.VIRTUAL_POS

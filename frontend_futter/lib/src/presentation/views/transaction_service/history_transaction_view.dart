@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
+import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
@@ -56,16 +57,16 @@ class TransactionHistoryView extends HookWidget {
             ),
           ),
         ),
-        BlocBuilder<UserCubit, UserState>(
+        BlocBuilder<BalanceCubit, BalanceState>(
           builder: (_, state) {
             switch (state.runtimeType) {
-              case UserSuccess || UserInitial:
+              case BalanceSuccess:
                 return PaddingHorizontal(
                   slab: 2,
                   child: Header(
                     title: PaymentStrings.history,
                     showMainHeading: true,
-                    mainHeadingText: "Rs.${state.user.balance.toString()}",
+                    mainHeadingText: "Rs.${state.balance.amount.toString()}",
                   ),
                 );
               default:

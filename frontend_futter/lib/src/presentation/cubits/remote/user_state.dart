@@ -15,7 +15,7 @@ abstract class UserState {
 
   final String email;
   final String errorMessage;
-  final List<TransactionResponse> transactions;
+  final List<Transaction> transactions;
   final DioError? error;
 
   UserState({
@@ -34,9 +34,6 @@ abstract class UserState {
     this.transactions = const [],
     User? user,
   }) : user = user ?? User();
-
-  @override
-  List<Object?> get props => [message, error, eventCodes];
 }
 
 class UserInitial extends UserState {
