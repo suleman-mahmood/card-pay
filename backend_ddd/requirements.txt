@@ -8,3 +8,4 @@ python-dotenv
 pylint
 sentry-sdk[flask]
 pytest-mock
+flask-cors
