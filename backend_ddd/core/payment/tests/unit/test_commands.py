@@ -36,7 +36,7 @@ from uuid import uuid4
 import pytest
 from ...domain.exceptions import TransactionNotAllowedException
 from core.authentication.entrypoint import queries as auth_queries
-
+from core.payment.entrypoint import exceptions as payment_exc
 
 def test_slow_execute_transaction():
     uow = UnitOfWork()
@@ -271,6 +271,18 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
     vendor_wallet = get_wallet_from_wallet_id(
         wallet_id=vendor.wallet_id, uow=uow
     )
+
+    # test qr txn to invalid qr_id
+
+    with pytest.raises(
+        payment_exc.InvalidQRCodeException, match="Invalid QR code"
+    ):
+        tx = execute_qr_transaction(
+            sender_wallet_id=sender_customer.wallet_id,
+            recipient_qr_id=str(uuid4()),
+            amount=400,
+            uow=uow,
+        )
 
     # test qr txn to vendor from customer
     tx = execute_qr_transaction(
