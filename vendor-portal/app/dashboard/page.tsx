@@ -1,21 +1,39 @@
 "use client";
 
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { User as FirebaseUser } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../services/initialize-firebase";
 import Table from "./components/Table";
 
 function page() {
+  const router = useRouter();
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+
   useEffect(() => {
-    fetchTransactions();
+    return onAuthStateChanged(auth, (user: any) => {
+      if (user) {
+        setUser(user);
+        fetchTransactions(user);
+      } else {
+        router.push("/");
+      }
+    });
   }, []);
 
-  const fetchTransactions = () => {
+  const fetchTransactions = async (user: FirebaseUser) => {
+    const token = await user?.getIdToken();
+    console.log(user);
+    console.log(token);
     fetch(
-      `https://cardpay-1.el.r.appspot.com/api/v1/api/v1/payment-retools-get-transactions-to-be-reconciled?vendor_id=6a0aeaaf-e9c6-5ed6-87f4-cfa355aa05de`,
+      `https://cardpay-1.el.r.appspot.com/api/v1/get-vendor-transactions-to-be-reconciled`,
       {
         method: "GET",
+        mode: "cors",
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       }
     )
