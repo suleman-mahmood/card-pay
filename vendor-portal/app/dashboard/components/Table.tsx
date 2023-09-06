@@ -3,7 +3,7 @@ import React from "react";
 function Table() {
   return (
     <div className="overflow-x-auto">
-      <h1 className="mb-2 text-4xl font-bold text-center text-slate-700">
+      <h1 className="mb-2 text-4xl font-bold text-center text-black">
         Transactions
       </h1>
       {/*<h2 className="mb-2 text-2xl font-bold text-center">CardPay Cafe</h2>*/}
@@ -13,7 +13,7 @@ function Table() {
       <table className="table table-lg">
         {/* head */}
         <thead>
-          <tr className="bg-base-200">
+          <tr className="bg-white">
             <th></th>
             <th>Sender Name</th>
             <th>Amount</th>

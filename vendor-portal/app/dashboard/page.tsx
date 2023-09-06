@@ -8,6 +8,15 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../services/initialize-firebase";
 import Table from "./components/Table";
 
+interface Transaction {
+  amount: number;
+  id: string;
+  recipientName: string;
+  senderName: string;
+  status: string;
+  timestamp: string;
+}
+
 function page() {
   const router = useRouter();
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -33,6 +42,7 @@ function page() {
         method: "GET",
         mode: "cors",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
