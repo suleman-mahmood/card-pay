@@ -64,25 +64,25 @@ class AuthLayout extends HookWidget {
                   }
                 },
               ),
-              BlocBuilder<VersionsCubit, VersionsState>(
-                builder: (_, state) {
-                  switch (state.runtimeType) {
-                    case VersionsSuccess:
-                      if (state.forceUpdate) {
-                        return const UpdateDialogBox(
-                          showMaybeLaterButton: false,
-                        );
-                      }
-                      if (state.normalUpdate) {
-                        return const UpdateDialogBox();
-                      }
+              // BlocBuilder<VersionsCubit, VersionsState>(
+              //   builder: (_, state) {
+              //     switch (state.runtimeType) {
+              //       case VersionsSuccess:
+              //         if (state.forceUpdate) {
+              //           return const UpdateDialogBox(
+              //             showMaybeLaterButton: false,
+              //           );
+              //         }
+              //         if (state.normalUpdate) {
+              //           return const UpdateDialogBox();
+              //         }
 
-                    default:
-                      return const SizedBox();
-                  }
-                  return const SizedBox();
-                },
-              ),
+              //       default:
+              //         return const SizedBox();
+              //     }
+              //     return const SizedBox();
+              //   },
+              // ),
               if (showBackButton)
                 PaddingHorizontal(
                   slab: 2,

@@ -1,4 +1,5 @@
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
+import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
@@ -40,6 +41,7 @@ class SignupView extends HookWidget {
 
     final userCubit = BlocProvider.of<UserCubit>(context);
     final loginCubit = BlocProvider.of<LoginCubit>(context);
+    final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
 
     void onPhoneNumberChanged(String newValue) {
       dropdownValue.value = newValue;
@@ -56,7 +58,6 @@ class SignupView extends HookWidget {
                 deviceCheckHeading: AppStrings.checkMobile,
                 otpDeviceText: AppStrings.otpMobileText,
                 onAction: (otp) => userCubit.verifyPhoneNumber(otp),
-                navigateToRoute: const RegisterOrganizationRoute(),
               ),
             ),
           );
@@ -148,28 +149,38 @@ class SignupView extends HookWidget {
                 accountDescription: AppStrings.createAccountDesc,
               ),
               const HeightBox(slab: 1),
-              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-                switch (state.runtimeType) {
-                  case UserSuccess:
-                    if (state.eventCodes == EventCodes.OTP_SENT) {
-                      // Login the user after a successful sign up
-                      loginCubit.login(phoneNumber.value, password.value);
+              BlocConsumer<UserCubit, UserState>(
+                listener: (_, state) {
+                  switch (state.runtimeType) {
+                    case UserSuccess:
+                      if (state.eventCodes == EventCodes.OTP_SENT) {
+                        // Login the user after a successful sign up
+                        loginCubit.login(phoneNumber.value, password.value);
 
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _showOTPBottomSheet();
-                      });
-                    } else if (state.eventCodes == EventCodes.USER_VERIFIED) {
-                      context.router.push(const LoginRoute());
-                    } else if (state.eventCodes == EventCodes.OTP_VERIFIED) {
-                      context.router.push(const RegisterOrganizationRoute());
-                    } else if (state.eventCodes == EventCodes.OTP_INCORRECT) {
-                      return const Text('Incorrect Otp, try again');
-                    }
-                    return const SizedBox.shrink();
-                  default:
-                    return const SizedBox.shrink();
-                }
-              }),
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _showOTPBottomSheet();
+                        });
+                      } else if (state.eventCodes == EventCodes.USER_VERIFIED) {
+                        context.router.push(const LoginRoute());
+                      } else if (state.eventCodes == EventCodes.OTP_VERIFIED) {
+                        closedLoopCubit.getAllClosedLoops();
+                        context.router.push(const RegisterOrganizationRoute());
+                      }
+                      break;
+                  }
+                },
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case UserSuccess:
+                      if (state.eventCodes == EventCodes.OTP_INCORRECT) {
+                        return const Text('Incorrect Otp, try again');
+                      }
+                      return const SizedBox.shrink();
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
               _buildLoginText(),
               const HeightBox(slab: 4),
               CustomInputField(

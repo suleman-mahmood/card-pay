@@ -21,6 +21,7 @@ class NumPad extends HookWidget {
         controller.dispose();
       };
     }, []);
+
     return Padding(
       padding: EdgeInsets.only(top: 16),
       child: Column(
@@ -64,6 +65,7 @@ class NumberPadRow extends HookWidget {
         controller.dispose();
       };
     }, []);
+
     return SizedBox(
       height: height,
       child: Row(

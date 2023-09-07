@@ -40,6 +40,7 @@ class PaymentEntry extends HookWidget {
           controller.dispose();
         };
       }, []);
+
       return PaddingAll(
         slab: 1,
         child: ValueListenableBuilder(

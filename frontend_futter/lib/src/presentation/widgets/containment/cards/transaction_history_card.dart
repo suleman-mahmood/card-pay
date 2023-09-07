@@ -5,7 +5,8 @@ import 'package:cardpay/src/config/themes/colors.dart';
 
 class TransactionContainer extends HookWidget {
   final IconData icon = Icons.send;
-  final Color amountColor = AppColors.redColor;
+  final Color inflowAmountColor = AppColors.greenColor;
+  final Color outflowAmountColor = AppColors.redColor;
   final Color iconColor = AppColors.primaryColor;
 
   final String senderName;
@@ -61,7 +62,9 @@ class TransactionContainer extends HookWidget {
         slab: 1,
         child: Text(
           amount,
-          style: AppTypography.bodyText.copyWith(color: amountColor),
+          style: AppTypography.bodyText.copyWith(
+            color: inflow.value ? inflowAmountColor : outflowAmountColor,
+          ),
         ),
       );
     }

@@ -1,19 +1,13 @@
 import 'dart:convert';
 
-import 'package:camera/camera.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
-import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
-import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
-import 'package:cardpay/src/utils/constants/event_codes.dart';
-import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:qr_code_dart_scan/qr_code_dart_scan.dart';
 
@@ -27,30 +21,6 @@ class QrView extends HookWidget {
 
     final qrValue = useState<String>("");
     final cameraAspectRatio = useState<double>(9 / 16);
-
-    useEffect(() {
-      initializeCameras() async {
-        final cameras = await availableCameras();
-        if (cameras.isEmpty) {
-          return;
-        }
-
-        final camera = cameras.first;
-
-        final controller = CameraController(
-          camera,
-          ResolutionPreset.high,
-        );
-
-        await controller.initialize();
-
-        printWarning(controller.value.aspectRatio.toString());
-
-        cameraAspectRatio.value = controller.value.aspectRatio;
-      }
-
-      // initializeCameras();
-    }, []);
 
     return SafeArea(
       child: Scaffold(

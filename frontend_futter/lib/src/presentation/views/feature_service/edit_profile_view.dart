@@ -24,13 +24,7 @@ class EditProfileView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final loginCubit = BlocProvider.of<LoginCubit>(context);
-    // useEffect(() {
-    //   someFunction() async {
-    //     await userCubit.getUser();
-    //   }
 
-    //   someFunction();
-    // }, []);
     void handleLogout() async {
       await loginCubit.logout();
     }
@@ -233,11 +227,6 @@ class EditProfileView extends HookWidget {
       }, []);
     }
 
-    useEffect(() {
-      return () {
-        // loginCubit.close();
-      };
-    }, []);
     return ProfileLayout(
       child: PaddingHorizontal(
         slab: 2,
@@ -361,18 +350,19 @@ class EditProfileView extends HookWidget {
                       ),
                     ),
                   ),
-                  BlocBuilder<LoginCubit, LoginState>(builder: (_, state) {
-                    switch (state.runtimeType) {
-                      case LogoutSuccess:
-                        context.router.pushAndPopUntil(
-                          const IntroRoute(),
-                          predicate: (route) => false,
-                        );
-                        return const SizedBox.shrink();
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  }),
+                  BlocListener<LoginCubit, LoginState>(
+                    listener: (_, state) {
+                      switch (state.runtimeType) {
+                        case LogoutSuccess:
+                          context.router.pushAndPopUntil(
+                            const IntroRoute(),
+                            predicate: (route) => false,
+                          );
+                          break;
+                      }
+                    },
+                    child: const SizedBox.shrink(),
+                  ),
                 ],
               ),
             ),

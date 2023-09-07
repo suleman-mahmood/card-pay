@@ -37,13 +37,7 @@ class ProfileView extends HookWidget {
     final checkpointsCubit = BlocProvider.of<CheckpointsCubit>(context);
 
     final isLoading = true;
-    // useEffect(() {
-    //   someFunction() async {
-    //     await userCubit.getUser();
-    //   }
 
-    //   someFunction();
-    // }, []);
     void handleLogout() {
       loginCubit.logout();
     }
@@ -137,21 +131,22 @@ class ProfileView extends HookWidget {
         const HeightBox(slab: 3),
         Column(
           children: [
-            BlocBuilder<LoginCubit, LoginState>(builder: (_, state) {
-              switch (state.runtimeType) {
-                case LogoutSuccess:
-                  checkpointsCubit.init();
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.router.pushAndPopUntil(
-                      const IntroRoute(),
-                      predicate: (route) => false,
-                    );
-                  });
-                  return const SizedBox.shrink();
-                default:
-                  return const SizedBox.shrink();
-              }
-            }),
+            BlocListener<LoginCubit, LoginState>(
+              listener: (_, state) {
+                switch (state.runtimeType) {
+                  case LogoutSuccess:
+                    checkpointsCubit.init();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      context.router.pushAndPopUntil(
+                        const IntroRoute(),
+                        predicate: (route) => false,
+                      );
+                    });
+                    break;
+                }
+              },
+              child: const SizedBox.shrink(),
+            ),
             Container(
               width: double.infinity,
               decoration: CustomBoxDecorationAll.getDecoration(

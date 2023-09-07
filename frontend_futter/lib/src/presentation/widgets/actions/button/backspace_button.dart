@@ -18,6 +18,7 @@ class BackspaceButton extends HookWidget {
         controller.dispose();
       };
     }, []);
+
     return GestureDetector(
       onTap: () {
         final text = controller.text;

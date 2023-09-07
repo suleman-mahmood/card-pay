@@ -59,40 +59,51 @@ class TransactionView extends HookWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   HeightBox(slab: 3),
-                  BlocBuilder<TransferCubit, TransferState>(
-                      builder: (_, state) {
-                    switch (state.runtimeType) {
-                      case TransferFailed:
-                        return Text(
-                          state.errorMessage,
-                          style: const TextStyle(color: Colors.red),
-                          textAlign: TextAlign.center,
-                        );
-                      case TransferSuccess:
-                        context.router.push(ConfirmationRoute(
-                          uniqueIdentifier: rollNumber ?? '',
-                          amount: int.parse(paymentController.text),
-                        ));
-                        return const SizedBox.shrink();
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  }),
-                  BlocBuilder<DepositCubit, DepositState>(builder: (_, state) {
-                    switch (state.runtimeType) {
-                      case DepositFailed:
-                        return Text(
-                          state.errorMessage,
-                          style: const TextStyle(color: Colors.red),
-                          textAlign: TextAlign.center,
-                        );
-                      case DepositSuccess:
-                        showDepositUrl(state.checkoutUrl);
-                        return const SizedBox.shrink();
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  }),
+                  BlocConsumer<TransferCubit, TransferState>(
+                    builder: (_, state) {
+                      switch (state.runtimeType) {
+                        case TransferFailed:
+                          return Text(
+                            state.errorMessage,
+                            style: const TextStyle(color: Colors.red),
+                            textAlign: TextAlign.center,
+                          );
+                        default:
+                          return const SizedBox.shrink();
+                      }
+                    },
+                    listener: (_, state) {
+                      switch (state.runtimeType) {
+                        case TransferSuccess:
+                          context.router.push(ConfirmationRoute(
+                            uniqueIdentifier: rollNumber ?? '',
+                            amount: int.parse(paymentController.text),
+                          ));
+                          break;
+                      }
+                    },
+                  ),
+                  BlocConsumer<DepositCubit, DepositState>(
+                    builder: (_, state) {
+                      switch (state.runtimeType) {
+                        case DepositFailed:
+                          return Text(
+                            state.errorMessage,
+                            style: const TextStyle(color: Colors.red),
+                            textAlign: TextAlign.center,
+                          );
+                        default:
+                          return const SizedBox.shrink();
+                      }
+                    },
+                    listener: (_, state) {
+                      switch (state.runtimeType) {
+                        case DepositSuccess:
+                          showDepositUrl(state.checkoutUrl);
+                          break;
+                      }
+                    },
+                  ),
                   if (rollNumber != null)
                     Container(
                       width: MediaQuery.of(context).size.width * 0.9,

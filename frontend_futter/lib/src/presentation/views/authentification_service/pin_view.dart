@@ -1,3 +1,5 @@
+import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
@@ -24,6 +26,9 @@ class PinView extends HookWidget {
     String prevPin = '';
 
     final userCubit = BlocProvider.of<UserCubit>(context);
+    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
+    final recentTransactionsCubit =
+        BlocProvider.of<RecentTransactionsCubit>(context);
 
     void handlePinSetup() {
       String newPin = pinController.text;
@@ -67,19 +72,28 @@ class PinView extends HookWidget {
         child: Flex(
           direction: Axis.vertical,
           children: [
-            BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-              switch (state.runtimeType) {
-                case UserSuccess:
-                  if (state.eventCodes == EventCodes.PIN_REGISTERED) {
-                    context.router.push(PaymentDashboardRoute());
-                  }
-                  return const SizedBox.shrink();
-                case UserLoading:
-                  return const CircularProgressIndicator();
-                default:
-                  return const SizedBox.shrink();
-              }
-            }),
+            BlocConsumer<UserCubit, UserState>(
+              builder: (_, state) {
+                switch (state.runtimeType) {
+                  case UserLoading:
+                    return const CircularProgressIndicator();
+                  default:
+                    return const SizedBox.shrink();
+                }
+              },
+              listener: (_, state) {
+                switch (state.runtimeType) {
+                  case UserSuccess:
+                    if (state.eventCodes == EventCodes.PIN_REGISTERED) {
+                      userCubit.getUser();
+                      balanceCubit.getUserBalance();
+                      recentTransactionsCubit.getUserRecentTransactions();
+
+                      context.router.push(PaymentDashboardRoute());
+                    }
+                }
+              },
+            ),
             Expanded(flex: 2, child: Container()),
             PaddingHorizontal(
               slab: 2,

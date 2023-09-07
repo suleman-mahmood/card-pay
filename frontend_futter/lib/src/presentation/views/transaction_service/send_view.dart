@@ -48,7 +48,7 @@ class SendView extends HookWidget {
               transferCubit.executeP2PPushTransaction(
                 uniqueIdentifier!,
                 amount,
-                userCubit.data.closedLoops[0].closedLoopId,
+                userCubit.state.user.closedLoops[0].closedLoopId,
               );
             } else {
               transferCubit.executeQrTransaction(

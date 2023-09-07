@@ -29,10 +29,7 @@ class ConfirmationView extends HookWidget {
     final depositCubit = BlocProvider.of<DepositCubit>(context);
     final transferCubit = BlocProvider.of<TransferCubit>(context);
 
-    useEffect(() {
-      depositCubit.init();
-      transferCubit.init();
-    }, []);
+    final topOfNavigationStack = ModalRoute.of(context)?.isCurrent ?? false;
 
     Widget buildHeader() {
       return const Header(
@@ -74,6 +71,23 @@ class ConfirmationView extends HookWidget {
     return Scaffold(
       body: Column(
         children: [
+          BlocListener<DepositCubit, DepositState>(
+            listener: (_, state) {
+              if (state.runtimeType == DepositSuccess && topOfNavigationStack) {
+                depositCubit.init();
+              }
+            },
+            child: const SizedBox.shrink(),
+          ),
+          BlocListener<TransferCubit, TransferState>(
+            listener: (_, state) {
+              if (state.runtimeType == TransferSuccess &&
+                  topOfNavigationStack) {
+                transferCubit.init();
+              }
+            },
+            child: const SizedBox.shrink(),
+          ),
           buildHeader(),
           const HeightBox(slab: 3),
           buildSuccessImage(),

@@ -1,5 +1,6 @@
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
@@ -24,6 +25,7 @@ class LoginView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final userCubit = BlocProvider.of<UserCubit>(context);
+    final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
 
     void navigateToNextScreen(CheckpointsState state) {
       PageRouteInfo route = SignupRoute();
@@ -74,16 +76,11 @@ class LoginView extends HookWidget {
     }
 
     useEffect(() {
-      someFunction() async {
-        await loginCubit.loginWithBiometric();
-      }
-
-      // someFunction();
-
       return () {
         phoneNumberController.dispose();
       };
     }, []);
+
     return AuthLayout(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -137,46 +134,50 @@ class LoginView extends HookWidget {
                 onPressed: handleLogin,
               ),
               const HeightBox(slab: 2),
-              BlocBuilder<LoginCubit, LoginState>(builder: (_, state) {
-                switch (state.runtimeType) {
-                  case LoginInitial:
-                    loginCubit.loginWithBiometric();
-                  case ManualLoginSuccess:
-                    checkPointsCubit.getCheckpoints();
-                  case BiometricLoginSuccess:
-                    loginCubit.login(
-                      state.login.phoneNumber,
-                      state.login.password,
-                    );
-                  case LoginFailed:
-                    return Text(
-                      state.errorMessage,
-                      style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-                return const SizedBox.shrink();
-              }),
-              BlocBuilder<CheckpointsCubit, CheckpointsState>(
+              BlocConsumer<LoginCubit, LoginState>(
+                listener: (context, state) {
+                  switch (state.runtimeType) {
+                    case ManualLoginSuccess:
+                      checkPointsCubit.getCheckpoints();
+                      break;
+                    case BiometricLoginSuccess:
+                      loginCubit.login(
+                        state.login.phoneNumber,
+                        state.login.password,
+                      );
+                      break;
+                  }
+                },
                 builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case LoginFailed:
+                      return Text(
+                        state.errorMessage,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      );
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
+              BlocListener<CheckpointsCubit, CheckpointsState>(
+                listener: (_, state) {
                   switch (state.runtimeType) {
                     case CheckpointsSuccess:
                       userCubit.getUser();
                       balanceCubit.getUserBalance();
                       recentTransactionsCubit.getUserRecentTransactions();
+                      closedLoopCubit.getAllClosedLoops();
 
                       navigateToNextScreen(state);
-
-                      return const SizedBox.shrink();
+                      break;
                     case CheckpointsFailed:
                       context.router.push(const SignupRoute());
-                      return const SizedBox.shrink();
-                    default:
-                      return const SizedBox.shrink();
+                      break;
                   }
                 },
+                child: const SizedBox.shrink(),
               ),
             ],
           ),

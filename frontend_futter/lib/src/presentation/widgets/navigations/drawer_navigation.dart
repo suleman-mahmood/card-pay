@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -56,6 +56,8 @@ class MyDrawer extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
+
     var selectedRouteName = useState(drawerItems[0].route?.routeName);
 
     return Drawer(
@@ -95,8 +97,10 @@ class MyDrawer extends HookWidget {
             ),
           const Expanded(child: SizedBox()),
           GestureDetector(
-            onTap: () =>
-                {context.router.push(const RegisterOrganizationRoute())},
+            onTap: () {
+              closedLoopCubit.getAllClosedLoops();
+              context.router.push(const RegisterOrganizationRoute());
+            },
             child: Container(
               padding: const EdgeInsets.all(16.0),
               child: Row(

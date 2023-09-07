@@ -32,16 +32,11 @@ class DashboardView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final transferCubit = BlocProvider.of<TransferCubit>(context);
-    final depositCubit = BlocProvider.of<DepositCubit>(context);
     final userCubit = BlocProvider.of<UserCubit>(context);
 
-    final userFullName = useState<String>('');
-
-    useEffect(() {
-      transferCubit.init();
-      depositCubit.init();
-    }, []);
+    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
+    final recentTransactionsCubit =
+        BlocProvider.of<RecentTransactionsCubit>(context);
 
     String displayName(String fullName) {
       final words = fullName.split(" ");
@@ -55,147 +50,155 @@ class DashboardView extends HookWidget {
     return PaddingAll(
       slab: 1,
       child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Full name and avatar wala section
-            const HeightBox(slab: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BlocBuilder<UserCubit, UserState>(
-                  builder: (_, state) {
-                    switch (state.runtimeType) {
-                      case UserLoading:
-                        return const ShimmerLoading(
-                          isLoading: true,
-                          child: CircleListItemLoading(),
-                        );
-                      case UserSuccess || UserInitial:
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          userFullName.value = state.user.fullName;
-                        });
+        child: RefreshIndicator(
+          onRefresh: () async {
+            balanceCubit.getUserBalance();
+            recentTransactionsCubit.getUserRecentTransactions();
 
-                        return GreetingRow(
-                          greeting: PaymentStrings.greet,
-                          name: displayName(state.user.fullName),
-                          imagePath: 'assets/images/talha.jpg',
-                        );
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  },
-                ),
-                Transform.scale(
-                  scale: 1.75,
-                  child: IconButton(
-                    icon: const Icon(Icons.menu),
-                    color: AppColors.greyColor,
-                    onPressed: () {
-                      scaffoldKey?.currentState!.openEndDrawer();
+            // We are much faster than one sec :P
+            return Future<void>.delayed(const Duration(seconds: 1));
+          },
+          child: Column(
+            children: [
+              // Full name and avatar wala section
+              const HeightBox(slab: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BlocBuilder<UserCubit, UserState>(
+                    builder: (_, state) {
+                      switch (state.runtimeType) {
+                        case UserLoading:
+                          return const ShimmerLoading(
+                            isLoading: true,
+                            child: CircleListItemLoading(),
+                          );
+                        case UserSuccess || UserInitial:
+                          return GreetingRow(
+                            greeting: PaymentStrings.greet,
+                            name: displayName(state.user.fullName),
+                            imagePath: 'assets/images/talha.jpg',
+                          );
+                        default:
+                          return const SizedBox.shrink();
+                      }
                     },
                   ),
-                ),
-              ],
-            ),
-
-            // Balance wala section
-            const HeightBox(slab: 3),
-            BlocBuilder<BalanceCubit, BalanceState>(
-              builder: (_, state) {
-                switch (state.runtimeType) {
-                  case BalanceLoading:
-                    return const ShimmerLoading(
-                      isLoading: true,
-                      child: CardListItemLoading(),
-                    );
-                  case BalanceSuccess:
-                    return BalanceCard(
-                      balance: state.balance.amount.toString(),
-                      topRightImage: 'assets/images/balance_corner.png',
-                      bottomLeftImage: 'assets/images/balance_corner2.png',
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              },
-            ),
-
-            // Transactions wala section
-            HeightBox(slab: 2),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                PaymentStrings.recentTransactions,
-                style: AppTypography.bodyTextBold,
+                  Transform.scale(
+                    scale: 1.75,
+                    child: IconButton(
+                      icon: const Icon(Icons.menu),
+                      color: AppColors.greyColor,
+                      onPressed: () {
+                        scaffoldKey?.currentState!.openEndDrawer();
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-            HeightBox(slab: 1),
-            BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
-              builder: (_, state) {
-                switch (state.runtimeType) {
-                  case RecentTransactionsLoading:
-                    return const CircularProgressIndicator();
-                  case RecentTransactionsSuccess:
-                    return SizedBox(
-                      height: 100,
-                      child: ListView.builder(
-                        itemCount: min(
-                          2,
-                          state.recentTransactions.length,
-                        ),
-                        itemBuilder: (_, index) {
-                          return TransactionContainer(
-                            senderName:
-                                state.recentTransactions[index].senderName,
-                            recipientName:
-                                state.recentTransactions[index].recipientName,
-                            amount: state.recentTransactions[index].amount
-                                .toString(),
-                            currentUserName: userCubit.data.fullName,
-                          );
-                        },
-                      ),
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              },
-            ),
 
-            const HeightBox(slab: 3),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomBox(
-                  imagePath: 'assets/images/Upwork-3.png',
-                  text: PaymentStrings.deposite,
-                  route: DepositRoute(),
+              // Balance wala section
+              const HeightBox(slab: 3),
+              BlocBuilder<BalanceCubit, BalanceState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case BalanceLoading:
+                      return const ShimmerLoading(
+                        isLoading: true,
+                        child: CardListItemLoading(),
+                      );
+                    case BalanceSuccess:
+                      return BalanceCard(
+                        balance: state.balance.amount.toString(),
+                        topRightImage: 'assets/images/balance_corner.png',
+                        bottomLeftImage: 'assets/images/balance_corner2.png',
+                      );
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
+
+              // Transactions wala section
+              HeightBox(slab: 2),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  PaymentStrings.recentTransactions,
+                  style: AppTypography.bodyTextBold,
                 ),
-                CustomBox(
-                  imagePath: 'assets/images/Upwork.png',
-                  text: PaymentStrings.transfer,
-                  route: TransferRoute(),
-                )
-              ],
-            ),
-            const HeightBox(slab: 1),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomBox(
-                  imagePath: 'assets/images/request-disabled.png',
-                  text: PaymentStrings.request,
-                  isDisabled: true,
-                ),
-                CustomBox(
-                  imagePath: 'assets/images/faqs-disabled.png',
-                  text: PaymentStrings.faq,
-                  route: FaqsRoute(),
-                  isDisabled: true,
-                ),
-              ],
-            ),
-          ],
+              ),
+              HeightBox(slab: 1),
+              BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case RecentTransactionsLoading:
+                      return const CircularProgressIndicator();
+                    case RecentTransactionsSuccess:
+                      if (state.recentTransactions.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      return SizedBox(
+                        height: 100,
+                        child: ListView.builder(
+                          itemCount: min(
+                            2,
+                            state.recentTransactions.length,
+                          ),
+                          itemBuilder: (_, index) {
+                            return TransactionContainer(
+                              senderName:
+                                  state.recentTransactions[index].senderName,
+                              recipientName:
+                                  state.recentTransactions[index].recipientName,
+                              amount: state.recentTransactions[index].amount
+                                  .toString(),
+                              currentUserName: userCubit.state.user.fullName,
+                            );
+                          },
+                        ),
+                      );
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
+
+              const HeightBox(slab: 3),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomBox(
+                    imagePath: 'assets/images/Upwork-3.png',
+                    text: PaymentStrings.deposite,
+                    route: DepositRoute(),
+                  ),
+                  CustomBox(
+                    imagePath: 'assets/images/Upwork.png',
+                    text: PaymentStrings.transfer,
+                    route: TransferRoute(),
+                  )
+                ],
+              ),
+              const HeightBox(slab: 1),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomBox(
+                    imagePath: 'assets/images/request-disabled.png',
+                    text: PaymentStrings.request,
+                    isDisabled: true,
+                  ),
+                  CustomBox(
+                    imagePath: 'assets/images/faqs-disabled.png',
+                    text: PaymentStrings.faq,
+                    route: FaqsRoute(),
+                    isDisabled: true,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

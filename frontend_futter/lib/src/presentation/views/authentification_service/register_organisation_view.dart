@@ -1,4 +1,3 @@
-import 'package:cardpay/src/config/extensions/validation.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -56,7 +55,6 @@ class RegisterOrganizationView extends HookWidget {
                   selectedClosedLoop.value.id,
                   otp,
                 ),
-                navigateToRoute: const PinRoute(),
               ),
             ),
           );
@@ -79,19 +77,8 @@ class RegisterOrganizationView extends HookWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          BlocBuilder<UserCubit, UserState>(builder: (_, state) {
+          BlocConsumer<UserCubit, UserState>(builder: (_, state) {
             switch (state.runtimeType) {
-              case UserSuccess:
-                if (state.eventCodes == EventCodes.ORGANIZATION_REGISTERED) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _showOTPBottomSheet();
-                  });
-                  return const SizedBox.shrink();
-                } else if (state.eventCodes ==
-                    EventCodes.ORGANIZATION_VERIFIED) {
-                  context.router.push(const PinRoute());
-                }
-                return const SizedBox.shrink();
               case UserFailed:
                 return Text(
                   state.errorMessage,
@@ -100,6 +87,19 @@ class RegisterOrganizationView extends HookWidget {
                 );
               default:
                 return const SizedBox.shrink();
+            }
+          }, listener: (_, state) {
+            switch (state.runtimeType) {
+              case UserSuccess:
+                if (state.eventCodes == EventCodes.ORGANIZATION_REGISTERED) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _showOTPBottomSheet();
+                  });
+                } else if (state.eventCodes ==
+                    EventCodes.ORGANIZATION_VERIFIED) {
+                  context.router.push(const PinRoute());
+                }
+                break;
             }
           }),
           const HeightBox(slab: 4),

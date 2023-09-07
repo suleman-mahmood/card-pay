@@ -1,5 +1,7 @@
+import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -16,6 +18,8 @@ class IntroView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
+
     final fadeAnimation = useFadeAnimation(
       begin: 0.0,
       end: 1.0,
@@ -66,6 +70,7 @@ class IntroView extends HookWidget {
                 const WidthBetween(),
                 GestureDetector(
                   onTap: () {
+                    loginCubit.loginWithBiometric();
                     context.router.push(const LoginRoute());
                   },
                   child: Text(

@@ -127,6 +127,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
           user: UserResponse(
             fullName: 'Suleman',
             id: '123',
+            closedLoops: [ClosedLoopUser(closedLoopId: "lums-id")],
           ),
           message: 'Customer created successfully',
         ),
