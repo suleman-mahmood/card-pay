@@ -10,7 +10,6 @@ import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
-import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,19 +66,6 @@ class LoginView extends HookWidget {
         },
       );
     }
-
-    final phoneNumberController = useTextEditingController();
-    final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
-    final formKey = useMemoized(() => GlobalKey<FormState>());
-
-    final phoneNumber = useState<String>('');
-    final password = useState<String>('');
-
-    final loginCubit = BlocProvider.of<LoginCubit>(context);
-    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
-    final recentTransactionsCubit =
-        BlocProvider.of<RecentTransactionsCubit>(context);
-    final checkPointsCubit = BlocProvider.of<CheckpointsCubit>(context);
 
     void onPhoneNumberChanged(String newValue) {
       dropdownValue.value = newValue;
