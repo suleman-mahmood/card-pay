@@ -20,6 +20,27 @@ class AppStrings {
   static const String reEnterPassword = 'Please re-enter your password';
   static const String forgot = 'Forgot password ?';
   static const String date = 'Date';
+  static const String testPhone = '3333462677';
+  static const String testPassword = 'abcd1234';
+  static const String nullPhoneNumber = 'Please enter your phone number';
+  static const String invalidPhone = 'Invalid phone number';
+  static const String nullRollNumber = 'Please enter your Roll number';
+  static const String invalidRollNumber = 'Invalid Roll number';
+  static const String incorrectOtp = 'Incorrect Otp, try again';
+  static const String nullName = 'Please enter your full Name';
+  static const String invalidName = 'Invalid Name';
+  static const String nullEmail = 'Please enter your email';
+  static const String invalidEmail = 'Invalid email';
+  static const String nullPassword = 'Please enter your password';
+  static const String invalidPassword = 'Invalid password';
+  static const String nullConfirmPassword = 'Please re-enter your password';
+  static const String invalidConfirmPassword = 'Invalid password';
+  static const String wrongPassword = 'Password did not matched';
+  static const String changePassword = 'change password';
+  static const String deleteAccount = 'Delete Account';
+  static const String deleteAccountDesc =
+      'Are you sure you want to delete your account Permanently? This action cannot be undone';
+
   static const String updateMessageAndroid =
       'A new version of the app is available. Please update it from the Play Store to continue using the app.';
   static const String updateMessageIOS =

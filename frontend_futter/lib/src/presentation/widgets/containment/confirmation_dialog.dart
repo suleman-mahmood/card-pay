@@ -1,7 +1,7 @@
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
+import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -36,7 +36,7 @@ class ConfirmationContainer extends HookWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Details', style: AppTypography.subHeading),
+                Text(PaymentStrings.details, style: AppTypography.subHeading),
                 HeightBox(slab: 1),
                 Text(title1, style: AppTypography.subHeading),
                 Text(text1, style: AppTypography.bodyText),

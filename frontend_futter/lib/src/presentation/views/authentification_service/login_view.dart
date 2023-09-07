@@ -68,6 +68,19 @@ class LoginView extends HookWidget {
       );
     }
 
+    final phoneNumberController = useTextEditingController();
+    final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+
+    final phoneNumber = useState<String>('');
+    final password = useState<String>('');
+
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
+    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
+    final recentTransactionsCubit =
+        BlocProvider.of<RecentTransactionsCubit>(context);
+    final checkPointsCubit = BlocProvider.of<CheckpointsCubit>(context);
+
     void onPhoneNumberChanged(String newValue) {
       dropdownValue.value = newValue;
     }
@@ -145,10 +158,10 @@ class LoginView extends HookWidget {
                 onPhoneNumberChanged: (v) => phoneNumber.value = v,
                 validator: (fullNameValue) {
                   if (fullNameValue == null) {
-                    return "Please enter your phone number";
+                    return AppStrings.nullPhoneNumber;
                   }
                   if (!fullNameValue.isValidPhoneNumber) {
-                    return "Invalid phone number";
+                    return AppStrings.invalidPhone;
                   }
                   return null;
                 },

@@ -1,4 +1,3 @@
-// i need ths isAppVersionLatestvalue out of this function too so you can use state and setstate to set this value in this file so that it is availble globally in this file
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';

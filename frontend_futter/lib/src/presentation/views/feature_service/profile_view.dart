@@ -8,8 +8,8 @@ import 'package:cardpay/src/presentation/widgets/containment/cards/greeting_card
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
-import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:flutter/material.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
@@ -53,13 +53,13 @@ class ProfileView extends HookWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Delete Account',
+                    AppStrings.deleteAccount,
                     style: AppTypography.mainHeading,
                     textAlign: TextAlign.center,
                   ),
                   HeightBox(slab: 2),
                   Text(
-                    'Are you sure you want to delete your account Permanently? This action cannot be undone.',
+                    AppStrings.deleteAccountDesc,
                     textAlign: TextAlign.center,
                   ),
                   HeightBox(slab: 2),
@@ -67,7 +67,7 @@ class ProfileView extends HookWidget {
                     child: Center(
                       child: PrimaryButton(
                         color: AppColors.redColor,
-                        text: 'Delete Account',
+                        text: AppStrings.deleteAccount,
                         onPressed: () {
                           handleLogout();
                         },

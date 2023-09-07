@@ -5,6 +5,17 @@ class PaymentStrings {
 
   static const String name = 'Talha';
   static const String fName = 'Talha husnain';
+  static const String totalBalance = 'Total Balance';
+  static const String comingSoon = 'Coming Soon';
+  static const String send = 'Send';
+  static const String details = 'Details';
+  static const String updateApp = 'Update your app';
+  static const String cancel = 'Cancel';
+  static const String mayBE = 'Maybe Later';
+  static const String update = 'Update Now';
+  static const String registerLoop = 'Register loop';
+  static const String home = 'Home';
+  static const String help = 'help';
 
   static const String email = '24100245@lums.edu.pk';
 
@@ -41,7 +52,6 @@ class PaymentStrings {
   static const String continu = 'Continue';
   static const String next = 'Next';
   static const String done = 'Done';
-  static const String send = 'Send';
   static const String apply = 'Apply';
   static const String home = 'Home';
   static const String profile = 'Profile';

@@ -1,10 +1,10 @@
 import 'dart:io';
-
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
+import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
@@ -30,10 +30,13 @@ class MyDrawer extends HookWidget {
   MyDrawer({Key? key}) : super(key: key);
 
   final List<DrawerItem> drawerItems = [
-    DrawerItem(icon: Icons.home, text: 'Home', route: PaymentDashboardRoute()),
+    DrawerItem(
+        icon: Icons.home,
+        text: PaymentStrings.home,
+        route: PaymentDashboardRoute()),
     DrawerItem(
         icon: Icons.phone_outlined,
-        text: 'Help',
+        text: PaymentStrings.help,
         onClick: () {
           if (Platform.isIOS) {
             const whatsappUrl = 'https://wa.me/+923322208287';
@@ -111,7 +114,7 @@ class MyDrawer extends HookWidget {
                   ),
                   WidthBetween(),
                   Text(
-                    'Register loop',
+                    PaymentStrings.registerLoop,
                     style: TextStyle(color: AppColors.greyColor),
                   ),
                 ],

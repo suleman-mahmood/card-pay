@@ -157,11 +157,11 @@ class RegisterOrganizationView extends HookWidget {
                 onChanged: (v) => uniqueIdentifier.value = v,
                 validator: (uniqueIdentifierValue) {
                   if (uniqueIdentifierValue == null) {
-                    return "Please enter your roll number";
+                    return AppStrings.nullRollNumber;
                   }
                   final regExp = RegExp(selectedClosedLoop.value.regex);
                   if (!regExp.hasMatch(uniqueIdentifierValue)) {
-                    return "Invalid roll number";
+                    return AppStrings.invalidRollNumber;
                   }
                   return null;
                 },

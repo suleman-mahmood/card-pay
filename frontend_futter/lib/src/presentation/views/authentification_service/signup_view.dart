@@ -209,7 +209,10 @@ class SignupView extends HookWidget {
                   switch (state.runtimeType) {
                     case UserSuccess:
                       if (state.eventCodes == EventCodes.OTP_INCORRECT) {
-                        return const Text('Incorrect Otp, try again');
+                        return const Text(
+                          AppStrings.incorrectOtp,
+                          style: TextStyle(color: Colors.red),
+                        );
                       }
                       return const SizedBox.shrink();
                     default:
@@ -226,10 +229,10 @@ class SignupView extends HookWidget {
                 onChanged: (v) => fullName.value = v,
                 validator: (fullNameValue) {
                   if (fullNameValue == null) {
-                    return "Please enter your full name";
+                    return AppStrings.nullName;
                   }
                   if (!fullNameValue.isValidFullName) {
-                    return "Invalid full name";
+                    return AppStrings.invalidName;
                   }
                   return null;
                 },
@@ -242,10 +245,10 @@ class SignupView extends HookWidget {
                 onChanged: (v) => personalEmail.value = v,
                 validator: (EmailValue) {
                   if (EmailValue == null) {
-                    return "Please enter your email";
+                    return AppStrings.nullEmail;
                   }
                   if (!EmailValue.isValidEmail) {
-                    return "Invalid email";
+                    return AppStrings.invalidEmail;
                   }
                   return null;
                 },
@@ -258,10 +261,10 @@ class SignupView extends HookWidget {
                 onChanged: (v) => password.value = v,
                 validator: (passwordValue) {
                   if (passwordValue == null) {
-                    return "Please enter your password";
+                    return AppStrings.nullPassword;
                   }
                   if (!passwordValue.isValidPassword) {
-                    return "Invalid password";
+                    return AppStrings.invalidPassword;
                   }
                   return null;
                 },
@@ -274,13 +277,13 @@ class SignupView extends HookWidget {
                 onChanged: (v) => confirmPassword.value = v,
                 validator: (confirmPasswordValue) {
                   if (confirmPasswordValue == null) {
-                    return "Please re-enter your password";
+                    return AppStrings.nullConfirmPassword;
                   }
                   if (!confirmPasswordValue.isValidPassword) {
-                    return "Invalid password";
+                    return AppStrings.invalidConfirmPassword;
                   }
                   if (confirmPasswordValue != password.value) {
-                    return "Passwords do not match";
+                    return AppStrings.wrongPassword;
                   }
                   return null;
                 },
@@ -294,10 +297,10 @@ class SignupView extends HookWidget {
                 onPhoneNumberChanged: (v) => phoneNumber.value = v,
                 validator: (fullNameValue) {
                   if (fullNameValue == null) {
-                    return "Please enter your phone number";
+                    return AppStrings.nullPhoneNumber;
                   }
                   if (!fullNameValue.isValidPhoneNumber) {
-                    return "Invalid phone number";
+                    return AppStrings.invalidPhone;
                   }
                   return null;
                 },

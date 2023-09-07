@@ -5,7 +5,6 @@ import 'package:cardpay/src/presentation/views/transaction_service/history_trans
 import 'package:cardpay/src/presentation/widgets/navigations/animated_bottom_bar.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/filtered_history_view.dart';
 import 'package:cardpay/src/presentation/views/feature_service/profile_view.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';

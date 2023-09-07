@@ -1,18 +1,12 @@
 import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
-import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
-import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
-
 import 'package:cardpay/src/presentation/widgets/layout/transaction_common_layout.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class DepositViewConstants {
   static const title = PaymentStrings.depositMoney;

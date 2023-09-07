@@ -268,7 +268,7 @@ class EditProfileView extends HookWidget {
                     obscureText: false,
                     validator: (fullNameValue) {
                       if (fullNameValue == null) {
-                        return "Please enter your full name";
+                        return AppStrings.nullName;
                       }
 
                       return null;
@@ -281,7 +281,7 @@ class EditProfileView extends HookWidget {
                     obscureText: false,
                     validator: (EmailValue) {
                       if (EmailValue == null) {
-                        return "Please enter your email";
+                        return AppStrings.nullEmail;
                       }
 
                       return null;
@@ -295,7 +295,7 @@ class EditProfileView extends HookWidget {
                     child: Container(
                       alignment: Alignment.bottomRight,
                       child: Text(
-                        "change password",
+                        AppStrings.changePassword,
                         style: AppTypography.linkText,
                       ),
                     ),
@@ -306,7 +306,7 @@ class EditProfileView extends HookWidget {
                     obscureText: true,
                     validator: (passwordValue) {
                       if (passwordValue == null) {
-                        return "Please enter your password";
+                        return AppStrings.nullPassword;
                       }
                       return null;
                     },
@@ -320,7 +320,7 @@ class EditProfileView extends HookWidget {
                     // onPhoneNumberChanged: (v) => phoneNumber.value = v,
                     validator: (fullNameValue) {
                       if (fullNameValue == null) {
-                        return "Please enter your phone number";
+                        return AppStrings.nullPhoneNumber;
                       }
 
                       return null;
@@ -343,7 +343,7 @@ class EditProfileView extends HookWidget {
                     child: Center(
                       child: PrimaryButton(
                         color: AppColors.redColor,
-                        text: 'Delete Account',
+                        text: AppStrings.deleteAccount,
                         onPressed: () {
                           _showBottomSheetDelete();
                         },
