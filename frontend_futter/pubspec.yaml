@@ -1,10 +1,10 @@
 name: cardpay
 description: A new Flutter project.
-publish_to: 'none'
+publish_to: "none"
 version: 1.2.14+25
 
 environment:
-  sdk: '>=3.0.3 <4.0.0'
+  sdk: ">=3.0.3 <4.0.0"
 
 dependencies:
   flutter:
@@ -26,7 +26,6 @@ dependencies:
   firebase_core: ^2.15.0
   firebase_auth: ^4.7.1
   url_launcher: ^6.1.12
-
 
   animated_bottom_navigation_bar: ^1.2.0
   qr_code_scanner: ^1.0.1
