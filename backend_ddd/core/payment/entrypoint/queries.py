@@ -800,7 +800,7 @@ def vendor_app_get_transactions_to_be_reconciled(
 
         sql = """
             select txn.amount, txn.status, txn.created_at, txn.last_updated,
-            sender.full_name AS sender_name,
+            sender.full_name as sender_name
             from transactions txn
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
