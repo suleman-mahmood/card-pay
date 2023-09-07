@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
+import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +21,7 @@ import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
 import 'package:cardpay/src/utils/constants/signUp_string.dart';
 import 'package:cardpay/src/config/extensions/validation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 @RoutePage()
 class LoginView extends HookWidget {
@@ -26,6 +31,19 @@ class LoginView extends HookWidget {
   Widget build(BuildContext context) {
     final userCubit = BlocProvider.of<UserCubit>(context);
     final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
+
+    final phoneNumberController = useTextEditingController();
+    final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+
+    final phoneNumber = useState<String>('3333462677');
+    final password = useState<String>('abcd1234');
+
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
+    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
+    final recentTransactionsCubit =
+        BlocProvider.of<RecentTransactionsCubit>(context);
+    final checkPointsCubit = BlocProvider.of<CheckpointsCubit>(context);
 
     void navigateToNextScreen(CheckpointsState state) {
       PageRouteInfo route = SignupRoute();
@@ -50,19 +68,6 @@ class LoginView extends HookWidget {
       );
     }
 
-    final phoneNumberController = useTextEditingController();
-    final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
-    final formKey = useMemoized(() => GlobalKey<FormState>());
-
-    final phoneNumber = useState<String>('3333462677');
-    final password = useState<String>('abcd1234');
-
-    final loginCubit = BlocProvider.of<LoginCubit>(context);
-    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
-    final recentTransactionsCubit =
-        BlocProvider.of<RecentTransactionsCubit>(context);
-    final checkPointsCubit = BlocProvider.of<CheckpointsCubit>(context);
-
     void onPhoneNumberChanged(String newValue) {
       dropdownValue.value = newValue;
     }
@@ -73,6 +78,40 @@ class LoginView extends HookWidget {
       }
 
       await loginCubit.login(phoneNumber.value, password.value);
+    }
+
+    void _showDialog(bool showMaybeLaterButton) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text('Update your app'),
+          content: Text(Platform.isIOS
+              ? AppStrings.updateMessageIOS
+              : AppStrings.updateMessageAndroid),
+          actions: <Widget>[
+            if (showMaybeLaterButton)
+              TextButton(
+                onPressed: () {
+                  loginCubit.loginWithBiometric();
+                  Navigator.pop(context, 'Cancel');
+                },
+                child: const Text('Maybe later'),
+              ),
+            TextButton(
+              onPressed: () async {
+                final url = Platform.isIOS
+                    ? 'https://apps.apple.com/app/1644127078'
+                    : 'https://play.google.com/store/apps/details?id=io.payment.cardpay';
+
+                await launchUrl(Uri.parse(url));
+              },
+              child: const Text('Update Now'),
+            ),
+          ],
+        ),
+      );
     }
 
     useEffect(() {
@@ -174,6 +213,28 @@ class LoginView extends HookWidget {
                       break;
                     case CheckpointsFailed:
                       context.router.push(const SignupRoute());
+                      break;
+                  }
+                },
+                child: const SizedBox.shrink(),
+              ),
+              BlocListener<VersionsCubit, VersionsState>(
+                listener: (_, state) {
+                  switch (state.runtimeType) {
+                    case VersionsSuccess:
+                      if (state.forceUpdate) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _showDialog(false);
+                        });
+                        return;
+                      }
+                      if (state.normalUpdate) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _showDialog(true);
+                        });
+                        return;
+                      }
+                      loginCubit.loginWithBiometric();
                       break;
                   }
                 },

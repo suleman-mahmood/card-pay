@@ -3,8 +3,6 @@ import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/data_state.dart';
 import 'package:cardpay/src/utils/version_comparing_util.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:dio/dio.dart';
@@ -52,10 +50,16 @@ class VersionsCubit extends BaseCubit<VersionsState, Versions> {
           normalUpdate: appNormalUpdateState,
         ));
       } else if (response is DataFailed) {
-        emit(VersionsFailed(
-          error: response.error,
-          errorMessage: response.error?.response?.data["message"],
-        ));
+        if (response.error?.type.name == "unknown") {
+          emit(VersionsUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(VersionsFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
       }
     });
   }

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
@@ -111,6 +114,39 @@ class SignupView extends HookWidget {
         // userCubit.close();
       };
     }, []);
+
+    void _showDialog(bool showMaybeLaterButton) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text('Update your app'),
+          content: Text(Platform.isIOS
+              ? AppStrings.updateMessageIOS
+              : AppStrings.updateMessageAndroid),
+          actions: <Widget>[
+            if (showMaybeLaterButton)
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, 'Cancel');
+                },
+                child: const Text('Maybe later'),
+              ),
+            TextButton(
+              onPressed: () async {
+                final url = Platform.isIOS
+                    ? 'https://apps.apple.com/app/1644127078'
+                    : 'https://play.google.com/store/apps/details?id=io.payment.cardpay';
+
+                await launchUrl(Uri.parse(url));
+              },
+              child: const Text('Update Now'),
+            ),
+          ],
+        ),
+      );
+    }
 
     return AuthLayout(
       child: SingleChildScrollView(
@@ -303,6 +339,27 @@ class SignupView extends HookWidget {
                 ),
               ),
               const HeightBox(slab: 3),
+              BlocListener<VersionsCubit, VersionsState>(
+                listener: (_, state) {
+                  switch (state.runtimeType) {
+                    case VersionsSuccess:
+                      if (state.forceUpdate) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _showDialog(false);
+                        });
+                        return;
+                      }
+                      if (state.normalUpdate) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _showDialog(true);
+                        });
+                        return;
+                      }
+                      break;
+                  }
+                },
+                child: const SizedBox.shrink(),
+              ),
             ],
           ),
         ),

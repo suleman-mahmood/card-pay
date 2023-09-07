@@ -50,3 +50,7 @@ class VersionsFailed extends VersionsState {
     super.errorMessage,
   });
 }
+
+class VersionsUnknownFailure extends VersionsState {
+  VersionsUnknownFailure({super.errorMessage});
+}
