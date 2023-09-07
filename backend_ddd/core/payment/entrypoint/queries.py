@@ -781,3 +781,50 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
     ]
 
     return vendors
+
+
+def vendor_app_get_transactions_to_be_reconciled(
+    vendor_id: str,
+    uow: AbstractUnitOfWork,
+):
+    with uow:
+        last_reconciliation_timestamp = """
+        select max(created_at) from transactions
+        where transaction_type = 'RECONCILIATION'::transaction_type_enum
+        and sender_wallet_id = %s;
+
+        """
+
+        uow.cursor.execute(last_reconciliation_timestamp, [vendor_id])
+        row = uow.cursor.fetchone()
+
+        sql = """
+            select txn.amount, txn.status, txn.created_at, txn.last_updated,
+            sender.full_name AS sender_name,
+            from transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            where (txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s) and txn.status = 'SUCCESSFUL'::transaction_status_enum
+        """
+
+        if row[0] is not None:
+            last_reconciliation_timestamp = row[0]
+            sql += f" and txn.last_updated >= '{str(last_reconciliation_timestamp)}'"
+
+        sql += " order by txn.last_updated desc"
+
+        uow.cursor.execute(sql, [vendor_id, vendor_id])
+        rows = uow.cursor.fetchall()
+
+        transactions = [
+            {
+                "amount": row[0],
+                "status": row[1],
+                "created_at": row[2],
+                "last_updated": row[3],
+                "sender_name": row[4],
+            }
+            for row in rows
+        ]
+
+    return transactions
