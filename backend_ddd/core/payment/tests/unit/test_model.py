@@ -7,6 +7,7 @@ from ...domain.model import (
 from uuid import uuid4
 import pytest
 from ...domain.exceptions import TransactionNotAllowedException
+from core.payment.domain.model import TX_UPPER_LIMIT
 
 
 def behaviour():
@@ -316,3 +317,21 @@ def test_amount_fractional(seed_wallet):
 
     assert tx.sender_wallet.balance == 500
     assert tx.recipient_wallet.balance == 500
+
+def test_amount_breach_upper_limit(seed_wallet):
+    wallet1 = seed_wallet()
+    wallet2 = seed_wallet()
+    wallet1.balance = TX_UPPER_LIMIT
+
+    tx = Transaction(
+        amount=TX_UPPER_LIMIT,
+        mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.P2P_PUSH,
+        recipient_wallet=wallet2,
+        sender_wallet=wallet1,
+    )
+    with pytest.raises(
+        TransactionNotAllowedException,
+        match=f"Amount is greater than or equal to {TX_UPPER_LIMIT}",
+    ):
+        tx.execute_transaction()

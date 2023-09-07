@@ -5,6 +5,7 @@ from enum import Enum
 from datetime import datetime
 from .exceptions import TransactionNotAllowedException
 
+TX_UPPER_LIMIT = 10000
 
 @dataclass
 class Wallet:
@@ -79,6 +80,12 @@ class Transaction:
                 "Insufficient balance in sender's wallet"
             )
 
+        if self.amount >= TX_UPPER_LIMIT:
+            self.status = TransactionStatus.FAILED
+            raise TransactionNotAllowedException(
+                f"Amount is greater than or equal to {TX_UPPER_LIMIT}"
+            )
+            
         if not isinstance(self.amount, int):
             raise TransactionNotAllowedException(
                 "Constraint violated, amount is not an integer"
