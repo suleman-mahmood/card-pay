@@ -53,7 +53,6 @@ class PaymentStrings {
   static const String next = 'Next';
   static const String done = 'Done';
   static const String apply = 'Apply';
-  static const String home = 'Home';
   static const String profile = 'Profile';
   static const String profileEdit = 'Edit Profile';
 
