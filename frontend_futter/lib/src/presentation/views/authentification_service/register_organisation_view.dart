@@ -77,31 +77,6 @@ class RegisterOrganizationView extends HookWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          BlocConsumer<UserCubit, UserState>(builder: (_, state) {
-            switch (state.runtimeType) {
-              case UserFailed:
-                return Text(
-                  state.errorMessage,
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                );
-              default:
-                return const SizedBox.shrink();
-            }
-          }, listener: (_, state) {
-            switch (state.runtimeType) {
-              case UserSuccess:
-                if (state.eventCodes == EventCodes.ORGANIZATION_REGISTERED) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _showOTPBottomSheet();
-                  });
-                } else if (state.eventCodes ==
-                    EventCodes.ORGANIZATION_VERIFIED) {
-                  context.router.push(const PinRoute());
-                }
-                break;
-            }
-          }),
           const HeightBox(slab: 4),
           const Row(
             children: [
@@ -177,7 +152,35 @@ class RegisterOrganizationView extends HookWidget {
                 onPressed: handleRegisterClosedLoop,
               ),
             ),
-          )
+          ),
+          BlocConsumer<UserCubit, UserState>(
+            builder: (_, state) {
+              switch (state.runtimeType) {
+                case UserFailed:
+                  return Text(
+                    state.errorMessage,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  );
+                default:
+                  return const SizedBox.shrink();
+              }
+            },
+            listener: (_, state) {
+              switch (state.runtimeType) {
+                case UserSuccess:
+                  if (state.eventCodes == EventCodes.ORGANIZATION_REGISTERED) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _showOTPBottomSheet();
+                    });
+                  } else if (state.eventCodes ==
+                      EventCodes.ORGANIZATION_VERIFIED) {
+                    context.router.push(const PinRoute());
+                  }
+                  break;
+              }
+            },
+          ),
         ],
       ),
     );

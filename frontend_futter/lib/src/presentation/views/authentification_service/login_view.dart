@@ -35,8 +35,8 @@ class LoginView extends HookWidget {
     final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
     final formKey = useMemoized(() => GlobalKey<FormState>());
 
-    final phoneNumber = useState<String>('3333462677');
-    final password = useState<String>('abcd1234');
+    final phoneNumber = useState<String>('');
+    final password = useState<String>('');
 
     final loginCubit = BlocProvider.of<LoginCubit>(context);
     final balanceCubit = BlocProvider.of<BalanceCubit>(context);

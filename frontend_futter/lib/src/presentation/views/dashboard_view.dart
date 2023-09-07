@@ -118,15 +118,7 @@ class DashboardView extends HookWidget {
               ),
 
               // Transactions wala section
-              HeightBox(slab: 2),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  PaymentStrings.recentTransactions,
-                  style: AppTypography.bodyTextBold,
-                ),
-              ),
-              HeightBox(slab: 1),
+
               BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
                 builder: (_, state) {
                   switch (state.runtimeType) {
@@ -136,25 +128,39 @@ class DashboardView extends HookWidget {
                       if (state.recentTransactions.isEmpty) {
                         return const SizedBox.shrink();
                       }
-                      return SizedBox(
-                        height: 100,
-                        child: ListView.builder(
-                          itemCount: min(
-                            2,
-                            state.recentTransactions.length,
+                      return Column(
+                        children: [
+                          const HeightBox(slab: 2),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              PaymentStrings.recentTransactions,
+                              style: AppTypography.bodyTextBold,
+                            ),
                           ),
-                          itemBuilder: (_, index) {
-                            return TransactionContainer(
-                              senderName:
-                                  state.recentTransactions[index].senderName,
-                              recipientName:
-                                  state.recentTransactions[index].recipientName,
-                              amount: state.recentTransactions[index].amount
-                                  .toString(),
-                              currentUserName: userCubit.state.user.fullName,
-                            );
-                          },
-                        ),
+                          const HeightBox(slab: 1),
+                          SizedBox(
+                            height: 100,
+                            child: ListView.builder(
+                              itemCount: min(
+                                2,
+                                state.recentTransactions.length,
+                              ),
+                              itemBuilder: (_, index) {
+                                return TransactionContainer(
+                                  senderName: state
+                                      .recentTransactions[index].senderName,
+                                  recipientName: state
+                                      .recentTransactions[index].recipientName,
+                                  amount: state.recentTransactions[index].amount
+                                      .toString(),
+                                  currentUserName:
+                                      userCubit.state.user.fullName,
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       );
                     default:
                       return const SizedBox.shrink();
