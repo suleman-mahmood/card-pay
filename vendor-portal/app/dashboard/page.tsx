@@ -7,19 +7,20 @@ import { User as FirebaseUser } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../services/initialize-firebase";
 import Table from "./components/Table";
+import { TypeAnimation } from "react-type-animation";
 
 interface Transaction {
   amount: number;
-  id: string;
-  recipientName: string;
-  senderName: string;
-  status: string;
-  timestamp: string;
+  created_at: string;
+  last_updated: string;
+  sender_name: string;
 }
 
 function page() {
   const router = useRouter();
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [txns, setTxns] = useState<Transaction[]>([]);
+  const [isFetching, setIsFetching] = useState<boolean>(true);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
@@ -34,8 +35,6 @@ function page() {
 
   const fetchTransactions = async (user: FirebaseUser) => {
     const token = await user?.getIdToken();
-    console.log(user);
-    console.log(token);
     fetch(
       `https://cardpay-1.el.r.appspot.com/api/v1/get-vendor-transactions-to-be-reconciled`,
       {
@@ -54,17 +53,36 @@ function page() {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-        //setTransactions(data.transactions);
+        const retrieved_txns = data.data as Array<Transaction>;
+        setTxns(retrieved_txns);
+        setIsFetching(false);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
   };
 
-  return (
+  return isFetching ? (
     <div className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Table />
+      <TypeAnimation
+        sequence={[
+          // Same substring at the start will only be typed out once, initially
+          "CardPay",
+          1000, // wait 1s before replacing "Mice" with "Hamsters"
+          "Payment Sirf CardPay",
+          1000,
+          "Thora Intezar Farmaein",
+          1000,
+        ]}
+        wrapper="span"
+        speed={60}
+        style={{ fontSize: "2em", display: "inline-block" }}
+        repeat={Infinity}
+      />
+    </div>
+  ) : (
+    <div className="flex min-h-screen flex-col items-center justify-between p-24">
+      <Table txns={txns} />
     </div>
   );
 }

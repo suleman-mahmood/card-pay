@@ -10,19 +10,18 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 function Login() {
   const router = useRouter();
 
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [phoneToSend, setPhoneToSend] = useState("");
+  const [phone, setPhone] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [phoneToSend, setPhoneToSend] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  //  useEffect(() => {
-  //    return auth.onAuthStateChanged((user) => {
-  //      if (user) {
-  //        // User is logged in
-  //        router.push("/dashboard");
-  //      }
-  //    });
-  //  }, []);
+  useEffect(() => {
+    return auth.onAuthStateChanged((user) => {
+      if (user) {
+        router.push("/dashboard");
+      }
+    });
+  }, []);
 
   const validateInput = (phone: String) => {
     if (phone.length < 10 || phone.length > 11) {
@@ -47,11 +46,9 @@ function Login() {
       signInWithEmailAndPassword(auth, phoneToSend, password)
         .then(() => {
           router.push("/dashboard");
-          //setLoading(false);
         })
         .catch((error) => {
           setErrorMessage(error.code);
-          //setLoading(false);
         });
     }
   };
@@ -82,7 +79,7 @@ function Login() {
         <Link
           href="/dashboard"
           className="btn btn-primary mt-6 max-w-xs w-full"
-          onClick={handleSubmit}
+          onClick={() => handleSubmit}
         >
           Login
         </Link>
