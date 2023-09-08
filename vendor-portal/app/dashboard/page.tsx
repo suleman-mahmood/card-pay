@@ -21,12 +21,14 @@ function page() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [txns, setTxns] = useState<Transaction[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
+  const [balance, setBalance] = useState<number>(0);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
       if (user) {
         setUser(user);
         fetchTransactions(user);
+        fetchVendorBalance(user);
       } else {
         router.push("/");
       }
@@ -36,7 +38,7 @@ function page() {
   const fetchTransactions = async (user: FirebaseUser) => {
     const token = await user?.getIdToken();
     fetch(
-      `https://cardpay-1.el.r.appspot.com/api/v1/get-vendor-transactions-to-be-reconciled`,
+      `https://cardpay-1.el.r.appspot.com/api/v1/vendor-app/get-vendor-transactions-to-be-reconciled`,
       {
         method: "GET",
         mode: "cors",
@@ -56,6 +58,34 @@ function page() {
         const retrieved_txns = data.data as Array<Transaction>;
         setTxns(retrieved_txns);
         setIsFetching(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
+
+  const fetchVendorBalance = async (user: FirebaseUser) => {
+    const token = await user?.getIdToken();
+    fetch(
+      `https://cardpay-1.el.r.appspot.com/api/v1/vendor-app/get-vendor-balance`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP Error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const retrieved_balance = data.data.balance;
+        setBalance(retrieved_balance);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -82,7 +112,7 @@ function page() {
     </div>
   ) : (
     <div className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Table txns={txns} />
+      <Table txns={txns} balance={balance} />
     </div>
   );
 }

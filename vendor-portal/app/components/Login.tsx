@@ -13,7 +13,8 @@ function Login() {
   const [phone, setPhone] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [phoneToSend, setPhoneToSend] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorPhone, setErrorPhone] = useState<string>("");
+  const [errorPassword, setErrorPassword] = useState<string>("");
 
   useEffect(() => {
     return auth.onAuthStateChanged((user) => {
@@ -25,10 +26,10 @@ function Login() {
 
   const validateInput = (phone: String) => {
     if (phone.length < 10 || phone.length > 11) {
-      setErrorMessage("Phone number is too short");
-      alert("ghalat");
+      setErrorPhone("Phone number is too short.");
       return false;
     } else {
+      setErrorPhone("");
       return true;
     }
   };
@@ -42,16 +43,19 @@ function Login() {
       if (phone.length == 11 && phone[0] == "0") {
         setPhoneToSend("92" + phone.slice(1) + "@cardpay.com.pk");
       }
-      console.log(phoneToSend);
-      signInWithEmailAndPassword(auth, phoneToSend, password)
-        .then(() => {
-          router.push("/dashboard");
-        })
-        .catch((error) => {
-          setErrorMessage(error.code);
-        });
     }
   };
+
+  useEffect(() => {
+    signInWithEmailAndPassword(auth, phoneToSend, password)
+      .then(() => {
+        setErrorPassword("");
+        router.push("/dashboard");
+      })
+      .catch((error) => {
+        setErrorPassword(error.code);
+      });
+  }, [phoneToSend, password]);
 
   return (
     <div className="form-control w-full max-w-xs">
@@ -66,6 +70,9 @@ function Login() {
           onChange={(e) => setPhone(e.target.value)}
           value={phone}
         />
+        {errorPhone && (
+          <span className="italic text-xs text-red-500">{errorPhone}</span>
+        )}
         <label className="label">
           <span className="label-text">Password</span>
         </label>
@@ -76,10 +83,13 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
           value={password}
         />
+        {errorPassword && (
+          <span className="italic text-xs text-red-500">{errorPassword}</span>
+        )}
         <Link
           href="/dashboard"
           className="btn btn-primary mt-6 max-w-xs w-full"
-          onClick={() => handleSubmit}
+          onClick={handleSubmit}
         >
           Login
         </Link>
