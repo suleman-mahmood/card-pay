@@ -75,7 +75,7 @@ class PaymentDashboardView extends HookWidget {
           child: FloatingActionButton(
             shape: const CircleBorder(),
             onPressed: () {
-              context.router.push(const QrRoute());
+              context.router.push(QrRoute());
             },
             child: Image.asset(
               'assets/images/qrCode.png',
