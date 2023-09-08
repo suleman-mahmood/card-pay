@@ -1,10 +1,18 @@
+from abc import ABC, abstractmethod
 from core.api import utils
 from typing import List
 from dataclasses import dataclass
 import re
 
+class AbstractSchema(ABC):
+    value: any
+
+    @abstractmethod
+    def validate(self):
+        pass
+
 @dataclass()
-class EmailSchema: 
+class EmailSchema(AbstractSchema): 
     value: str
 
     def validate(self):
@@ -16,7 +24,7 @@ class EmailSchema:
         return True
 
 @dataclass()
-class PasswordSchema():
+class PasswordSchema(AbstractSchema):
     value: str
 
     def validate(self):
@@ -28,7 +36,7 @@ class PasswordSchema():
 
 
 @dataclass()
-class PhoneNumberSchema():
+class PhoneNumberSchema(AbstractSchema):
     value: str
 
 
@@ -42,7 +50,7 @@ class PhoneNumberSchema():
 
 
 @dataclass()
-class UserTypeSchema():
+class UserTypeSchema(AbstractSchema):
     value: str
 
     def validate(self):
@@ -54,7 +62,7 @@ class UserTypeSchema():
         return True
 
 @dataclass()
-class NameSchema():
+class NameSchema(AbstractSchema):
     value: str
 
     def validate(self):
@@ -67,7 +75,7 @@ class NameSchema():
 
 
 @dataclass()
-class LocationSchema():
+class LocationSchema(AbstractSchema):
     value: List[float]
 
     def validate(self):
@@ -83,7 +91,7 @@ class LocationSchema():
         return True
 
 @dataclass()
-class PinSchema():
+class PinSchema(AbstractSchema):
     value: str
 
     def validate(self):
@@ -95,7 +103,7 @@ class PinSchema():
         return True
 
 @dataclass()
-class OtpSchema():
+class OtpSchema(AbstractSchema):
     value: str
 
     def validate(self):
@@ -107,7 +115,7 @@ class OtpSchema():
         return True
 
 @dataclass()
-class UuidSchema():
+class UuidSchema(AbstractSchema):
     value: str
 
     def validate(self):
@@ -119,7 +127,7 @@ class UuidSchema():
         return True
 
 @dataclass()
-class AmountSchema():
+class AmountSchema(AbstractSchema):
     value: int
 
     def validate(self):
@@ -131,7 +139,7 @@ class AmountSchema():
         return True
 
 @dataclass()
-class LUMSRollNumberSchema():
+class LUMSRollNumberSchema(AbstractSchema):
     value: str
 
     def validate(self):
