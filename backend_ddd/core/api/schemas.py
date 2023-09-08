@@ -44,7 +44,7 @@ class PhoneNumberSchema(AbstractSchema):
         if not isinstance(self.value,str):
             raise utils.CustomException("Phone Number passed is not a string")
 
-        if not re.match(r"^3[0-9]{8}$", self.value):
+        if not re.match(r"^3[0-9]{9}$", self.value):
             raise utils.CustomException("Invalid Phone Number Passed")
         return True
 

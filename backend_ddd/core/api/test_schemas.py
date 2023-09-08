@@ -15,7 +15,7 @@ def test_validate_payload():
         },
         sch.PhoneNumberSchema: {
             "invalid_inputs": ["","    ", "123456789", "invalid_format",123],
-            "valid_inputs": ["312345678", "333333333"],
+            "valid_inputs": ["3123456784", "3333333333"],
         },
         sch.UserTypeSchema: {
             "invalid_inputs": ["","    ", "invalid", "userType", "invalidtype", 2],
