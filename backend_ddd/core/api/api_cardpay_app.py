@@ -711,7 +711,7 @@ def get_user(uid):
 
 @cardpay_app.route("/get-user-balance", methods=["GET"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.VENDOR])
 @utils.user_verified
 def get_user_balance(uid):
     uow = UnitOfWork()
