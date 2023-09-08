@@ -318,6 +318,7 @@ def test_amount_fractional(seed_wallet):
     assert tx.sender_wallet.balance == 500
     assert tx.recipient_wallet.balance == 500
 
+
 def test_amount_breach_upper_limit(seed_wallet):
     wallet1 = seed_wallet()
     wallet2 = seed_wallet()
@@ -335,3 +336,38 @@ def test_amount_breach_upper_limit(seed_wallet):
         match=f"Amount is greater than or equal to {TX_UPPER_LIMIT}",
     ):
         tx.execute_transaction()
+
+
+def test_reconciliation_upper_limit_tx(seed_wallet):
+    vendor_wallet = seed_wallet()
+    cardpay_wallet = seed_wallet()
+    vendor_wallet.balance = TX_UPPER_LIMIT * 2
+
+    tx = Transaction(
+        amount=TX_UPPER_LIMIT,
+        mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.RECONCILIATION,
+        recipient_wallet=cardpay_wallet,
+        sender_wallet=vendor_wallet,
+    )
+    tx.execute_transaction()
+
+    assert tx.sender_wallet.balance == TX_UPPER_LIMIT
+    assert tx.recipient_wallet.balance == TX_UPPER_LIMIT
+
+    tx = Transaction(
+        amount=TX_UPPER_LIMIT,
+        mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.P2P_PUSH,
+        recipient_wallet=cardpay_wallet,
+        sender_wallet=vendor_wallet,
+    )
+
+    with pytest.raises(
+        TransactionNotAllowedException,
+        match=f"Amount is greater than or equal to {TX_UPPER_LIMIT}",
+    ):
+        tx.execute_transaction()
+
+    assert tx.sender_wallet.balance == TX_UPPER_LIMIT
+    assert tx.recipient_wallet.balance == TX_UPPER_LIMIT
