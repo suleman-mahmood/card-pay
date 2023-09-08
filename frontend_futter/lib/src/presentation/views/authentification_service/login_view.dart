@@ -100,11 +100,17 @@ class LoginView extends HookWidget {
               ),
             TextButton(
               onPressed: () async {
-                final url = Platform.isIOS
-                    ? 'https://apps.apple.com/app/1644127078'
-                    : 'https://play.google.com/store/apps/details?id=io.payment.cardpay';
-
-                await launchUrl(Uri.parse(url));
+                final appId =
+                    Platform.isAndroid ? 'io.payment.cardpay' : '1644127078';
+                final url = Uri.parse(
+                  Platform.isAndroid
+                      ? "market://details?id=$appId"
+                      : "https://apps.apple.com/app/id$appId",
+                );
+                launchUrl(
+                  url,
+                  mode: LaunchMode.externalApplication,
+                );
               },
               child: const Text('Update Now'),
             ),
