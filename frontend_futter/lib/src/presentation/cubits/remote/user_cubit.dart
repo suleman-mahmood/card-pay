@@ -231,19 +231,6 @@ class UserCubit extends BaseCubit<UserState, User> {
     });
   }
 
-  Future<void> termsDenied() async {
-    if (isBusy) return;
-
-    String errorMessage = 'Please accept the terms and conditions to continue';
-
-    await run(() async {
-      emit(UserSuccess(
-        eventCodes: EventCodes.TERMS_DENIED,
-        message: errorMessage,
-      ));
-    });
-  }
-
   Future<void> getUser() async {
     if (isBusy) return;
 

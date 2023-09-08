@@ -8,12 +8,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class Header extends HookWidget {
   final String? title;
   final Color color;
+  final bool showBackButton;
   final bool showMainHeading;
   final String? mainHeadingText;
   final bool? removeTopPadding;
 
   const Header({
     super.key,
+    this.showBackButton = true,
     this.title,
     this.color = AppColors.secondaryColor,
     this.showMainHeading = false,
@@ -35,7 +37,7 @@ class Header extends HookWidget {
         removeTopPadding ?? false
             ? Row(
                 children: [
-                  BackButton(color),
+                  if (showBackButton == true) BackButton(color),
                   WidthArrowBetween(),
                   if (title != null)
                     Text(
@@ -55,7 +57,7 @@ class Header extends HookWidget {
                 ),
                 child: Row(
                   children: [
-                    BackButton(color),
+                    if (showBackButton) BackButton(color),
                     WidthArrowBetween(),
                     if (title != null)
                       Text(

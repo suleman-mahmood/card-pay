@@ -62,6 +62,7 @@ class TransactionHistoryView extends HookWidget {
                 return PaddingHorizontal(
                   slab: 2,
                   child: Header(
+                    showBackButton: false,
                     title: PaymentStrings.history,
                     showMainHeading: true,
                     mainHeadingText: "Rs.${state.balance.amount.toString()}",

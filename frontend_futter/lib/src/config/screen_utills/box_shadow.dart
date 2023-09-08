@@ -12,15 +12,15 @@ class CustomBoxDecoration {
         topRight: Radius.circular(_borderRadiusValue),
       ),
       boxShadow: const [
-        BoxShadow(
-          color: AppColors.greyColor,
-          blurRadius: 10.0,
-          spreadRadius: 5.0,
-          offset: Offset(
-            3.0,
-            3.0,
-          ),
-        )
+        // BoxShadow(
+        //   color: AppColors.greyColor,
+        //   blurRadius: 10.0,
+        //   spreadRadius: 5.0,
+        //   offset: Offset(
+        //     3.0,
+        //     3.0,
+        //   ),
+        // )
       ],
     );
   }

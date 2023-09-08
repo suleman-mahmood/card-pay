@@ -15,7 +15,6 @@ class CustomInputField extends HookWidget {
   final TextEditingController? controller;
   final Color hintColor;
   final Color labelColor;
-
   const CustomInputField({
     Key? key,
     required this.label,

@@ -52,6 +52,8 @@ class AppStrings {
 
   static const String acceptPrivacyTerms =
       'I accept privacy terms and conditions.';
+  static const String acceptPrivacyTermsError =
+      'Please accept privacy terms and conditions';
 
   static const String alreadyHaveAccount = 'Already have an account?';
   static const String logIn = 'Log In';

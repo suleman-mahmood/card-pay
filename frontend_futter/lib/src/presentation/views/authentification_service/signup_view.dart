@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
@@ -92,11 +93,6 @@ class SignupView extends HookWidget {
 
     void handleCreateAccount() async {
       if (!formKey.currentState!.validate()) {
-        return;
-      }
-
-      if (!acceptPrivacyTerms.value) {
-        userCubit.termsDenied();
         return;
       }
 
@@ -312,35 +308,30 @@ class SignupView extends HookWidget {
                 },
               ),
               const HeightBox(slab: 3),
-              CheckBox(
-                onChanged: (bool value) {
-                  acceptPrivacyTerms.value = value;
-                },
+
+              CheckBoxFormField(
+                isChecked: acceptPrivacyTerms,
                 text: AppStrings.acceptPrivacyTerms,
-                onTap: () => launchUrl(
-                  Uri.parse('https://pages.flycricket.io/cardpay/privacy.html'),
-                ),
+                validator: (value) {
+                  if (!acceptPrivacyTerms.value) {
+                    return AppStrings.acceptPrivacyTermsError;
+                  }
+                  return null;
+                },
+                onTap: () => launchUrl(Uri.parse(
+                    'https://pages.flycricket.io/cardpay/privacy.html')),
               ),
+
+              if (!acceptPrivacyTerms.value)
+                const PaddingHorizontal(
+                  slab: 4,
+                  child: Text(
+                    AppStrings.acceptPrivacyTermsError,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
               const HeightBox(slab: 3),
-              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
-                switch (state.runtimeType) {
-                  case UserSuccess:
-                    if (state.eventCodes == EventCodes.TERMS_DENIED) {
-                      return Column(
-                        children: [
-                          Text(
-                            state.message,
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          const HeightBox(slab: 3),
-                        ],
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  default:
-                    return const SizedBox.shrink();
-                }
-              }),
+
               Center(
                 child: PrimaryButton(
                   text: AppStrings.createAccount,

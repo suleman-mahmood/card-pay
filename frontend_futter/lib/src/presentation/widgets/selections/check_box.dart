@@ -3,38 +3,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 
-class CheckBox extends HookWidget {
-  final Function(bool value)? onChanged;
-  final Function()? onTap;
+class CheckBoxFormField extends HookWidget {
+  final ValueNotifier<bool> isChecked;
   final String text;
+  final FormFieldValidator<bool> validator;
+  final Function()? onTap;
 
-  const CheckBox({
-    super.key,
+  CheckBoxFormField({
+    required this.isChecked,
     required this.text,
-    this.onChanged,
+    required this.validator,
     this.onTap,
-  }) : super();
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isChecked = useState(false);
-
-    return InkWell(
-      onTap: () => toggleCheckbox(isChecked),
-      child: buildContainer(context, isChecked),
+    return FormField<bool>(
+      validator: validator,
+      builder: (FormFieldState<bool> field) {
+        return InkWell(
+          onTap: () => toggleCheckbox(isChecked),
+          child: buildContainer(context, isChecked),
+        );
+      },
     );
   }
 
   void toggleCheckbox(ValueNotifier<bool> isChecked) {
     isChecked.value = !isChecked.value;
-    onChanged?.call(isChecked.value);
   }
 
   Widget buildContainer(BuildContext context, ValueNotifier<bool> isChecked) {
     return Row(
       children: [
         buildCheckbox(isChecked),
-        WidthBetween(),
+        const WidthBetween(),
         GestureDetector(
           onTap: onTap,
           child: Text(text, style: AppTypography.linkText),
