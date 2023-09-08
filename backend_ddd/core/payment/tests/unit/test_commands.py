@@ -15,7 +15,6 @@ from ...entrypoint.commands import (
     payment_retools_reconcile_vendor,
 )
 from ....marketing.entrypoint import commands as marketing_commands
-from ...entrypoint.queries import get_wallet_from_wallet_id
 from ....authentication.tests.conftest import (
     seed_auth_user,
     seed_verified_auth_user,
@@ -24,7 +23,7 @@ from ....authentication.tests.conftest import (
     seed_auth_cardpay,
     seed_verified_auth_cardpay,
 )
-from ....entrypoint.uow import UnitOfWork
+from ....entrypoint.uow import UnitOfWork, AbstractUnitOfWork
 from ...domain.model import (
     TransactionMode,
     TransactionType,
@@ -37,6 +36,21 @@ import pytest
 from ...domain.exceptions import TransactionNotAllowedException
 from core.authentication.entrypoint import queries as auth_queries
 from core.payment.entrypoint import exceptions as payment_exc
+from core.payment.domain import model as payment_mdl
+
+def _get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
+    sql = """
+        select id, balance, qr_id
+        from wallets
+        where id = %s
+    """
+    uow.cursor.execute(sql, [wallet_id])
+    row = uow.cursor.fetchone()
+    return payment_mdl.Wallet(
+        id=row[0],
+        balance=row[1],
+        qr_id=row[2],
+    )
 
 def test_slow_execute_transaction():
     uow = UnitOfWork()
@@ -108,9 +122,9 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
         uow=uow,
     )
 
-    sender_wallet = get_wallet_from_wallet_id(
+    sender_wallet = _get_wallet_from_wallet_id(
         wallet_id=sender.wallet_id, uow=uow)
-    recipient_wallet = get_wallet_from_wallet_id(
+    recipient_wallet = _get_wallet_from_wallet_id(
         wallet_id=recipient.wallet_id, uow=uow)
 
     with uow:
@@ -268,7 +282,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
     marketing_commands.add_and_set_missing_weightages_to_zero(uow=uow)
 
     uow.transactions.add_1000_wallet(wallet_id=sender_customer.wallet_id)
-    vendor_wallet = get_wallet_from_wallet_id(
+    vendor_wallet = _get_wallet_from_wallet_id(
         wallet_id=vendor.wallet_id, uow=uow
     )
 
@@ -308,7 +322,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
 
     # test p2p qr txn
     recipient_customer = seed_verified_auth_user(uow)
-    recipient_customer_wallet = get_wallet_from_wallet_id(
+    recipient_customer_wallet = _get_wallet_from_wallet_id(
         wallet_id=recipient_customer.wallet_id, uow=uow
     )
 
@@ -336,12 +350,10 @@ def test_reconcile_vendor(seed_verified_auth_user, seed_verified_auth_vendor, se
     marketing_commands.add_and_set_missing_weightages_to_zero(uow=uow)
 
     uow.transactions.add_1000_wallet(wallet_id=sender_customer.wallet_id)
-    vendor_wallet = get_wallet_from_wallet_id(
+    vendor_wallet = _get_wallet_from_wallet_id(
         wallet_id=recipient_vendor.wallet_id, uow=uow
     )
-    get_wallet_from_wallet_id(
-        wallet_id=cardpay.wallet_id, uow=uow
-    )
+
     execute_qr_transaction(
         sender_wallet_id=sender_customer.wallet_id,
         recipient_qr_id=vendor_wallet.qr_id,

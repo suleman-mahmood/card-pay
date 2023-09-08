@@ -305,7 +305,7 @@ def auth_retools_create_vendor():
 @utils.authenticate_retool_secret
 def payment_retools_get_closed_loops():
     uow = UnitOfWork()
-    closed_loops = payment_qry.payment_retools_get_all_closed_loops(uow=uow)
+    closed_loops = payment_qry.get_all_closed_loops_id_and_names(uow=uow)
     uow.close_connection()
 
     return utils.Response(

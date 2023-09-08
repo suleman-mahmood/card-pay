@@ -1,13 +1,27 @@
 from ...entrypoint import commands as marketing_commands
 from ...entrypoint import queries as marketing_queries
-from ....entrypoint.uow import UnitOfWork
+from ....entrypoint.uow import UnitOfWork, AbstractUnitOfWork
 from ....payment.domain.model import TransactionType, TransactionMode
 from ....payment.entrypoint import commands as payment_commands
 from ....payment.entrypoint import queries as payment_queries
 from ....authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
 from ....marketing.tests.conftest import seed_starred_wallet
 from uuid import uuid4
+from ....payment.domain import model as payment_mdl
 
+def _get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
+    sql = """
+        select id, balance, qr_id
+        from wallets
+        where id = %s
+    """
+    uow.cursor.execute(sql, [wallet_id])
+    row = uow.cursor.fetchone()
+    return payment_mdl.Wallet(
+        id=row[0],
+        balance=row[1],
+        qr_id=row[2],
+    )
 
 def test_loyalty_points_for_p2p_push(seed_verified_auth_user):
     uow = UnitOfWork()
@@ -18,7 +32,7 @@ def test_loyalty_points_for_p2p_push(seed_verified_auth_user):
         weightage_value=10,
         uow=uow,
     )
-    sender_wallet = payment_queries.get_wallet_from_wallet_id(
+    sender_wallet = _get_wallet_from_wallet_id(
         wallet_id=sender.wallet_id, uow=uow
     )
     with uow:
@@ -48,7 +62,7 @@ def test_loyalty_points_for_p2p_pull(seed_verified_auth_user):
         weightage_value=10,
         uow=uow,
     )
-    sender_wallet = payment_queries.get_wallet_from_wallet_id(
+    sender_wallet = _get_wallet_from_wallet_id(
         wallet_id=sender.wallet_id, uow=uow
     )
 
@@ -166,12 +180,12 @@ def test_cashback(seed_verified_auth_user, seed_starred_wallet, mocker):
 
     recipient = seed_verified_auth_user(uow)
     pg = seed_verified_auth_user(uow)
-    pg_wallet = payment_queries.get_wallet_from_wallet_id(
+    pg_wallet = _get_wallet_from_wallet_id(
         wallet_id=pg.wallet_id, uow=uow
     )
 
     uow.transactions.add_1000_wallet(wallet_id=pg_wallet.id)
-    recipient_wallet = payment_queries.get_wallet_from_wallet_id(
+    recipient_wallet = _get_wallet_from_wallet_id(
         wallet_id=recipient.wallet_id, uow=uow
     )
     assert recipient_wallet.balance == 0

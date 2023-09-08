@@ -74,9 +74,7 @@ def give_cashback(
         return
 
     sender_wallet_id = payment_queries.get_starred_wallet_id(uow=uow)
-    recipient_user_id = payment_queries.get_user_id_from_wallet_id(
-        wallet_id=recipient_wallet_id, uow=uow
-    )
+    recipient_user_id = recipient_wallet_id
     recipient = uow.marketing_users.get(recipient_user_id)
     amount = recipient.calculate_cashback(
         deposit_amount=deposited_amount,
