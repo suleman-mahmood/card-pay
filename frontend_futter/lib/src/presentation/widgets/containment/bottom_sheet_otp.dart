@@ -1,4 +1,5 @@
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
@@ -66,9 +67,9 @@ class BottomSheetOTP extends HookWidget {
                 ],
               ),
               const HeightBox(slab: 4),
-              BlocBuilder<UserCubit, UserState>(builder: (_, state) {
+              BlocBuilder<SignupCubit, SignupState>(builder: (_, state) {
                 switch (state.runtimeType) {
-                  case UserFailed:
+                  case SignupFailed:
                     return Column(
                       children: [
                         Text(

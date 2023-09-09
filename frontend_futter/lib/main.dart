@@ -6,6 +6,7 @@ import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
@@ -36,10 +37,7 @@ class MainApp extends StatelessWidget {
             child: MultiBlocProvider(
               providers: [
                 BlocProvider(
-                  create: (context) => UserCubit(
-                    locator<ApiRepository>(),
-                    locator<SharedPreferences>(),
-                  ),
+                  create: (context) => UserCubit(locator<ApiRepository>()),
                 ),
                 BlocProvider(
                   create: (context) => ClosedLoopCubit(
@@ -55,6 +53,12 @@ class MainApp extends StatelessWidget {
                 ),
                 BlocProvider(
                   create: (context) => LoginCubit(
+                    locator<SharedPreferences>(),
+                  ),
+                ),
+                BlocProvider(
+                  create: (context) => SignupCubit(
+                    locator<ApiRepository>(),
                     locator<SharedPreferences>(),
                   ),
                 ),

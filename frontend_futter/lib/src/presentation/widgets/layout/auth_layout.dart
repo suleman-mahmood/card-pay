@@ -1,6 +1,7 @@
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
@@ -43,6 +44,16 @@ class AuthLayout extends HookWidget {
                 builder: (_, state) {
                   switch (state.runtimeType) {
                     case LoginLoading:
+                      return const OverlayLoading();
+                    default:
+                      return const SizedBox();
+                  }
+                },
+              ),
+              BlocBuilder<SignupCubit, SignupState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case SignupLoading:
                       return const OverlayLoading();
                     default:
                       return const SizedBox();

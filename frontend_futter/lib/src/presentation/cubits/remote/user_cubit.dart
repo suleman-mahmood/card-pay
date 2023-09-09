@@ -1,9 +1,7 @@
 import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
-import 'package:cardpay/src/domain/models/requests/create_customer_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
-import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:cardpay/src/domain/models/user.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
@@ -13,101 +11,13 @@ import 'package:cardpay/src/utils/data_state.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:meta/meta.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'user_state.dart';
 
 class UserCubit extends BaseCubit<UserState, User> {
   final ApiRepository _apiRepository;
-  final SharedPreferences _prefs;
 
-  UserCubit(this._apiRepository, this._prefs) : super(UserInitial(), User());
-
-  Future<void> createCustomer(
-    String personalEmail,
-    String phoneNumber,
-    String fullName,
-    String password,
-  ) async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      final response = await _apiRepository.createCustomer(
-        request: CreateCustomerRequest(
-          fullName: fullName,
-          password: password,
-          personalEmail: personalEmail,
-          phoneNumber: phoneNumber,
-        ),
-      );
-
-      if (response is DataSuccess) {
-        final userId = response.data!.userId;
-        data.id = userId;
-
-        await _prefs.setString('user_id', userId);
-        await _prefs.setString('user_phone_number', phoneNumber);
-        await _prefs.setString('user_password', password);
-
-        emit(UserSuccess(
-          message: response.data!.message,
-          eventCodes: response.data!.eventCode,
-        ));
-      } else if (response is DataFailed) {
-        if (response.error?.type.name == "unknown") {
-          emit(UserUnknownFailure(
-            errorMessage: "Unknown error, check internet connections",
-          ));
-        } else {
-          emit(UserFailed(
-            error: response.error,
-            errorMessage: response.error?.response?.data["message"],
-          ));
-        }
-      }
-    });
-  }
-
-  Future<void> verifyPhoneNumber(String otp) async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      final token =
-          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-              '';
-
-      final response = await _apiRepository.verifyPhoneNumber(
-        request: VerifyPhoneNumberRequest(
-          otp: otp,
-        ),
-        token: token,
-      );
-
-      if (response is DataSuccess) {
-        data.isPhoneNumberVerified = true;
-
-        emit(UserSuccess(
-          message: response.data!.message,
-          eventCodes: EventCodes.OTP_VERIFIED,
-        ));
-      } else if (response is DataFailed) {
-        if (response.error?.type.name == "unknown") {
-          emit(UserUnknownFailure(
-            errorMessage: "Unknown error, check internet connections",
-          ));
-        } else {
-          emit(UserFailed(
-            error: response.error,
-            errorMessage: response.error?.response?.data["message"],
-          ));
-        }
-      }
-    });
-  }
+  UserCubit(this._apiRepository) : super(UserInitial(), User());
 
   Future<void> registerClosedLoop(
     String closedLoopId,
@@ -250,73 +160,6 @@ class UserCubit extends BaseCubit<UserState, User> {
           message: response.data!.message,
           user: data,
           transactions: data.recentTransactions,
-        ));
-      } else if (response is DataFailed) {
-        if (response.error?.type.name == "unknown") {
-          emit(UserUnknownFailure(
-            errorMessage: "Unknown error, check internet connections",
-          ));
-        } else {
-          emit(UserFailed(
-            error: response.error,
-            errorMessage: response.error?.response?.data["message"],
-          ));
-        }
-      }
-    });
-  }
-
-  Future<void> getUserBalance() async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      final token =
-          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-              '';
-      final response = await _apiRepository.getUserBalance(token);
-
-      if (response is DataSuccess) {
-        data.balance = response.data!.balance;
-
-        emit(UserSuccess(
-          message: response.data!.message,
-          user: data,
-          transactions: data.recentTransactions,
-        ));
-      } else if (response is DataFailed) {
-        if (response.error?.type.name == "unknown") {
-          emit(UserUnknownFailure(
-            errorMessage: "Unknown error, check internet connections",
-          ));
-        } else {
-          emit(UserFailed(
-            error: response.error,
-            errorMessage: response.error?.response?.data["message"],
-          ));
-        }
-      }
-    });
-  }
-
-  Future<void> getUserRecentTransactions() async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      final token =
-          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-              '';
-      final response = await _apiRepository.getUserRecentTransactions(token);
-
-      if (response is DataSuccess) {
-        data.recentTransactions = response.data!.recentTransactions;
-        emit(UserSuccess(
-          user: data,
-          message: response.data!.message,
-          transactions: response.data!.recentTransactions,
         ));
       } else if (response is DataFailed) {
         if (response.error?.type.name == "unknown") {

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
@@ -43,8 +44,8 @@ class SignupView extends HookWidget {
     final password = useState<String>('');
     final confirmPassword = useState<String>('');
 
-    final userCubit = BlocProvider.of<UserCubit>(context);
     final loginCubit = BlocProvider.of<LoginCubit>(context);
+    final signupCubit = BlocProvider.of<SignupCubit>(context);
     final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
 
     void onPhoneNumberChanged(String newValue) {
@@ -61,7 +62,7 @@ class SignupView extends HookWidget {
               child: BottomSheetOTP(
                 deviceCheckHeading: AppStrings.checkMobile,
                 otpDeviceText: AppStrings.otpMobileText,
-                onAction: (otp) => userCubit.verifyPhoneNumber(otp),
+                onAction: (otp) => signupCubit.verifyPhoneNumber(otp),
               ),
             ),
           );
@@ -96,7 +97,7 @@ class SignupView extends HookWidget {
         return;
       }
 
-      await userCubit.createCustomer(
+      await signupCubit.createCustomer(
         personalEmail.value,
         phoneNumber.value,
         fullName.value,
@@ -107,7 +108,6 @@ class SignupView extends HookWidget {
     useEffect(() {
       return () {
         phoneNumberController.dispose();
-        // userCubit.close();
       };
     }, []);
 
@@ -187,10 +187,10 @@ class SignupView extends HookWidget {
                 accountDescription: AppStrings.createAccountDesc,
               ),
               const HeightBox(slab: 1),
-              BlocConsumer<UserCubit, UserState>(
+              BlocConsumer<SignupCubit, SignupState>(
                 listener: (_, state) {
                   switch (state.runtimeType) {
-                    case UserSuccess:
+                    case SignupSuccess:
                       if (state.eventCodes == EventCodes.OTP_SENT) {
                         // Login the user after a successful sign up
                         loginCubit.login(phoneNumber.value, password.value);
