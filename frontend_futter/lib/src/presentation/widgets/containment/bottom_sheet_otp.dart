@@ -1,7 +1,7 @@
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
-import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -70,6 +70,24 @@ class BottomSheetOTP extends HookWidget {
               BlocBuilder<SignupCubit, SignupState>(builder: (_, state) {
                 switch (state.runtimeType) {
                   case SignupFailed:
+                    return Column(
+                      children: [
+                        Text(
+                          state.errorMessage,
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                        const HeightBox(slab: 4),
+                      ],
+                    );
+                  default:
+                    return const SizedBox.shrink();
+                }
+              }),
+              BlocBuilder<ClosedLoopCubit, ClosedLoopState>(
+                  builder: (_, state) {
+                switch (state.runtimeType) {
+                  case ClosedLoopFailed:
                     return Column(
                       children: [
                         Text(

@@ -30,7 +30,6 @@ class RegisterOrganizationView extends HookWidget {
     final selectedClosedLoop = useState<ClosedLoop>(ClosedLoop());
     final formKey = useMemoized(() => GlobalKey<FormState>());
 
-    final userCubit = BlocProvider.of<UserCubit>(context);
     final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
 
     useEffect(() {
@@ -51,7 +50,7 @@ class RegisterOrganizationView extends HookWidget {
               child: BottomSheetOTP(
                 deviceCheckHeading: AppStrings.checkEmail,
                 otpDeviceText: AppStrings.otpEmailText,
-                onAction: (otp) => userCubit.verifyClosedLoop(
+                onAction: (otp) => closedLoopCubit.verifyClosedLoop(
                   selectedClosedLoop.value.id,
                   otp,
                 ),
@@ -67,7 +66,7 @@ class RegisterOrganizationView extends HookWidget {
         return;
       }
 
-      await userCubit.registerClosedLoop(
+      await closedLoopCubit.registerClosedLoop(
         selectedClosedLoop.value.id,
         uniqueIdentifier.value,
       );
@@ -153,10 +152,10 @@ class RegisterOrganizationView extends HookWidget {
               ),
             ),
           ),
-          BlocConsumer<UserCubit, UserState>(
+          BlocConsumer<ClosedLoopCubit, ClosedLoopState>(
             builder: (_, state) {
               switch (state.runtimeType) {
-                case UserFailed:
+                case ClosedLoopFailed:
                   return Text(
                     state.errorMessage,
                     style: const TextStyle(color: Colors.red),
@@ -168,7 +167,7 @@ class RegisterOrganizationView extends HookWidget {
             },
             listener: (_, state) {
               switch (state.runtimeType) {
-                case UserSuccess:
+                case ClosedLoopSuccess:
                   if (state.eventCodes == EventCodes.ORGANIZATION_REGISTERED) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       _showOTPBottomSheet();

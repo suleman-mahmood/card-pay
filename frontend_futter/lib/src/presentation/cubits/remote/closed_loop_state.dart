@@ -3,15 +3,18 @@ part of 'closed_loop_cubit.dart';
 @immutable
 abstract class ClosedLoopState {
   final String message;
+  final List<ClosedLoop> closedLoops;
+  final EventCodes eventCodes;
+
   final String errorMessage;
   final DioError? error;
-  final List<ClosedLoop> closedLoops;
 
   const ClosedLoopState({
     this.message = '',
+    this.closedLoops = const [],
+    this.eventCodes = EventCodes.DEFAULT_EVENT,
     this.errorMessage = '',
     this.error,
-    this.closedLoops = const [],
   });
 
   @override
@@ -25,7 +28,7 @@ class ClosedLoopLoading extends ClosedLoopState {
 }
 
 class ClosedLoopSuccess extends ClosedLoopState {
-  const ClosedLoopSuccess({super.message, super.closedLoops});
+  const ClosedLoopSuccess({super.message, super.closedLoops, super.eventCodes});
 }
 
 class ClosedLoopFailed extends ClosedLoopState {

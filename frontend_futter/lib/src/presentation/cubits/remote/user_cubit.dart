@@ -1,7 +1,5 @@
 import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
-import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
-import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:cardpay/src/domain/models/user.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
@@ -18,88 +16,6 @@ class UserCubit extends BaseCubit<UserState, User> {
   final ApiRepository _apiRepository;
 
   UserCubit(this._apiRepository) : super(UserInitial(), User());
-
-  Future<void> registerClosedLoop(
-    String closedLoopId,
-    String uniqueIdentifier,
-  ) async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      final token =
-          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-              '';
-      final response = await _apiRepository.registerClosedLoop(
-        request: RegisterClosedLoopRequest(
-          closedLoopId: closedLoopId,
-          uniqueIdentifier: uniqueIdentifier,
-        ),
-        token: token,
-      );
-
-      if (response is DataSuccess) {
-        emit(UserSuccess(
-          message: response.data!.message,
-          eventCodes: EventCodes.ORGANIZATION_REGISTERED,
-        ));
-      } else if (response is DataFailed) {
-        if (response.error?.type.name == "unknown") {
-          emit(UserUnknownFailure(
-            errorMessage: "Unknown error, check internet connections",
-          ));
-        } else {
-          emit(UserFailed(
-            error: response.error,
-            errorMessage: response.error?.response?.data["message"],
-          ));
-        }
-      }
-    });
-  }
-
-  Future<void> verifyClosedLoop(
-    String closedLoopId,
-    String uniqueIdentifierOtp,
-  ) async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(UserLoading());
-
-      final token =
-          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
-              '';
-      final response = await _apiRepository.verifyClosedLoop(
-        request: VerifyClosedLoopRequest(
-          closedLoopId: closedLoopId,
-          uniqueIdentifierOtp: uniqueIdentifierOtp,
-        ),
-        token: token,
-      );
-
-      if (response is DataSuccess) {
-        data.closedLoopVerified = true;
-
-        emit(UserSuccess(
-          message: response.data!.message,
-          eventCodes: EventCodes.ORGANIZATION_VERIFIED,
-        ));
-      } else if (response is DataFailed) {
-        if (response.error?.type.name == "unknown") {
-          emit(UserUnknownFailure(
-            errorMessage: "Unknown error, check internet connections",
-          ));
-        } else {
-          emit(UserFailed(
-            error: response.error,
-            errorMessage: response.error?.response?.data["message"],
-          ));
-        }
-      }
-    });
-  }
 
   Future<void> changePin(
     String newPin,
