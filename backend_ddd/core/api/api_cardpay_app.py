@@ -17,7 +17,7 @@ from core.authentication.domain import exceptions as auth_ex
 from core.authentication.entrypoint import exceptions as auth_cmd_ex
 from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
 from core.entrypoint import queries as app_queries
-
+from core.api import schemas as sch
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
@@ -25,14 +25,14 @@ cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 @cardpay_app.route("/create-user", methods=["POST"])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=[
-        "personal_email",
-        "password",
-        "phone_number",
-        "user_type",
-        "full_name",
-        "location",
-    ]
+    required_parameters={
+        "personal_email": sch.EmailSchema,
+        "password": sch.PasswordSchema,
+        "phone_number": sch.PhoneNumberSchema,
+        "user_type": sch.UserTypeSchema,
+        "full_name": sch.NameSchema,
+        "location": sch.LocationSchema,
+    }
 )
 def create_user():
     """Create a new user account"""
@@ -62,13 +62,13 @@ def create_user():
 @cardpay_app.route("/create-customer", methods=["POST"])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=[
-        "personal_email",
-        "password",
-        "phone_number",
-        "full_name",
-        "location",
-    ]
+    required_parameters={
+        "personal_email": sch.EmailSchema,
+        "password": sch.PasswordSchema,
+        "phone_number": sch.PhoneNumberSchema,
+        "full_name": sch.NameSchema,
+        "location": sch.LocationSchema,
+    }
 )
 def create_customer():
     """
@@ -109,7 +109,7 @@ def create_customer():
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["new_name"])
+@utils.validate_json_payload(required_parameters={"new_name": sch.NameSchema})
 def change_name(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -140,7 +140,7 @@ def change_name(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["new_pin"])
+@utils.validate_json_payload(required_parameters={"new_pin": sch.PinSchema})
 def change_pin(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -172,7 +172,7 @@ def change_pin(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["user_id"])
+@utils.validate_json_payload(required_parameters={"user_id": sch.UuidSchema})
 def user_toggle_active(uid):
     uow = UnitOfWork()
 
@@ -196,7 +196,7 @@ def user_toggle_active(uid):
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["otp"])
+@utils.validate_json_payload(required_parameters={"otp": sch.OtpSchema})
 def verify_phone_number(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -232,7 +232,11 @@ def verify_phone_number(uid):
 @utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=["closed_loop_id", "unique_identifier"]
+    required_parameters={
+        "closed_loop_id": sch.UuidSchema,
+        # TODO: change this when closed loops other than LUMS are added
+        "unique_identifier": sch.LUMSRollNumberSchema,
+    }
 )
 def register_closed_loop(uid):
     req = request.get_json(force=True)
@@ -267,7 +271,10 @@ def register_closed_loop(uid):
 @utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=["closed_loop_id", "unique_identifier_otp"]
+    required_parameters={
+        "closed_loop_id": sch.UuidSchema,
+        "unique_identifier_otp": sch.OtpSchema,
+    }
 )
 def verify_closed_loop(uid):
     req = request.get_json(force=True)
@@ -308,7 +315,7 @@ def verify_closed_loop(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["amount"])
+@utils.validate_json_payload(required_parameters={"amount": sch.AmountSchema})
 def create_deposit_request(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -347,7 +354,11 @@ def create_deposit_request(uid):
 @utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=["recipient_unique_identifier", "amount", "closed_loop_id"]
+    required_parameters={
+        "recipient_unique_identifier": sch.LUMSRollNumberSchema,
+        "amount": sch.AmountSchema,
+        "closed_loop_id": sch.UuidSchema,
+    }
 )
 def execute_p2p_push_transaction(uid):
     req = request.get_json(force=True)
@@ -399,7 +410,11 @@ def execute_p2p_push_transaction(uid):
 @utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=["sender_unique_identifier", "amount", "closed_loop_id"]
+    required_parameters={
+        "sender_unique_identifier": sch.LUMSRollNumberSchema,
+        "amount": sch.AmountSchema,
+        "closed_loop_id": sch.UuidSchema,
+    }
 )
 def create_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
@@ -449,7 +464,7 @@ def create_p2p_pull_transaction(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["transaction_id"])
+@utils.validate_json_payload(required_parameters={"transaction_id": sch.UuidSchema})
 def accept_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -485,7 +500,7 @@ def accept_p2p_pull_transaction(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["transaction_id"])
+@utils.validate_json_payload(required_parameters={"transaction_id": sch.UuidSchema})
 def decline_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -515,7 +530,12 @@ def decline_p2p_pull_transaction(uid):
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["sender_wallet_id", "amount"])
+@utils.validate_json_payload(
+    required_parameters={
+        "sender_wallet_id": sch.UuidSchema,
+        "amount": sch.AmountSchema,
+    }
+)
 def generate_voucher(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -543,7 +563,10 @@ def generate_voucher(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters=["recipient_wallet_id", "transaction_id"]
+    required_parameters={
+        "recipient_wallet_id": sch.UuidSchema,
+        "transaction_id": sch.UuidSchema,
+    }
 )
 def redeem_voucher(uid):
     req = request.get_json(force=True)
@@ -581,7 +604,12 @@ def redeem_voucher(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["qr_id", "amount"])
+@utils.validate_json_payload(
+    required_parameters={
+        "qr_id": sch.UuidSchema,
+        "amount": sch.AmountSchema,
+    }
+)
 def execute_qr_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -621,7 +649,12 @@ def execute_qr_transaction(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters=["referee_id", "referral_id"])
+@utils.validate_json_payload(
+    required_parameters= {
+        "referee_id": sch.UuidSchema,
+        "referral_id": sch.UuidSchema,
+    }
+)
 def use_reference(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()

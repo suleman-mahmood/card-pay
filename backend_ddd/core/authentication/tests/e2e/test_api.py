@@ -16,7 +16,7 @@ import os
 
 
 def _get_random_unique_identifier() -> str:
-    random_number = randint(10000000, 99999999)
+    random_number = randint(20000000, 29999999)
     return str(random_number)
 
 
@@ -41,7 +41,7 @@ def test_create_user_api(mocker, client):
         json={
             "personal_email": "26100279@lums.edu.pk",
             "password": "cardpay123",
-            "phone_number": "090078601",
+            "phone_number": "3269507542",
             "user_type": "CUSTOMER",
             "full_name": "Shaheer Ahmad",
             "location": [24.8607, 67.0011],
@@ -61,7 +61,7 @@ def test_create_user_api(mocker, client):
         json={
             "personal_email": "26100279@lums.edu.pk",
             "password": "cardpay123",
-            "phone_number": "090078601",
+            "phone_number": "3269507542",
             "user_type": "CUSTOMER",
             "full_name": "Shaheer Ahmad",
             # "location": [24.8607, 67.0011],
@@ -76,7 +76,7 @@ def test_create_user_api(mocker, client):
         json={
             "personal_email": "26100279@lums.edu.pk",
             "password": "cardpay123",
-            "phone_number": "090078601",
+            "phone_number": "3269507542",
             "user_type": "CUSTOMER",
             "full_name": "Shaheer Ahmad",
             "location": [24.8607, 67.0011],
@@ -97,7 +97,7 @@ def test_create_user_api(mocker, client):
         json={
             "personal_email": "26100279@lums.edu.pk",
             "password": "cardpay123",
-            "phone_number": "090078601",
+            "phone_number": "3269507542",
             "user_type": "CUSTOMER",
             "full_name": "Shaheer Ahmad",
             "location": [24.8607, 67.0011],

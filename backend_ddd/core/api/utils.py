@@ -11,6 +11,7 @@ from core.entrypoint.uow import UnitOfWork
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain.model import UserType
 from core.api.event_codes import EventCode
+from core.api import schemas as sch
 
 
 @dataclass(frozen=True)
@@ -101,7 +102,7 @@ def handle_missing_payload(func):
     return wrapper
 
 
-def validate_json_payload(required_parameters: List[str]):
+def validate_json_payload(required_parameters: Dict[str, sch.AbstractSchema]):
     def inner_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -112,6 +113,29 @@ def validate_json_payload(required_parameters: List[str]):
                 raise CustomException(
                     "invalid json payload, missing or extra parameters"
                 )
+
+            for param, schema in required_parameters.items():
+                schema(req[param]).validate()
+                
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return inner_decorator
+
+#Todo: WILL REMOVE THIS IN PART 2 OF IMPLEMENTING JSON VALIDATION
+def retool_validate_json_payload(required_parameters: List[str]):
+    def inner_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            req = request.get_json(force=True)
+            if "RETOOL_SECRET" in req.keys():
+                req.pop("RETOOL_SECRET")
+            if set(required_parameters) != set(req.keys()):
+                raise CustomException(
+                    "invalid json payload, missing or extra parameters"
+                )
+
             return func(*args, **kwargs)
 
         return wrapper

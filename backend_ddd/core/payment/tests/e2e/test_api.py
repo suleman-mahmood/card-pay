@@ -261,7 +261,7 @@ def test_execute_p2p_push_one_to_many_all_invalid(
     post_requests = [
         {
             "recipient_unique_identifier": recipient_unique_identifier,
-            "amount": 10000,
+            "amount": 2000,
             "closed_loop_id": closed_loop_id,
         }
         for recipient_unique_identifier in recipient_unique_identifiers

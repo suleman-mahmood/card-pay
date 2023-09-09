@@ -56,4 +56,4 @@ def test_validate_payload():
             with pytest.raises(utils.CustomException):
                 schema(input).validate()
         for input in data["valid_inputs"]:
-            assert schema(input).validate()
+            schema(input).validate()

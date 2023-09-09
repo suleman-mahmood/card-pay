@@ -71,7 +71,7 @@ def seed_api_customer():
             json={
                 "personal_email": "26100279@lums.edu.pk",
                 "password": "cardpay123",
-                "phone_number": "090078601",
+                "phone_number": "3269507526",
                 "user_type": "CUSTOMER",
                 "full_name": "Shaheer Ahmad",
                 "location": [24.8607, 67.0011],
@@ -94,9 +94,9 @@ def seed_api_admin():
             json={
                 "personal_email": "26100279@lums.edu.pk",
                 "password": "cardpay123",
-                "phone_number": "090078601",
+                "phone_number": "3269507526",
                 "user_type": "ADMIN",
-                "full_name": "Suleman Mahmood Pawa admin",
+                "full_name": "Suleman Mahmood",
                 "location": [24.8607, 67.0011],
             },
         )
