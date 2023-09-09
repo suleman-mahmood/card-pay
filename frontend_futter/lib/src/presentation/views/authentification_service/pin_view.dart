@@ -1,8 +1,8 @@
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/pin_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
-import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +26,7 @@ class PinView extends HookWidget {
     String prevPin = '';
 
     final userCubit = BlocProvider.of<UserCubit>(context);
+    final pinCubit = BlocProvider.of<PinCubit>(context);
     final balanceCubit = BlocProvider.of<BalanceCubit>(context);
     final recentTransactionsCubit =
         BlocProvider.of<RecentTransactionsCubit>(context);
@@ -35,7 +36,7 @@ class PinView extends HookWidget {
 
       if (isPinConfirmed.value) {
         if (newPin == prevPin && prevPin != '0000') {
-          userCubit.changePin(pinController.text);
+          pinCubit.changePin(pinController.text);
           return;
         }
 
@@ -72,10 +73,10 @@ class PinView extends HookWidget {
         child: Flex(
           direction: Axis.vertical,
           children: [
-            BlocConsumer<UserCubit, UserState>(
+            BlocConsumer<PinCubit, PinState>(
               builder: (_, state) {
                 switch (state.runtimeType) {
-                  case UserLoading:
+                  case PinLoading:
                     return const CircularProgressIndicator();
                   default:
                     return const SizedBox.shrink();
@@ -83,14 +84,12 @@ class PinView extends HookWidget {
               },
               listener: (_, state) {
                 switch (state.runtimeType) {
-                  case UserSuccess:
-                    if (state.eventCodes == EventCodes.PIN_REGISTERED) {
-                      userCubit.getUser();
-                      balanceCubit.getUserBalance();
-                      recentTransactionsCubit.getUserRecentTransactions();
+                  case PinSuccess:
+                    userCubit.getUser();
+                    balanceCubit.getUserBalance();
+                    recentTransactionsCubit.getUserRecentTransactions();
 
-                      context.router.push(PaymentDashboardRoute());
-                    }
+                    context.router.push(PaymentDashboardRoute());
                 }
               },
             ),
