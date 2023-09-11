@@ -495,8 +495,13 @@ def execute_qr_transaction(
     sender_wallet_id: str,
     recipient_qr_id: str,
     amount: int,
+    version: int,
     uow: AbstractUnitOfWork,
 ) -> Transaction:
+    
+    if version != 1:
+        raise InvalidQRVersionException("Invalid QR version")
+
     user_info = payment_qry.get_user_wallet_id_and_type_from_qr_id(
         qr_id=recipient_qr_id,
         uow=uow,

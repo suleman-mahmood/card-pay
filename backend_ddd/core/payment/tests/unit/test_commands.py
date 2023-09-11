@@ -286,6 +286,18 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
         wallet_id=vendor.wallet_id, uow=uow
     )
 
+    #test qr txn to invalid qr version
+    with pytest.raises(
+        payment_exc.InvalidQRVersionException, match="Invalid QR version"
+    ):
+        tx = execute_qr_transaction(
+            sender_wallet_id=sender_customer.wallet_id,
+            recipient_qr_id=vendor_wallet.qr_id,
+            amount=400,
+            version=0,
+            uow=uow,
+        )
+
     # test qr txn to invalid qr_id
 
     with pytest.raises(
@@ -294,6 +306,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
         tx = execute_qr_transaction(
             sender_wallet_id=sender_customer.wallet_id,
             recipient_qr_id=str(uuid4()),
+            version=1,
             amount=400,
             uow=uow,
         )
@@ -303,6 +316,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
         sender_wallet_id=sender_customer.wallet_id,
         recipient_qr_id=vendor_wallet.qr_id,
         amount=400,
+        version=1,
         uow=uow,
     )
 
@@ -317,6 +331,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
             sender_wallet_id=sender_customer.wallet_id,
             recipient_qr_id=vendor_wallet.qr_id,
             amount=601,
+            version=1,
             uow=uow,
         )
 
@@ -330,6 +345,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
         sender_wallet_id=sender_customer.wallet_id,
         recipient_qr_id=recipient_customer_wallet.qr_id,
         amount=500,
+        version=1,
         uow=uow,
     )
 
@@ -358,12 +374,14 @@ def test_reconcile_vendor(seed_verified_auth_user, seed_verified_auth_vendor, se
         sender_wallet_id=sender_customer.wallet_id,
         recipient_qr_id=vendor_wallet.qr_id,
         amount=400,
+        version=1,
         uow=uow,
     )
     execute_qr_transaction(
         sender_wallet_id=sender_customer.wallet_id,
         recipient_qr_id=vendor_wallet.qr_id,
         amount=200,
+        version=1,
         uow=uow,
     )
 

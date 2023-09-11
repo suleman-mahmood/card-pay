@@ -18,3 +18,6 @@ class PaymentUrlNotFoundException(Exception):
 
 class NotVerifiedException(Exception):
     """User is not verified"""
+
+class InvalidQRVersionException(Exception):
+    """QR version is invalid"""

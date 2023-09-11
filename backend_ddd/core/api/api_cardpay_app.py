@@ -608,6 +608,7 @@ def redeem_voucher(uid):
     required_parameters={
         "qr_id": sch.UuidSchema,
         "amount": sch.AmountSchema,
+        "v": sch.VersionSchema,
     }
 )
 def execute_qr_transaction(uid):
@@ -619,11 +620,13 @@ def execute_qr_transaction(uid):
             sender_wallet_id=uid,
             recipient_qr_id=req["qr_id"],
             amount=req["amount"],
+            version=req["v"],
             uow=uow,
         )
         uow.commit_close_connection()
     except (
         pmt_cmd_ex.InvalidQRCodeException,
+        pmt_cmd_ex.InvalidQRVersionException,
         pmt_cmd_ex.InvalidUserTypeException,
         pmt_ex.TransactionNotAllowedException,
         mktg_ex.InvalidReferenceException,

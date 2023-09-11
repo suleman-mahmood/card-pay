@@ -252,3 +252,14 @@ class TimestampSchema(AbstractSchema):
 
         if not re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+$", self.value):
             raise utils.CustomException("Invalid Timestamp Passed")
+
+@dataclass()
+class VersionSchema(AbstractSchema):
+    value: int
+
+    def validate(self):
+        if not isinstance(self.value,int):
+            raise utils.CustomException("Version passed is not an integer")
+
+        if self.value<0:
+            raise utils.CustomException("Version passed is negative")
