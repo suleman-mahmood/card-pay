@@ -30,7 +30,7 @@ cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
         "password": sch.PasswordSchema,
         "phone_number": sch.PhoneNumberSchema,
         "user_type": sch.UserTypeSchema,
-        "full_name": sch.NameSchema,
+        "full_name": sch.UserNameSchema,
         "location": sch.LocationSchema,
     }
 )
@@ -66,7 +66,7 @@ def create_user():
         "personal_email": sch.EmailSchema,
         "password": sch.PasswordSchema,
         "phone_number": sch.PhoneNumberSchema,
-        "full_name": sch.NameSchema,
+        "full_name": sch.UserNameSchema,
         "location": sch.LocationSchema,
     }
 )
@@ -109,7 +109,7 @@ def create_customer():
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_json_payload(required_parameters={"new_name": sch.NameSchema})
+@utils.validate_json_payload(required_parameters={"new_name": sch.UserNameSchema})
 def change_name(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()

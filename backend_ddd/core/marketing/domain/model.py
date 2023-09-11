@@ -130,7 +130,7 @@ class Weightage:
     """Data value object"""
 
     """
-    Weightage value will be a percentage for P2P_PUSH, P2P_PULL, PAYMENT_GATEWAY
+    Weightage value will be a percentage (less than 1) for P2P_PUSH, P2P_PULL, PAYMENT_GATEWAY
     Weightage value will be an absolute amount for REFERRAL
     """
 
