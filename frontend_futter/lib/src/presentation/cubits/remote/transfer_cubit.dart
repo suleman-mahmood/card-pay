@@ -58,7 +58,7 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
     });
   }
 
-  Future<void> executeQrTransaction(String qrId, int amount) async {
+  Future<void> executeQrTransaction(String qrId, int amount, int v) async {
     if (isBusy) return;
 
     await run(() async {
@@ -76,7 +76,7 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
       final response = await _apiRepository.executeQrTransaction(
-        request: ExecuteQrTransactionRequest(qrId: qrId, amount: amount),
+        request: ExecuteQrTransactionRequest(qrId: qrId, amount: amount, v: v),
         token: token,
       );
 

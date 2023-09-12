@@ -18,11 +18,13 @@ class SendViewConstants {
 class SendView extends HookWidget {
   final String? uniqueIdentifier;
   final String? qrId;
+  final int? v;
 
   const SendView({
     Key? key,
     this.uniqueIdentifier,
     this.qrId,
+    this.v,
   }) : super(key: key);
 
   @override
@@ -52,6 +54,7 @@ class SendView extends HookWidget {
               transferCubit.executeQrTransaction(
                 qrId ?? '',
                 amount,
+                v ?? 0,
               );
             }
           },

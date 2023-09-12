@@ -33,9 +33,17 @@ class QrView extends HookWidget {
         } on FormatException catch (_) {
           jsonMap["name"] = "Unknown QR";
           jsonMap["qr_id"] = '';
+          jsonMap["v"] = 0;
         } on TypeError catch (_) {
           jsonMap["name"] = "Unknown QR";
           jsonMap["qr_id"] = '';
+          jsonMap["v"] = 0;
+        }
+
+        if (jsonMap["v"] != 1) {
+          jsonMap["name"] = "Unknown QR";
+          jsonMap["qr_id"] = '';
+          jsonMap["v"] = 0;
         }
 
         controller.pauseCamera();
@@ -43,6 +51,7 @@ class QrView extends HookWidget {
             .push(SendRoute(
           uniqueIdentifier: jsonMap["name"],
           qrId: jsonMap["qr_id"],
+          v: jsonMap["v"],
         ))
             .then(
           (_) {

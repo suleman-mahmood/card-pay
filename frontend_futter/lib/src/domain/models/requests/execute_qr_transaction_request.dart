@@ -4,19 +4,23 @@ import 'dart:convert';
 class ExecuteQrTransactionRequest {
   final String qrId;
   final int amount;
+  final int v;
 
   const ExecuteQrTransactionRequest({
     required this.qrId,
     required this.amount,
+    required this.v,
   });
 
   ExecuteQrTransactionRequest copyWith({
     String? qrId,
     int? amount,
+    int? v,
   }) {
     return ExecuteQrTransactionRequest(
       qrId: qrId ?? this.qrId,
       amount: amount ?? this.amount,
+      v: v ?? this.v,
     );
   }
 
@@ -24,6 +28,7 @@ class ExecuteQrTransactionRequest {
     return <String, dynamic>{
       'qr_id': qrId,
       'amount': amount,
+      'v': v,
     };
   }
 
@@ -31,6 +36,7 @@ class ExecuteQrTransactionRequest {
     return ExecuteQrTransactionRequest(
       qrId: map['qr_id'] as String,
       amount: map['amount'] as int,
+      v: map['v'] as int,
     );
   }
 
@@ -42,15 +48,15 @@ class ExecuteQrTransactionRequest {
 
   @override
   String toString() =>
-      'ExecuteQrTransactionRequest(qrId: $qrId, amount: $amount)';
+      'ExecuteQrTransactionRequest(qrId: $qrId, amount: $amount, v: $v)';
 
   @override
   bool operator ==(covariant ExecuteQrTransactionRequest other) {
     if (identical(this, other)) return true;
 
-    return other.qrId == qrId && other.amount == amount;
+    return other.qrId == qrId && other.amount == amount && other.v == v;
   }
 
   @override
-  int get hashCode => qrId.hashCode ^ amount.hashCode;
+  int get hashCode => qrId.hashCode ^ amount.hashCode ^ v.hashCode;
 }
