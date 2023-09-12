@@ -39,6 +39,7 @@ def test_get_user_checkpoint(seed_verified_auth_user, seed_auth_closed_loop):
         user_id=user.id,
         closed_loop_id=closed_loop.id,
         unique_identifier_otp=otp,
+        ignore_migration=False,
         uow=uow,
     )
     checkpoint = auth_qry.user_checkpoints(user_id=user.id, uow=uow)

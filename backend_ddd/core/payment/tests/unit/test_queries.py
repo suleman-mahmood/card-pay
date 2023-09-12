@@ -8,9 +8,12 @@ from core.marketing.entrypoint import commands as mkt_cmd
 from core.authentication.tests.conftest import *
 from core.entrypoint.uow import UnitOfWork
 
-def test_get_all_successful_transactions_of_a_user(seed_verified_auth_user, seed_auth_closed_loop):
+
+def test_get_all_successful_transactions_of_a_user(
+    seed_verified_auth_user, seed_auth_closed_loop
+):
     uow = UnitOfWork()
-    
+
     user_1 = seed_verified_auth_user(uow)
     user_2 = seed_verified_auth_user(uow)
 
@@ -20,28 +23,30 @@ def test_get_all_successful_transactions_of_a_user(seed_verified_auth_user, seed
         user_id=user_1.id,
         closed_loop_id=closed_loop.id,
         unique_identifier="26100279",
-        uow = uow
+        uow=uow,
     )
     auth_cmd.verify_closed_loop(
         user_id=user_1.id,
         closed_loop_id=closed_loop.id,
         unique_identifier_otp=user_1.closed_loops[closed_loop.id].unique_identifier_otp,
-        uow = uow
+        ignore_migration=False,
+        uow=uow,
     )
 
     user_2 = auth_cmd.register_closed_loop(
         user_id=user_2.id,
         closed_loop_id=closed_loop.id,
         unique_identifier="25110542",
-        uow = uow
+        uow=uow,
     )
     auth_cmd.verify_closed_loop(
         user_id=user_2.id,
         closed_loop_id=closed_loop.id,
         unique_identifier_otp=user_2.closed_loops[closed_loop.id].unique_identifier_otp,
-        uow = uow
+        ignore_migration=False,
+        uow=uow,
     )
-    
+
     mkt_cmd.add_and_set_missing_weightages_to_zero(uow=uow)
 
     uow.transactions.add_1000_wallet(wallet_id=user_1.id)
@@ -66,14 +71,26 @@ def test_get_all_successful_transactions_of_a_user(seed_verified_auth_user, seed
         uow=uow,
     )
 
-    assert len(pmt_qry.get_all_successful_transactions_of_a_user(user_id=user_1.id, page_size=50, offset=0, uow=uow)) == 1 
+    assert (
+        len(
+            pmt_qry.get_all_successful_transactions_of_a_user(
+                user_id=user_1.id, page_size=50, offset=0, uow=uow
+            )
+        )
+        == 1
+    )
 
     pmt_cmd.accept_p2p_pull_transaction(
         transaction_id=tx_2.id,
         uow=uow,
     )
-    assert len(pmt_qry.get_all_successful_transactions_of_a_user(user_id=user_1.id, page_size=50, offset=0, uow=uow)) == 2 
+    assert (
+        len(
+            pmt_qry.get_all_successful_transactions_of_a_user(
+                user_id=user_1.id, page_size=50, offset=0, uow=uow
+            )
+        )
+        == 2
+    )
 
     uow.close_connection()
-
-

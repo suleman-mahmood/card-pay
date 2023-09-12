@@ -239,6 +239,7 @@ def verify_closed_loop(
     user_id: str,
     closed_loop_id: str,
     unique_identifier_otp: str,
+    ignore_migration: bool,
     uow: AbstractUnitOfWork,
 ):
     """Request/Register to join a closed loop"""
@@ -253,7 +254,7 @@ def verify_closed_loop(
     user.verify_closed_loop(closed_loop_id=closed_loop_id, otp=unique_identifier_otp)
     uow.users.save(user)
 
-    if closed_loop_id != LUMS_CLOSED_LOOP_ID:
+    if closed_loop_id != LUMS_CLOSED_LOOP_ID or ignore_migration:
         return user
 
     unique_identifier = user.closed_loops[closed_loop_id].unique_identifier
@@ -384,6 +385,7 @@ def create_vendor_through_retool(
         user_id=user_id,
         closed_loop_id=closed_loop_id,
         unique_identifier_otp=otp,
+        ignore_migration=True,
         uow=uow,
     )
 

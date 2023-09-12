@@ -285,6 +285,7 @@ def verify_closed_loop(uid):
             user_id=uid,
             closed_loop_id=req["closed_loop_id"],
             unique_identifier_otp=req["unique_identifier_otp"],
+            ignore_migration=False,
             uow=uow,
         )
         uow.commit_close_connection()
@@ -633,7 +634,7 @@ def execute_qr_transaction(uid):
     except pmt_cmd_ex.TransactionFailedException as e:
         uow.commit_close_connection()
         raise utils.CustomException(str(e))
-        
+
     except (
         pmt_cmd_ex.InvalidQRCodeException,
         pmt_cmd_ex.InvalidQRVersionException,

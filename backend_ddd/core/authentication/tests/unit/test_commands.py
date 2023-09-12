@@ -217,6 +217,7 @@ def test_register_closed_loop(seed_auth_user, seed_auth_closed_loop):
         unique_identifier_otp=fetched_user.closed_loops[
             closed_loop_2.id
         ].unique_identifier_otp,
+        ignore_migration=False,
         uow=uow,
     )
 
@@ -256,6 +257,7 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
             user_id=user.id,
             closed_loop_id=closed_loop.id,
             unique_identifier_otp="0000",
+            ignore_migration=False,
             uow=uow,
         )
 
@@ -270,6 +272,7 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
         user_id=user.id,
         closed_loop_id=closed_loop.id,
         unique_identifier_otp=otp,
+        ignore_migration=False,
         uow=uow,
     )
 
@@ -286,8 +289,10 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
             user_id=user.id,
             closed_loop_id=closed_loop.id,
             unique_identifier_otp=otp,
+            ignore_migration=False,
             uow=uow,
         )
+
 
 def test_create_vendor(seed_auth_closed_loop, mocker):
     uow = UnitOfWork()
