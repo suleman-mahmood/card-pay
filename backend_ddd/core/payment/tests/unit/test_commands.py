@@ -287,7 +287,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
 
     #test qr txn to invalid qr version
     with pytest.raises(
-        payment_exc.InvalidQRVersionException, match="Invalid QR version"
+        pmt_cmd_ex.InvalidQRVersionException, match="Invalid QR version"
     ):
         tx = execute_qr_transaction(
             sender_wallet_id=sender_customer.wallet_id,
