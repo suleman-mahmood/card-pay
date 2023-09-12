@@ -381,6 +381,10 @@ def execute_p2p_push_transaction(uid):
         )
         uow.commit_close_connection()
 
+    except pmt_cmd_ex.TransactionFailedException as e:
+        uow.commit_close_connection()  # save the failed transactions
+        raise utils.CustomException(str(e))
+
     except (
         pmt_ex.TransactionNotAllowedException,
         mktg_ex.NegativeAmountException,
@@ -472,6 +476,10 @@ def accept_p2p_pull_transaction(uid):
             uow=uow,
         )
         uow.commit_close_connection()
+
+    except pmt_cmd_ex.TransactionFailedException as e:
+        uow.commit_close_connection()
+        raise utils.CustomException(str(e))
 
     except (
         pmt_ex.TransactionNotAllowedException,
@@ -621,6 +629,11 @@ def execute_qr_transaction(uid):
             uow=uow,
         )
         uow.commit_close_connection()
+
+    except pmt_cmd_ex.TransactionFailedException as e:
+        uow.commit_close_connection()
+        raise utils.CustomException(str(e))
+        
     except (
         pmt_cmd_ex.InvalidQRCodeException,
         pmt_cmd_ex.InvalidQRVersionException,
@@ -650,7 +663,7 @@ def execute_qr_transaction(uid):
 @utils.user_verified
 @utils.handle_missing_payload
 @utils.validate_json_payload(
-    required_parameters= {
+    required_parameters={
         "referee_id": sch.UuidSchema,
         "referral_id": sch.UuidSchema,
     }

@@ -29,11 +29,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-class NotVerifiedException(Exception):
-    """User is not verified"""
-
-
 # please only call this from create_user
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
@@ -104,9 +99,13 @@ def execute_transaction(
         )
 
         if utils.is_instant_transaction(transaction_type=transaction_type):
-            tx.execute_transaction()
-            uow.transactions.save(tx)
+            try:
+                tx.execute_transaction()
+            except pmt_mdl_exc.TransactionNotAllowedException as e:
+                uow.transactions.save(tx)
+                raise TransactionFailedException(str(e))
 
+            uow.transactions.save(tx)
             mktg_cmd.add_loyalty_points(
                 sender_wallet_id=sender_wallet_id,
                 recipient_wallet_id=recipient_wallet_id,
@@ -161,7 +160,12 @@ def accept_p2p_pull_transaction(
 ) -> Transaction:
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
-        tx.accept_p2p_pull_transaction()
+        try:
+            tx.accept_p2p_pull_transaction()
+        except pmt_mdl_exc.TransactionNotAllowedException as e:
+            uow.transactions.save(tx)
+            raise TransactionFailedException(str(e))
+
         uow.transactions.save(tx)
 
         mktg_cmd.add_loyalty_points(

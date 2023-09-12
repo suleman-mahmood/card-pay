@@ -123,6 +123,7 @@ def pay_pro_callback():
             uow=uow,
         )
         uow.commit_close_connection()
+
     except (
         pmt_cmd_exc.InvalidPayProCredentialsException,
         pmt_cmd_exc.PaymentUrlNotFoundException,

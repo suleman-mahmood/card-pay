@@ -33,10 +33,9 @@ from ...domain.model import (
 from queue import Queue
 from uuid import uuid4
 import pytest
-from ...domain.exceptions import TransactionNotAllowedException
 from core.authentication.entrypoint import queries as auth_queries
-from core.payment.entrypoint import exceptions as payment_exc
-from core.payment.domain import model as payment_mdl
+from core.payment.entrypoint import exceptions as pmt_cmd_ex
+from core.payment.domain import model as pmt_mdl
 
 def _get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
     sql = """
@@ -46,7 +45,7 @@ def _get_wallet_from_wallet_id(wallet_id: str, uow: AbstractUnitOfWork):
     """
     uow.cursor.execute(sql, [wallet_id])
     row = uow.cursor.fetchone()
-    return payment_mdl.Wallet(
+    return pmt_mdl.Wallet(
         id=row[0],
         balance=row[1],
         qr_id=row[2],
@@ -301,7 +300,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
     # test qr txn to invalid qr_id
 
     with pytest.raises(
-        payment_exc.InvalidQRCodeException, match="Invalid QR code"
+        pmt_cmd_ex.InvalidQRCodeException, match="Invalid QR code"
     ):
         tx = execute_qr_transaction(
             sender_wallet_id=sender_customer.wallet_id,
@@ -325,7 +324,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
 
     # test insufficient balance
     with pytest.raises(
-        TransactionNotAllowedException, match="Insufficient balance in sender's wallet"
+        pmt_cmd_ex.TransactionFailedException, match="Insufficient balance in sender's wallet"
     ):
         tx = execute_qr_transaction(
             sender_wallet_id=sender_customer.wallet_id,
@@ -405,7 +404,7 @@ def test_reconcile_vendor(seed_verified_auth_user, seed_verified_auth_vendor, se
 
     # test reconciliation with zero balance
     with pytest.raises(
-        TransactionNotAllowedException, match="Amount is zero or negative"
+        pmt_cmd_ex.TransactionFailedException, match="Amount is zero or negative"
     ):
         payment_retools_reconcile_vendor(
             vendor_wallet_id=vendor_wallet.id,
@@ -413,3 +412,38 @@ def test_reconcile_vendor(seed_verified_auth_user, seed_verified_auth_vendor, se
         )
 
     uow.close_connection()
+
+def _get_latest_failed_txn_of_user(user_id: str, uow: AbstractUnitOfWork):
+    with uow:
+        sql = """
+            select id from transactions txn
+            where (sender_wallet_id = %s or recipient_wallet_id = %s)
+            and status = 'FAILED'::transaction_status_enum
+            order by created_at desc
+        """
+        uow.cursor.execute(sql, [user_id,user_id])
+        rows = uow.cursor.fetchone()
+
+        return uow.transactions.get(transaction_id=rows[0])
+
+def test_failing_txn(seed_verified_auth_user):
+    
+    uow = UnitOfWork()
+    user_1 = seed_verified_auth_user(uow)
+    user_2 = seed_verified_auth_user(uow)
+
+    with pytest.raises(pmt_cmd_ex.TransactionFailedException):
+        tx = execute_transaction(
+            sender_wallet_id=user_1.id,
+            recipient_wallet_id=user_2.id,
+            amount=1000,
+            transaction_mode=TransactionMode.APP_TRANSFER,
+            transaction_type=TransactionType.P2P_PUSH,
+            uow=uow,
+        )
+
+    fetched_failed_tx = _get_latest_failed_txn_of_user(user_id=user_1.id, uow=uow)
+    assert fetched_failed_tx.amount == 1000
+    assert fetched_failed_tx.status == TransactionStatus.FAILED
+    uow.close_connection()
+    

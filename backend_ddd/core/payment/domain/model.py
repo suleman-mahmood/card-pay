@@ -91,6 +91,7 @@ class Transaction:
             )
 
         if not isinstance(self.amount, int):
+            self.status = TransactionStatus.FAILED
             raise TransactionNotAllowedException(
                 "Constraint violated, amount is not an integer"
             )

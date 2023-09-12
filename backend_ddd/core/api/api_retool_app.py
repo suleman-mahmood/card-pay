@@ -12,6 +12,7 @@ from core.payment.entrypoint import commands as payment_cmd
 from core.payment.domain import exceptions as pmt_ex
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.api import schemas as sch
+from core.payment.entrypoint import exceptions as pmt_cmd_ex
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
@@ -435,6 +436,10 @@ def payment_retools_reconcile_vendor():
             vendor_wallet_id=req["vendor_wallet_id"],
         )
         uow.commit_close_connection()
+
+    except pmt_cmd_ex.TransactionFailedException as e:
+        uow.commit_close_connection()
+        raise utils.CustomException(str(e))
 
     except (
         pmt_ex.TransactionNotAllowedException,
