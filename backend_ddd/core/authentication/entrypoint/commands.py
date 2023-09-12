@@ -17,8 +17,8 @@ from core.authentication.domain import model as auth_mdl
 from core.payment.domain import exceptions as pmt_domain_exc
 
 PK_CODE = "92"
-LUMS_CLOSED_LOOP_ID = "a3024e7d-e59c-4c65-8066-ab0349248d2b"
-PAYPRO_USER_ID = "fa976abe-0e30-49f5-8595-5abafd270fbb"
+LUMS_CLOSED_LOOP_ID = "f23a19c5-040c-4924-830d-d1b687238c2b"
+PAYPRO_USER_ID = "bd85b580-9510-4596-afc4-b737eeb3d492"
 
 
 def create_closed_loop(
