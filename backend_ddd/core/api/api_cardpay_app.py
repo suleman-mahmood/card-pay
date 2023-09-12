@@ -437,10 +437,7 @@ def create_p2p_pull_transaction(uid):
         )
         uow.commit_close_connection()
     except (
-        pmt_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        pmt_cmd_ex.NotVerifiedException,
         pmt_qry_ex.UserDoesNotExistException,
     ) as e:
         uow.close_connection()
