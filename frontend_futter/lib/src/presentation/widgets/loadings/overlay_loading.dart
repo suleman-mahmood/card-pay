@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class OverlayLoading extends StatelessWidget {
-  const OverlayLoading({super.key});
+  final bool inSafeArea;
+
+  const OverlayLoading({super.key, this.inSafeArea = true});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: MediaQuery.of(context).size.height -
-          MediaQuery.of(context).padding.top,
+          (inSafeArea ? MediaQuery.of(context).padding.top : 0),
       width: MediaQuery.of(context).size.width,
       child: Stack(
         children: [

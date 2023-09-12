@@ -33,7 +33,6 @@ dependencies:
   google_fonts: ^5.1.0
   firebase_analytics: ^10.4.4
   firebase_crashlytics: ^3.3.4
-  upgrader: ^8.1.0
   shared_preferences: ^2.2.0
   package_info_plus: ^4.1.0
 

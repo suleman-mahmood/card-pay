@@ -11,10 +11,10 @@ import 'package:meta/meta.dart';
 
 part 'closed_loop_state.dart';
 
-class ClosedLoopCubit extends BaseCubit<ClosedLoopState, void> {
+class ClosedLoopCubit extends BaseCubit<ClosedLoopState, List<ClosedLoop>> {
   final ApiRepository _apiRepository;
 
-  ClosedLoopCubit(this._apiRepository) : super(ClosedLoopInitial(), null);
+  ClosedLoopCubit(this._apiRepository) : super(ClosedLoopInitial(), []);
 
   Future<void> getAllClosedLoops() async {
     if (isBusy) return;
@@ -28,9 +28,12 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, void> {
       final response = await _apiRepository.getAllClosedLoops(token);
 
       if (response is DataSuccess) {
+        data.clear();
+        data.addAll(response.data!.closedLoops);
+
         emit(ClosedLoopSuccess(
           message: response.data!.message,
-          closedLoops: response.data!.closedLoops,
+          closedLoops: data,
         ));
       } else if (response is DataFailed) {
         if (response.error?.type.name == "unknown") {
@@ -71,6 +74,7 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, void> {
         emit(ClosedLoopSuccess(
           message: response.data!.message,
           eventCodes: EventCodes.ORGANIZATION_REGISTERED,
+          closedLoops: data,
         ));
       } else if (response is DataFailed) {
         if (response.error?.type.name == "unknown") {
@@ -111,6 +115,7 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, void> {
         emit(ClosedLoopSuccess(
           message: response.data!.message,
           eventCodes: EventCodes.ORGANIZATION_VERIFIED,
+          closedLoops: data,
         ));
       } else if (response is DataFailed) {
         if (response.error?.type.name == "unknown") {

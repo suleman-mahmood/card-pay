@@ -34,10 +34,13 @@ class SignupView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final acceptPrivacyTerms = useState<bool>(false);
     final phoneNumberController = useTextEditingController();
-    final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
+
     final formKey = useMemoized(() => GlobalKey<FormState>());
+
+    final acceptPrivacyTerms = useState<bool>(false);
+    final showTermsError = useState<bool>(false);
+    final dropdownValue = useState<String>(AppStrings.defaultCountryCode);
     final personalEmail = useState<String>('');
     final phoneNumber = useState<String>('');
     final fullName = useState<String>('');
@@ -61,7 +64,8 @@ class SignupView extends HookWidget {
               decoration: CustomBoxDecoration.getDecoration(),
               child: BottomSheetOTP(
                 deviceCheckHeading: AppStrings.checkMobile,
-                otpDeviceText: AppStrings.otpMobileText,
+                otpDeviceText:
+                    "${AppStrings.otpMobileText} 0${phoneNumber.value}",
                 onAction: (otp) => signupCubit.verifyPhoneNumber(otp),
               ),
             ),
@@ -93,6 +97,8 @@ class SignupView extends HookWidget {
     }
 
     void handleCreateAccount() async {
+      showTermsError.value = true;
+
       if (!formKey.currentState!.validate()) {
         return;
       }
@@ -159,7 +165,7 @@ class SignupView extends HookWidget {
             children: [
               const HeightBox(slab: 5),
               // Half progress bar
-              Row(
+              const Row(
                 children: [
                   Expanded(
                     flex: 2,
@@ -245,11 +251,11 @@ class SignupView extends HookWidget {
                 hint: AppStrings.enterEmail,
                 obscureText: false,
                 onChanged: (v) => personalEmail.value = v,
-                validator: (EmailValue) {
-                  if (EmailValue == null) {
+                validator: (emailValue) {
+                  if (emailValue == null) {
                     return AppStrings.nullEmail;
                   }
-                  if (!EmailValue.isValidEmail) {
+                  if (!emailValue.isValidEmail) {
                     return AppStrings.invalidEmail;
                   }
                   return null;
@@ -322,7 +328,7 @@ class SignupView extends HookWidget {
                     'https://pages.flycricket.io/cardpay/privacy.html')),
               ),
 
-              if (!acceptPrivacyTerms.value)
+              if (!acceptPrivacyTerms.value && showTermsError.value)
                 const PaddingHorizontal(
                   slab: 4,
                   child: Text(

@@ -49,7 +49,8 @@ class RegisterOrganizationView extends HookWidget {
               decoration: CustomBoxDecoration.getDecoration(),
               child: BottomSheetOTP(
                 deviceCheckHeading: AppStrings.checkEmail,
-                otpDeviceText: AppStrings.otpEmailText,
+                otpDeviceText:
+                    '${AppStrings.otpEmailText} ${uniqueIdentifier.value}@lums.edu.pk',
                 onAction: (otp) => closedLoopCubit.verifyClosedLoop(
                   selectedClosedLoop.value.id,
                   otp,

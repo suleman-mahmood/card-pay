@@ -26,11 +26,9 @@ import 'package:cardpay/src/domain/models/responses/verify_phone_number_response
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
 import 'package:cardpay/src/domain/models/transaction.dart';
 import 'package:cardpay/src/domain/models/version.dart';
+import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/data_state.dart';
-import 'package:dio/dio.dart';
-
-import '../../domain/repositories/api_repository.dart';
 import 'base/base_api_repository.dart';
 
 class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
@@ -46,7 +44,10 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       userId: "123",
     );
 
-    return Future.value(DataSuccess(dummyUserData));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(dummyUserData),
+    );
   }
 
   @override
@@ -63,24 +64,30 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     //   type: DioErrorType.unknown,
     //   error: null,
     // )));
-    return Future.value(DataSuccess(verificationStatus));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(verificationStatus),
+    );
   }
 
   @override
   Future<DataState<GetAllClosedLoopsResponse>> getAllClosedLoops(String token) {
-    return Future.value(DataSuccess(GetAllClosedLoopsResponse(
-      message: 'Customer created successfully',
-      closedLoops: [
-        ClosedLoop(
-          name: 'Nust',
-          id: 'Nust-id',
-        ),
-        ClosedLoop(
-          name: 'Fast',
-          id: 'fast-id',
-        ),
-      ],
-    )));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(GetAllClosedLoopsResponse(
+        message: 'Customer created successfully',
+        closedLoops: [
+          ClosedLoop(
+            name: 'Nust',
+            id: 'Nust-id',
+          ),
+          ClosedLoop(
+            name: 'Fast',
+            id: 'fast-id',
+          ),
+        ],
+      )),
+    );
   }
 
   @override
@@ -93,7 +100,10 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'close loop registered successfully',
     );
 
-    return Future.value(DataSuccess(registerClosedLoopResponse));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(registerClosedLoopResponse),
+    );
   }
 
   @override
@@ -105,7 +115,10 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'close loop verified successfully',
     );
 
-    return Future.value(DataSuccess(VerifyClosedLoopRequest));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(VerifyClosedLoopRequest),
+    );
   }
 
   @override
@@ -117,27 +130,30 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Pin changed successfully',
     );
 
-    return Future.value(DataSuccess(ChangePinRequest));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(ChangePinRequest),
+    );
   }
 
   Future<DataState<GetUserResponse>> getUser(String token) {
-    return Future.value(
-      DataSuccess(
-        GetUserResponse(
-          user: UserResponse(
-            fullName: 'Suleman',
-            id: '123',
-            closedLoops: [ClosedLoopUser(closedLoopId: "lums-id")],
-          ),
-          message: 'Customer created successfully',
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(GetUserResponse(
+        user: UserResponse(
+          fullName: 'Suleman',
+          id: '123',
+          closedLoops: [ClosedLoopUser(closedLoopId: "lums-id")],
         ),
-      ),
+        message: 'Customer created successfully',
+      )),
     );
   }
 
   Future<DataState<GetUserBalanceResponse>> getUserBalance(String token) {
-    return Future.value(
-      DataSuccess(
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(
         GetUserBalanceResponse(
           message: 'Customer created successfully',
           balance: 1000,
@@ -148,8 +164,9 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
 
   Future<DataState<GetUserRecentTransactionsResponse>>
       getUserRecentTransactions(String token) {
-    return Future.value(
-      DataSuccess(
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(
         GetUserRecentTransactionsResponse(
           message: 'Customer created successfully',
           recentTransactions: [
@@ -190,7 +207,10 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
         checkoutUrl:
             'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d');
 
-    return Future.value(DataSuccess(CreateDepositRequest));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(CreateDepositRequest),
+    );
   }
 
   Future<DataState<ExecuteP2PPushTransactionResponse>>
@@ -203,7 +223,10 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Execute successfully',
     );
 
-    return Future.value(DataSuccess(ExecuteP2PPushTransactionRequest));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(ExecuteP2PPushTransactionRequest),
+    );
   }
 
   Future<DataState<ExecuteQrTransactionResponse>> executeQrTransaction({
@@ -215,7 +238,10 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Execute qr successfully',
     );
 
-    return Future.value(DataSuccess(ExecuteP2PPushTransactionRequest));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(ExecuteP2PPushTransactionRequest),
+    );
   }
 
   Future<DataState<CreateP2PPullTransactionResponse>> createP2PPullTransaction({
@@ -227,27 +253,40 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Transection is successfully',
     );
 
-    return Future.value(DataSuccess(CreateP2PPullTransactionRequest));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(CreateP2PPullTransactionRequest),
+    );
   }
 
   Future<DataState<GetCheckpointsResponse>> getCheckpoints(String user_id) {
-    return Future.value(DataSuccess(GetCheckpointsResponse(
-      checks: Checkpoints(
-        verifiedPhoneOtp: true,
-        verifiedClosedLoop: true,
-        pinSetup: true,
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(
+        GetCheckpointsResponse(
+          checks: Checkpoints(
+            verifiedPhoneOtp: true,
+            verifiedClosedLoop: true,
+            pinSetup: true,
+          ),
+          message: 'Customer verify successfully',
+        ),
       ),
-      message: 'Customer verify successfully',
-    )));
+    );
   }
 
   Future<DataState<GetVersionsResponse>> getVersions() {
-    return Future.value(DataSuccess(GetVersionsResponse(
-      versions: Versions(
-        forceUpdateVersion: '1.0.0',
-        latestVersion: '1.5.0',
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(
+        GetVersionsResponse(
+          versions: Versions(
+            forceUpdateVersion: '1.0.0',
+            latestVersion: '1.5.0',
+          ),
+          message: 'Already updated version ',
+        ),
       ),
-      message: 'Already updated version ',
-    )));
+    );
   }
 }

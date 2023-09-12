@@ -9,8 +9,8 @@ class AppStrings {
       'Let\'s get you started by creating your account';
   static const String username = 'Full name';
   static const String enterUsername = 'Enter your full name';
-  static const String email = 'Email address';
-  static const String enterEmail = 'Enter your email';
+  static const String email = 'Personal email address';
+  static const String enterEmail = 'Enter your personal email address';
   static const String password = 'Password';
   static const String confirmPin = 'Please Confirm your Pin';
   static const String passwordNotMatched = '  Error: Pin did not matched';
@@ -60,9 +60,8 @@ class AppStrings {
   static const String logInDescription = 'User your phone number to login';
   static const String checkMobile = 'Please check your Phone';
   static const String checkEmail = 'Please check your Email';
-  static const String otpMobileText =
-      'We send an otp at your number +923*****786';
-  static const String otpEmailText = 'We send an otp at talha****@example.com';
+  static const String otpMobileText = 'We send an otp at your number ';
+  static const String otpEmailText = 'We send an otp at ';
   static const String resendCode = 'Resend code';
   static const String noOtp = 'Didn\'t receive the code?';
   static const String verify = 'Verify';
