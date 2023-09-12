@@ -8,3 +8,7 @@ class WalletNotInFirestore(Exception):
 
 class UniqueIdentifierAlreadyExistsException(Exception):
     """exception raised for when a unique identifier already exists in a particular closed loop"""
+
+
+class UserNotFoundException(Exception):
+    """exception raised for when a user is not found in the database"""

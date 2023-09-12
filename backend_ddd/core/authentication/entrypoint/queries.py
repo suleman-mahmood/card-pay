@@ -147,7 +147,7 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 #     """
 #     uow.cursor.execute(sql, [phone_number])
 #     user_id = uow.cursor.fetchone()
-    
+
 #     return uow.users.get(user_id=user_id)
 
 
@@ -190,8 +190,8 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 #     """Get all active users"""
 
 #     sql = """
-#         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
-#         from users 
+#         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
+#         from users
 #         where is_active = true
 #     """
 #     uow.cursor.execute(sql)
@@ -224,8 +224,8 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 #     """Get all inactive users"""
 
 #     sql = """
-#         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
-#         from users 
+#         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
+#         from users
 #         where is_active = false
 #     """
 #     uow.cursor.execute(sql)
@@ -259,8 +259,8 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 #     """Get all users of a user type"""
 
 #     sql = """
-#         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
-#         from users 
+#         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at
+#         from users
 #         where user_type = %s
 #     """
 #     uow.cursor.execute(sql, [user_type.name])
@@ -316,44 +316,44 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 
 #     return closed_loops
 
-    # # with uow:
-    # #     sql = """
-    # #         select closed_loop_id
-    # #         from user_closed_loops
-    # #         where user_id = %s
-    # #     """
-    # #     uow.cursor.execute(
-    # #         sql,
-    # #         [
-    # #             user_id
-    # #         ]
-    # #     )
-    # #     rows = uow.cursor.fetchall()
+# # with uow:
+# #     sql = """
+# #         select closed_loop_id
+# #         from user_closed_loops
+# #         where user_id = %s
+# #     """
+# #     uow.cursor.execute(
+# #         sql,
+# #         [
+# #             user_id
+# #         ]
+# #     )
+# #     rows = uow.cursor.fetchall()
 
-    # #     sql = """
-    # #         select id, name, logo_url, description, regex, verification_type, created_at
-    # #         from closed_loops
-    # #         where id IN (
-    # #     """
-    # #     ids_str = ",".join([f"'{row[0]}'" for row in rows])
-    # #     sql += ids_str + ")"
-    # #     uow.cursor.execute(sql)
+# #     sql = """
+# #         select id, name, logo_url, description, regex, verification_type, created_at
+# #         from closed_loops
+# #         where id IN (
+# #     """
+# #     ids_str = ",".join([f"'{row[0]}'" for row in rows])
+# #     sql += ids_str + ")"
+# #     uow.cursor.execute(sql)
 
-    # #     rows = uow.cursor.fetchall()
-    # #     closed_loops = [
-    # #         auth_mdl.ClosedLoop(
-    # #             id=row[0],
-    # #             name=row[1],
-    # #             logo_url=row[2],
-    # #             description=row[3],
-    # #             regex=row[4],
-    # #             verification_type=row[5],
-    # #             created_at=row[6],
-    # #         )
-    # #         for row in rows
-    # #     ]
+# #     rows = uow.cursor.fetchall()
+# #     closed_loops = [
+# #         auth_mdl.ClosedLoop(
+# #             id=row[0],
+# #             name=row[1],
+# #             logo_url=row[2],
+# #             description=row[3],
+# #             regex=row[4],
+# #             verification_type=row[5],
+# #             created_at=row[6],
+# #         )
+# #         for row in rows
+# #     ]
 
-    # #     return closed_loops
+# #     return closed_loops
 
 
 # def get_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork):
@@ -665,3 +665,21 @@ def user_checkpoints(
         verified_closed_loop=verified_closed_loop,
         pin_setup=pin_setup,
     )
+
+
+def get_full_name_from_unique_identifier_and_closed_loop(
+    unique_identifier: str, closed_loop_id: str, uow: AbstractUnitOfWork
+) -> str:
+    sql = """
+        select u.full_name
+        from users u
+        join user_closed_loops ucl on u.id = ucl.user_id
+        where ucl.unique_identifier = %s and ucl.closed_loop_id = %s
+    """
+    uow.cursor.execute(sql, [unique_identifier, closed_loop_id])
+    row = uow.cursor.fetchone()
+
+    if row is None:
+        raise ex.UserNotFoundException("user not found")
+
+    return row[0]

@@ -806,3 +806,27 @@ def get_latest_force_update_version():
         status_code=200,
         data=version,
     ).__dict__
+
+
+@cardpay_app.route("/get-name-from-unique-identifier-and-closed-loop", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_name_from_unique_identifier_and_closed_loop():
+    uow = UnitOfWork()
+    try:
+        full_name = auth_qry.get_full_name_from_unique_identifier_and_closed_loop(
+            unique_identifier=request.args.get("unique_identifier"),
+            closed_loop_id=request.args.get("closed_loop_id"),
+            uow=uow,
+        )
+        uow.close_connection()
+    except auth_cmd_ex.UserNotFoundException as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    return utils.Response(
+        message="User full name returned successfully",
+        status_code=200,
+        data={"full_name": full_name},
+    ).__dict__
