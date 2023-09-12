@@ -40,7 +40,7 @@ app.register_blueprint(cardpay_app)
 app.register_blueprint(retool)
 app.register_blueprint(vendor_app)
 
-cred = firebase_admin.credentials.Certificate("core/api/credentials-dev.json")
+cred = firebase_admin.credentials.Certificate("core/api/credentials-prod.json")
 firebase_admin.initialize_app(cred)
 
 # 200 OK

@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "451051195028",
-    "project_id": "card-pay-dev",
-    "storage_bucket": "card-pay-dev.appspot.com"
+    "project_number": "674516928217",
+    "project_id": "cardpay-1",
+    "storage_bucket": "cardpay-1.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:451051195028:android:57fa0d32eff2a22c600281",
+        "mobilesdk_app_id": "1:674516928217:android:83f42ba7c23f86fad220c8",
         "android_client_info": {
           "package_name": "io.payment.cardpay"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "451051195028-v5tfafedqtslhi0gh906egqlsnvv6pmg.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD7RJODjHnUdBFwr2_UZc3RvIZqgrtoo7Y"
+          "current_key": "AIzaSyDQ-wW9kZtSzOJUkpF7oquYdBpO6FUr3Wg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "451051195028-v5tfafedqtslhi0gh906egqlsnvv6pmg.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

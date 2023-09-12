@@ -13,6 +13,7 @@
 
 ### Cloud SQL
 - To connect to the PostgreSQL instance on the cloud, run `./cloud-sql-proxy cardpay-1:asia-south1:cardpay-dev -p 5433`
+- To setup AVD: `gcloud auth application-default login`
 - To run migrations run `pg-migrator postgres://postgres:"-3vjMTP4s>*aEDuG"@127.0.0.1:5433/cardpay-dev-db` in `backend_ddd/db/migrations` directory
 
 ### Frontend

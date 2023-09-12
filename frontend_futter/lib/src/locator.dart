@@ -1,5 +1,5 @@
 import 'package:awesome_dio_interceptor/awesome_dio_interceptor.dart';
-import 'package:cardpay/src/config/firebase/firebase_options.dart';
+import 'package:cardpay/firebase_options.dart';
 import 'package:cardpay/src/data/datasources/remote/python_api_service.dart';
 import 'package:cardpay/src/data/repositories/api_repository_fake.dart';
 import 'package:cardpay/src/data/repositories/api_repository_imp.dart';
@@ -35,12 +35,10 @@ Future<void> initializeDependencies() async {
   );
 
   await Firebase.initializeApp(
-    // name: 'card-pay-dev',
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
 
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   FlutterError.onError = (errorDetails) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
   };

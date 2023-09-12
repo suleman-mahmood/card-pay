@@ -50,21 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD7RJODjHnUdBFwr2_UZc3RvIZqgrtoo7Y',
-    appId: '1:451051195028:android:57fa0d32eff2a22c600281',
-    messagingSenderId: '451051195028',
-    projectId: 'card-pay-dev',
-    storageBucket: 'card-pay-dev.appspot.com',
+    apiKey: 'AIzaSyDQ-wW9kZtSzOJUkpF7oquYdBpO6FUr3Wg',
+    appId: '1:674516928217:android:83f42ba7c23f86fad220c8',
+    messagingSenderId: '674516928217',
+    projectId: 'cardpay-1',
+    storageBucket: 'cardpay-1.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAxT1wMyvm7WY4vAPH-cSl9yJjM4gkl2Pc',
-    appId: '1:451051195028:ios:28f74c0205f8053d600281',
-    messagingSenderId: '451051195028',
-    projectId: 'card-pay-dev',
-    storageBucket: 'card-pay-dev.appspot.com',
-    iosClientId:
-        '451051195028-c6fbv4od0uqkk5m6j3hrhcl56ibsjnec.apps.googleusercontent.com',
+    apiKey: 'AIzaSyC6lyIxi3nYfZjYAx9Ci5uMjmVceKcRi0k',
+    appId: '1:674516928217:ios:7428aa04da3791b8d220c8',
+    messagingSenderId: '674516928217',
+    projectId: 'cardpay-1',
+    storageBucket: 'cardpay-1.appspot.com',
     iosBundleId: 'io.payment.cardpay',
   );
 }

@@ -9,3 +9,5 @@ cardpay/
 venv/
 credentials.json
 credentials-dev.json
+credentials-prod.json
+/scripts/migration.py
