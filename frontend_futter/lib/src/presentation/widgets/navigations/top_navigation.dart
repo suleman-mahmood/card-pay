@@ -42,7 +42,8 @@ class Header extends HookWidget {
                   if (title != null)
                     Text(
                       title!,
-                      style: AppTypography.mainHeading.copyWith(color: color),
+                      style: AppTypography.mainHeading.copyWith(
+                          color: color, decoration: TextDecoration.none),
                     ),
 
                   // BackButton(Colors.transparent),
@@ -62,7 +63,8 @@ class Header extends HookWidget {
                     if (title != null)
                       Text(
                         title!,
-                        style: AppTypography.mainHeading.copyWith(color: color),
+                        style: AppTypography.mainHeading.copyWith(
+                            color: color, decoration: TextDecoration.none),
                       ),
                   ],
                 ),
@@ -70,8 +72,9 @@ class Header extends HookWidget {
         if (showMainHeading && mainHeadingText != null)
           Text(
             mainHeadingText!,
-            style: AppTypography.mainHeading
-                .copyWith(color: AppColors.secondaryColor),
+            style: AppTypography.mainHeading.copyWith(
+                color: AppColors.secondaryColor,
+                decoration: TextDecoration.none),
             textAlign: TextAlign.center,
           ),
       ],

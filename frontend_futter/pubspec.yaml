@@ -52,6 +52,8 @@ flutter:
   assets:
     - assets/images/
     - assets/files/catalog.json
+    - assets/files/faqs.json
+
 
 flutter_launcher_icons:
   android: "launcher_icon"

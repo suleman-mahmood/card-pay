@@ -194,10 +194,9 @@ class DashboardView extends HookWidget {
                     isDisabled: true,
                   ),
                   CustomBox(
-                    imagePath: 'assets/images/faqs-disabled.png',
+                    imagePath: 'assets/images/faq.png',
                     text: PaymentStrings.faq,
                     route: FaqsRoute(),
-                    isDisabled: true,
                   ),
                 ],
               ),

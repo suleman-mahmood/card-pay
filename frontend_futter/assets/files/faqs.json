@@ -1,0 +1,31 @@
+[
+    {
+      "title": "What is CardPay?",
+      "listTile": "CardPay converts your LUMS Student card into your Digital Wallet to enable cashless transactions via your LUMS Student Card."
+    },
+    {
+      "title": "How to pay with CardPay?",
+      "listTile": "You simply go to one of our registered vendors and place your order. Ask to pay by CardPay and wait for the vendor to enter the amount. Scan your university card and enter pin. Press enter and all done."
+    },
+    {
+      "title": "How to put money in account?",
+      "listTile": "In Dashboard, tap on 'Deposit'. Copy the PayPro voucher number. Pay via online banking, mobile banking, or debit/credit card. Further instructions for each method is provided with pictures in Deposit section."
+    },
+    {
+      "title": "Can we take money out once put into card?",
+      "listTile": "Yes, but you can not directly withdraw the money. But, you can always transfer the money from your CardPay account to any other person with the CardPay account and get cash in return from them"
+    },
+    {
+      "title": "Can Alumni's use this?",
+      "listTile": "Yes, but you need to have your LUMS Outlook email access. That's because during sign up, the OTP code is sent your LUMS Outlook email."
+    },
+    {
+      "title": "Is my money secured if I put it in CardPay?",
+      "listTile": "Yes, your money is completely secured with CardPay. CardPay is powered by Amazon AWS security and uses PayPro as a payment gateway"
+    },
+    {
+      "title": "Where can I use CardPay?",
+      "listTile": "Currently, CardPay is live within LUMS at Bunker, Jammin Java, Baradari, Delish, Frooti, Juice Zone, Subway, and Chop Chop. Soon, it will be live at Zakir and Zaan. CardPay is also in talks with LUMS admin regarding availability at PDC and other inter-related eateries."
+    }
+  ]
+  

@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:cardpay/src/presentation/widgets/containment/bottom_sheet_otp.dart';
+import 'package:cardpay/src/presentation/widgets/containment/bottom_sheets/bottom_sheet_otp.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
 import 'package:cardpay/src/presentation/widgets/selections/organization_drop_down.dart';

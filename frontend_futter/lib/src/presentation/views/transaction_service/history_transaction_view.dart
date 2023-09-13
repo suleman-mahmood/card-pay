@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
-import 'package:cardpay/src/presentation/widgets/containment/history_list.dart';
+import 'package:cardpay/src/presentation/widgets/containment/lists/history_list.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
 
 const double _borderRadiusValue = 30.0;

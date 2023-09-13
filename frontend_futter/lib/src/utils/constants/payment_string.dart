@@ -62,6 +62,7 @@ class PaymentStrings {
   static const String transferRollNumberInfo =
       "Enter Recipient's Roll Number to send money";
   static const String enterPhone = 'Enter your phone number';
+  static const String helpDetail = 'How we can help you today?';
   static const String org = 'Select your organization';
   // Profile Strings
   static const String choiceAvatar = 'Choose profile avatar';

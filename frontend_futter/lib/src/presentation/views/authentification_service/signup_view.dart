@@ -18,7 +18,7 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
-import 'package:cardpay/src/presentation/widgets/containment/bottom_sheet_otp.dart';
+import 'package:cardpay/src/presentation/widgets/containment/bottom_sheets/bottom_sheet_otp.dart';
 import 'package:cardpay/src/presentation/widgets/selections/check_box.dart';
 import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_down.dart';
 import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';

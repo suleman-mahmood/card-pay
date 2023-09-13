@@ -12,6 +12,7 @@ class AppColors {
   static const Color skyColor = Color.fromRGBO(1, 204, 192, 1);
   static const Color mediumGreenColor = Color.fromRGBO(1, 204, 136, 1);
   static const Color parrotColor = Color.fromRGBO(1, 204, 136, 1);
+  static const Color teal = Color.fromRGBO(1, 204, 192, 1);
 
   static const Color purpleColor = Color.fromRGBO(90, 39, 200, 1);
 
