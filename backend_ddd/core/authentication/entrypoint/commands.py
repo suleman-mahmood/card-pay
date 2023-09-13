@@ -7,6 +7,7 @@ from typing import Optional, Tuple
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import commands as payment_commands
 from core.payment.entrypoint import queries as pmt_qry
+from core.payment.entrypoint import exceptions as pmt_svc_exc
 from core.comms.entrypoint import commands as comms_commands
 from core.api import utils
 from core.api.event_codes import EventCode
@@ -288,7 +289,7 @@ def _migrate_user(user_id: str, firestore_user_id: str, uow: AbstractUnitOfWork)
             transaction_type=pmt_mdl.TransactionType.CARD_PAY,
             uow=uow,
         )
-    except pmt_domain_exc.TransactionNotAllowedException:
+    except pmt_svc_exc.TransactionFailedException:
         pass
 
     sql = """
