@@ -45,17 +45,17 @@ class DashboardView extends HookWidget {
       return words[0];
     }
 
-    return PaddingAll(
-      slab: 1,
-      child: SingleChildScrollView(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            balanceCubit.getUserBalance();
-            recentTransactionsCubit.getUserRecentTransactions();
+    return RefreshIndicator(
+      onRefresh: () async {
+        balanceCubit.getUserBalance();
+        recentTransactionsCubit.getUserRecentTransactions();
 
-            // We are much faster than one sec :P
-            return Future<void>.delayed(const Duration(seconds: 1));
-          },
+        // We are much faster than one sec :P
+        return Future<void>.delayed(const Duration(seconds: 1));
+      },
+      child: PaddingAll(
+        slab: 1,
+        child: SingleChildScrollView(
           child: Column(
             children: [
               // Full name and avatar wala section
