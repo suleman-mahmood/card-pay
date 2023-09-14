@@ -29,6 +29,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 # please only call this from create_user
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
@@ -445,12 +446,17 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
 def pay_pro_callback(
     user_name: str, password: str, csv_invoice_ids: str, uow: AbstractUnitOfWork
 ) -> Tuple[List[str], List[str]]:
-    if user_name != os.environ.get("PAYPRO_USERNAME") and password != os.environ.get(
+    if user_name != os.environ.get("PAYPRO_USERNAME") or password != os.environ.get(
         "PAYPRO_PASSWORD"
     ):
         raise InvalidPayProCredentialsException("PayPro credentials are invalid")
 
     invoice_ids = csv_invoice_ids.split(",")
+    invoice_ids = [id.strip() for id in invoice_ids]
+
+    if len(invoice_ids) == 1 and invoice_ids[0] == "":
+        return [], []
+
     not_found_invoice_ids = []
     success_invoice_ids = []
 
@@ -502,7 +508,6 @@ def execute_qr_transaction(
     version: int,
     uow: AbstractUnitOfWork,
 ) -> Transaction:
-    
     if version != 1:
         raise InvalidQRVersionException("Invalid QR version")
 

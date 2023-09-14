@@ -105,6 +105,7 @@ def pay_pro_callback():
     try:
         user_name = req["username"]
         password = req["password"]
+        csv_invoice_ids = req["csvinvoiceids"]
     except KeyError as e:
         return [
             {
@@ -119,11 +120,10 @@ def pay_pro_callback():
         success_invoice_ids, not_found_invoice_ids = pmt_cmd.pay_pro_callback(
             user_name=user_name,
             password=password,
-            csv_invoice_ids=req["csvinvoiceids"],
+            csv_invoice_ids=csv_invoice_ids,
             uow=uow,
         )
         uow.commit_close_connection()
-
     except (
         pmt_cmd_exc.InvalidPayProCredentialsException,
         pmt_cmd_exc.PaymentUrlNotFoundException,
