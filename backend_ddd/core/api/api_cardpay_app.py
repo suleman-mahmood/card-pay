@@ -16,6 +16,7 @@ from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.domain import exceptions as auth_ex
 from core.authentication.entrypoint import exceptions as auth_cmd_ex
 from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
+from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.entrypoint import queries as app_queries
 from core.api import schemas as sch
 
@@ -47,6 +48,7 @@ def create_user():
             full_name=req["full_name"],
             location=req["location"],
             uow=uow,
+            pmt_svc=auth_acl.PaymentService(),
         )
         uow.commit_close_connection()
     except Exception as e:
@@ -88,6 +90,7 @@ def create_customer():
             full_name=req["full_name"],
             location=req["location"],
             uow=uow,
+            pmt_svc=auth_acl.PaymentService(),
         )
         uow.commit_close_connection()
     except Exception as e:
@@ -248,6 +251,7 @@ def register_closed_loop(uid):
             closed_loop_id=req["closed_loop_id"],
             unique_identifier=req["unique_identifier"],
             uow=uow,
+            auth_svc=auth_acl.AuthenticationService(),
         )
         uow.commit_close_connection()
 
@@ -287,6 +291,9 @@ def verify_closed_loop(uid):
             unique_identifier_otp=req["unique_identifier_otp"],
             ignore_migration=False,
             uow=uow,
+            pmt_svc=auth_acl.PaymentService(),
+            auth_svc=auth_acl.AuthenticationService(),
+            fb_svc=auth_acl.FirebaseService(),
         )
         uow.commit_close_connection()
     except (

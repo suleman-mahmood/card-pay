@@ -111,7 +111,9 @@ def seed_api_admin():
 
 def _create_closed_loop_helper(client):
     uow = UnitOfWork()
-    closed_loop = auth_cmd.create_closed_loop(
+    closed_loop_id = str(uuid4())
+    auth_cmd.create_closed_loop(
+        id = closed_loop_id,
         name="LUMS",
         logo_url="sample/url",
         description="Harvard of Pakistan",
@@ -119,7 +121,6 @@ def _create_closed_loop_helper(client):
         regex="[0-9]{8}",
         uow=uow,
     )
-    closed_loop_id = closed_loop.id
     uow.commit_close_connection()
 
     return closed_loop_id

@@ -41,13 +41,13 @@ class ClosedLoopVerificationType(str, Enum):
 class ClosedLoop:
     """Closed loop entity - Aggregate root"""
 
+    id: str
     name: str
     logo_url: str
     description: str
     regex: Optional[str]
     verification_type: ClosedLoopVerificationType
 
-    id: str = field(default_factory=lambda: str(uuid4()))
     created_at: datetime = datetime.now()
 
     def update_closed_loop(

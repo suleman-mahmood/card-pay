@@ -13,7 +13,8 @@ from uuid import uuid4
 from core.payment.domain import model as payment_model
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.authentication.entrypoint import commands as auth_commands
-
+from copy import deepcopy
+from uuid import uuid4
 
 @pytest.fixture
 def seed_user():
@@ -71,7 +72,7 @@ def seed_auth_user():
             )
             uow.users.add(user)
 
-        return user
+        return deepcopy(user)
 
     return _seed_auth_user
 
@@ -92,8 +93,9 @@ def seed_verified_auth_user(seed_auth_user):
 
 @pytest.fixture
 def seed_auth_closed_loop():
-    def _seed_auth_closed_loop(uow: AbstractUnitOfWork) -> ClosedLoop:
-        return auth_commands.create_closed_loop(
+    def _seed_auth_closed_loop(id:str, uow: AbstractUnitOfWork) -> ClosedLoop:
+        auth_commands.create_closed_loop(
+            id = id,
             name="Test Closed Loop",
             logo_url="https://test.com/logo.png",
             description="Test description",

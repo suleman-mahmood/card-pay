@@ -12,7 +12,9 @@ from core.payment.entrypoint import commands as payment_cmd
 from core.payment.domain import exceptions as pmt_ex
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.api import schemas as sch
+from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.payment.entrypoint import exceptions as pmt_cmd_ex
+from uuid import uuid4
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
@@ -37,6 +39,7 @@ def create_closed_loop():
 
     try:
         auth_cmd.create_closed_loop(
+            id = str(uuid4()),
             name=req["name"],
             logo_url=req["logo_url"],
             description=req["description"],
@@ -276,6 +279,9 @@ def auth_retools_create_vendor():
             closed_loop_id=req["closed_loop_id"],
             unique_identifier=None,
             uow=uow,
+            pmt_svc=auth_acl.PaymentService(),
+            auth_svc=auth_acl.AuthenticationService(),
+            fb_svc=auth_acl.FirebaseService(),
         )
         uow.commit_close_connection()
     except (

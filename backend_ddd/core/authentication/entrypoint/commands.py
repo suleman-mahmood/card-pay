@@ -11,11 +11,12 @@ from core.payment.entrypoint import exceptions as pmt_svc_exc
 from core.comms.entrypoint import commands as comms_commands
 from core.api import utils
 from core.api.event_codes import EventCode
-from core.authentication.entrypoint import queries as qry
 from core.authentication.entrypoint import exceptions as ex
 from core.payment.domain import model as pmt_mdl
 from core.authentication.domain import model as auth_mdl
 from core.payment.domain import exceptions as pmt_domain_exc
+from core.authentication.entrypoint import anti_corruption as acl
+from uuid import uuid4
 
 PK_CODE = "92"
 LUMS_CLOSED_LOOP_ID = "f23a19c5-040c-4924-830d-d1b687238c2b"
@@ -23,6 +24,7 @@ PAYPRO_USER_ID = "bd85b580-9510-4596-afc4-b737eeb3d492"
 
 
 def create_closed_loop(
+    id: str,
     name: str,
     logo_url: str,
     description: str,
@@ -33,6 +35,7 @@ def create_closed_loop(
     """Create closed loop"""
     with uow:
         closed_loop = auth_mdl.ClosedLoop(
+            id = id,
             name=name,
             logo_url=logo_url,
             description=description,
@@ -54,6 +57,7 @@ def create_user(
     full_name: str,
     location: Tuple[float, float],
     uow: AbstractUnitOfWork,
+    pmt_svc: acl.AbstractPaymentService,
 ) -> Tuple[EventCode, str]:
     """Create user"""
     location_object = auth_mdl.Location(latitude=location[0], longitude=location[1])
@@ -78,7 +82,7 @@ def create_user(
     if not user_already_exists:
         user_id = utils.firebaseUidToUUID(firebase_uid)
 
-        payment_commands.create_wallet(user_id=user_id, uow=uow)
+        pmt_svc.create_wallet(user_id=user_id, uow=uow)
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value=personal_email),
@@ -194,6 +198,7 @@ def register_closed_loop(
     closed_loop_id: str,
     unique_identifier: Optional[str],
     uow: AbstractUnitOfWork,
+    auth_svc: acl.AbstractAuthenticationService,
 ):
     """Request/Register to join a closed loop.
     Invariant: Multiple unverified closed_loop_users in a single closed loop with the same unique identifier can exist.
@@ -210,7 +215,7 @@ def register_closed_loop(
         )
         return user
 
-    if qry.verified_unique_identifier_already_exists(
+    if auth_svc.verified_unique_identifier_already_exists(
         closed_loop_id=closed_loop_id,
         unique_identifier=unique_identifier,
         uow=uow,
@@ -242,11 +247,14 @@ def verify_closed_loop(
     unique_identifier_otp: str,
     ignore_migration: bool,
     uow: AbstractUnitOfWork,
+    pmt_svc: acl.AbstractPaymentService,
+    auth_svc: acl.AbstractAuthenticationService,
+    fb_svc: acl.AbstractFirebaseService,
 ):
     """Request/Register to join a closed loop"""
     user = uow.users.get(user_id=user_id)
 
-    assert not qry.verified_unique_identifier_already_exists(
+    assert not auth_svc.verified_unique_identifier_already_exists(
         closed_loop_id=closed_loop_id,
         unique_identifier=user.closed_loops[closed_loop_id].unique_identifier,
         uow=uow,
@@ -262,26 +270,26 @@ def verify_closed_loop(
     assert unique_identifier is not None
 
     try:
-        firestore_user_id = qry.user_id_from_firestore(
+        firestore_user_id = fb_svc.user_id_from_firestore(
             unique_identifier=unique_identifier, uow=uow
         )
     except ex.UserNotInFirestore:
         # This is not an old LUMS user, so just return
         return user
 
-    _migrate_user(user_id=user_id, firestore_user_id=firestore_user_id, uow=uow)
+    _migrate_user(user_id=user_id, firestore_user_id=firestore_user_id, uow=uow, pmt_svc=pmt_svc, fb_svc=fb_svc)
 
     return user
 
 
-def _migrate_user(user_id: str, firestore_user_id: str, uow: AbstractUnitOfWork):
-    fetched_wallet_balance = qry.wallet_balance_from_firestore(
+def _migrate_user(user_id: str, firestore_user_id: str, uow: AbstractUnitOfWork, pmt_svc: acl.AbstractPaymentService, fb_svc: acl.AbstractFirebaseService):
+    fetched_wallet_balance = fb_svc.wallet_balance_from_firestore(
         user_id=firestore_user_id, uow=uow
     )
-    cardpay_wallet_id = pmt_qry.get_starred_wallet_id(uow=uow)
+    cardpay_wallet_id = pmt_svc.get_starred_wallet_id(uow=uow)
 
     try:
-        payment_commands.execute_transaction(
+        pmt_svc.execute_transaction(
             sender_wallet_id=cardpay_wallet_id,
             recipient_wallet_id=user_id,
             amount=fetched_wallet_balance,
@@ -351,6 +359,9 @@ def create_vendor_through_retool(
     closed_loop_id: str,
     unique_identifier: Optional[str],
     uow: AbstractUnitOfWork,
+    pmt_svc: acl.AbstractPaymentService,
+    auth_svc: acl.AbstractAuthenticationService,
+    fb_svc: acl.AbstractFirebaseService,
 ):
     """
     assumption: each vendor can only belong to a single closed loop
@@ -364,6 +375,7 @@ def create_vendor_through_retool(
         full_name=full_name,
         location=location,
         uow=uow,
+        pmt_svc=pmt_svc,
     )
 
     user = uow.users.get(user_id=user_id)
@@ -379,6 +391,7 @@ def create_vendor_through_retool(
         closed_loop_id=closed_loop_id,
         unique_identifier=unique_identifier,
         uow=uow,
+        auth_svc=auth_svc,
     )
 
     otp = user.closed_loops[closed_loop_id].unique_identifier_otp
@@ -388,6 +401,9 @@ def create_vendor_through_retool(
         unique_identifier_otp=otp,
         ignore_migration=True,
         uow=uow,
+        pmt_svc=pmt_svc,
+        auth_svc=auth_svc,
+        fb_svc=fb_svc,
     )
 
     return user

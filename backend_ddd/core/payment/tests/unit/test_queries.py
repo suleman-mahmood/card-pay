@@ -5,6 +5,7 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import queries as pmt_qry
 from core.payment.domain import model as pmt_mdl
 from core.marketing.entrypoint import commands as mkt_cmd
+from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.authentication.tests.conftest import *
 from core.entrypoint.uow import UnitOfWork
 
@@ -13,6 +14,8 @@ def test_get_all_successful_transactions_of_a_user(
     seed_verified_auth_user, seed_auth_closed_loop
 ):
     uow = UnitOfWork()
+    pmt_svc = auth_acl.FakePaymentService()
+
 
     user_1 = seed_verified_auth_user(uow)
     user_2 = seed_verified_auth_user(uow)
@@ -30,7 +33,8 @@ def test_get_all_successful_transactions_of_a_user(
         closed_loop_id=closed_loop.id,
         unique_identifier_otp=user_1.closed_loops[closed_loop.id].unique_identifier_otp,
         ignore_migration=False,
-        uow=uow,
+        uow = uow,
+        pmt_svc=pmt_svc,
     )
 
     user_2 = auth_cmd.register_closed_loop(
@@ -44,7 +48,8 @@ def test_get_all_successful_transactions_of_a_user(
         closed_loop_id=closed_loop.id,
         unique_identifier_otp=user_2.closed_loops[closed_loop.id].unique_identifier_otp,
         ignore_migration=False,
-        uow=uow,
+        uow = uow,
+        pmt_svc=pmt_svc,
     )
 
     mkt_cmd.add_and_set_missing_weightages_to_zero(uow=uow)
