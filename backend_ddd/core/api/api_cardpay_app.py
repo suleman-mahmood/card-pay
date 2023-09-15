@@ -20,6 +20,8 @@ from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.entrypoint import queries as app_queries
 from core.api import schemas as sch
 from uuid import uuid4
+from core.payment.entrypoint import anti_corruption as pmt_acl
+
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
 
@@ -333,6 +335,8 @@ def create_deposit_request(uid):
             user_id=uid,
             amount=req["amount"],
             uow=uow,
+            mktg_svc=pmt_acl.MarketingService(),
+            auth_svc=pmt_acl.AuthenticationService(),
         )
         uow.commit_close_connection()
 
@@ -388,6 +392,9 @@ def execute_p2p_push_transaction(uid):
             transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
             transaction_type=pmt_mdl.TransactionType.P2P_PUSH,
             uow=uow,
+            mktg_svc=pmt_acl.MarketingService(),
+            auth_svc=pmt_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
         )
         uow.commit_close_connection()
 
@@ -449,6 +456,9 @@ def create_p2p_pull_transaction(uid):
             transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
             transaction_type=pmt_mdl.TransactionType.P2P_PUSH,
             uow=uow,
+            mktg_svc=pmt_acl.MarketingService(),
+            auth_svc=pmt_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
         )
         uow.commit_close_connection()
     except (
@@ -485,6 +495,7 @@ def accept_p2p_pull_transaction(uid):
         pmt_cmd.accept_p2p_pull_transaction(
             transaction_id=req["transaction_id"],
             uow=uow,
+            mktg_svc=pmt_acl.MarketingService(),
         )
         uow.commit_close_connection()
 
@@ -640,6 +651,9 @@ def execute_qr_transaction(uid):
             amount=req["amount"],
             version=req["v"],
             uow=uow,
+            mktg_svc=pmt_acl.MarketingService(),
+            auth_svc=pmt_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
         )
         uow.commit_close_connection()
 

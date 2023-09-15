@@ -15,6 +15,8 @@ from core.api import schemas as sch
 from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.payment.entrypoint import exceptions as pmt_cmd_ex
 from uuid import uuid4
+from core.payment.entrypoint import anti_corruption as pmt_acl
+from core.authentication.entrypoint import anti_corruption as auth_acl
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
@@ -438,8 +440,12 @@ def payment_retools_reconcile_vendor():
 
     try:
         payment_cmd.payment_retools_reconcile_vendor(
+            tx_id = str(uuid4()),
             uow=uow,
             vendor_wallet_id=req["vendor_wallet_id"],
+            mktg_svc=pmt_acl.MarketingService(),
+            auth_svc=auth_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
         )
         uow.commit_close_connection()
 

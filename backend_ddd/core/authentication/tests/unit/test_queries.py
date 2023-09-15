@@ -15,7 +15,7 @@ from uuid import uuid4
 
 def test_get_user_checkpoint(seed_verified_auth_user, seed_auth_closed_loop):
     uow = UnitOfWork()
-    user = seed_verified_auth_user(uow=uow)
+    user, _ = seed_verified_auth_user(uow=uow)
     closed_loop_id = str(uuid4())
     seed_auth_closed_loop(id=closed_loop_id, uow=uow)
 
@@ -62,7 +62,7 @@ def test_get_full_name_from_unique_identifier_and_closed_loop(
     seed_verified_auth_user, seed_auth_closed_loop
 ):
     uow = UnitOfWork()
-    user = seed_verified_auth_user(uow=uow)
+    user, _ = seed_verified_auth_user(uow=uow)
     closed_loop_id = str(uuid4())
     seed_auth_closed_loop(id=closed_loop_id,uow=uow)
 

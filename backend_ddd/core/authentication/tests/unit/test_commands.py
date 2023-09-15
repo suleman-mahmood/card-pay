@@ -104,7 +104,7 @@ def test_create_user(mocker):
 
 def test_change_name(seed_auth_user):
     uow = FakeUnitOfWork()
-    user = seed_auth_user(uow)
+    user, _ = seed_auth_user(uow)
 
     auth_cmd.change_name(user_id=user.id, new_name="New Name", uow=uow)
 
@@ -119,7 +119,7 @@ def test_change_name(seed_auth_user):
 
 def test_change_pin(seed_auth_user):
     uow = FakeUnitOfWork()
-    user = seed_auth_user(uow)
+    user, _ = seed_auth_user(uow)
 
     auth_cmd.change_pin(user_id=user.id, new_pin="5678", uow=uow)
 
@@ -148,7 +148,7 @@ def test_change_pin(seed_auth_user):
 
 def test_user_toggle_active(seed_auth_user):
     uow = FakeUnitOfWork()
-    user = seed_auth_user(uow)
+    user, _ = seed_auth_user(uow)
 
     auth_cmd.user_toggle_active(user_id=user.id, uow=uow)
 
@@ -160,7 +160,7 @@ def test_user_toggle_active(seed_auth_user):
 
 def test_verify_phone_number(seed_auth_user):
     uow = FakeUnitOfWork()
-    user = seed_auth_user(uow)
+    user, _ = seed_auth_user(uow)
     otp = user.otp
 
     auth_cmd.verify_phone_number(user_id=user.id, otp=otp, uow=uow)
@@ -176,8 +176,8 @@ def test_verify_phone_number(seed_auth_user):
 def test_register_closed_loopc(seed_auth_user, seed_auth_closed_loop):
     uow = FakeUnitOfWork()
     auth_svc = acl.FakeAuthenticationService()
-    user = seed_auth_user(uow)
-    user_2 = seed_auth_user(uow)
+    user, _ = seed_auth_user(uow)
+    user_2, _ = seed_auth_user(uow)
     closed_loop_id = str(uuid4())
     closed_loop_2_id = str(uuid4())
     seed_auth_closed_loop(id = closed_loop_id,uow = uow)
@@ -256,7 +256,7 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
     # closed loop not found, verifiaction error
 
     uow = FakeUnitOfWork()
-    user = seed_auth_user(uow)
+    user, _ = seed_auth_user(uow)
     pmt_svc = acl.FakePaymentService()
     auth_svc = acl.FakeAuthenticationService()
     fb_svc = acl.FakeFirebaseService()

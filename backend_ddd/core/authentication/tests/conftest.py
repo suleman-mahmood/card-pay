@@ -7,6 +7,7 @@ from core.entrypoint.uow import AbstractUnitOfWork
 from core.authentication.entrypoint import commands as auth_commands
 from copy import deepcopy
 from uuid import uuid4
+from typing import Tuple
 from datetime import datetime
 
 
@@ -61,7 +62,7 @@ def seed_closed_loop_user():
 
 @pytest.fixture
 def seed_auth_user():
-    def _seed_auth_user(uow: AbstractUnitOfWork) -> auth_mdl.User:
+    def _seed_auth_user(uow: AbstractUnitOfWork) -> Tuple[User, payment_model.Wallet]:
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
@@ -73,28 +74,27 @@ def seed_auth_user():
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=user_id,
         )
+        wallet: payment_model.Wallet = payment_model.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
+        uow.transactions.add_wallet(
+            wallet=wallet,
+        )
+        uow.users.add(user)
 
-        with uow:
-            uow.transactions.add_wallet(
-                wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
-            )
-            uow.users.add(user)
-
-        return deepcopy(user)
+        return deepcopy(user), deepcopy(wallet)
 
     return _seed_auth_user
 
 
 @pytest.fixture
 def seed_verified_auth_user(seed_auth_user):
-    def _seed_auth_user(uow: AbstractUnitOfWork) -> auth_mdl.User:
-        user = seed_auth_user(uow)
+    def _seed_auth_user(uow: AbstractUnitOfWork) -> Tuple[User, payment_model.Wallet]:
+        user, wallet = seed_auth_user(uow)
         auth_commands.verify_phone_number(
             user_id=user.id,
             otp=user.otp,
             uow=uow,
         )
-        return user
+        return user, wallet
 
     return _seed_auth_user
 
@@ -117,7 +117,7 @@ def seed_auth_closed_loop():
 
 @pytest.fixture
 def seed_auth_vendor():
-    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> auth_mdl.User:
+    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> Tuple[User, payment_model.Wallet]:
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
@@ -129,33 +129,32 @@ def seed_auth_vendor():
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
         )
+        wallet = payment_model.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
+        uow.transactions.add_wallet(
+            wallet=wallet,
+        )
+        uow.users.add(user)
 
-        with uow:
-            uow.transactions.add_wallet(
-                wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
-            )
-            uow.users.add(user)
-
-        return user
+        return user, wallet
 
     return _seed_auth_vendor
 
 
 @pytest.fixture
 def seed_verified_auth_vendor(seed_auth_vendor):
-    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> auth_mdl.User:
-        user = seed_auth_vendor(uow)
+    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> Tuple[User, payment_model.Wallet]:
+        user, wallet = seed_auth_vendor(uow)
         auth_commands.verify_phone_number(
             user_id=user.id,
             otp=user.otp,
             uow=uow,
         )
-        return user
+        return user, wallet
 
     return _seed_auth_vendor
 
 
-# work on this layta
+# # work on this layta
 # @pytest.fixture
 # def seed_p2p_admin_customer_mocker_client():
 #     def _seed_p2p_admin_customer_mocker_client(mocker, client):
@@ -230,17 +229,6 @@ def seed_auth_cardpay():
             wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         )
         uow.users.add(user)
-
-        delete_sql = """
-            delete from starred_wallet_id
-        """
-        uow.cursor.execute(delete_sql)
-
-        sql = """
-            insert into starred_wallet_id
-            values (%s)
-        """
-        uow.cursor.execute(sql, [user_id])
 
         return user
 

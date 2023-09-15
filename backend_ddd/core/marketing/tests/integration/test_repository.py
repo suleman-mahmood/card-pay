@@ -7,7 +7,7 @@ from ....authentication.tests.conftest import seed_auth_user
 
 def test_marketing_user_repository_add_get_save(seed_auth_user):
     uow = UnitOfWork()
-    authentication_user = seed_auth_user(uow)
+    authentication_user, _ = seed_auth_user(uow)
     with uow:
                   
         marketing_user = User(

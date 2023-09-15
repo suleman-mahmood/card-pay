@@ -114,9 +114,13 @@ class FakeTransactionRepository(TransactionAbstractRepository):
         return tx
 
     # only for test
-    def add_1000_wallet(self, wallet: Wallet):
+    def add_1000_wallet(self, wallet_id: str):
+        wallet = self.wallets[wallet_id]
         wallet.balance += 1000
-        self.wallets[wallet.id] = wallet
+        self.wallets[wallet_id] = wallet
+
+    def get_wallet(self, wallet_id: str):
+        return self.wallets[wallet_id]
 
     def save(self, transaction: Transaction):
         self.transactions[transaction.id] = transaction

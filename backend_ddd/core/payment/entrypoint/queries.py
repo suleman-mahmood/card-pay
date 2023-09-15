@@ -57,7 +57,7 @@ def get_starred_wallet_id(uow: AbstractUnitOfWork) -> str:
         from starred_wallet_id
     """
     uow.cursor.execute(sql)
-    rows = uow.cursor.fetchall()
+    rows = uow.cursor.fetchone()
     return rows[0]
 
 def get_wallet_id_from_unique_identifier(

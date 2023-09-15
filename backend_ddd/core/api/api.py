@@ -17,6 +17,7 @@ from core.entrypoint.uow import UnitOfWork
 from core.api.api_vendor_app import vendor_app
 from core.api.api_cardpay_app import cardpay_app
 from core.api.api_retool_app import retool
+from core.payment.entrypoint import anti_corruption as pmt_acl
 
 from dotenv import load_dotenv
 
@@ -122,6 +123,7 @@ def pay_pro_callback():
             password=password,
             csv_invoice_ids=csv_invoice_ids,
             uow=uow,
+            mktg_svc=pmt_acl.MarketingService()
         )
         uow.commit_close_connection()
     except (

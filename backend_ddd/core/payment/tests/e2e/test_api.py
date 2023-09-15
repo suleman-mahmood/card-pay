@@ -52,6 +52,14 @@ def test_execute_p2p_push_one_to_many_valid(
         "Content-Type": "application/json",
     }
 
+    client.post(
+        "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
+        json = {
+            "RETOOL_SECRET":"",
+        },
+        headers=headers,
+    )
+
     _verify_phone_number(sender_id, mocker, client)
     for recipient_id in recipient_ids:
         _verify_phone_number(recipient_id, mocker, client)
@@ -103,8 +111,6 @@ def test_execute_p2p_push_one_to_many_valid(
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
-
-    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "5")
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
 
@@ -208,6 +214,14 @@ def test_execute_p2p_push_one_to_many_all_invalid(
         "Content-Type": "application/json",
     }
 
+    client.post(
+        "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
+        json = {
+            "RETOOL_SECRET":"",
+        },
+        headers=headers,
+    )
+
     _verify_phone_number(sender_id, mocker, client)
     for recipient_id in recipient_ids:
         _verify_phone_number(recipient_id, mocker, client)
@@ -259,8 +273,6 @@ def test_execute_p2p_push_one_to_many_all_invalid(
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
-
-    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "5")
 
     post_requests = [
         {
@@ -326,6 +338,14 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
     }
+    
+    client.post(
+        "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
+        json = {
+            "RETOOL_SECRET":"",
+        },
+        headers=headers,
+    )
 
     _verify_phone_number(sender_id, mocker, client)
     for recipient_id in recipient_ids:
@@ -374,7 +394,6 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
 
-    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "5")
 
     post_requests = [
         {
@@ -432,6 +451,14 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
         "Content-Type": "application/json",
     }
 
+    client.post(
+        "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
+        json = {
+            "RETOOL_SECRET":"",
+        },
+        headers=headers,
+    )
+
     _verify_phone_number(recipient_id, mocker, client)
     _verify_phone_number(sender_id, mocker, client)
 
@@ -468,7 +495,6 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
 
-    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "10")
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
     response = client.post(

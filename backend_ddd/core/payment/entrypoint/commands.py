@@ -6,54 +6,47 @@ import json
 from datetime import datetime, timedelta
 from typing import List, Tuple
 from core.entrypoint.uow import AbstractUnitOfWork
-from ..domain.model import (
-    Transaction,
-    Wallet,
-    TransactionMode,
-    TransactionType,
-    TransactionStatus,
-)
-from ..entrypoint.queries import get_wallet_id_from_unique_identifier
-from ...payment.domain.model import TransactionType, TransactionMode
-from core.marketing.entrypoint import commands as mktg_cmd
-from core.authentication.entrypoint import queries as auth_qry
+from core.payment.domain import model as mdl
+# from core.payment.entrypoint import queries as qry
 from core.authentication.domain import model as auth_mdl
-from core.payment.domain import exceptions as pmt_mdl_exc
+from core.payment.domain import exceptions as pmt_mdl_ex
 from core.authentication.entrypoint.commands import PAYPRO_USER_ID
 from core.payment.entrypoint.exceptions import *
 from . import utils
 from time import sleep
 from queue import Queue
-from ..entrypoint import queries as payment_qry
 from uuid import uuid4
 from dotenv import load_dotenv
+from core.payment.entrypoint import anti_corruption as acl
 
 load_dotenv()
 
 
 # please only call this from create_user
-def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
+def create_wallet(user_id: str, uow: AbstractUnitOfWork):
     """Create wallet"""
     qr_id = str(uuid4())
-    wallet = Wallet(id=user_id, qr_id=qr_id, balance=0)
+    wallet = mdl.Wallet(id=user_id, qr_id=qr_id, balance=0)
     uow.transactions.add_wallet(wallet)
 
 
 def execute_transaction(
     tx_id: str,
     amount: int,
-    transaction_mode: TransactionMode,
-    transaction_type: TransactionType,
+    transaction_mode: mdl.TransactionMode,
+    transaction_type: mdl.TransactionType,
     sender_wallet_id: str,
     recipient_wallet_id: str,
     uow: AbstractUnitOfWork,
-) -> Transaction:
+    mktg_svc: acl.AbstractMarketingService,
+    auth_svc: acl.AbstractAuthenticationService,
+):
     with uow:
-        if not auth_qry.user_verification_status_from_user_id(
+        if not auth_svc.user_verification_status_from_user_id(
             user_id=sender_wallet_id, uow=uow
         ):
             raise NotVerifiedException("User is not verified")
-        if not auth_qry.user_verification_status_from_user_id(
+        if not auth_svc.user_verification_status_from_user_id(
             user_id=recipient_wallet_id, uow=uow
         ):
             raise NotVerifiedException("User is not verified")
@@ -66,7 +59,7 @@ def execute_transaction(
             last_updated=txn_time,
             mode=transaction_mode,
             transaction_type=transaction_type,
-            status=TransactionStatus.PENDING,
+            status=mdl.TransactionStatus.PENDING,
             sender_wallet_id=sender_wallet_id,
             recipient_wallet_id=recipient_wallet_id,
         )
@@ -74,21 +67,15 @@ def execute_transaction(
         if utils.is_instant_transaction(transaction_type=transaction_type):
             try:
                 tx.execute_transaction()
-            except pmt_mdl_exc.TransactionNotAllowedException as e:
+            except pmt_mdl_ex.TransactionNotAllowedException as e:
                 uow.transactions.save(tx)
                 raise TransactionFailedException(str(e))
 
             uow.transactions.save(tx)
-            mktg_cmd.add_loyalty_points(
+            mktg_svc.add_loyalty_points_and_give_cashback(
                 sender_wallet_id=sender_wallet_id,
                 recipient_wallet_id=recipient_wallet_id,
                 transaction_amount=amount,
-                transaction_type=transaction_type,
-                uow=uow,
-            )
-            mktg_cmd.give_cashback(
-                recipient_wallet_id=recipient_wallet_id,
-                deposited_amount=amount,
                 transaction_type=transaction_type,
                 uow=uow,
             )
@@ -102,17 +89,20 @@ def execute_transaction_unique_identifier(
     recipient_unique_identifier: str,
     closed_loop_id: str,
     amount: int,
-    transaction_mode: TransactionMode,
-    transaction_type: TransactionType,
+    transaction_mode: mdl.TransactionMode,
+    transaction_type: mdl.TransactionType,
     uow: AbstractUnitOfWork,
-) -> Transaction:
+    mktg_svc: acl.AbstractMarketingService,
+    auth_svc: acl.AbstractAuthenticationService,
+    pmt_svc: acl.AbstractPaymentService,
+):
     with uow:
-        sender_wallet_id = get_wallet_id_from_unique_identifier(
+        sender_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
             unique_identifier=sender_unique_identifier,
             closed_loop_id=closed_loop_id,
             uow=uow,
         )
-        recipient_wallet_id = get_wallet_id_from_unique_identifier(
+        recipient_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
             unique_identifier=recipient_unique_identifier,
             closed_loop_id=closed_loop_id,
             uow=uow,
@@ -126,6 +116,8 @@ def execute_transaction_unique_identifier(
         transaction_mode=transaction_mode,
         transaction_type=transaction_type,
         uow=uow,
+        mktg_svc=mktg_svc,
+        auth_svc=auth_svc,
     )
 
 # ## for testing purposes only
@@ -133,8 +125,8 @@ def execute_transaction_unique_identifier(
 # #    sender_wallet_id: str,
 # #    recipient_wallet_id: str,
 # #    amount: int,
-# #    transaction_mode: TransactionMode,
-# #    transaction_type: TransactionType,
+# #    transaction_mode: mdl.TransactionMode,
+# #    transaction_type: mdl.TransactionType,
 # #    uow: AbstractUnitOfWork,
 # #    queue: Queue,
 # #):
@@ -159,61 +151,47 @@ def execute_transaction_unique_identifier(
 
 
 def accept_p2p_pull_transaction(
-    transaction_id: str, uow: AbstractUnitOfWork
-) -> Transaction:
+    transaction_id: str, uow: AbstractUnitOfWork, mktg_svc: acl.AbstractMarketingService
+):
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
         try:
             tx.accept_p2p_pull_transaction()
-        except pmt_mdl_exc.TransactionNotAllowedException as e:
+        except pmt_mdl_ex.TransactionNotAllowedException as e:
             uow.transactions.save(tx)
             raise TransactionFailedException(str(e))
 
         uow.transactions.save(tx)
 
-        mktg_cmd.add_loyalty_points(
+        mktg_svc.add_loyalty_points_and_give_cashback(
             sender_wallet_id=tx.sender_wallet.id,
             recipient_wallet_id=tx.recipient_wallet.id,
             transaction_amount=tx.amount,
-            transaction_type=tx.transaction_type,
-            uow=uow,
-        )
-        mktg_cmd.give_cashback(
-            recipient_wallet_id=tx.recipient_wallet.id,
-            deposited_amount=tx.amount,
             transaction_type=tx.transaction_type,
             uow=uow,
         )
 
 
 def accept_payment_gateway_transaction(
-    transaction_id: str, uow: AbstractUnitOfWork
-) -> Transaction:
+    transaction_id: str, uow: AbstractUnitOfWork, mktg_svc: acl.AbstractMarketingService
+):
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
         tx.execute_transaction()
         uow.transactions.save(tx)
 
-        mktg_cmd.add_loyalty_points(
+        mktg_svc.add_loyalty_points_and_give_cashback(
             sender_wallet_id=tx.sender_wallet.id,
             recipient_wallet_id=tx.recipient_wallet.id,
             transaction_amount=tx.amount,
             transaction_type=tx.transaction_type,
             uow=uow,
         )
-        mktg_cmd.give_cashback(
-            recipient_wallet_id=tx.recipient_wallet.id,
-            deposited_amount=tx.amount,
-            transaction_type=tx.transaction_type,
-            uow=uow,
-        )
-
-    return tx
 
 
 def decline_p2p_pull_transaction(
     transaction_id: str, uow: AbstractUnitOfWork
-) -> Transaction:
+):
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
         tx.decline_p2p_pull_transaction()
@@ -222,20 +200,20 @@ def decline_p2p_pull_transaction(
 
 def generate_voucher(
     tx_id: str, sender_wallet_id: str, amount: int, uow: AbstractUnitOfWork
-) -> Transaction:
+):
     """creates a txn object whith same sender and recipient"""
 
     txn_time = datetime.now()
     tx = uow.transactions.get_wallets_create_transaction(
         id=tx_id,
         amount=amount,
-        mode=TransactionMode.APP_TRANSFER,
-        transaction_type=TransactionType.VOUCHER,
+        mode=mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=mdl.TransactionType.VOUCHER,
         sender_wallet_id=sender_wallet_id,
         recipient_wallet_id=sender_wallet_id,
         created_at=txn_time,
         last_updated=txn_time,
-        status=TransactionStatus.PENDING,
+        status=mdl.TransactionStatus.PENDING,
     )
     uow.transactions.save(tx)
 
@@ -243,7 +221,7 @@ def generate_voucher(
 # transaction_id ~= voucher_id
 def redeem_voucher(
     recipient_wallet_id: str, transaction_id: str, uow: AbstractUnitOfWork
-) -> Transaction:
+):
     with uow:
         tx = uow.transactions.get_with_different_recipient(
             transaction_id=transaction_id, recipient_wallet_id=recipient_wallet_id
@@ -257,6 +235,8 @@ def create_deposit_request(
     user_id: str,
     amount: int,
     uow: AbstractUnitOfWork,
+    mktg_svc: acl.AbstractMarketingService,
+    auth_svc: acl.AbstractAuthenticationService,
 ) -> str:
     with uow:
         user = uow.users.get(user_id=user_id)
@@ -271,9 +251,11 @@ def create_deposit_request(
         sender_wallet_id=PAYPRO_USER_ID,
         recipient_wallet_id=user_id,
         amount=amount,
-        transaction_mode=TransactionMode.APP_TRANSFER,
-        transaction_type=TransactionType.PAYMENT_GATEWAY,
+        transaction_mode=mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=mdl.TransactionType.PAYMENT_GATEWAY,
         uow=uow,
+        mktg_svc=mktg_svc,
+        auth_svc=auth_svc,
     )
 
     checkout_url = get_deposit_checkout_url(
@@ -441,7 +423,7 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
 
 
 def pay_pro_callback(
-    user_name: str, password: str, csv_invoice_ids: str, uow: AbstractUnitOfWork
+    user_name: str, password: str, csv_invoice_ids: str, uow: AbstractUnitOfWork, mktg_svc: acl.AbstractMarketingService
 ) -> Tuple[List[str], List[str]]:
     if user_name != os.environ.get("PAYPRO_USERNAME") or password != os.environ.get(
         "PAYPRO_PASSWORD"
@@ -460,9 +442,9 @@ def pay_pro_callback(
 
     for id in invoice_ids:
         try:
-            accept_payment_gateway_transaction(transaction_id=id, uow=uow)
+            accept_payment_gateway_transaction(transaction_id=id, uow=uow, mktg_svc=mktg_svc)
             success_invoice_ids.append(id)
-        except pmt_mdl_exc.TransactionNotFoundException:
+        except pmt_mdl_ex.TransactionNotFoundException:
             not_found_invoice_ids.append(id)
 
     return success_invoice_ids, not_found_invoice_ids
@@ -479,23 +461,28 @@ def payment_retools_reconcile_vendor(
     tx_id: str,
     uow: AbstractUnitOfWork,
     vendor_wallet_id: str,
+    mktg_svc: acl.AbstractMarketingService,
+    auth_svc: acl.AbstractAuthenticationService,
+    pmt_svc: acl.AbstractPaymentService,
 ):
-    vendor_balance = payment_qry.get_wallet_balance(
+    vendor_balance = pmt_svc.get_wallet_balance(
         wallet_id=vendor_wallet_id,
         uow=uow,
     )
-    card_pay_wallet_id = payment_qry.get_starred_wallet_id(
+    card_pay_wallet_id = pmt_svc.get_starred_wallet_id(
         uow=uow,
-    )[0]
+    )
 
     execute_transaction(
         tx_id=tx_id,
         sender_wallet_id=vendor_wallet_id,
         recipient_wallet_id=card_pay_wallet_id,
         amount=vendor_balance,
-        transaction_mode=TransactionMode.APP_TRANSFER,
-        transaction_type=TransactionType.RECONCILIATION,
+        transaction_mode=mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=mdl.TransactionType.RECONCILIATION,
         uow=uow,
+        mktg_svc=mktg_svc,
+        auth_svc=auth_svc,
     )
 
 
@@ -506,35 +493,41 @@ def execute_qr_transaction(
     recipient_qr_id: str,
     version: int,
     uow: AbstractUnitOfWork,
-) -> Transaction:
+    mktg_svc: acl.AbstractMarketingService,
+    auth_svc: acl.AbstractAuthenticationService,
+    pmt_svc: acl.AbstractPaymentService,
+):
     if version != 1:
         raise InvalidQRVersionException("Invalid QR version")
 
-    user_info = payment_qry.get_user_wallet_id_and_type_from_qr_id(
+    user_info = pmt_svc.get_user_wallet_id_and_type_from_qr_id(
         qr_id=recipient_qr_id,
         uow=uow,
     )
 
-    transaction_type = TransactionType.VIRTUAL_POS
+    transaction_type = mdl.TransactionType.VIRTUAL_POS
 
     if user_info is None:
         raise InvalidQRCodeException("Invalid QR code")
 
     elif user_info.user_type == auth_mdl.UserType.VENDOR:
-        transaction_type = TransactionType.VIRTUAL_POS
+        transaction_type = mdl.TransactionType.VIRTUAL_POS
 
     elif user_info.user_type == auth_mdl.UserType.CUSTOMER:
-        transaction_type = TransactionType.P2P_PUSH
+        transaction_type = mdl.TransactionType.P2P_PUSH
 
     else:
         raise InvalidUserTypeException("Invalid user type")
 
+    print(user_info.user_wallet_id)
     execute_transaction(
         tx_id=tx_id,
         amount=amount,
         sender_wallet_id=sender_wallet_id,
         recipient_wallet_id=user_info.user_wallet_id,
-        transaction_mode=TransactionMode.QR,
+        transaction_mode=mdl.TransactionMode.QR,
         transaction_type=transaction_type,
         uow=uow,
+        mktg_svc=mktg_svc,
+        auth_svc=auth_svc,
     )
