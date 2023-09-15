@@ -1,6 +1,9 @@
 """Repository interface for authentication module."""
 from abc import ABC, abstractmethod
 from typing import Dict
+
+from psycopg2.extras import DictCursor
+
 from ..domain.model import (
     ClosedLoop,
     User,
@@ -82,25 +85,25 @@ class FakeUserRepository(UserAbstractRepository):
 class ClosedLoopRepository(ClosedLoopAbstractRepository):
     def __init__(self, connection):
         self.connection = connection
-        self.cursor = connection.cursor()
+        self.cursor = connection.cursor(cursor_factory=DictCursor)
 
     def add(self, closed_loop: ClosedLoop):
         sql = """
-            insert into closed_loops (id, name, logo_url, description, regex,verification_type, created_at)
-            values (%s, %s, %s, %s, %s, %s, %s)
+            insert into closed_loops (id, name, logo_url, description, regex, verification_type, created_at)
+            values (%(id)s, %(name)s, %(logo_url)s, %(description)s, %(regex)s, %(verification_type)s, %(created_at)s)
         """
 
         self.cursor.execute(
             sql,
-            [
-                closed_loop.id,
-                closed_loop.name,
-                closed_loop.logo_url,
-                closed_loop.description,
-                closed_loop.regex,
-                closed_loop.verification_type.name,
-                closed_loop.created_at,
-            ],
+            {
+                "id": closed_loop.id,
+                "name": closed_loop.name,
+                "logo_url": closed_loop.logo_url,
+                "description": closed_loop.description,
+                "regex": closed_loop.regex,
+                "verification_type": closed_loop.verification_type.name,
+                "created_at": closed_loop.created_at,
+            },
         )
 
     def get(self, closed_loop_id: str) -> ClosedLoop:
@@ -119,19 +122,19 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
 
         row = self.cursor.fetchone()
         return ClosedLoop(
-            id=row[0],
-            name=row[1],
-            logo_url=row[2],
-            description=row[3],
-            regex=row[4],
-            verification_type=ClosedLoopVerificationType[row[5]],
-            created_at=row[6],
+            id=row["id"],
+            name=row["name"],
+            logo_url=row["logo_url"],
+            description=row["description"],
+            regex=row["regex"],
+            verification_type=ClosedLoopVerificationType[row["verification_type"]],
+            created_at=row["created_at"],
         )
 
     def save(self, closed_loop: ClosedLoop):
         sql = """
             insert into closed_loops (id, name, logo_url, description, regex, verification_type, created_at)
-            values (%s, %s, %s, %s, %s, %s, %s)
+            values (%(id)s, %(name)s, %(logo_url)s, %(description)s, %(regex)s, %(verification_type)s, %(created_at)s)
             on conflict(id) do update set 
                 id = excluded.id,
                 name = excluded.name,
@@ -144,46 +147,46 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
 
         self.cursor.execute(
             sql,
-            [
-                closed_loop.id,
-                closed_loop.name,
-                closed_loop.logo_url,
-                closed_loop.description,
-                closed_loop.regex,
-                closed_loop.verification_type.name,
-                closed_loop.created_at,
-            ],
+            {
+                "id": closed_loop.id,
+                "name": closed_loop.name,
+                "logo_url": closed_loop.logo_url,
+                "description": closed_loop.description,
+                "regex": closed_loop.regex,
+                "verification_type": closed_loop.verification_type.name,
+                "created_at": closed_loop.created_at,
+            },
         )
 
 
 class UserRepository(UserAbstractRepository):
     def __init__(self, connection):
         self.connection = connection
-        self.cursor = connection.cursor()
+        self.cursor = connection.cursor(cursor_factory=DictCursor)
 
     def add(self, user: User):
         sql = """
             insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at) 
-            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            values (%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s, %(created_at)s)
         """
 
         self.cursor.execute(
             sql,
-            [
-                user.id,
-                user.personal_email.value,
-                user.phone_number.value,
-                user.user_type.name,
-                user.pin,
-                user.full_name,
-                user.wallet_id,
-                user.is_active,
-                user.is_phone_number_verified,
-                user.otp,
-                user.otp_generated_at,
-                user.location,
-                user.created_at,
-            ],
+            {
+                "id": user.id,
+                "personal_email": user.personal_email.value,
+                "phone_number": user.phone_number.value,
+                "user_type": user.user_type.name,
+                "pin": user.pin,
+                "full_name": user.full_name,
+                "wallet_id": user.wallet_id,
+                "is_active": user.is_active,
+                "is_phone_number_verified": user.is_phone_number_verified,
+                "otp": user.otp,
+                "otp_generated_at": user.otp_generated_at,
+                "location": user.location,
+                "created_at": user.created_at,
+            },
         )
 
         if len(user.closed_loops) != 0:
@@ -193,20 +196,23 @@ class UserRepository(UserAbstractRepository):
             """
 
             args = [
-                (
-                    user.id,
-                    key,  # closed_loop_id
-                    closed_loop_user.unique_identifier,
-                    closed_loop_user.id,
-                    closed_loop_user.unique_identifier_otp,
-                    closed_loop_user.status.name,
-                    closed_loop_user.created_at,
-                )
+                {
+                    "user_id": user.id,
+                    "closed_loop_id": key,
+                    "unique_identifier": closed_loop_user.unique_identifier,
+                    "closed_loop_user_id": closed_loop_user.id,
+                    "unique_identifier_otp": closed_loop_user.unique_identifier_otp,
+                    "status": closed_loop_user.status.name,
+                    "created_at": closed_loop_user.created_at,
+                }
                 for key, closed_loop_user in user.closed_loops.items()
             ]
 
             args_str = ",".join(
-                self.cursor.mogrify("(%s,%s,%s,%s,%s,%s,%s)", x).decode("utf-8")
+                self.cursor.mogrify(
+                    "(%(user_id)s,%(closed_loop_id)s,%(unique_identifier)s,%(closed_loop_user_id)s,%(unique_identifier_otp)s,%(status)s,%(created_at)s)",
+                    x,
+                ).decode("utf-8")
                 for x in args
             )
 
@@ -227,22 +233,22 @@ class UserRepository(UserAbstractRepository):
             raise ex.UserNotFoundException("User does not exist in db")
 
         user = User(
-            id=row[0],
-            personal_email=PersonalEmail(row[1]),
-            phone_number=PhoneNumber(row[2]),
-            user_type=UserType[row[3]],
-            pin=row[4],
-            full_name=row[5],
-            wallet_id=row[6],
-            is_active=row[7],
-            is_phone_number_verified=row[8],
-            otp=row[9],
-            otp_generated_at=row[10],
+            id=row["id"],
+            personal_email=PersonalEmail(row["personal_email"]),
+            phone_number=PhoneNumber(row["phone_number"]),
+            user_type=UserType[row["user_type"]],
+            pin=row["pin"],
+            full_name=row["full_name"],
+            wallet_id=row["wallet_id"],
+            is_active=row["is_active"],
+            is_phone_number_verified=row["is_phone_number_verified"],
+            otp=row["otp"],
+            otp_generated_at=row["otp_generated_at"],
             location=Location(
-                latitude=float(row[11][1:-1].split(",")[0]),
-                longitude=float(row[11][1:-1].split(",")[1]),
+                latitude=float(row["location"][1:-1].split(",")[0]),
+                longitude=float(row["location"][1:-1].split(",")[1]),
             ),
-            created_at=row[12],
+            created_at=row["created_at"],
         )
 
         sql = """
@@ -257,12 +263,12 @@ class UserRepository(UserAbstractRepository):
 
         for row in rows:
             closed_loop_user = ClosedLoopUser(
-                closed_loop_id=row[1],
-                unique_identifier=row[2],
-                id=row[3],
-                unique_identifier_otp=row[4],
-                status=ClosedLoopUserState[row[5]],
-                created_at=row[6],
+                closed_loop_id=row["closed_loop_id"],
+                unique_identifier=row["unique_identifier"],
+                id=row["closed_loop_user_id"],
+                unique_identifier_otp=row["unique_identifier_otp"],
+                status=ClosedLoopUserState[row["status"]],
+                created_at=row["created_at"],
             )
 
             user.closed_loops[row[1]] = closed_loop_user
@@ -272,7 +278,7 @@ class UserRepository(UserAbstractRepository):
     def save(self, user: User):
         sql = """
         insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at)
-        values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
+        values(%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s,%(created_at)s)
         on conflict(id) do update set
             id = excluded.id,
             personal_email = excluded.personal_email,
@@ -291,21 +297,21 @@ class UserRepository(UserAbstractRepository):
 
         self.cursor.execute(
             sql,
-            [
-                user.id,
-                user.personal_email.value,
-                user.phone_number.value,
-                user.user_type.name,
-                user.pin,
-                user.full_name,
-                user.wallet_id,
-                user.is_active,
-                user.is_phone_number_verified,
-                user.otp,
-                user.otp_generated_at,
-                user.location,
-                user.created_at,
-            ],
+            {
+                "id": user.id,
+                "personal_email": user.personal_email.value,
+                "phone_number": user.phone_number.value,
+                "user_type": user.user_type.name,
+                "pin": user.pin,
+                "full_name": user.full_name,
+                "wallet_id": user.wallet_id,
+                "is_active": user.is_active,
+                "is_phone_number_verified": user.is_phone_number_verified,
+                "otp": user.otp,
+                "otp_generated_at": user.otp_generated_at,
+                "location": user.location,
+                "created_at": user.created_at,
+            },
         )
 
         sql = """
@@ -322,20 +328,23 @@ class UserRepository(UserAbstractRepository):
             """
 
             args = [
-                (
-                    user.id,
-                    key,  # closed_loop_id
-                    closed_loop_user.unique_identifier,
-                    closed_loop_user.id,
-                    closed_loop_user.unique_identifier_otp,
-                    closed_loop_user.status.name,
-                    closed_loop_user.created_at,
-                )
+                {
+                    "user_id": user.id,
+                    "closed_loop_id": key,  # closed_loop_id
+                    "unique_identifier": closed_loop_user.unique_identifier,
+                    "closed_loop_user_id": closed_loop_user.id,
+                    "unique_identifier_otp": closed_loop_user.unique_identifier_otp,
+                    "status": closed_loop_user.status.name,
+                    "created_at": closed_loop_user.created_at,
+                }
                 for key, closed_loop_user in user.closed_loops.items()
             ]
 
             args_str = ",".join(
-                self.cursor.mogrify("(%s,%s,%s,%s,%s,%s,%s)", x).decode("utf-8")
+                self.cursor.mogrify(
+                    "(%(user_id)s,%(closed_loop_id)s,%(unique_identifier)s,%(closed_loop_user_id)s,%(unique_identifier_otp)s,%(status)s,%(created_at)s)",
+                    x,
+                ).decode("utf-8")
                 for x in args
             )
 
