@@ -19,7 +19,7 @@ from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
 from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.entrypoint import queries as app_queries
 from core.api import schemas as sch
-
+from uuid import uuid4
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
 
@@ -329,6 +329,7 @@ def create_deposit_request(uid):
     uow = UnitOfWork()
     try:
         checkout_url = pmt_cmd.create_deposit_request(
+            tx_id=str(uuid4()),
             user_id=uid,
             amount=req["amount"],
             uow=uow,
@@ -379,6 +380,7 @@ def execute_p2p_push_transaction(uid):
 
     try:
         pmt_cmd.execute_transaction_unique_identifier(
+            tx_id=str(uuid4()),
             sender_unique_identifier=unique_identifier,
             recipient_unique_identifier=req["recipient_unique_identifier"],
             amount=req["amount"],
@@ -439,6 +441,7 @@ def create_p2p_pull_transaction(uid):
 
     try:
         pmt_cmd.execute_transaction_unique_identifier(
+            tx_id=str(uuid4()),
             sender_unique_identifier=req["sender_unique_identifier"],
             recipient_unique_identifier=unique_identifier,
             amount=req["amount"],
@@ -555,6 +558,7 @@ def generate_voucher(uid):
 
     try:
         pmt_cmd.generate_voucher(
+            tx_id=str(uuid4()),
             sender_wallet_id=req["sender_wallet_id"],
             amount=req["amount"],
             uow=uow,
@@ -630,6 +634,7 @@ def execute_qr_transaction(uid):
 
     try:
         pmt_cmd.execute_qr_transaction(
+            tx_id=str(uuid4()),
             sender_wallet_id=uid,
             recipient_qr_id=req["qr_id"],
             amount=req["amount"],

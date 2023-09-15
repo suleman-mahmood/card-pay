@@ -18,6 +18,7 @@ class AbstractPaymentService(ABC):
     @abstractmethod
     def execute_transaction(
         self, 
+        tx_id: str,
         sender_wallet_id: str,
         recipient_wallet_id: str,
         amount: int,
@@ -39,7 +40,8 @@ class PaymentService(AbstractPaymentService):
         pmt_cmd.create_wallet(user_id, uow)
 
     def execute_transaction(
-        self, 
+        self,
+        tx_id: str, 
         sender_wallet_id: str,
         recipient_wallet_id: str,
         amount: int,
@@ -48,6 +50,7 @@ class PaymentService(AbstractPaymentService):
         uow: AbstractUnitOfWork,
     ):
         pmt_cmd.execute_transaction(
+            tx_id=tx_id, 
             sender_wallet_id=sender_wallet_id,
             recipient_wallet_id=recipient_wallet_id,
             amount=amount,
@@ -68,6 +71,7 @@ class FakePaymentService(AbstractPaymentService):
 
     def execute_transaction(
         self, 
+        tx_id: str,
         sender_wallet_id: str,
         recipient_wallet_id: str,
         amount: int,

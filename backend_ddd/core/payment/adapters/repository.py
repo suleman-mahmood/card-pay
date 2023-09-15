@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from typing import Dict
+from datetime import datetime
 from ..domain.model import (
     Transaction,
     Wallet,
@@ -30,9 +31,13 @@ class TransactionAbstractRepository(ABC):
     @abstractmethod
     def get_wallets_create_transaction(
         self,
+        id: str,
         amount: int,
+        created_at: datetime,
+        last_updated: datetime,
         mode: TransactionMode,
         transaction_type: TransactionType,
+        status: TransactionStatus,
         sender_wallet_id: str,
         recipient_wallet_id: str,
     ) -> Transaction:
@@ -76,9 +81,13 @@ class FakeTransactionRepository(TransactionAbstractRepository):
 
     def get_wallets_create_transaction(
         self,
+        id: str,
         amount: int,
+        created_at: datetime,
+        last_updated: datetime,
         mode: TransactionMode,
         transaction_type: TransactionType,
+        status: TransactionStatus,
         sender_wallet_id: str,
         recipient_wallet_id: str,
     ) -> Transaction:
@@ -88,8 +97,12 @@ class FakeTransactionRepository(TransactionAbstractRepository):
             amount=amount,
             mode=mode,
             transaction_type=transaction_type,
+            status=status,
             recipient_wallet=recipient_wallet,
             sender_wallet=sender_wallet,
+            id=id,
+            created_at=created_at,
+            last_updated=last_updated,
         )
 
     def get_with_different_recipient(
@@ -223,9 +236,13 @@ class TransactionRepository(TransactionAbstractRepository):
 
     def get_wallets_create_transaction(
         self,
+        id: str,
         amount: int,
+        created_at: datetime,
+        last_updated: datetime,
         mode: TransactionMode,
         transaction_type: TransactionType,
+        status: TransactionStatus,
         sender_wallet_id: str,
         recipient_wallet_id: str,
     ) -> Transaction:
@@ -244,6 +261,7 @@ class TransactionRepository(TransactionAbstractRepository):
             amount=amount,
             mode=mode,
             transaction_type=transaction_type,
+            status=status,
             recipient_wallet=Wallet(
                 id=recipient_wallet_id,
                 balance=recipient_wallet_row[1],
@@ -254,6 +272,9 @@ class TransactionRepository(TransactionAbstractRepository):
                 balance=sender_wallet_row[1],
                 qr_id=sender_wallet_row[2],
             ),
+            id=id,
+            created_at=created_at,
+            last_updated=last_updated,
         )
 
     def get_with_different_recipient(

@@ -4,6 +4,7 @@ from ...payment.entrypoint import commands as payment_commands
 from ..domain.model import Weightage, CashbackSlab, CashbackType, AllCashbacks
 from ...payment.domain.model import TransactionType, TransactionMode
 from core.marketing.domain import exceptions as mktg_ex
+from uuid import uuid4
 
 # Every transaction will check if its a cashback transaction then it'll call the marketing command which will again call the transaction command.
 
@@ -82,6 +83,7 @@ def give_cashback(
         all_cashbacks=uow.cashback_slabs.get_all(),
     )
     payment_commands.execute_transaction(
+        tx_id=str(uuid4()),
         sender_wallet_id=sender_wallet_id,  # This will be a fixed cardpay wallet id
         recipient_wallet_id=recipient_wallet_id,
         amount=amount,

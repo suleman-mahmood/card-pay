@@ -68,7 +68,7 @@ def seed_auth_user():
 
         with uow:
             uow.transactions.add_wallet(
-                wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()))
+                wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
             )
             uow.users.add(user)
 
@@ -124,7 +124,7 @@ def seed_auth_vendor():
 
         with uow:
             uow.transactions.add_wallet(
-                wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()))
+                wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
             )
             uow.users.add(user)
 
@@ -218,7 +218,7 @@ def seed_auth_cardpay():
         )
 
         uow.transactions.add_wallet(
-            wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()))
+            wallet=payment_model.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         )
         uow.users.add(user)
 

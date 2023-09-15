@@ -39,6 +39,7 @@ def test_loyalty_points_for_p2p_push(seed_verified_auth_user):
         uow.transactions.add_1000_wallet(sender_wallet.id)
 
     payment_commands.execute_transaction(
+        tx_id=str(uuid4()),
         sender_wallet_id=sender.wallet_id,
         recipient_wallet_id=recipient.wallet_id,
         amount=100,
@@ -69,7 +70,9 @@ def test_loyalty_points_for_p2p_pull(seed_verified_auth_user):
     with uow:
         uow.transactions.add_1000_wallet(sender_wallet.id)
 
-    tx = payment_commands.execute_transaction(
+    tx_id=str(uuid4())
+    payment_commands.execute_transaction(
+        tx_id=tx_id,
         sender_wallet_id=sender.wallet_id,
         recipient_wallet_id=recipient.wallet_id,
         amount=100,
@@ -78,7 +81,7 @@ def test_loyalty_points_for_p2p_pull(seed_verified_auth_user):
         uow=uow,
     )
     payment_commands.accept_p2p_pull_transaction(
-        transaction_id=tx.id,
+        transaction_id=tx_id,
         uow=uow,
     )
 
@@ -190,7 +193,9 @@ def test_cashback(seed_verified_auth_user, seed_starred_wallet, mocker):
     )
     assert recipient_wallet.balance == 0
 
-    tx = payment_commands.execute_transaction(
+    tx_id = str(uuid4())
+    payment_commands.execute_transaction(
+        tx_id=tx_id,
         sender_wallet_id=pg.id,
         recipient_wallet_id=recipient.wallet_id,
         amount=100,
@@ -198,7 +203,7 @@ def test_cashback(seed_verified_auth_user, seed_starred_wallet, mocker):
         transaction_type=TransactionType.PAYMENT_GATEWAY,
         uow=uow,
     )
-    payment_commands.accept_payment_gateway_transaction(transaction_id=tx.id, uow=uow)
+    payment_commands.accept_payment_gateway_transaction(transaction_id=tx_id, uow=uow)
 
     marketing_recipient = marketing_queries.get_marketing_user(
         user_id=recipient.id,

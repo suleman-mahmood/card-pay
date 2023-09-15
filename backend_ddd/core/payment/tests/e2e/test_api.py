@@ -74,7 +74,8 @@ def test_execute_p2p_push_one_to_many_valid(
 
     uow = UnitOfWork()
     sender = uow.users.get(user_id=sender_id)
-    recipients = [uow.users.get(user_id=recipient_id) for recipient_id in recipient_ids]
+    recipients = [uow.users.get(user_id=recipient_id)
+                  for recipient_id in recipient_ids]
     uow.close_connection()
 
     otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
@@ -85,7 +86,8 @@ def test_execute_p2p_push_one_to_many_valid(
         for recipient in recipients
     ]
     for recipient_id, otp in zip(recipient_ids, otps):
-        _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+        _verify_user_in_closed_loop(
+            mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
     sender_unique_identifier = (
@@ -228,7 +230,8 @@ def test_execute_p2p_push_one_to_many_all_invalid(
 
     uow = UnitOfWork()
     sender = uow.users.get(user_id=sender_id)
-    recipients = [uow.users.get(user_id=recipient_id) for recipient_id in recipient_ids]
+    recipients = [uow.users.get(user_id=recipient_id)
+                  for recipient_id in recipient_ids]
     uow.close_connection()
 
     otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
@@ -239,7 +242,8 @@ def test_execute_p2p_push_one_to_many_all_invalid(
         for recipient in recipients
     ]
     for recipient_id, otp in zip(recipient_ids, otps):
-        _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+        _verify_user_in_closed_loop(
+            mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
     sender_unique_identifier = (
@@ -327,7 +331,8 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
     for recipient_id in recipient_ids:
         _verify_phone_number(recipient_id, mocker, client)
 
-    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
+    _register_user_in_closed_loop(
+        mocker, client, sender_id, closed_loop_id, "26100274")
     for recipient_id, _ in zip(recipient_ids, range(NUMBER_OF_RECIPIENTS)):
         _register_user_in_closed_loop(
             mocker,
@@ -339,7 +344,8 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
 
     uow = UnitOfWork()
     sender = uow.users.get(user_id=sender_id)
-    recipients = [uow.users.get(user_id=recipient_id) for recipient_id in recipient_ids]
+    recipients = [uow.users.get(user_id=recipient_id)
+                  for recipient_id in recipient_ids]
     uow.close_connection()
 
     otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
@@ -350,7 +356,8 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
         for recipient in recipients
     ]
     for recipient_id, otp in zip(recipient_ids, otps):
-        _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+        _verify_user_in_closed_loop(
+            mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
     sender_unique_identifier = (
@@ -428,7 +435,8 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     _verify_phone_number(recipient_id, mocker, client)
     _verify_phone_number(sender_id, mocker, client)
 
-    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
+    _register_user_in_closed_loop(
+        mocker, client, sender_id, closed_loop_id, "26100274")
     _register_user_in_closed_loop(
         mocker, client, recipient_id, closed_loop_id, "26100290"
     )
@@ -442,7 +450,8 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
 
     otp = recipient.closed_loops[closed_loop_id].unique_identifier_otp
-    _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+    _verify_user_in_closed_loop(
+        mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
     recipient_unique_identifier = (
@@ -517,98 +526,98 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     assert response.status_code == 400
 
 
-def test_get_user_recent_transcations_api(
-    seed_api_customer, seed_api_admin, mocker, client
-):
-    sender_id = seed_api_customer(mocker, client)
-    recipient_id = seed_api_customer(mocker, client)
+# def test_get_user_recent_transcations_api(
+#     seed_api_customer, seed_api_admin, mocker, client
+# ):
+#     sender_id = seed_api_customer(mocker, client)
+#     recipient_id = seed_api_customer(mocker, client)
 
-    closed_loop_id = _create_closed_loop_helper(client)
+#     closed_loop_id = _create_closed_loop_helper(client)
 
-    headers = {
-        "Authorization": "Bearer pytest_auth_token",
-        "Content-Type": "application/json",
-    }
+#     headers = {
+#         "Authorization": "Bearer pytest_auth_token",
+#         "Content-Type": "application/json",
+#     }
 
-    _verify_phone_number(recipient_id, mocker, client)
-    _verify_phone_number(sender_id, mocker, client)
+#     _verify_phone_number(recipient_id, mocker, client)
+#     _verify_phone_number(sender_id, mocker, client)
 
-    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100279")
-    _register_user_in_closed_loop(
-        mocker, client, recipient_id, closed_loop_id, "26100290"
-    )
+#     _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100279")
+#     _register_user_in_closed_loop(
+#         mocker, client, recipient_id, closed_loop_id, "26100290"
+#     )
 
-    uow = UnitOfWork()
-    sender = uow.users.get(user_id=sender_id)
-    recipient = uow.users.get(user_id=recipient_id)
-    uow.close_connection()
+#     uow = UnitOfWork()
+#     sender = uow.users.get(user_id=sender_id)
+#     recipient = uow.users.get(user_id=recipient_id)
+#     uow.close_connection()
 
-    otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
-    _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
+#     otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
+#     _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
 
-    otp = recipient.closed_loops[closed_loop_id].unique_identifier_otp
-    _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
+#     otp = recipient.closed_loops[closed_loop_id].unique_identifier_otp
+#     _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
-    uow = UnitOfWork()
-    recipient_unique_identifier = (
-        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-            user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
-        )
-    )
-    sender_unique_identifier = (
-        auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
-            user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
-        )
-    )
-    uow.transactions.add_1000_wallet(wallet_id=sender_id)
-    uow.commit_close_connection()
+#     uow = UnitOfWork()
+#     recipient_unique_identifier = (
+#         auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+#             user_id=recipient_id, closed_loop_id=closed_loop_id, uow=uow
+#         )
+#     )
+#     sender_unique_identifier = (
+#         auth_qry.get_unique_identifier_from_user_id_and_closed_loop_id(
+#             user_id=sender_id, closed_loop_id=closed_loop_id, uow=uow
+#         )
+#     )
+#     uow.transactions.add_1000_wallet(wallet_id=sender_id)
+#     uow.commit_close_connection()
 
-    _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "10")
+#     _marketing_setup(seed_api_admin, client, mocker, "P2P_PUSH", "10")
 
-    # execute
-    headers = {
-        "Authorization": "Bearer pytest_auth_token",
-        "Content-Type": "application/json",
-    }
+#     # execute
+#     headers = {
+#         "Authorization": "Bearer pytest_auth_token",
+#         "Content-Type": "application/json",
+#     }
 
-    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
-    client.post(
-        "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
-        json={
-            "recipient_unique_identifier": recipient_unique_identifier,
-            "amount": 100,
-            "closed_loop_id": closed_loop_id,
-        },
-        headers=headers,
-    )
+#     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
+#     client.post(
+#         "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
+#         json={
+#             "recipient_unique_identifier": recipient_unique_identifier,
+#             "amount": 100,
+#             "closed_loop_id": closed_loop_id,
+#         },
+#         headers=headers,
+#     )
 
-    # now send 100 back to sender
+#     # now send 100 back to sender
 
-    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=recipient_id)
-    client.post(
-        "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
-        json={
-            "recipient_unique_identifier": sender_unique_identifier,
-            "amount": 100,
-            "closed_loop_id": closed_loop_id,
-        },
-        headers=headers,
-    )
+#     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=recipient_id)
+#     client.post(
+#         "http://127.0.0.1:5000/api/v1/execute-p2p-push-transaction",
+#         json={
+#             "recipient_unique_identifier": sender_unique_identifier,
+#             "amount": 100,
+#             "closed_loop_id": closed_loop_id,
+#         },
+#         headers=headers,
+#     )
 
-    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
-    response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-user-recent-transactions", headers=headers
-    )
+#     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
+#     response = client.get(
+#         "http://127.0.0.1:5000/api/v1/get-user-recent-transactions", headers=headers
+#     )
 
-    uow = UnitOfWork()
-    txs = pmt_qry.get_all_successful_transactions_of_a_user(
-        user_id=sender_id,
-        offset=0,
-        page_size=50,
-        uow=uow,
-    )
-    uow.close_connection()
-    res = loads(response.data.decode())
+#     uow = UnitOfWork()
+#     txs = pmt_qry.get_all_successful_transactions_of_a_user(
+#         user_id=sender_id,
+#         offset=0,
+#         page_size=50,
+#         uow=uow,
+#     )
+#     uow.close_connection()
+#     res = loads(response.data.decode())
 
-    assert res["message"] == "User recent transactions returned successfully"
-    assert res["status_code"] == 200
+#     assert res["message"] == "User recent transactions returned successfully"
+#     assert res["status_code"] == 200

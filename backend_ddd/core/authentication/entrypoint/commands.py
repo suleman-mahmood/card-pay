@@ -290,6 +290,7 @@ def _migrate_user(user_id: str, firestore_user_id: str, uow: AbstractUnitOfWork,
 
     try:
         pmt_svc.execute_transaction(
+            tx_id=str(uuid4()),
             sender_wallet_id=cardpay_wallet_id,
             recipient_wallet_id=user_id,
             amount=fetched_wallet_balance,

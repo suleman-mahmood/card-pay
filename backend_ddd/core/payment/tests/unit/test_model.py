@@ -1,11 +1,12 @@
+from datetime import datetime
+from uuid import uuid4
+import pytest
 from ...domain.model import (
     TransactionMode,
     TransactionStatus,
     TransactionType,
     Transaction,
 )
-from uuid import uuid4
-import pytest
 from ...domain.exceptions import TransactionNotAllowedException
 from core.payment.domain.model import TX_UPPER_LIMIT
 
@@ -41,7 +42,11 @@ def test_p2p_push_transaction(seed_wallet):
 
     wallet1.balance = 1000
     tx = Transaction(
+        id=str(uuid4()),
         amount=1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
         recipient_wallet=wallet2,
@@ -69,7 +74,11 @@ def test_initiate_deposit(seed_wallet):
     pg_wallet.balance = 1000000
 
     tx = Transaction(
+        id=str(uuid4()),
         amount=1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.PAYMENT_GATEWAY,
         recipient_wallet=wallet,
@@ -93,7 +102,11 @@ def test_pos_transaction(seed_wallet):
 
     customer_wallet.balance = 1000
     tx = Transaction(
+        id=str(uuid4()),
         amount=1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.QR,
         transaction_type=TransactionType.POS,
         recipient_wallet=vendor_wallet,
@@ -119,7 +132,11 @@ def test_accept_p2p_pull_transaction(seed_wallet):
     # Wallet1 requesting 1000 from wallet 2
     wallet2.balance = 1000
     tx = Transaction(
+        id=str(uuid4()),
         amount=1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PULL,
         recipient_wallet=wallet1,
@@ -150,7 +167,11 @@ def test_decline_p2p_pull_transaction(seed_wallet):
     # Wallet1 requesting 1000 from wallet 2
     wallet2.balance = 1000
     tx = Transaction(
+        id=str(uuid4()),
         amount=1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PULL,
         recipient_wallet=wallet1,
@@ -179,7 +200,11 @@ def test_p2p_push_transaction_insufficient_balance(seed_wallet):
 
     wallet1.balance = 1000
     tx = Transaction(
+        id=str(uuid4()),
         amount=2000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
         recipient_wallet=wallet2,
@@ -202,7 +227,11 @@ def test_p2p_push_transaction_self_wallet(seed_wallet):
 
     wallet1.balance = 1000
     tx = Transaction(
+        id=str(uuid4()),
         amount=1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
         recipient_wallet=wallet1,
@@ -230,7 +259,11 @@ def test_redeem_voucher(seed_wallet):
     sender_wallet.balance = 1000
 
     tx = Transaction(
+        id=str(uuid4()),
         amount=1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.VOUCHER,
         recipient_wallet=recipient_wallet,
@@ -251,7 +284,11 @@ def test_redeemed_voucher(seed_wallet):
     sender_wallet.balance = 1000
 
     tx = Transaction(
+        id=str(uuid4()),
         amount=1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.VOUCHER,
         recipient_wallet=recipient_wallet,
@@ -274,7 +311,11 @@ def test_amount_negative(seed_wallet):
     vendor_wallet = seed_wallet()
 
     tx = Transaction(
+        id=str(uuid4()),
         amount=-1000,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.QR,
         transaction_type=TransactionType.POS,
         recipient_wallet=vendor_wallet,
@@ -299,7 +340,11 @@ def test_amount_fractional(seed_wallet):
     wallet1.balance = 1000
 
     tx = Transaction(
+        id=str(uuid4()),
         amount=500.5,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
         recipient_wallet=wallet2,
@@ -325,7 +370,11 @@ def test_amount_breach_upper_limit(seed_wallet):
     wallet1.balance = TX_UPPER_LIMIT
 
     tx = Transaction(
+        id=str(uuid4()),
         amount=TX_UPPER_LIMIT,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
         recipient_wallet=wallet2,
@@ -344,7 +393,11 @@ def test_reconciliation_upper_limit_tx(seed_wallet):
     vendor_wallet.balance = TX_UPPER_LIMIT * 2
 
     tx = Transaction(
+        id=str(uuid4()),
         amount=TX_UPPER_LIMIT,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.RECONCILIATION,
         recipient_wallet=cardpay_wallet,
@@ -356,7 +409,11 @@ def test_reconciliation_upper_limit_tx(seed_wallet):
     assert tx.recipient_wallet.balance == TX_UPPER_LIMIT
 
     tx = Transaction(
+        id=str(uuid4()),
         amount=TX_UPPER_LIMIT,
+        created_at=datetime.now(),
+        last_updated=datetime.now(),
+        status=TransactionStatus.PENDING,
         mode=TransactionMode.APP_TRANSFER,
         transaction_type=TransactionType.P2P_PUSH,
         recipient_wallet=cardpay_wallet,

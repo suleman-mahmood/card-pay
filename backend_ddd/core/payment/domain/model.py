@@ -14,7 +14,7 @@ class Wallet:
 
     id: str
     qr_id: str
-    balance: int = 0
+    balance: int
 
 
 class TransactionStatus(str, Enum):
@@ -61,17 +61,17 @@ class Transaction:
     -> Transactions are sent over wallet ids
     """
 
+    id: str
     amount: int
+    created_at: datetime
+    last_updated: datetime
+    
     mode: TransactionMode
     transaction_type: TransactionType
-
+    status: TransactionStatus
     recipient_wallet: Wallet
     sender_wallet: Wallet
 
-    id: str = field(default_factory=lambda: str(uuid4()))
-    status: TransactionStatus = TransactionStatus.PENDING
-    created_at: datetime = field(default_factory=datetime.now)
-    last_updated: datetime = field(default_factory=datetime.now)
 
     def execute_transaction(self):
         """for executing a transaction"""

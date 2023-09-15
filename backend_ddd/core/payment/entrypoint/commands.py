@@ -11,6 +11,7 @@ from ..domain.model import (
     Wallet,
     TransactionMode,
     TransactionType,
+    TransactionStatus,
 )
 from ..entrypoint.queries import get_wallet_id_from_unique_identifier
 from ...payment.domain.model import TransactionType, TransactionMode
@@ -34,51 +35,17 @@ load_dotenv()
 def create_wallet(user_id: str, uow: AbstractUnitOfWork) -> Wallet:
     """Create wallet"""
     qr_id = str(uuid4())
-    wallet = Wallet(id=user_id, qr_id=qr_id)
+    wallet = Wallet(id=user_id, qr_id=qr_id, balance=0)
     uow.transactions.add_wallet(wallet)
-
-    return wallet
-
-
-def execute_transaction_unique_identifier(
-    sender_unique_identifier: str,
-    recipient_unique_identifier: str,
-    closed_loop_id: str,
-    amount: int,
-    transaction_mode: TransactionMode,
-    transaction_type: TransactionType,
-    uow: AbstractUnitOfWork,
-) -> Transaction:
-    with uow:
-        sender_wallet_id = get_wallet_id_from_unique_identifier(
-            unique_identifier=sender_unique_identifier,
-            closed_loop_id=closed_loop_id,
-            uow=uow,
-        )
-        recipient_wallet_id = get_wallet_id_from_unique_identifier(
-            unique_identifier=recipient_unique_identifier,
-            closed_loop_id=closed_loop_id,
-            uow=uow,
-        )
-
-    tx = execute_transaction(
-        sender_wallet_id=sender_wallet_id,
-        recipient_wallet_id=recipient_wallet_id,
-        amount=amount,
-        transaction_mode=transaction_mode,
-        transaction_type=transaction_type,
-        uow=uow,
-    )
-
-    return tx
 
 
 def execute_transaction(
-    sender_wallet_id: str,
-    recipient_wallet_id: str,
+    tx_id: str,
     amount: int,
     transaction_mode: TransactionMode,
     transaction_type: TransactionType,
+    sender_wallet_id: str,
+    recipient_wallet_id: str,
     uow: AbstractUnitOfWork,
 ) -> Transaction:
     with uow:
@@ -91,10 +58,15 @@ def execute_transaction(
         ):
             raise NotVerifiedException("User is not verified")
 
+        txn_time = datetime.now()
         tx = uow.transactions.get_wallets_create_transaction(
+            id=tx_id,
             amount=amount,
+            created_at=txn_time,
+            last_updated=txn_time,
             mode=transaction_mode,
             transaction_type=transaction_type,
+            status=TransactionStatus.PENDING,
             sender_wallet_id=sender_wallet_id,
             recipient_wallet_id=recipient_wallet_id,
         )
@@ -123,37 +95,67 @@ def execute_transaction(
 
         uow.transactions.save(tx)
 
-    return tx
 
-
-# for testing purposes only
-def slow_execute_transaction(
-    sender_wallet_id: str,
-    recipient_wallet_id: str,
+def execute_transaction_unique_identifier(
+    tx_id: str,
+    sender_unique_identifier: str,
+    recipient_unique_identifier: str,
+    closed_loop_id: str,
     amount: int,
     transaction_mode: TransactionMode,
     transaction_type: TransactionType,
     uow: AbstractUnitOfWork,
-    queue: Queue,
-):
+) -> Transaction:
     with uow:
-        # using wallet id as txn does not exist yet
-        tx = uow.transactions.get_wallets_create_transaction(
-            amount=amount,
-            mode=transaction_mode,
-            transaction_type=transaction_type,
-            sender_wallet_id=sender_wallet_id,
-            recipient_wallet_id=recipient_wallet_id,
+        sender_wallet_id = get_wallet_id_from_unique_identifier(
+            unique_identifier=sender_unique_identifier,
+            closed_loop_id=closed_loop_id,
+            uow=uow,
         )
-        sleep(1)
-        if utils.is_instant_transaction(transaction_type=transaction_type):
-            tx.execute_transaction()
+        recipient_wallet_id = get_wallet_id_from_unique_identifier(
+            unique_identifier=recipient_unique_identifier,
+            closed_loop_id=closed_loop_id,
+            uow=uow,
+        )
 
-        uow.transactions.save(tx)
+    execute_transaction(
+        tx_id=tx_id,
+        amount=amount,
+        sender_wallet_id=sender_wallet_id,
+        recipient_wallet_id=recipient_wallet_id,
+        transaction_mode=transaction_mode,
+        transaction_type=transaction_type,
+        uow=uow,
+    )
 
-    uow.commit_close_connection()
+# ## for testing purposes only
+# #def slow_execute_transaction(
+# #    sender_wallet_id: str,
+# #    recipient_wallet_id: str,
+# #    amount: int,
+# #    transaction_mode: TransactionMode,
+# #    transaction_type: TransactionType,
+# #    uow: AbstractUnitOfWork,
+# #    queue: Queue,
+# #):
+# #    with uow:
+# #        # using wallet id as txn does not exist yet
+# #        tx = uow.transactions.get_wallets_create_transaction(
+# #            amount=amount,
+# #            mode=transaction_mode,
+# #            transaction_type=transaction_type,
+# #            sender_wallet_id=sender_wallet_id,
+# #            recipient_wallet_id=recipient_wallet_id,
+# #        )
+# #        sleep(1)
+# #        if utils.is_instant_transaction(transaction_type=transaction_type):
+# #            tx.execute_transaction()
 
-    queue.put(tx)
+# #        uow.transactions.save(tx)
+
+# #    uow.commit_close_connection()
+
+# #    queue.put(tx)
 
 
 def accept_p2p_pull_transaction(
@@ -182,8 +184,6 @@ def accept_p2p_pull_transaction(
             transaction_type=tx.transaction_type,
             uow=uow,
         )
-
-    return tx
 
 
 def accept_payment_gateway_transaction(
@@ -219,24 +219,25 @@ def decline_p2p_pull_transaction(
         tx.decline_p2p_pull_transaction()
         uow.transactions.save(tx)
 
-    return tx
-
 
 def generate_voucher(
-    sender_wallet_id: str, amount: int, uow: AbstractUnitOfWork
+    tx_id: str, sender_wallet_id: str, amount: int, uow: AbstractUnitOfWork
 ) -> Transaction:
     """creates a txn object whith same sender and recipient"""
-    with uow:
-        tx = uow.transactions.get_wallets_create_transaction(
-            amount=amount,
-            mode=TransactionMode.APP_TRANSFER,
-            transaction_type=TransactionType.VOUCHER,
-            sender_wallet_id=sender_wallet_id,
-            recipient_wallet_id=sender_wallet_id,
-        )
-        uow.transactions.save(tx)
 
-    return tx
+    txn_time = datetime.now()
+    tx = uow.transactions.get_wallets_create_transaction(
+        id=tx_id,
+        amount=amount,
+        mode=TransactionMode.APP_TRANSFER,
+        transaction_type=TransactionType.VOUCHER,
+        sender_wallet_id=sender_wallet_id,
+        recipient_wallet_id=sender_wallet_id,
+        created_at=txn_time,
+        last_updated=txn_time,
+        status=TransactionStatus.PENDING,
+    )
+    uow.transactions.save(tx)
 
 
 # transaction_id ~= voucher_id
@@ -250,10 +251,9 @@ def redeem_voucher(
         tx.redeem_voucher()
         uow.transactions.save(tx)
 
-    return tx
-
 
 def create_deposit_request(
+    tx_id: str,
     user_id: str,
     amount: int,
     uow: AbstractUnitOfWork,
@@ -266,7 +266,8 @@ def create_deposit_request(
             "Deposit amount is less than the minimum allowed deposit"
         )
 
-    tx = execute_transaction(
+    execute_transaction(
+        tx_id=tx_id,
         sender_wallet_id=PAYPRO_USER_ID,
         recipient_wallet_id=user_id,
         amount=amount,
@@ -277,7 +278,7 @@ def create_deposit_request(
 
     checkout_url = get_deposit_checkout_url(
         amount=amount,
-        transaction_id=tx.id,
+        transaction_id=tx_id,
         full_name=user.full_name,
         phone_number=user.phone_number.value,
         email=user.personal_email.value,
@@ -302,8 +303,6 @@ def get_deposit_checkout_url(
     email: str,
     uow: AbstractUnitOfWork,
 ) -> str:
-    # TODO: remove in production
-    # return "123"
 
     auth_token = _get_paypro_auth_token(uow=uow)
 
@@ -358,16 +357,14 @@ def get_deposit_checkout_url(
 
 
 def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
-    # TODO: remove in production
-    # return "123"
 
     with uow:
         sql = """
-            select token, last_updated
-            from payment_gateway_tokens
-            where id = %s
-            for update
-        """
+           select token, last_updated
+           from payment_gateway_tokens
+           where id = %s
+           for update
+       """
         uow.cursor.execute(
             sql,
             [os.environ.get("CLIENT_ID")],
@@ -416,13 +413,13 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
 
     with uow:
         sql = """
-            insert into payment_gateway_tokens (id, token, last_updated)
-            values (%s, %s, %s)
-            on conflict (id) do update set
-                id = excluded.id,
-                token = excluded.token,
-                last_updated = excluded.last_updated
-        """
+           insert into payment_gateway_tokens (id, token, last_updated)
+           values (%s, %s, %s)
+           on conflict (id) do update set
+               id = excluded.id,
+               token = excluded.token,
+               last_updated = excluded.last_updated
+       """
         uow.cursor.execute(
             sql,
             [
@@ -449,7 +446,8 @@ def pay_pro_callback(
     if user_name != os.environ.get("PAYPRO_USERNAME") or password != os.environ.get(
         "PAYPRO_PASSWORD"
     ):
-        raise InvalidPayProCredentialsException("PayPro credentials are invalid")
+        raise InvalidPayProCredentialsException(
+            "PayPro credentials are invalid")
 
     invoice_ids = csv_invoice_ids.split(",")
     invoice_ids = [id.strip() for id in invoice_ids]
@@ -478,6 +476,7 @@ def _get_min_sec_repr_of_timedelta(td: timedelta):
 
 
 def payment_retools_reconcile_vendor(
+    tx_id: str,
     uow: AbstractUnitOfWork,
     vendor_wallet_id: str,
 ):
@@ -490,6 +489,7 @@ def payment_retools_reconcile_vendor(
     )[0]
 
     execute_transaction(
+        tx_id=tx_id,
         sender_wallet_id=vendor_wallet_id,
         recipient_wallet_id=card_pay_wallet_id,
         amount=vendor_balance,
@@ -498,13 +498,12 @@ def payment_retools_reconcile_vendor(
         uow=uow,
     )
 
-    return
-
 
 def execute_qr_transaction(
+    tx_id: str,
+    amount: int,
     sender_wallet_id: str,
     recipient_qr_id: str,
-    amount: int,
     version: int,
     uow: AbstractUnitOfWork,
 ) -> Transaction:
@@ -530,13 +529,12 @@ def execute_qr_transaction(
     else:
         raise InvalidUserTypeException("Invalid user type")
 
-    tx = execute_transaction(
+    execute_transaction(
+        tx_id=tx_id,
+        amount=amount,
         sender_wallet_id=sender_wallet_id,
         recipient_wallet_id=user_info.user_wallet_id,
-        amount=amount,
         transaction_mode=TransactionMode.QR,
         transaction_type=transaction_type,
         uow=uow,
     )
-
-    return tx
