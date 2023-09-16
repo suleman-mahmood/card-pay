@@ -1,5 +1,6 @@
-from ...entrypoint.uow import AbstractUnitOfWork
-from ..domain.model import TransactionType
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.marketing.domain import model as mdl
+
 
 def get_marketing_user(
     user_id: str,
@@ -14,5 +15,9 @@ def get_weightage(
     uow: AbstractUnitOfWork,
 ):
     with uow:
-        weightage_type = TransactionType[weightage_type]
+        weightage_type = mdl.TransactionType[weightage_type]
         return uow.weightages.get(weightage_type)
+
+
+def get_all_cashbacks(uow: AbstractUnitOfWork) -> mdl.AllCashbacks:
+    return uow.cashback_slabs.get_all()

@@ -229,9 +229,10 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
     )
 
 
-def test_verify_closed_loop_api(seed_api_customer, mocker, client):
+def test_verify_closed_loop_api(seed_api_customer, seed_api_cardpay, mocker, client):
     user_id = seed_api_customer(mocker, client)
     closed_loop_id = _create_closed_loop_helper(client)
+    cardpay_id = seed_api_cardpay(mocker, client)
 
     _verify_phone_number(user_id, mocker, client)
     _register_user_in_closed_loop(
@@ -392,6 +393,7 @@ def test_get_user_balance_api(seed_api_customer, mocker, client):
         ).__dict__
     )
 
+
 def test_authenticate_token(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
@@ -414,7 +416,6 @@ def test_authenticate_token(seed_api_customer, mocker, client):
     assert payload["message"] == "Unauthorized, invalid header"
     assert response.status_code == 401
 
-
     headers = {
         "Authorization": "Bearer ",
         "Content-Type": "application/json",
@@ -432,7 +433,7 @@ def test_authenticate_token(seed_api_customer, mocker, client):
     payload = loads(response.data.decode())
     assert payload["message"] == "Unauthorized, invalid header"
     assert response.status_code == 401
-    
+
     headers = {
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
@@ -487,21 +488,21 @@ def test_authenticate_token(seed_api_customer, mocker, client):
 #     print(loads(response.data.decode()))
 #     print(response.status_code)
 
-    # response = client.post(
-    #     "http://127.0.0.1:5000/api/v1/auth-retools-create-vendor",
-    #     json={
-    #         "personal_email": "zak@zak.com",
-    #         "password": "cardpay123",
-    #         "phone_number": "3763936384",
-    #         "full_name": "Zain vendor retool",
-    #         "longitude": 24.8607,
-    #         "latitude": 67.0011,
-    #         "closed_loop_id": closed_loop_id,
-    #         "RETOOL_SECRET": SECRET_KEY,
-    #     }
-    # )
+# response = client.post(
+#     "http://127.0.0.1:5000/api/v1/auth-retools-create-vendor",
+#     json={
+#         "personal_email": "zak@zak.com",
+#         "password": "cardpay123",
+#         "phone_number": "3763936384",
+#         "full_name": "Zain vendor retool",
+#         "longitude": 24.8607,
+#         "latitude": 67.0011,
+#         "closed_loop_id": closed_loop_id,
+#         "RETOOL_SECRET": SECRET_KEY,
+#     }
+# )
 
-    # assert loads(response.data.decode()) == utils.Response(
-    #     message="Vendor created successfully",
-    #     status_code=201,
-    # ).__dict__
+# assert loads(response.data.decode()) == utils.Response(
+#     message="Vendor created successfully",
+#     status_code=201,
+# ).__dict__

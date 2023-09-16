@@ -6,7 +6,6 @@ from core.authentication.domain import model as auth_mdl
 from core.authentication.domain import exceptions as auth_ex
 from core.authentication.entrypoint import exceptions as auth_cmd_ex
 from core.authentication.entrypoint import anti_corruption as acl
-from copy import deepcopy
 from uuid import uuid4
 
 
@@ -41,7 +40,6 @@ def test_create_user(mocker):
             56.2123,
         ),
         uow=uow,
-        pmt_svc=pmt_svc
     )
     fetched_user = uow.users.get(user_id=uid)
 
@@ -65,7 +63,6 @@ def test_create_user(mocker):
         full_name="New name",
         location=(20.8752, 56.2123),
         uow=uow,
-        pmt_svc=pmt_svc
     )
 
     fetched_user = uow.users.get(user_id=uid)
@@ -88,7 +85,6 @@ def test_create_user(mocker):
         full_name="Another Name",
         location=(20.8752, 56.2123),
         uow=uow,
-        pmt_svc=pmt_svc
     )
 
     fetched_user = uow.users.get(user_id=uid)
@@ -180,8 +176,8 @@ def test_register_closed_loopc(seed_auth_user, seed_auth_closed_loop):
     user_2, _ = seed_auth_user(uow)
     closed_loop_id = str(uuid4())
     closed_loop_2_id = str(uuid4())
-    seed_auth_closed_loop(id = closed_loop_id,uow = uow)
-    seed_auth_closed_loop(id = closed_loop_2_id,uow = uow)
+    seed_auth_closed_loop(id=closed_loop_id, uow=uow)
+    seed_auth_closed_loop(id=closed_loop_2_id, uow=uow)
 
     auth_cmd.register_closed_loop(
         user_id=user.id,
@@ -232,9 +228,8 @@ def test_register_closed_loopc(seed_auth_user, seed_auth_closed_loop):
         ].unique_identifier_otp,
         ignore_migration=False,
         uow=uow,
-        pmt_svc=acl.FakePaymentService(),
         auth_svc=auth_svc,
-        fb_svc= acl.FakeFirebaseService(),
+        fb_svc=acl.FakeFirebaseService(),
     )
 
     # another user with the same unique identifier tries to register in closed_loop_2
@@ -261,7 +256,7 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
     auth_svc = acl.FakeAuthenticationService()
     fb_svc = acl.FakeFirebaseService()
     closed_loop_id = str(uuid4())
-    seed_auth_closed_loop(id = closed_loop_id,uow = uow)
+    seed_auth_closed_loop(id=closed_loop_id, uow=uow)
 
     auth_cmd.register_closed_loop(
         user_id=user.id,
@@ -282,7 +277,6 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
             unique_identifier_otp="0000",
             ignore_migration=False,
             uow=uow,
-            pmt_svc=pmt_svc,
             auth_svc=auth_svc,
             fb_svc=fb_svc,
         )
@@ -300,7 +294,6 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
         unique_identifier_otp=otp,
         ignore_migration=False,
         uow=uow,
-        pmt_svc=pmt_svc,
         auth_svc=auth_svc,
         fb_svc=fb_svc,
     )
@@ -321,7 +314,6 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
             unique_identifier_otp=otp,
             ignore_migration=False,
             uow=uow,
-            pmt_svc=pmt_svc,
             auth_svc=auth_svc,
             fb_svc=fb_svc,
         )
@@ -330,11 +322,11 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
 def test_create_vendor(seed_auth_closed_loop, mocker):
     uow = FakeUnitOfWork()
     closed_loop_id = str(uuid4())
-    seed_auth_closed_loop(closed_loop_id,uow)
+    seed_auth_closed_loop(closed_loop_id, uow)
     uid = str(uuid4())
 
     mocker.patch("core.api.utils.firebaseUidToUUID", return_value=uid)
-    user = auth_cmd.create_vendor_through_retool(
+    user_id, _ = auth_cmd.create_vendor_through_retool(
         personal_email="vendor@test.com",
         password="vendor1234",
         phone_number="3123456789",
@@ -348,7 +340,7 @@ def test_create_vendor(seed_auth_closed_loop, mocker):
         fb_svc=acl.FakeFirebaseService(),
     )
 
-    fetched_user = uow.users.get(user_id=user.id)
+    fetched_user = uow.users.get(user_id=user_id)
 
     assert fetched_user.personal_email.value == "vendor@test.com"
     assert fetched_user.phone_number.value == "+923123456789"
@@ -390,7 +382,7 @@ def test_create_vendor(seed_auth_closed_loop, mocker):
             fb_svc=acl.FakeFirebaseService(),
         )
 
-    fetched_user = uow.users.get(user_id=user.id)
+    fetched_user = uow.users.get(user_id=user_id)
 
     assert fetched_user.personal_email.value == "vendor@test.com"
     assert fetched_user.phone_number.value == "+923123456789"
@@ -413,8 +405,8 @@ def test_create_vendor(seed_auth_closed_loop, mocker):
 
 def test_update_closed_loop(seed_auth_closed_loop):
     uow = FakeUnitOfWork()
-    closed_loop_id = str(uuid4()) 
-    seed_auth_closed_loop(closed_loop_id,uow)
+    closed_loop_id = str(uuid4())
+    seed_auth_closed_loop(closed_loop_id, uow)
 
     auth_cmd.auth_retools_update_closed_loop(
         closed_loop_id=closed_loop_id,
@@ -429,6 +421,5 @@ def test_update_closed_loop(seed_auth_closed_loop):
     assert fetched_closed_loop.name == "Updated Name"
     assert fetched_closed_loop.logo_url == "www.updated.com"
     assert fetched_closed_loop.description == "Updated Description"
-
 
     uow.close_connection()

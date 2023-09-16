@@ -5,18 +5,13 @@ from firebase_admin import auth
 from typing import Optional, Tuple
 
 from core.entrypoint.uow import AbstractUnitOfWork
-from core.payment.entrypoint import commands as payment_commands
-from core.payment.entrypoint import queries as pmt_qry
-from core.payment.entrypoint import exceptions as pmt_svc_exc
 from core.comms.entrypoint import commands as comms_commands
 from core.api import utils
 from core.api.event_codes import EventCode
 from core.authentication.entrypoint import exceptions as ex
-from core.payment.domain import model as pmt_mdl
+from core.payment.entrypoint import commands as pmt_cmd
 from core.authentication.domain import model as auth_mdl
-from core.payment.domain import exceptions as pmt_domain_exc
 from core.authentication.entrypoint import anti_corruption as acl
-from uuid import uuid4
 
 PK_CODE = "92"
 LUMS_CLOSED_LOOP_ID = "f23a19c5-040c-4924-830d-d1b687238c2b"
@@ -35,7 +30,7 @@ def create_closed_loop(
     """Create closed loop"""
     with uow:
         closed_loop = auth_mdl.ClosedLoop(
-            id = id,
+            id=id,
             name=name,
             logo_url=logo_url,
             description=description,
@@ -57,8 +52,7 @@ def create_user(
     full_name: str,
     location: Tuple[float, float],
     uow: AbstractUnitOfWork,
-    pmt_svc: acl.AbstractPaymentService,
-) -> Tuple[EventCode, str]:
+) -> Tuple[EventCode, str, bool]:
     """Create user"""
     location_object = auth_mdl.Location(latitude=location[0], longitude=location[1])
 
@@ -81,8 +75,7 @@ def create_user(
 
     if not user_already_exists:
         user_id = utils.firebaseUidToUUID(firebase_uid)
-
-        pmt_svc.create_wallet(user_id=user_id, uow=uow)
+        pmt_cmd.create_wallet(user_id=user_id, uow=uow)
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value=personal_email),
@@ -100,7 +93,7 @@ def create_user(
                 full_name=user.full_name, to=phone_number_sms, otp_code=user.otp
             )
 
-        return EventCode.OTP_SENT, user_id
+        return EventCode.OTP_SENT, user_id, True
     else:
         with uow:
             firebase_uid = firebase_get_user(email=phone_email)
@@ -108,7 +101,7 @@ def create_user(
             fetched_user = uow.users.get(user_id=user_id)
 
             if fetched_user.is_phone_number_verified:
-                return EventCode.USER_VERIFIED, user_id
+                return EventCode.USER_VERIFIED, user_id, False
             else:
                 firebase_update_password(
                     firebase_uid=firebase_uid,
@@ -137,7 +130,7 @@ def create_user(
                         to=phone_number_sms,
                         otp_code=fetched_user.otp,
                     )
-                return EventCode.OTP_SENT, user_id
+                return EventCode.OTP_SENT, user_id, False
 
 
 def change_name(user_id: str, new_name: str, uow: AbstractUnitOfWork):
@@ -247,10 +240,9 @@ def verify_closed_loop(
     unique_identifier_otp: str,
     ignore_migration: bool,
     uow: AbstractUnitOfWork,
-    pmt_svc: acl.AbstractPaymentService,
     auth_svc: acl.AbstractAuthenticationService,
     fb_svc: acl.AbstractFirebaseService,
-):
+) -> Tuple[bool, int]:
     """Request/Register to join a closed loop"""
     user = uow.users.get(user_id=user_id)
 
@@ -264,7 +256,7 @@ def verify_closed_loop(
     uow.users.save(user)
 
     if closed_loop_id != LUMS_CLOSED_LOOP_ID or ignore_migration:
-        return user
+        return False, 0
 
     unique_identifier = user.closed_loops[closed_loop_id].unique_identifier
     assert unique_identifier is not None
@@ -275,31 +267,7 @@ def verify_closed_loop(
         )
     except ex.UserNotInFirestore:
         # This is not an old LUMS user, so just return
-        return user
-
-    _migrate_user(user_id=user_id, firestore_user_id=firestore_user_id, uow=uow, pmt_svc=pmt_svc, fb_svc=fb_svc)
-
-    return user
-
-
-def _migrate_user(user_id: str, firestore_user_id: str, uow: AbstractUnitOfWork, pmt_svc: acl.AbstractPaymentService, fb_svc: acl.AbstractFirebaseService):
-    fetched_wallet_balance = fb_svc.wallet_balance_from_firestore(
-        user_id=firestore_user_id, uow=uow
-    )
-    cardpay_wallet_id = pmt_svc.get_starred_wallet_id(uow=uow)
-
-    try:
-        pmt_svc.execute_transaction(
-            tx_id=str(uuid4()),
-            sender_wallet_id=cardpay_wallet_id,
-            recipient_wallet_id=user_id,
-            amount=fetched_wallet_balance,
-            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
-            transaction_type=pmt_mdl.TransactionType.CARD_PAY,
-            uow=uow,
-        )
-    except pmt_svc_exc.TransactionFailedException:
-        pass
+        return False, 0
 
     sql = """
         update users_firestore
@@ -311,12 +279,16 @@ def _migrate_user(user_id: str, firestore_user_id: str, uow: AbstractUnitOfWork,
         where id=%(user_id)s;
     """
 
-    uow.cursor.execute(
-        sql,
-        {
-            "user_id": firestore_user_id,
-        },
-    )
+    uow.dict_cursor.execute(sql, {"user_id": firestore_user_id})
+
+    try:
+        fetched_wallet_balance = fb_svc.wallet_balance_from_firestore(
+            user_id=firestore_user_id, uow=uow
+        )
+    except ex.WalletNotInFirestore:
+        return False, 0
+
+    return True, fetched_wallet_balance
 
 
 def firebase_create_user(
@@ -363,12 +335,12 @@ def create_vendor_through_retool(
     pmt_svc: acl.AbstractPaymentService,
     auth_svc: acl.AbstractAuthenticationService,
     fb_svc: acl.AbstractFirebaseService,
-):
+) -> Tuple[str, bool]:
     """
     assumption: each vendor can only belong to a single closed loop
     """
 
-    _, user_id = create_user(
+    _, user_id, should_create_wallet = create_user(
         personal_email=personal_email,
         password=password,
         phone_number=phone_number,
@@ -376,7 +348,6 @@ def create_vendor_through_retool(
         full_name=full_name,
         location=location,
         uow=uow,
-        pmt_svc=pmt_svc,
     )
 
     user = uow.users.get(user_id=user_id)
@@ -402,12 +373,11 @@ def create_vendor_through_retool(
         unique_identifier_otp=otp,
         ignore_migration=True,
         uow=uow,
-        pmt_svc=pmt_svc,
         auth_svc=auth_svc,
         fb_svc=fb_svc,
     )
 
-    return user
+    return user_id, should_create_wallet
 
 
 def auth_retools_update_closed_loop(

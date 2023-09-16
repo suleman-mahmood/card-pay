@@ -46,7 +46,7 @@ def initialize_pytest_config(mocker):
 @pytest.fixture()
 def app():
     app = flask_app
-    sentry_sdk.init(None) #Disable the initialized sentry
+    sentry_sdk.init(None)  # Disable the initialized sentry
     app.config.update(
         {
             "TESTING": True,
@@ -84,6 +84,24 @@ def seed_api_customer():
 
 
 @pytest.fixture()
+def seed_api_cardpay(seed_api_customer):
+    def _seed_api_cardpay(mocker, client):
+        user_id = seed_api_customer(mocker, client)
+
+        uow = UnitOfWork()
+        sql = """
+            insert into starred_wallet_id (wallet_id)
+            values (%(user_id)s);
+        """
+        uow.dict_cursor.execute(sql, {"user_id": user_id})
+        uow.commit_close_connection()
+
+        return user_id
+
+    return _seed_api_cardpay
+
+
+@pytest.fixture()
 def seed_api_admin():
     def _seed_api_user(mocker, client):
         user_id = str(uuid4())
@@ -113,7 +131,7 @@ def _create_closed_loop_helper(client):
     uow = UnitOfWork()
     closed_loop_id = str(uuid4())
     auth_cmd.create_closed_loop(
-        id = closed_loop_id,
+        id=closed_loop_id,
         name="LUMS",
         logo_url="sample/url",
         description="Harvard of Pakistan",

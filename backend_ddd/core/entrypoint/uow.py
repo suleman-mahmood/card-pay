@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import psycopg2
 
 from psycopg2.extensions import adapt, register_adapter, AsIs
+from psycopg2.extras import DictCursor
 from ..authentication.domain.model import Location
 from ..payment.adapters.repository import (
     TransactionAbstractRepository,
@@ -28,9 +29,6 @@ from ..marketing.adapters.repository import (
     FakeWeightageRepository,
     WeightageRepository,
 )
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 def adapt_point(point: Location):
@@ -48,8 +46,9 @@ class AbstractUnitOfWork(ABC):
     weightages: WeightageAbstractRepository
 
     def __init__(self) -> None:
-        connection: psycopg2.connection
-        cursor: psycopg2.cursor
+        self.connection: psycopg2.connection
+        self.cursor: psycopg2.cursor
+        self.dict_cursor: DictCursor
 
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
@@ -108,6 +107,7 @@ class UnitOfWork(AbstractUnitOfWork):
         )
 
         self.cursor = self.connection.cursor()
+        self.dict_cursor = self.connection.cursor(cursor_factory=DictCursor)
 
         self.transactions = TransactionRepository(self.connection)
         self.closed_loops = ClosedLoopRepository(self.connection)

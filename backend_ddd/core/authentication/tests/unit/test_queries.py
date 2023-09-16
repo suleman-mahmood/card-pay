@@ -19,7 +19,6 @@ def test_get_user_checkpoint(seed_verified_auth_user, seed_auth_closed_loop):
     closed_loop_id = str(uuid4())
     seed_auth_closed_loop(id=closed_loop_id, uow=uow)
 
-
     assert auth_qry.user_checkpoints(user_id=user.id, uow=uow) == vm.CheckpointsDTO(
         verified_phone_otp=True, verified_closed_loop=False, pin_setup=False
     )
@@ -46,7 +45,6 @@ def test_get_user_checkpoint(seed_verified_auth_user, seed_auth_closed_loop):
         unique_identifier_otp=otp,
         ignore_migration=False,
         uow=uow,
-        pmt_svc=acl.FakePaymentService(),
         auth_svc=acl.FakeAuthenticationService(),
         fb_svc=acl.FakeFirebaseService(),
     )
@@ -64,7 +62,7 @@ def test_get_full_name_from_unique_identifier_and_closed_loop(
     uow = UnitOfWork()
     user, _ = seed_verified_auth_user(uow=uow)
     closed_loop_id = str(uuid4())
-    seed_auth_closed_loop(id=closed_loop_id,uow=uow)
+    seed_auth_closed_loop(id=closed_loop_id, uow=uow)
 
     auth_cmd.register_closed_loop(
         user_id=user.id,

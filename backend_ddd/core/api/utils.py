@@ -116,7 +116,7 @@ def validate_json_payload(required_parameters: Dict[str, sch.AbstractSchema]):
 
             for param, schema in required_parameters.items():
                 schema(req[param]).validate()
-                
+
             return func(*args, **kwargs)
 
         return wrapper

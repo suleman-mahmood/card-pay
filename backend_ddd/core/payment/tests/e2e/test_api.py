@@ -32,12 +32,13 @@ def _post_p2p_push_transaction(client, url, json_data, headers):
 
 
 def test_execute_p2p_push_one_to_many_valid(
-    seed_api_admin, seed_api_customer, mocker, client
+    seed_api_admin, seed_api_cardpay, seed_api_customer, mocker, client
 ):
     """
     Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
     All transactions are valid and should be executed successfully. In the end the sender wallet balance should be 0.
     """
+    cardpay_id = seed_api_cardpay(mocker, client)
 
     NUMBER_OF_RECIPIENTS = 10
 
@@ -54,8 +55,8 @@ def test_execute_p2p_push_one_to_many_valid(
 
     client.post(
         "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
-        json = {
-            "RETOOL_SECRET":"",
+        json={
+            "RETOOL_SECRET": "",
         },
         headers=headers,
     )
@@ -82,8 +83,7 @@ def test_execute_p2p_push_one_to_many_valid(
 
     uow = UnitOfWork()
     sender = uow.users.get(user_id=sender_id)
-    recipients = [uow.users.get(user_id=recipient_id)
-                  for recipient_id in recipient_ids]
+    recipients = [uow.users.get(user_id=recipient_id) for recipient_id in recipient_ids]
     uow.close_connection()
 
     otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
@@ -94,8 +94,7 @@ def test_execute_p2p_push_one_to_many_valid(
         for recipient in recipients
     ]
     for recipient_id, otp in zip(recipient_ids, otps):
-        _verify_user_in_closed_loop(
-            mocker, client, recipient_id, closed_loop_id, otp)
+        _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
     sender_unique_identifier = (
@@ -194,13 +193,15 @@ def test_execute_p2p_push_one_to_many_valid(
 
 
 def test_execute_p2p_push_one_to_many_all_invalid(
-    seed_api_admin, seed_api_customer, mocker, client
+    seed_api_admin, seed_api_cardpay, seed_api_customer, mocker, client
 ):
     """
     Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
     All transactions are invalid and should be respond with an 'insufficient balance in sender' exception.
     In the end the sender wallet balance should be exactly the same as in the beginning.
     """
+    cardpay_id = seed_api_cardpay(mocker, client)
+
     NUMBER_OF_RECIPIENTS = 10
 
     sender_id = seed_api_customer(mocker, client)
@@ -216,8 +217,8 @@ def test_execute_p2p_push_one_to_many_all_invalid(
 
     client.post(
         "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
-        json = {
-            "RETOOL_SECRET":"",
+        json={
+            "RETOOL_SECRET": "",
         },
         headers=headers,
     )
@@ -244,8 +245,7 @@ def test_execute_p2p_push_one_to_many_all_invalid(
 
     uow = UnitOfWork()
     sender = uow.users.get(user_id=sender_id)
-    recipients = [uow.users.get(user_id=recipient_id)
-                  for recipient_id in recipient_ids]
+    recipients = [uow.users.get(user_id=recipient_id) for recipient_id in recipient_ids]
     uow.close_connection()
 
     otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
@@ -256,8 +256,7 @@ def test_execute_p2p_push_one_to_many_all_invalid(
         for recipient in recipients
     ]
     for recipient_id, otp in zip(recipient_ids, otps):
-        _verify_user_in_closed_loop(
-            mocker, client, recipient_id, closed_loop_id, otp)
+        _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
     sender_unique_identifier = (
@@ -318,13 +317,14 @@ def test_execute_p2p_push_one_to_many_all_invalid(
 
 
 def test_execute_p2p_push_one_to_many_half_valid_invalid(
-    seed_api_admin, seed_api_customer, mocker, client
+    seed_api_admin, seed_api_cardpay, seed_api_customer, mocker, client
 ):
     """
     Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
     Half transactions are invalid and half are valid and should be respond with an 'insufficient balance in sender' exception
     for half and 'executed successfully' for half. In the end the sender wallet balance should be exactly the same as in the beginning.
     """
+    cardpay_id = seed_api_cardpay(mocker, client)
 
     NUMBER_OF_RECIPIENTS = 10
 
@@ -338,11 +338,11 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
     }
-    
+
     client.post(
         "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
-        json = {
-            "RETOOL_SECRET":"",
+        json={
+            "RETOOL_SECRET": "",
         },
         headers=headers,
     )
@@ -351,8 +351,7 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
     for recipient_id in recipient_ids:
         _verify_phone_number(recipient_id, mocker, client)
 
-    _register_user_in_closed_loop(
-        mocker, client, sender_id, closed_loop_id, "26100274")
+    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
     for recipient_id, _ in zip(recipient_ids, range(NUMBER_OF_RECIPIENTS)):
         _register_user_in_closed_loop(
             mocker,
@@ -364,8 +363,7 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
 
     uow = UnitOfWork()
     sender = uow.users.get(user_id=sender_id)
-    recipients = [uow.users.get(user_id=recipient_id)
-                  for recipient_id in recipient_ids]
+    recipients = [uow.users.get(user_id=recipient_id) for recipient_id in recipient_ids]
     uow.close_connection()
 
     otp = sender.closed_loops[closed_loop_id].unique_identifier_otp
@@ -376,8 +374,7 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
         for recipient in recipients
     ]
     for recipient_id, otp in zip(recipient_ids, otps):
-        _verify_user_in_closed_loop(
-            mocker, client, recipient_id, closed_loop_id, otp)
+        _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
     sender_unique_identifier = (
@@ -393,7 +390,6 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
     ]
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
-
 
     post_requests = [
         {
@@ -439,9 +435,13 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
         assert invalid_txns == 5
 
 
-def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client):
+def test_execute_p2p_push_api(
+    seed_api_admin, seed_api_customer, seed_api_cardpay, mocker, client
+):
     sender_id = seed_api_customer(mocker, client)
     recipient_id = seed_api_customer(mocker, client)
+    cardpay_id = seed_api_cardpay(mocker, client)
+
     closed_loop_id = _create_closed_loop_helper(client)
     sender_unique_identifier = "26100274"
     recipient_unique_identifier = "26100290"
@@ -453,8 +453,8 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
 
     client.post(
         "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
-        json = {
-            "RETOOL_SECRET":"",
+        json={
+            "RETOOL_SECRET": "",
         },
         headers=headers,
     )
@@ -462,8 +462,7 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     _verify_phone_number(recipient_id, mocker, client)
     _verify_phone_number(sender_id, mocker, client)
 
-    _register_user_in_closed_loop(
-        mocker, client, sender_id, closed_loop_id, "26100274")
+    _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100274")
     _register_user_in_closed_loop(
         mocker, client, recipient_id, closed_loop_id, "26100290"
     )
@@ -477,8 +476,7 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
     _verify_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, otp)
 
     otp = recipient.closed_loops[closed_loop_id].unique_identifier_otp
-    _verify_user_in_closed_loop(
-        mocker, client, recipient_id, closed_loop_id, otp)
+    _verify_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, otp)
 
     uow = UnitOfWork()
     recipient_unique_identifier = (
@@ -494,7 +492,6 @@ def test_execute_p2p_push_api(seed_api_admin, seed_api_customer, mocker, client)
 
     uow.transactions.add_1000_wallet(wallet_id=sender_id)
     uow.commit_close_connection()
-
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
     response = client.post(

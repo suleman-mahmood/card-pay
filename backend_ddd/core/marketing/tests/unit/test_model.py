@@ -1,16 +1,22 @@
 import pytest
 
-from ..conftest import seed_user
+from ..conftest import *
 from ....payment.domain.model import TransactionType
 from ...domain.exceptions import (
     InvalidTransactionTypeException,
     InvalidReferenceException,
     NotVerifiedException,
-    InvalidAddingLoyaltyPointsException,
     NegativeAmountException,
     InvalidSlabException,
 )
-from ...domain.model import User, CashbackType, Weightage, CashbackSlab, AllCashbacks
+from ...domain.model import (
+    User,
+    CashbackType,
+    Weightage,
+    CashbackSlab,
+    AllCashbacks,
+    CashbackCalculator,
+)
 
 
 def test_add_loyalty_points_for_deposit(seed_user):
@@ -178,6 +184,8 @@ def test_cashback_on_deposit(seed_user):
     assert all_cashbacks.cashback_slabs[0].cashback_type == CashbackType.ABSOLUTE
     assert all_cashbacks.cashback_slabs[0].cashback_value == 0
 
+
+def test_calculate_cashback():
     deposit_amount = 7000
 
     cashback_slab_1 = CashbackSlab(
@@ -196,47 +204,42 @@ def test_cashback_on_deposit(seed_user):
 
     all_cashbacks = AllCashbacks(cashback_slabs=[cashback_slab_1, cashback_slab_2])
     all_cashbacks.handle_invalid_slabs()
+    cc = CashbackCalculator(all_cashbacks=all_cashbacks)
 
-    with pytest.raises(NotVerifiedException, match="User is not verified"):
-        user.calculate_cashback(
-            deposit_amount=deposit_amount,
-            transaction_type=TransactionType.PAYMENT_GATEWAY,
-            all_cashbacks=all_cashbacks,
-        )
-
-    user.verify_user()
+    # with pytest.raises(NotVerifiedException, match="User is not verified"):
+    #     cc.calculate_cashback(
+    #         deposit_amount=deposit_amount,
+    #         invoker_transaction_type=TransactionType.PAYMENT_GATEWAY,
+    #     )
 
     with pytest.raises(NegativeAmountException, match="amount cannot be negative"):
-        user.calculate_cashback(
+        cc.calculate_cashback(
             deposit_amount=-1 * deposit_amount,
-            transaction_type=TransactionType.PAYMENT_GATEWAY,
-            all_cashbacks=all_cashbacks,
+            invoker_transaction_type=TransactionType.PAYMENT_GATEWAY,
         )
 
     with pytest.raises(InvalidTransactionTypeException, match="not deposit"):
-        user.calculate_cashback(
+        cc.calculate_cashback(
             deposit_amount=deposit_amount,
-            transaction_type=TransactionType.P2P_PUSH,
-            all_cashbacks=all_cashbacks,
+            invoker_transaction_type=TransactionType.P2P_PUSH,
         )
 
     assert (
-        user.calculate_cashback(
+        cc.calculate_cashback(
             deposit_amount=deposit_amount,
-            transaction_type=TransactionType.PAYMENT_GATEWAY,
-            all_cashbacks=all_cashbacks,
+            invoker_transaction_type=TransactionType.PAYMENT_GATEWAY,
         )
         == cashback_slab_2.cashback_value
     )
 
     all_cashbacks = AllCashbacks(cashback_slabs=[])
     all_cashbacks.handle_invalid_slabs()
+    cc = CashbackCalculator(all_cashbacks=all_cashbacks)
 
     assert (
-        user.calculate_cashback(
+        cc.calculate_cashback(
             deposit_amount=deposit_amount,
-            transaction_type=TransactionType.PAYMENT_GATEWAY,
-            all_cashbacks=all_cashbacks,
+            invoker_transaction_type=TransactionType.PAYMENT_GATEWAY,
         )
         == 0
     )
@@ -255,23 +258,21 @@ def test_cashback_on_deposit(seed_user):
         cashback_value=100,
     )
     all_cashbacks = AllCashbacks(cashback_slabs=[cashback_slab_1, cashback_slab_2])
-
     all_cashbacks.handle_invalid_slabs()
+    cc = CashbackCalculator(all_cashbacks=all_cashbacks)
 
     assert (
-        user.calculate_cashback(
+        cc.calculate_cashback(
             deposit_amount=99,
-            transaction_type=TransactionType.PAYMENT_GATEWAY,
-            all_cashbacks=all_cashbacks,
+            invoker_transaction_type=TransactionType.PAYMENT_GATEWAY,
         )
         == 0
     )
 
     assert (
-        user.calculate_cashback(
+        cc.calculate_cashback(
             deposit_amount=10001,
-            transaction_type=TransactionType.PAYMENT_GATEWAY,
-            all_cashbacks=all_cashbacks,
+            invoker_transaction_type=TransactionType.PAYMENT_GATEWAY,
         )
         == 0
     )

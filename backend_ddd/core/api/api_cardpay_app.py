@@ -1,12 +1,13 @@
 from flask import Blueprint, request
+from uuid import uuid4
 
-from core.entrypoint.uow import UnitOfWork
 
 from core.api import utils
+from core.entrypoint.uow import UnitOfWork
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import queries as pmt_qry
-from core.payment.domain import exceptions as pmt_ex
+from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.entrypoint import exceptions as pmt_cmd_ex
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain.model import UserType
@@ -19,8 +20,8 @@ from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
 from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.entrypoint import queries as app_queries
 from core.api import schemas as sch
-from uuid import uuid4
 from core.payment.entrypoint import anti_corruption as pmt_acl
+from core.payment.entrypoint import exceptions as pmt_ex
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
@@ -42,7 +43,7 @@ def create_user():
     req = request.get_json(force=True)
     uow = UnitOfWork()
     try:
-        auth_cmd.create_user(
+        _, user_id, should_create_wallet = auth_cmd.create_user(
             personal_email=req["personal_email"],
             password=req["password"],
             phone_number=req["phone_number"],
@@ -50,8 +51,10 @@ def create_user():
             full_name=req["full_name"],
             location=req["location"],
             uow=uow,
-            pmt_svc=auth_acl.PaymentService(),
         )
+        # if should_create_wallet:
+        #     pmt_cmd.create_wallet(user_id=user_id, uow=uow)
+
         uow.commit_close_connection()
     except Exception as e:
         uow.close_connection()
@@ -84,7 +87,7 @@ def create_customer():
     uow = UnitOfWork()
 
     try:
-        event_code, user_id = auth_cmd.create_user(
+        event_code, user_id, should_create_wallet = auth_cmd.create_user(
             personal_email=req["personal_email"],
             password=req["password"],
             phone_number=req["phone_number"],
@@ -92,8 +95,10 @@ def create_customer():
             full_name=req["full_name"],
             location=req["location"],
             uow=uow,
-            pmt_svc=auth_acl.PaymentService(),
         )
+        # if should_create_wallet:
+        #     pmt_cmd.create_wallet(user_id=user_id, uow=uow)
+
         uow.commit_close_connection()
     except Exception as e:
         uow.close_connection()
@@ -287,22 +292,36 @@ def verify_closed_loop(uid):
     uow = UnitOfWork()
 
     try:
-        auth_cmd.verify_closed_loop(
+        should_migrate_balance, balance = auth_cmd.verify_closed_loop(
             user_id=uid,
             closed_loop_id=req["closed_loop_id"],
             unique_identifier_otp=req["unique_identifier_otp"],
             ignore_migration=False,
             uow=uow,
-            pmt_svc=auth_acl.PaymentService(),
             auth_svc=auth_acl.AuthenticationService(),
             fb_svc=auth_acl.FirebaseService(),
         )
+        cardpay_wallet_id = pmt_qry.get_starred_wallet_id(uow=uow)
+        if should_migrate_balance:
+            try:
+                pmt_cmd._execute_transaction(
+                    tx_id=str(uuid4()),
+                    sender_wallet_id=cardpay_wallet_id,
+                    recipient_wallet_id=uid,
+                    amount=balance,
+                    transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+                    transaction_type=pmt_mdl.TransactionType.CARD_PAY,
+                    uow=uow,
+                    auth_svc=pmt_acl.AuthenticationService(),
+                )
+            except pmt_ex.TransactionFailedException:
+                pass
         uow.commit_close_connection()
     except (
         auth_ex.ClosedLoopException,
         auth_ex.VerificationException,
         auth_ex.InvalidOtpException,
-        pmt_ex.TransactionNotAllowedException,
+        pmt_mdl_ex.TransactionNotAllowedException,
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,
         mktg_ex.NotVerifiedException,
@@ -335,7 +354,6 @@ def create_deposit_request(uid):
             user_id=uid,
             amount=req["amount"],
             uow=uow,
-            mktg_svc=pmt_acl.MarketingService(),
             auth_svc=pmt_acl.AuthenticationService(),
         )
         uow.commit_close_connection()
@@ -392,7 +410,6 @@ def execute_p2p_push_transaction(uid):
             transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
             transaction_type=pmt_mdl.TransactionType.P2P_PUSH,
             uow=uow,
-            mktg_svc=pmt_acl.MarketingService(),
             auth_svc=pmt_acl.AuthenticationService(),
             pmt_svc=pmt_acl.PaymentService(),
         )
@@ -403,7 +420,7 @@ def execute_p2p_push_transaction(uid):
         raise utils.CustomException(str(e))
 
     except (
-        pmt_ex.TransactionNotAllowedException,
+        pmt_mdl_ex.TransactionNotAllowedException,
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,
         mktg_ex.NotVerifiedException,
@@ -456,7 +473,6 @@ def create_p2p_pull_transaction(uid):
             transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
             transaction_type=pmt_mdl.TransactionType.P2P_PUSH,
             uow=uow,
-            mktg_svc=pmt_acl.MarketingService(),
             auth_svc=pmt_acl.AuthenticationService(),
             pmt_svc=pmt_acl.PaymentService(),
         )
@@ -495,7 +511,7 @@ def accept_p2p_pull_transaction(uid):
         pmt_cmd.accept_p2p_pull_transaction(
             transaction_id=req["transaction_id"],
             uow=uow,
-            mktg_svc=pmt_acl.MarketingService(),
+            auth_svc=pmt_acl.AuthenticationService(),
         )
         uow.commit_close_connection()
 
@@ -504,7 +520,7 @@ def accept_p2p_pull_transaction(uid):
         raise utils.CustomException(str(e))
 
     except (
-        pmt_ex.TransactionNotAllowedException,
+        pmt_mdl_ex.TransactionNotAllowedException,
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,
         mktg_ex.NotVerifiedException,
@@ -539,7 +555,7 @@ def decline_p2p_pull_transaction(uid):
         )
         uow.commit_close_connection()
 
-    except pmt_ex.TransactionNotAllowedException as e:
+    except pmt_mdl_ex.TransactionNotAllowedException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -609,7 +625,7 @@ def redeem_voucher(uid):
         uow.commit_close_connection()
 
     except (
-        pmt_ex.TransactionNotAllowedException,
+        pmt_mdl_ex.TransactionNotAllowedException,
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,
         mktg_ex.NotVerifiedException,
@@ -651,7 +667,6 @@ def execute_qr_transaction(uid):
             amount=req["amount"],
             version=req["v"],
             uow=uow,
-            mktg_svc=pmt_acl.MarketingService(),
             auth_svc=pmt_acl.AuthenticationService(),
             pmt_svc=pmt_acl.PaymentService(),
         )
@@ -665,7 +680,7 @@ def execute_qr_transaction(uid):
         pmt_cmd_ex.InvalidQRCodeException,
         pmt_cmd_ex.InvalidQRVersionException,
         pmt_cmd_ex.InvalidUserTypeException,
-        pmt_ex.TransactionNotAllowedException,
+        pmt_mdl_ex.TransactionNotAllowedException,
         mktg_ex.InvalidReferenceException,
         mktg_ex.NegativeAmountException,
         mktg_ex.InvalidTransactionTypeException,

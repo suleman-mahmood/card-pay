@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from typing import List, Tuple
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.domain import model as mdl
-# from core.payment.entrypoint import queries as qry
 from core.authentication.domain import model as auth_mdl
 from core.payment.domain import exceptions as pmt_mdl_ex
 from core.authentication.entrypoint.commands import PAYPRO_USER_ID
@@ -16,10 +15,8 @@ from . import utils
 from time import sleep
 from queue import Queue
 from uuid import uuid4
-from dotenv import load_dotenv
 from core.payment.entrypoint import anti_corruption as acl
-
-load_dotenv()
+from core.payment.entrypoint import anti_corruption as pmt_acl
 
 
 # please only call this from create_user
@@ -30,7 +27,7 @@ def create_wallet(user_id: str, uow: AbstractUnitOfWork):
     uow.transactions.add_wallet(wallet)
 
 
-def execute_transaction(
+def _execute_transaction(
     tx_id: str,
     amount: int,
     transaction_mode: mdl.TransactionMode,
@@ -38,7 +35,6 @@ def execute_transaction(
     sender_wallet_id: str,
     recipient_wallet_id: str,
     uow: AbstractUnitOfWork,
-    mktg_svc: acl.AbstractMarketingService,
     auth_svc: acl.AbstractAuthenticationService,
 ):
     with uow:
@@ -72,15 +68,29 @@ def execute_transaction(
                 raise TransactionFailedException(str(e))
 
             uow.transactions.save(tx)
-            mktg_svc.add_loyalty_points_and_give_cashback(
-                sender_wallet_id=sender_wallet_id,
-                recipient_wallet_id=recipient_wallet_id,
-                transaction_amount=amount,
-                transaction_type=transaction_type,
-                uow=uow,
-            )
 
         uow.transactions.save(tx)
+
+
+def execute_cashback_transaction(
+    recipient_wallet_id: str,
+    cashback_amount: int,
+    uow: AbstractUnitOfWork,
+    auth_svc: pmt_acl.AbstractAuthenticationService,
+    pmt_svc: acl.AbstractPaymentService,
+):
+    sender_wallet_id = pmt_svc.get_starred_wallet_id(uow=uow)
+
+    _execute_transaction(
+        tx_id=str(uuid4()),
+        sender_wallet_id=sender_wallet_id,  # This will be a fixed cardpay wallet id
+        recipient_wallet_id=recipient_wallet_id,
+        amount=cashback_amount,
+        transaction_mode=mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=mdl.TransactionType.CASH_BACK,
+        uow=uow,
+        auth_svc=auth_svc,
+    )
 
 
 def execute_transaction_unique_identifier(
@@ -92,7 +102,6 @@ def execute_transaction_unique_identifier(
     transaction_mode: mdl.TransactionMode,
     transaction_type: mdl.TransactionType,
     uow: AbstractUnitOfWork,
-    mktg_svc: acl.AbstractMarketingService,
     auth_svc: acl.AbstractAuthenticationService,
     pmt_svc: acl.AbstractPaymentService,
 ):
@@ -108,7 +117,7 @@ def execute_transaction_unique_identifier(
             uow=uow,
         )
 
-    execute_transaction(
+    _execute_transaction(
         tx_id=tx_id,
         amount=amount,
         sender_wallet_id=sender_wallet_id,
@@ -116,9 +125,9 @@ def execute_transaction_unique_identifier(
         transaction_mode=transaction_mode,
         transaction_type=transaction_type,
         uow=uow,
-        mktg_svc=mktg_svc,
         auth_svc=auth_svc,
     )
+
 
 # ## for testing purposes only
 # #def slow_execute_transaction(
@@ -151,7 +160,9 @@ def execute_transaction_unique_identifier(
 
 
 def accept_p2p_pull_transaction(
-    transaction_id: str, uow: AbstractUnitOfWork, mktg_svc: acl.AbstractMarketingService
+    transaction_id: str,
+    uow: AbstractUnitOfWork,
+    auth_svc: pmt_acl.AbstractAuthenticationService,
 ):
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
@@ -163,35 +174,18 @@ def accept_p2p_pull_transaction(
 
         uow.transactions.save(tx)
 
-        mktg_svc.add_loyalty_points_and_give_cashback(
-            sender_wallet_id=tx.sender_wallet.id,
-            recipient_wallet_id=tx.recipient_wallet.id,
-            transaction_amount=tx.amount,
-            transaction_type=tx.transaction_type,
-            uow=uow,
-        )
-
 
 def accept_payment_gateway_transaction(
-    transaction_id: str, uow: AbstractUnitOfWork, mktg_svc: acl.AbstractMarketingService
+    transaction_id: str,
+    uow: AbstractUnitOfWork,
 ):
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
         tx.execute_transaction()
         uow.transactions.save(tx)
 
-        mktg_svc.add_loyalty_points_and_give_cashback(
-            sender_wallet_id=tx.sender_wallet.id,
-            recipient_wallet_id=tx.recipient_wallet.id,
-            transaction_amount=tx.amount,
-            transaction_type=tx.transaction_type,
-            uow=uow,
-        )
 
-
-def decline_p2p_pull_transaction(
-    transaction_id: str, uow: AbstractUnitOfWork
-):
+def decline_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
     with uow:
         tx = uow.transactions.get(transaction_id=transaction_id)
         tx.decline_p2p_pull_transaction()
@@ -235,18 +229,16 @@ def create_deposit_request(
     user_id: str,
     amount: int,
     uow: AbstractUnitOfWork,
-    mktg_svc: acl.AbstractMarketingService,
     auth_svc: acl.AbstractAuthenticationService,
 ) -> str:
-    with uow:
-        user = uow.users.get(user_id=user_id)
+    user = uow.users.get(user_id=user_id)
 
     if amount < 1000:
         raise DepositAmountTooSmallException(
             "Deposit amount is less than the minimum allowed deposit"
         )
 
-    execute_transaction(
+    _execute_transaction(
         tx_id=tx_id,
         sender_wallet_id=PAYPRO_USER_ID,
         recipient_wallet_id=user_id,
@@ -254,7 +246,6 @@ def create_deposit_request(
         transaction_mode=mdl.TransactionMode.APP_TRANSFER,
         transaction_type=mdl.TransactionType.PAYMENT_GATEWAY,
         uow=uow,
-        mktg_svc=mktg_svc,
         auth_svc=auth_svc,
     )
 
@@ -285,7 +276,6 @@ def get_deposit_checkout_url(
     email: str,
     uow: AbstractUnitOfWork,
 ) -> str:
-
     auth_token = _get_paypro_auth_token(uow=uow)
 
     now = datetime.now()
@@ -339,7 +329,6 @@ def get_deposit_checkout_url(
 
 
 def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
-
     with uow:
         sql = """
            select token, last_updated
@@ -423,13 +412,15 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
 
 
 def pay_pro_callback(
-    user_name: str, password: str, csv_invoice_ids: str, uow: AbstractUnitOfWork, mktg_svc: acl.AbstractMarketingService
+    user_name: str,
+    password: str,
+    csv_invoice_ids: str,
+    uow: AbstractUnitOfWork,
 ) -> Tuple[List[str], List[str]]:
     if user_name != os.environ.get("PAYPRO_USERNAME") or password != os.environ.get(
         "PAYPRO_PASSWORD"
     ):
-        raise InvalidPayProCredentialsException(
-            "PayPro credentials are invalid")
+        raise InvalidPayProCredentialsException("PayPro credentials are invalid")
 
     invoice_ids = csv_invoice_ids.split(",")
     invoice_ids = [id.strip() for id in invoice_ids]
@@ -442,7 +433,10 @@ def pay_pro_callback(
 
     for id in invoice_ids:
         try:
-            accept_payment_gateway_transaction(transaction_id=id, uow=uow, mktg_svc=mktg_svc)
+            accept_payment_gateway_transaction(
+                transaction_id=id,
+                uow=uow,
+            )
             success_invoice_ids.append(id)
         except pmt_mdl_ex.TransactionNotFoundException:
             not_found_invoice_ids.append(id)
@@ -461,7 +455,6 @@ def payment_retools_reconcile_vendor(
     tx_id: str,
     uow: AbstractUnitOfWork,
     vendor_wallet_id: str,
-    mktg_svc: acl.AbstractMarketingService,
     auth_svc: acl.AbstractAuthenticationService,
     pmt_svc: acl.AbstractPaymentService,
 ):
@@ -473,7 +466,7 @@ def payment_retools_reconcile_vendor(
         uow=uow,
     )
 
-    execute_transaction(
+    _execute_transaction(
         tx_id=tx_id,
         sender_wallet_id=vendor_wallet_id,
         recipient_wallet_id=card_pay_wallet_id,
@@ -481,7 +474,6 @@ def payment_retools_reconcile_vendor(
         transaction_mode=mdl.TransactionMode.APP_TRANSFER,
         transaction_type=mdl.TransactionType.RECONCILIATION,
         uow=uow,
-        mktg_svc=mktg_svc,
         auth_svc=auth_svc,
     )
 
@@ -493,7 +485,6 @@ def execute_qr_transaction(
     recipient_qr_id: str,
     version: int,
     uow: AbstractUnitOfWork,
-    mktg_svc: acl.AbstractMarketingService,
     auth_svc: acl.AbstractAuthenticationService,
     pmt_svc: acl.AbstractPaymentService,
 ):
@@ -519,8 +510,7 @@ def execute_qr_transaction(
     else:
         raise InvalidUserTypeException("Invalid user type")
 
-    print(user_info.user_wallet_id)
-    execute_transaction(
+    _execute_transaction(
         tx_id=tx_id,
         amount=amount,
         sender_wallet_id=sender_wallet_id,
@@ -528,6 +518,5 @@ def execute_qr_transaction(
         transaction_mode=mdl.TransactionMode.QR,
         transaction_type=transaction_type,
         uow=uow,
-        mktg_svc=mktg_svc,
         auth_svc=auth_svc,
     )

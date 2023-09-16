@@ -5,7 +5,7 @@ from typing import List, Dict, Optional
 from datetime import datetime
 from dataclasses import dataclass
 from ...authentication.domain import model as auth_mdl
-from core.payment.entrypoint.queries_exceptions import UserDoesNotExistException
+from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
 from core.payment.entrypoint import view_models as payment_vm
 
 
@@ -48,6 +48,7 @@ def get_wallet_balance(
         row = uow.cursor.fetchone()
         return row[0]
 
+
 def get_starred_wallet_id(uow: AbstractUnitOfWork) -> str:
     """
     keeping it here for now, will move it later after discussion
@@ -59,6 +60,7 @@ def get_starred_wallet_id(uow: AbstractUnitOfWork) -> str:
     uow.cursor.execute(sql)
     rows = uow.cursor.fetchone()
     return rows[0]
+
 
 def get_wallet_id_from_unique_identifier(
     unique_identifier: str, closed_loop_id: str, uow: AbstractUnitOfWork
@@ -76,10 +78,13 @@ def get_wallet_id_from_unique_identifier(
     row = uow.cursor.fetchall()
 
     if len(row) == 0:
-        raise UserDoesNotExistException(f"No user found against {unique_identifier}")
+        raise pmt_qry_ex.UserDoesNotExistException(
+            f"No user found against {unique_identifier}"
+        )
     assert len(row) == 1
 
     return row[0]
+
 
 def get_all_closed_loops_id_and_names(
     uow: AbstractUnitOfWork,
@@ -96,6 +101,7 @@ def get_all_closed_loops_id_and_names(
         closed_loops = [{"id": row[0], "name": row[1]} for row in rows]
 
     return closed_loops
+
 
 def get_all_successful_transactions_of_a_user(
     user_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int
@@ -120,19 +126,18 @@ def get_all_successful_transactions_of_a_user(
 
         transactions = [
             payment_vm.TransactionWithIdsDTO(
-                id = row[0],
-                amount = row[1],
-                mode = row[2],
-                transaction_type = row[3],
-                status = row[4],
-                created_at = row[5],
-                last_updated = row[6],
-                sender_id = row[7],
-                recipient_id = row[8],
-                sender_name = row[9],
-                recipient_name = row[10]
+                id=row[0],
+                amount=row[1],
+                mode=row[2],
+                transaction_type=row[3],
+                status=row[4],
+                created_at=row[5],
+                last_updated=row[6],
+                sender_id=row[7],
+                recipient_id=row[8],
+                sender_name=row[9],
+                recipient_name=row[10],
             )
-
             for row in rows
         ]
         return transactions
@@ -206,7 +211,7 @@ def payment_retools_get_customers_and_ventors_of_selected_closed_loop(
 def payment_retools_get_all_transactions_of_selected_user(
     user_id: str,
     uow: AbstractUnitOfWork,
-)-> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[payment_vm.TransactionWithIdsDTO]:
     with uow:
         sql = """
             select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
@@ -225,17 +230,17 @@ def payment_retools_get_all_transactions_of_selected_user(
 
         transactions = [
             payment_vm.TransactionWithIdsDTO(
-                id = row[0],
-                amount = row[1],
-                mode = row[2],
-                transaction_type = row[3],
-                status = row[4],
-                created_at = row[5],
-                last_updated = row[6],
-                sender_id = row[7],
-                recipient_id = row[8],
-                sender_name = row[9],
-                recipient_name = row[10]
+                id=row[0],
+                amount=row[1],
+                mode=row[2],
+                transaction_type=row[3],
+                status=row[4],
+                created_at=row[5],
+                last_updated=row[6],
+                sender_id=row[7],
+                recipient_id=row[8],
+                sender_name=row[9],
+                recipient_name=row[10],
             )
             for row in rows
         ]
@@ -276,7 +281,7 @@ def payment_retools_get_vendors_and_balance(
 def payment_retools_get_transactions_to_be_reconciled(
     vendor_id: str,
     uow: AbstractUnitOfWork,
-)-> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[payment_vm.TransactionWithIdsDTO]:
     with uow:
         last_reconciliation_timestamp = """
         select max(created_at) from transactions
@@ -311,17 +316,17 @@ def payment_retools_get_transactions_to_be_reconciled(
 
         transactions = [
             payment_vm.TransactionWithIdsDTO(
-                id = row[0],
-                amount = row[1],
-                mode = row[2],
-                transaction_type = row[3],
-                status = row[4],
-                created_at = row[5],
-                last_updated = row[6],
-                sender_id = row[7],
-                recipient_id = row[8],
-                sender_name = row[9],
-                recipient_name = row[10]
+                id=row[0],
+                amount=row[1],
+                mode=row[2],
+                transaction_type=row[3],
+                status=row[4],
+                created_at=row[5],
+                last_updated=row[6],
+                sender_id=row[7],
+                recipient_id=row[8],
+                sender_name=row[9],
+                recipient_name=row[10],
             )
             for row in rows
         ]
@@ -390,7 +395,7 @@ def payment_retools_get_reconciled_transactions(
     reconciliation_timestamp: str,
     vendor_id: str,
     uow: AbstractUnitOfWork,
-)-> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[payment_vm.TransactionWithIdsDTO]:
     with uow:
         datetime_obj = datetime.strptime(
             reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z"
@@ -453,21 +458,22 @@ def payment_retools_get_reconciled_transactions(
 
         transactions = [
             payment_vm.TransactionWithIdsDTO(
-                id = row[0],
-                amount = row[1],
-                mode = row[2],
-                transaction_type = row[3],
-                status = row[4],
-                created_at = row[5],
-                last_updated = row[6],
-                sender_id = row[7],
-                recipient_id = row[8],
-                sender_name = row[9],
-                recipient_name = row[10]
+                id=row[0],
+                amount=row[1],
+                mode=row[2],
+                transaction_type=row[3],
+                status=row[4],
+                created_at=row[5],
+                last_updated=row[6],
+                sender_id=row[7],
+                recipient_id=row[8],
+                sender_name=row[9],
+                recipient_name=row[10],
             )
             for row in rows
         ]
     return transactions
+
 
 def get_user_wallet_id_and_type_from_qr_id(
     qr_id: str,
@@ -514,7 +520,8 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
     rows = uow.cursor.fetchall()
 
     vendors = [
-        payment_vm.VendorQrIdDTO(id=row[0], full_name=row[1], qr_id=row[2]) for row in rows
+        payment_vm.VendorQrIdDTO(id=row[0], full_name=row[1], qr_id=row[2])
+        for row in rows
     ]
 
     return vendors
@@ -523,7 +530,7 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
 def vendor_app_get_transactions_to_be_reconciled(
     vendor_id: str,
     uow: AbstractUnitOfWork,
-)-> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[payment_vm.TransactionWithIdsDTO]:
     with uow:
         last_reconciliation_timestamp = """
         select max(created_at) from transactions
@@ -559,23 +566,52 @@ def vendor_app_get_transactions_to_be_reconciled(
 
         transactions = [
             payment_vm.TransactionWithIdsDTO(
-                id = row[0],
-                amount = row[1],
-                mode = row[2],
-                transaction_type = row[3],
-                status = row[4],
-                created_at = row[5],
-                last_updated = row[6],
-                sender_id = row[7],
-                recipient_id = row[8],
-                sender_name = row[9],
-                recipient_name = row[10]
+                id=row[0],
+                amount=row[1],
+                mode=row[2],
+                transaction_type=row[3],
+                status=row[4],
+                created_at=row[5],
+                last_updated=row[6],
+                sender_id=row[7],
+                recipient_id=row[8],
+                sender_name=row[9],
+                recipient_name=row[10],
             )
             for row in rows
         ]
 
     return transactions
 
+
+def get_tx_balance(tx_id: str, uow: AbstractUnitOfWork) -> int:
+    sql = """
+        select amount
+        from transactions
+        where id = %(tx_id)s
+    """
+    uow.dict_cursor.execute(sql, {"tx_id": tx_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise pmt_qry_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
+
+    return row["amount"]
+
+
+def get_tx_recipient(tx_id: str, uow: AbstractUnitOfWork) -> str:
+    sql = """
+        select recipient_wallet_id
+        from transactions
+        where id = %(tx_id)s
+    """
+    uow.dict_cursor.execute(sql, {"tx_id": tx_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise pmt_qry_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
+
+    return row["recipient_wallet_id"]
 
 
 # def get_all_beneficiaries_of_passed_user(
