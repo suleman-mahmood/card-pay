@@ -88,7 +88,7 @@ def test_create_user_api(mocker, client):
     assert payload["event_code"] == "DEFAULT_EVENT"
 
     mocker.patch(
-        "core.authentication.entrypoint.commands.firebase_create_user",
+        "core.authentication.entrypoint.firebase_service.create_user",
         side_effect=Exception("User already exists"),
     )
 

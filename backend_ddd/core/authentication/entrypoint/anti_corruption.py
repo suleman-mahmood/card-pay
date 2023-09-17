@@ -1,12 +1,9 @@
-import firebase_admin
-
-from firebase_admin import auth
-
 from dataclasses import dataclass
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import queries as pmt_qry
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.entrypoint import exceptions as auth_cmd_ex
+from core.authentication.entrypoint import firebase_service as fb_svc
 from abc import ABC, abstractmethod
 
 
@@ -125,63 +122,60 @@ class AuthenticationService(AbstractAuthenticationService):
 @dataclass
 class AbstractFirebaseService(ABC):
     @abstractmethod
-    def firebase_create_user(
+    def create_user(
         self, phone_email: str, phone_number: str, password: str, full_name: str
     ) -> str:
         pass
 
     @abstractmethod
-    def firebase_update_password(
-        self, firebase_uid: str, new_password: str, new_full_name: str
-    ):
+    def update_password(self, firebase_uid: str, new_password: str, new_full_name: str):
         pass
 
     @abstractmethod
-    def firebase_get_user(self, email: str) -> str:
+    def get_user(self, email: str) -> str:
         pass
 
 
 @dataclass
 class FakeFirebaseService(AbstractFirebaseService):
-    def firebase_create_user(
+    user_exists: bool = False
+
+    def set_user_exists(self, user_exists: bool):
+        self.user_exists = user_exists
+
+    def create_user(
         self, phone_email: str, phone_number: str, password: str, full_name: str
     ) -> str:
+        if self.user_exists:
+            raise Exception("User already exists")
         return ""
 
-    def firebase_update_password(
-        self, firebase_uid: str, new_password: str, new_full_name: str
-    ):
+    def update_password(self, firebase_uid: str, new_password: str, new_full_name: str):
         pass
 
-    def firebase_get_user(self, email: str) -> str:
+    def get_user(self, email: str) -> str:
         return ""
 
 
 class FirebaseService(AbstractFirebaseService):
-    def firebase_create_user(
+    def create_user(
         self, phone_email: str, phone_number: str, password: str, full_name: str
     ) -> str:
-        user_record = firebase_admin.auth.create_user(
-            email=phone_email,
+        return fb_svc.create_user(
+            phone_email=phone_email,
             email_verified=False,
             phone_number=phone_number,
             password=password,
-            display_name=full_name,
+            full_name=full_name,
             disabled=False,
         )
 
-        return user_record.uid
-
-    def firebase_update_password(
-        self, firebase_uid: str, new_password: str, new_full_name: str
-    ):
-        firebase_admin.auth.update_user(
-            uid=firebase_uid,
-            password=new_password,
-            display_name=new_full_name,
+    def update_password(self, firebase_uid: str, new_password: str, new_full_name: str):
+        fb_svc.update_password(
+            firebase_uid=firebase_uid,
+            new_password=new_password,
+            new_full_name=new_full_name,
         )
 
-    def firebase_get_user(self, email: str) -> str:
-        user_record = auth.get_user_by_email(email=email)
-
-        return user_record.uid
+    def get_user(self, email: str) -> str:
+        return fb_svc.get_user(email=email)

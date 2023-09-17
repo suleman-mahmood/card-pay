@@ -62,7 +62,7 @@ def create_user(
     user_already_exists = False
     firebase_uid = ""
     try:
-        firebase_uid = fb_svc.firebase_create_user(
+        firebase_uid = fb_svc.create_user(
             phone_email=phone_email,
             phone_number=phone_number_with_country_code,
             password=password,
@@ -94,14 +94,14 @@ def create_user(
         return EventCode.OTP_SENT, user_id, True
     else:
         with uow:
-            firebase_uid = fb_svc.firebase_get_user(email=phone_email)
+            firebase_uid = fb_svc.get_user(email=phone_email)
             user_id = utils.firebaseUidToUUID(firebase_uid)
             fetched_user = uow.users.get(user_id=user_id)
 
             if fetched_user.is_phone_number_verified:
                 return EventCode.USER_VERIFIED, user_id, False
             else:
-                fb_svc.firebase_update_password(
+                fb_svc.update_password(
                     firebase_uid=firebase_uid,
                     new_password=password,
                     new_full_name=full_name,

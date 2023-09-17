@@ -51,11 +51,10 @@ def test_create_user(mocker):
     assert fetched_user.location.latitude == 20.8752
     assert fetched_user.location.longitude == 56.2123
 
+    fake_fb_svc = acl.FakeFirebaseService()
+    fake_fb_svc.set_user_exists(True)
+
     # using the same phone number again to trip the exception
-    mocker.patch(
-        "core.authentication.entrypoint.commands.firebase_create_user",
-        side_effect=Exception("User already exists"),
-    )
     auth_cmd.create_user(
         personal_email="new@new.com",
         password="newpass123",
@@ -64,7 +63,7 @@ def test_create_user(mocker):
         full_name="New name",
         location=(20.8752, 56.2123),
         uow=uow,
-        fb_svc=acl.FakeFirebaseService(),
+        fb_svc=fake_fb_svc,
     )
 
     fetched_user = uow.users.get(user_id=uid)
@@ -87,7 +86,7 @@ def test_create_user(mocker):
         full_name="Another Name",
         location=(20.8752, 56.2123),
         uow=uow,
-        fb_svc=acl.FakeFirebaseService(),
+        fb_svc=fake_fb_svc,
     )
 
     fetched_user = uow.users.get(user_id=uid)
@@ -356,10 +355,8 @@ def test_create_vendor(seed_auth_closed_loop, mocker):
 
     # creating a vendor with same phone number
     # since the vendor is verified, it should throw an exception and user detaild should not be updated
-    mocker.patch(
-        "core.authentication.entrypoint.commands.firebase_create_user",
-        side_effect=Exception("User already exists"),
-    )
+    fake_fb_svc = acl.FakeFirebaseService()
+    fake_fb_svc.set_user_exists(True)
 
     with pytest.raises(
         auth_ex.VerificationException, match="Phone number already verified"
@@ -374,7 +371,7 @@ def test_create_vendor(seed_auth_closed_loop, mocker):
             unique_identifier=None,
             uow=uow,
             auth_svc=acl.FakeAuthenticationService(),
-            fb_svc=acl.FakeFirebaseService(),
+            fb_svc=fake_fb_svc,
         )
 
     fetched_user = uow.users.get(user_id=user_id)

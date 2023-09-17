@@ -31,15 +31,15 @@ def initialize_pytest_config(mocker):
     mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
     mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
     mocker.patch(
-        "core.authentication.entrypoint.commands.firebase_create_user",
+        "core.authentication.entrypoint.firebase_service.create_user",
         return_value=None,
     )
     mocker.patch(
-        "core.authentication.entrypoint.commands.firebase_update_password",
+        "core.authentication.entrypoint.firebase_service.update_password",
         return_value=None,
     )
     mocker.patch(
-        "core.authentication.entrypoint.commands.firebase_get_user", return_value=""
+        "core.authentication.entrypoint.firebase_service.get_user", return_value=""
     )
 
 
