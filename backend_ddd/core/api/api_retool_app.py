@@ -294,7 +294,6 @@ def auth_retools_create_vendor():
             closed_loop_id=req["closed_loop_id"],
             unique_identifier=None,
             uow=uow,
-            pmt_svc=auth_acl.PaymentService(),
             auth_svc=auth_acl.AuthenticationService(),
             fb_svc=auth_acl.FirebaseService(),
         )

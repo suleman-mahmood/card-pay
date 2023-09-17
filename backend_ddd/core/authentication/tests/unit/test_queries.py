@@ -1,9 +1,5 @@
 import pytest
-from core.authentication.tests.conftest import (
-    seed_auth_user,
-    seed_verified_auth_user,
-    seed_auth_closed_loop,
-)
+from core.authentication.tests.conftest import *
 from core.entrypoint.uow import UnitOfWork
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.entrypoint import commands as auth_cmd
@@ -46,7 +42,6 @@ def test_get_user_checkpoint(seed_verified_auth_user, seed_auth_closed_loop):
         ignore_migration=False,
         uow=uow,
         auth_svc=acl.FakeAuthenticationService(),
-        fb_svc=acl.FakeFirebaseService(),
     )
     checkpoint = auth_qry.user_checkpoints(user_id=user.id, uow=uow)
     uow.close_connection()

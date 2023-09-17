@@ -40,6 +40,7 @@ def test_create_user(mocker):
             56.2123,
         ),
         uow=uow,
+        fb_svc=acl.FakeFirebaseService(),
     )
     fetched_user = uow.users.get(user_id=uid)
 
@@ -63,6 +64,7 @@ def test_create_user(mocker):
         full_name="New name",
         location=(20.8752, 56.2123),
         uow=uow,
+        fb_svc=acl.FakeFirebaseService(),
     )
 
     fetched_user = uow.users.get(user_id=uid)
@@ -85,6 +87,7 @@ def test_create_user(mocker):
         full_name="Another Name",
         location=(20.8752, 56.2123),
         uow=uow,
+        fb_svc=acl.FakeFirebaseService(),
     )
 
     fetched_user = uow.users.get(user_id=uid)
@@ -229,7 +232,6 @@ def test_register_closed_loopc(seed_auth_user, seed_auth_closed_loop):
         ignore_migration=False,
         uow=uow,
         auth_svc=auth_svc,
-        fb_svc=acl.FakeFirebaseService(),
     )
 
     # another user with the same unique identifier tries to register in closed_loop_2
@@ -252,9 +254,7 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
 
     uow = FakeUnitOfWork()
     user, _ = seed_auth_user(uow)
-    pmt_svc = acl.FakePaymentService()
     auth_svc = acl.FakeAuthenticationService()
-    fb_svc = acl.FakeFirebaseService()
     closed_loop_id = str(uuid4())
     seed_auth_closed_loop(id=closed_loop_id, uow=uow)
 
@@ -278,7 +278,6 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
             ignore_migration=False,
             uow=uow,
             auth_svc=auth_svc,
-            fb_svc=fb_svc,
         )
 
     fetched_user = uow.users.get(user_id=user.id)
@@ -295,7 +294,6 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
         ignore_migration=False,
         uow=uow,
         auth_svc=auth_svc,
-        fb_svc=fb_svc,
     )
 
     fetched_user = uow.users.get(user_id=user.id)
@@ -315,7 +313,6 @@ def test_verify_closed_loop(seed_auth_user, seed_auth_closed_loop):
             ignore_migration=False,
             uow=uow,
             auth_svc=auth_svc,
-            fb_svc=fb_svc,
         )
 
 
@@ -335,7 +332,6 @@ def test_create_vendor(seed_auth_closed_loop, mocker):
         closed_loop_id=closed_loop_id,
         unique_identifier=None,
         uow=uow,
-        pmt_svc=acl.FakePaymentService(),
         auth_svc=acl.FakeAuthenticationService(),
         fb_svc=acl.FakeFirebaseService(),
     )
@@ -377,7 +373,6 @@ def test_create_vendor(seed_auth_closed_loop, mocker):
             closed_loop_id=closed_loop_id,
             unique_identifier=None,
             uow=uow,
-            pmt_svc=acl.FakePaymentService(),
             auth_svc=acl.FakeAuthenticationService(),
             fb_svc=acl.FakeFirebaseService(),
         )

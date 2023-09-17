@@ -51,6 +51,7 @@ def create_user():
             full_name=req["full_name"],
             location=req["location"],
             uow=uow,
+            fb_svc=auth_acl.FirebaseService(),
         )
         # if should_create_wallet:
         #     pmt_cmd.create_wallet(user_id=user_id, uow=uow)
@@ -95,6 +96,7 @@ def create_customer():
             full_name=req["full_name"],
             location=req["location"],
             uow=uow,
+            fb_svc=auth_acl.FirebaseService(),
         )
         # if should_create_wallet:
         #     pmt_cmd.create_wallet(user_id=user_id, uow=uow)
@@ -299,7 +301,6 @@ def verify_closed_loop(uid):
             ignore_migration=False,
             uow=uow,
             auth_svc=auth_acl.AuthenticationService(),
-            fb_svc=auth_acl.FirebaseService(),
         )
         cardpay_wallet_id = pmt_qry.get_starred_wallet_id(uow=uow)
         if should_migrate_balance:

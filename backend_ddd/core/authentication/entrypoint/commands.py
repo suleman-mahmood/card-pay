@@ -1,7 +1,4 @@
 """Authentication commands"""
-import firebase_admin
-
-from firebase_admin import auth
 from typing import Optional, Tuple
 
 from core.entrypoint.uow import AbstractUnitOfWork
@@ -52,6 +49,7 @@ def create_user(
     full_name: str,
     location: Tuple[float, float],
     uow: AbstractUnitOfWork,
+    fb_svc: acl.AbstractFirebaseService,
 ) -> Tuple[EventCode, str, bool]:
     """Create user"""
     location_object = auth_mdl.Location(latitude=location[0], longitude=location[1])
@@ -64,7 +62,7 @@ def create_user(
     user_already_exists = False
     firebase_uid = ""
     try:
-        firebase_uid = firebase_create_user(
+        firebase_uid = fb_svc.firebase_create_user(
             phone_email=phone_email,
             phone_number=phone_number_with_country_code,
             password=password,
@@ -96,14 +94,14 @@ def create_user(
         return EventCode.OTP_SENT, user_id, True
     else:
         with uow:
-            firebase_uid = firebase_get_user(email=phone_email)
+            firebase_uid = fb_svc.firebase_get_user(email=phone_email)
             user_id = utils.firebaseUidToUUID(firebase_uid)
             fetched_user = uow.users.get(user_id=user_id)
 
             if fetched_user.is_phone_number_verified:
                 return EventCode.USER_VERIFIED, user_id, False
             else:
-                firebase_update_password(
+                fb_svc.firebase_update_password(
                     firebase_uid=firebase_uid,
                     new_password=password,
                     new_full_name=full_name,
@@ -241,7 +239,6 @@ def verify_closed_loop(
     ignore_migration: bool,
     uow: AbstractUnitOfWork,
     auth_svc: acl.AbstractAuthenticationService,
-    fb_svc: acl.AbstractFirebaseService,
 ) -> Tuple[bool, int]:
     """Request/Register to join a closed loop"""
     user = uow.users.get(user_id=user_id)
@@ -262,7 +259,7 @@ def verify_closed_loop(
     assert unique_identifier is not None
 
     try:
-        firestore_user_id = fb_svc.user_id_from_firestore(
+        firestore_user_id = auth_svc.user_id_from_firestore(
             unique_identifier=unique_identifier, uow=uow
         )
     except ex.UserNotInFirestore:
@@ -282,45 +279,13 @@ def verify_closed_loop(
     uow.dict_cursor.execute(sql, {"user_id": firestore_user_id})
 
     try:
-        fetched_wallet_balance = fb_svc.wallet_balance_from_firestore(
+        fetched_wallet_balance = auth_svc.wallet_balance_from_firestore(
             user_id=firestore_user_id, uow=uow
         )
     except ex.WalletNotInFirestore:
         return False, 0
 
     return True, fetched_wallet_balance
-
-
-def firebase_create_user(
-    phone_email: str,
-    phone_number: str,
-    password: str,
-    full_name: str,
-) -> str:
-    user_record = firebase_admin.auth.create_user(
-        email=phone_email,
-        email_verified=False,
-        phone_number=phone_number,
-        password=password,
-        display_name=full_name,
-        disabled=False,
-    )
-
-    return user_record.uid
-
-
-def firebase_update_password(firebase_uid: str, new_password: str, new_full_name: str):
-    firebase_admin.auth.update_user(
-        uid=firebase_uid,
-        password=new_password,
-        display_name=new_full_name,
-    )
-
-
-def firebase_get_user(email: str) -> str:
-    user_record = auth.get_user_by_email(email=email)
-
-    return user_record.uid
 
 
 def create_vendor_through_retool(
@@ -332,7 +297,6 @@ def create_vendor_through_retool(
     closed_loop_id: str,
     unique_identifier: Optional[str],
     uow: AbstractUnitOfWork,
-    pmt_svc: acl.AbstractPaymentService,
     auth_svc: acl.AbstractAuthenticationService,
     fb_svc: acl.AbstractFirebaseService,
 ) -> Tuple[str, bool]:
@@ -348,6 +312,7 @@ def create_vendor_through_retool(
         full_name=full_name,
         location=location,
         uow=uow,
+        fb_svc=fb_svc,
     )
 
     user = uow.users.get(user_id=user_id)
@@ -374,7 +339,6 @@ def create_vendor_through_retool(
         ignore_migration=True,
         uow=uow,
         auth_svc=auth_svc,
-        fb_svc=fb_svc,
     )
 
     return user_id, should_create_wallet
