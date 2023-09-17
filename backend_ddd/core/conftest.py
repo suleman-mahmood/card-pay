@@ -29,6 +29,7 @@ def initialize_pytest_config(mocker):
     os.environ["RETOOL_SECRET"] = ""
 
     mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
     mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
     mocker.patch(
         "core.authentication.entrypoint.firebase_service.create_user",

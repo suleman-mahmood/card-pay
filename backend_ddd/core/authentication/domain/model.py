@@ -1,4 +1,15 @@
-"""authentication domain model"""
+"""
+Authentication domain model
+- Use Cases
+    - create account
+        - non-loop specific email for marketing etc
+    - verify phone
+    - login
+    - verify email (aws)
+    - forgot password (aws)
+    - block card
+    - guest sign up
+"""
 from uuid import uuid4
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Tuple
@@ -13,19 +24,7 @@ from .exceptions import (
     InvalidNameException,
 )
 
-
-def behaviour():
-    """
-    - Use Cases
-        - create account
-            - non-loop specific email for marketing etc
-        - verify phone
-        - login
-        - verify email (aws)
-        - forgot password (aws)
-        - block card
-        - guest sign up
-    """
+PK_CODE = "92"
 
 
 class ClosedLoopVerificationType(str, Enum):
@@ -113,7 +112,20 @@ class PersonalEmail:
 class PhoneNumber:
     """Phone number value object"""
 
-    value: str
+    value: str  # +923333462677
+
+    @property
+    def email(self) -> str:
+        return self.sms + "@cardpay.com.pk"
+
+    @property
+    def sms(self) -> str:
+        return self.value.replace("+", "")
+
+    @classmethod
+    def from_api(cls, phone_number) -> "PhoneNumber":
+        new_phone_number = "+" + PK_CODE + phone_number
+        return PhoneNumber(value=new_phone_number)
 
 
 @dataclass
@@ -180,13 +192,12 @@ class User:
 
         return self.is_active
 
-    def verify_otp(self, otp: str) -> bool:
+    def verify_otp(self, otp: str):
         """Verify OTP"""
         if self.otp != otp:
             raise InvalidOtpException("Otps don't match")
 
         self._generate_new_otp()
-        return True  # TODO: Refactor and remove this
 
     def _generate_new_otp(self) -> None:
         """Generate OTP"""
@@ -199,8 +210,8 @@ class User:
         if self.is_phone_number_verified:
             raise VerificationException("Phone number already verified")
 
-        if self.verify_otp(otp):
-            self.is_phone_number_verified = True
+        self.verify_otp(otp)
+        self.is_phone_number_verified = True
 
     def register_closed_loop(self, closed_loop_user: ClosedLoopUser) -> None:
         """Register closed loop"""

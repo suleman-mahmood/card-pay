@@ -10,7 +10,6 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import anti_corruption as acl
 
-PK_CODE = "92"
 LUMS_CLOSED_LOOP_ID = "f23a19c5-040c-4924-830d-d1b687238c2b"
 PAYPRO_USER_ID = "bd85b580-9510-4596-afc4-b737eeb3d492"
 
@@ -44,7 +43,7 @@ def create_closed_loop(
 def create_user(
     personal_email: str,
     password: str,
-    phone_number: str,
+    raw_phone_number: str,
     user_type: str,
     full_name: str,
     location: Tuple[float, float],
@@ -53,18 +52,14 @@ def create_user(
 ) -> Tuple[EventCode, str, bool]:
     """Create user"""
     location_object = auth_mdl.Location(latitude=location[0], longitude=location[1])
-
-    # TODO: get these representations from PhoneNumber domain object instead
-    phone_email = PK_CODE + phone_number + "@cardpay.com.pk"
-    phone_number_with_country_code = "+" + PK_CODE + phone_number
-    phone_number_sms = PK_CODE + phone_number
+    phone_number = auth_mdl.PhoneNumber.from_api(phone_number=raw_phone_number)
 
     user_already_exists = False
     firebase_uid = ""
     try:
         firebase_uid = fb_svc.create_user(
-            phone_email=phone_email,
-            phone_number=phone_number_with_country_code,
+            phone_email=phone_number.email,
+            phone_number=phone_number.value,
             password=password,
             full_name=full_name,
         )
@@ -77,9 +72,9 @@ def create_user(
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value=personal_email),
-            phone_number=auth_mdl.PhoneNumber(value=phone_number_with_country_code),
+            phone_number=phone_number,
             user_type=auth_mdl.UserType.__members__[user_type],
-            pin="0000",  # TODO: fix this
+            pin="0000",
             full_name=full_name,
             wallet_id=user_id,
             location=location_object,
@@ -88,13 +83,15 @@ def create_user(
 
         if user.user_type is auth_mdl.UserType.CUSTOMER:
             comms_commands.send_otp_sms(
-                full_name=user.full_name, to=phone_number_sms, otp_code=user.otp
+                full_name=user.full_name,
+                to=phone_number.sms,
+                otp_code=user.otp,
             )
 
         return EventCode.OTP_SENT, user_id, True
     else:
         with uow:
-            firebase_uid = fb_svc.get_user(email=phone_email)
+            firebase_uid = fb_svc.get_user(email=phone_number.email)
             user_id = utils.firebaseUidToUUID(firebase_uid)
             fetched_user = uow.users.get(user_id=user_id)
 
@@ -111,11 +108,9 @@ def create_user(
                 user = auth_mdl.User(
                     id=user_id,
                     personal_email=auth_mdl.PersonalEmail(value=personal_email),
-                    phone_number=auth_mdl.PhoneNumber(
-                        value=phone_number_with_country_code
-                    ),
+                    phone_number=phone_number,
                     user_type=auth_mdl.UserType.__members__[user_type],
-                    pin="0000",  # TODO: fix this
+                    pin="0000",
                     full_name=full_name,
                     wallet_id=user_id,
                     location=location_object,
@@ -125,7 +120,7 @@ def create_user(
                 if user.user_type is auth_mdl.UserType.CUSTOMER:
                     comms_commands.send_otp_sms(
                         full_name=fetched_user.full_name,
-                        to=phone_number_sms,
+                        to=phone_number.sms,
                         otp_code=fetched_user.otp,
                     )
                 return EventCode.OTP_SENT, user_id, False
@@ -307,7 +302,7 @@ def create_vendor_through_retool(
     _, user_id, should_create_wallet = create_user(
         personal_email=personal_email,
         password=password,
-        phone_number=phone_number,
+        raw_phone_number=phone_number,
         user_type="VENDOR",
         full_name=full_name,
         location=location,

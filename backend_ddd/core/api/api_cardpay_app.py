@@ -46,7 +46,7 @@ def create_user():
         _, user_id, should_create_wallet = auth_cmd.create_user(
             personal_email=req["personal_email"],
             password=req["password"],
-            phone_number=req["phone_number"],
+            raw_phone_number=req["phone_number"],
             user_type=req["user_type"],
             full_name=req["full_name"],
             location=req["location"],
@@ -82,16 +82,16 @@ def create_customer():
     """
     Create a new user account of type customer
 
-    phone_number = '03333462677'
+    phone_number = '3333462677'
     """
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
     try:
-        event_code, user_id, should_create_wallet = auth_cmd.create_user(
+        event_code, user_id, _ = auth_cmd.create_user(
             personal_email=req["personal_email"],
             password=req["password"],
-            phone_number=req["phone_number"],
+            raw_phone_number=req["phone_number"],
             user_type="CUSTOMER",
             full_name=req["full_name"],
             location=req["location"],

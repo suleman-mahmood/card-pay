@@ -32,7 +32,7 @@ def test_create_user(mocker):
     auth_cmd.create_user(
         personal_email="abcd@efgh.com",
         password="abcd1234",
-        phone_number="3000000000",
+        raw_phone_number="3000000000",
         user_type="CUSTOMER",
         full_name="Suleman Mahmood",
         location=(
@@ -58,7 +58,7 @@ def test_create_user(mocker):
     auth_cmd.create_user(
         personal_email="new@new.com",
         password="newpass123",
-        phone_number="3000000000",
+        raw_phone_number="3000000000",
         user_type="CUSTOMER",
         full_name="New name",
         location=(20.8752, 56.2123),
@@ -81,7 +81,7 @@ def test_create_user(mocker):
     auth_cmd.create_user(
         personal_email="new2@new2.com",
         password="new2pass123",
-        phone_number="3000000000",
+        raw_phone_number="3000000000",
         user_type="CUSTOMER",
         full_name="Another Name",
         location=(20.8752, 56.2123),

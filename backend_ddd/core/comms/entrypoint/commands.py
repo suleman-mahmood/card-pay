@@ -40,9 +40,6 @@ def send_otp_sms(full_name: str, to: str, otp_code: str):
 
 
 def send_marketing_sms(content: str, to: str):
-    # TODO remove this in production
-    return
-
     url = "https://lifetimesms.com/json"
     parameters = {
         "api_token": os.environ.get("SMS_API_TOKEN"),

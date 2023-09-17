@@ -31,7 +31,7 @@ def test_user_verified_otp(seed_user):
         user.verify_otp(otp="0000")
         assert str(e_info.value) == "Otps don't match"
 
-    assert user.verify_otp(otp=otp)
+    user.verify_otp(otp=otp)
 
     # Test that the otp changes upon validation
     with pytest.raises(InvalidOtpException) as e_info:
@@ -84,7 +84,7 @@ def test_register_open_closed_loop(seed_user, seed_closed_loop):
         unique_identifier=None,
     )
 
-    closed_loop_user.verify_unique_identifier(otp = None)
+    closed_loop_user.verify_unique_identifier(otp=None)
     user.register_closed_loop(closed_loop_user)
 
     assert len(user.closed_loops) == 1

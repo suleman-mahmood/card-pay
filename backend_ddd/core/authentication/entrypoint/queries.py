@@ -409,21 +409,15 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 
 def get_user_balance(user_id: str, uow: AbstractUnitOfWork):
     """Get user from user id"""
-    # TODO: fix this to user user id as wallet id
     sql = """
         select balance
         from wallets
-        where id = (
-            select wallet_id
-            from users
-            where id = %s
-        )        
+        where id = %s
     """
     uow.cursor.execute(sql, [user_id])
     row = uow.cursor.fetchone()
-    balance = row[0]
 
-    return balance
+    return row[0]
 
 
 # def get_user_count_of_all_closed_loops(uow: AbstractUnitOfWork):
