@@ -9,3 +9,4 @@ pylint
 sentry-sdk[flask]
 pytest-mock
 flask-cors
+pre-commit

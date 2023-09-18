@@ -1,20 +1,21 @@
 """Payments micro-service commands"""
 from datetime import datetime
-from core.entrypoint.uow import AbstractUnitOfWork
-from core.payment.domain import model as mdl
-from core.authentication.domain import model as auth_mdl
-from core.payment.domain import exceptions as pmt_mdl_ex
-from core.authentication.entrypoint.commands import PAYPRO_USER_ID
-from core.payment.entrypoint.exceptions import *
-from . import utils
 from uuid import uuid4
+
+from core.authentication.domain import model as auth_mdl
+from core.authentication.entrypoint.commands import PAYPRO_USER_ID
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.payment.domain import exceptions as pmt_mdl_ex
+from core.payment.domain import model as mdl
 from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import anti_corruption as pmt_acl
+from core.payment.entrypoint import utils
+from core.payment.entrypoint.exceptions import *
 
 
 # please only call this from create_user
 def create_wallet(user_id: str, uow: AbstractUnitOfWork):
-    """Create wallet"""
+    """Create wallet command"""
     qr_id = str(uuid4())
     wallet = mdl.Wallet(id=user_id, qr_id=qr_id, balance=0)
     uow.transactions.add_wallet(wallet)
@@ -31,13 +32,9 @@ def _execute_transaction(
     auth_svc: acl.AbstractAuthenticationService,
 ):
     with uow:
-        if not auth_svc.user_verification_status_from_user_id(
-            user_id=sender_wallet_id, uow=uow
-        ):
+        if not auth_svc.user_verification_status_from_user_id(user_id=sender_wallet_id, uow=uow):
             raise NotVerifiedException("User is not verified")
-        if not auth_svc.user_verification_status_from_user_id(
-            user_id=recipient_wallet_id, uow=uow
-        ):
+        if not auth_svc.user_verification_status_from_user_id(user_id=recipient_wallet_id, uow=uow):
             raise NotVerifiedException("User is not verified")
 
         txn_time = datetime.now()
@@ -155,9 +152,7 @@ def decline_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
         uow.transactions.save(tx)
 
 
-def generate_voucher(
-    tx_id: str, sender_wallet_id: str, amount: int, uow: AbstractUnitOfWork
-):
+def generate_voucher(tx_id: str, sender_wallet_id: str, amount: int, uow: AbstractUnitOfWork):
     """creates a txn object whith same sender and recipient"""
 
     txn_time = datetime.now()
@@ -176,9 +171,7 @@ def generate_voucher(
 
 
 # transaction_id ~= voucher_id
-def redeem_voucher(
-    recipient_wallet_id: str, transaction_id: str, uow: AbstractUnitOfWork
-):
+def redeem_voucher(recipient_wallet_id: str, transaction_id: str, uow: AbstractUnitOfWork):
     with uow:
         tx = uow.transactions.get_with_different_recipient(
             transaction_id=transaction_id, recipient_wallet_id=recipient_wallet_id
