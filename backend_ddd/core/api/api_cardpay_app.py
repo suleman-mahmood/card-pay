@@ -356,6 +356,7 @@ def create_deposit_request(uid):
             amount=req["amount"],
             uow=uow,
             auth_svc=pmt_acl.AuthenticationService(),
+            pp_svc=pmt_acl.PayproService(),
         )
         uow.commit_close_connection()
 

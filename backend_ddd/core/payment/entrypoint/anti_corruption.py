@@ -5,6 +5,7 @@ from core.authentication.entrypoint import queries as auth_qry
 from core.payment.entrypoint import queries as pmt_qry
 from core.payment.entrypoint import view_models as pmt_vm
 from core.authentication.domain import model as auth_mdl
+from core.payment.entrypoint import paypro_service as pp_svc
 
 
 @dataclass
@@ -159,3 +160,53 @@ class FakePaymentService(AbstractPaymentService):
     ):
         return self.user_wallet_id_and_type
         # return "wallet_id", mdl.UserType.CUSTOMER
+
+
+@dataclass
+class AbstractPayproService(ABC):
+    @abstractmethod
+    def get_deposit_checkout_url(
+        self,
+        amount: int,
+        transaction_id: str,
+        full_name: str,
+        phone_number: str,
+        email: str,
+        uow: AbstractUnitOfWork,
+    ) -> str:
+        pass
+
+
+@dataclass
+class FakePayproService(AbstractPayproService):
+    def get_deposit_checkout_url(
+        self,
+        amount: int,
+        transaction_id: str,
+        full_name: str,
+        phone_number: str,
+        email: str,
+        uow: AbstractUnitOfWork,
+    ) -> str:
+        return ""
+
+
+@dataclass
+class PayproService(AbstractPayproService):
+    def get_deposit_checkout_url(
+        self,
+        amount: int,
+        transaction_id: str,
+        full_name: str,
+        phone_number: str,
+        email: str,
+        uow: AbstractUnitOfWork,
+    ) -> str:
+        return pp_svc.get_deposit_checkout_url(
+            amount=amount,
+            transaction_id=transaction_id,
+            full_name=full_name,
+            phone_number=phone_number,
+            email=email,
+            uow=uow,
+        )

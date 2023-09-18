@@ -9,6 +9,7 @@ from core.marketing.entrypoint import services as mktg_svc
 from core.marketing.entrypoint import queries as mktg_qry
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import queries as pmt_qry
+from core.payment.entrypoint import paypro_service as pp_svc
 
 pg = Blueprint("pg", __name__, url_prefix="/api/v1")
 
@@ -43,7 +44,7 @@ def pay_pro_callback():
 
     uow = UnitOfWork()
     try:
-        success_invoice_ids, not_found_invoice_ids = pmt_cmd.pay_pro_callback(
+        success_invoice_ids, not_found_invoice_ids = pp_svc.pay_pro_callback(
             user_name=user_name,
             password=password,
             csv_invoice_ids=csv_invoice_ids,
