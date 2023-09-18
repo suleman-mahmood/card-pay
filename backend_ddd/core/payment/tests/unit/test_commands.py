@@ -384,14 +384,13 @@ def test_failing_txn(seed_verified_auth_user):
 
 
 # def _get_latest_failed_txn_of_user(user_id: str, uow: AbstractUnitOfWork):
-#     with uow:
-#         sql = """
-#            select id from transactions txn
-#            where (sender_wallet_id = %s or recipient_wallet_id = %s)
-#            and status = 'FAILED'::transaction_status_enum
-#            order by created_at desc
-#        """
-#         uow.cursor.execute(sql, [user_id, user_id])
-#         rows = uow.cursor.fetchone()
+    # sql = """
+    #     select id from transactions txn
+    #     where (sender_wallet_id = %s or recipient_wallet_id = %s)
+    #     and status = 'FAILED'::transaction_status_enum
+    #     order by created_at desc
+    # """
+    # uow.cursor.execute(sql, [user_id, user_id])
+    # rows = uow.cursor.fetchone()
 
-#         return uow.transactions.get(transaction_id=rows[0])
+    # return uow.transactions.get(transaction_id=rows[0])

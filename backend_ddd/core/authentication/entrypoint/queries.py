@@ -316,7 +316,6 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 
 #     return closed_loops
 
-# # with uow:
 # #     sql = """
 # #         select closed_loop_id
 # #         from user_closed_loops

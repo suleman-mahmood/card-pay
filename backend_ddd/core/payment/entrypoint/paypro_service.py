@@ -13,18 +13,17 @@ from core.payment.entrypoint import commands as cmd
 
 
 def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
-    with uow:
-        sql = """
-           select token, last_updated
-           from payment_gateway_tokens
-           where id = %s
-           for update
-       """
-        uow.cursor.execute(
-            sql,
-            [os.environ.get("CLIENT_ID")],
-        )
-        row = uow.cursor.fetchone()
+    sql = """
+        select token, last_updated
+        from payment_gateway_tokens
+        where id = %s
+        for update
+    """
+    uow.cursor.execute(
+        sql,
+        [os.environ.get("CLIENT_ID")],
+    )
+    row = uow.cursor.fetchone()
 
     if row is not None:
         last_updated: datetime = row[1]
@@ -66,23 +65,22 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
     if auth_token is None:
         raise Exception("No auth token returned from PayPro's api")
 
-    with uow:
-        sql = """
-           insert into payment_gateway_tokens (id, token, last_updated)
-           values (%s, %s, %s)
-           on conflict (id) do update set
-               id = excluded.id,
-               token = excluded.token,
-               last_updated = excluded.last_updated
-       """
-        uow.cursor.execute(
-            sql,
-            [
-                os.environ.get("CLIENT_ID"),
-                auth_token,
-                datetime.now(),
-            ],
-        )
+    sql = """
+        insert into payment_gateway_tokens (id, token, last_updated)
+        values (%s, %s, %s)
+        on conflict (id) do update set
+            id = excluded.id,
+            token = excluded.token,
+            last_updated = excluded.last_updated
+    """
+    uow.cursor.execute(
+        sql,
+        [
+            os.environ.get("CLIENT_ID"),
+            auth_token,
+            datetime.now(),
+        ],
+    )
 
     logging.info(
         {

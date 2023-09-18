@@ -36,8 +36,7 @@
 #     sender_wallet = _get_wallet_from_wallet_id(
 #         wallet_id=sender.wallet_id, uow=uow
 #     )
-#     with uow:
-#         uow.transactions.add_1000_wallet(sender_wallet.id)
+#     uow.transactions.add_1000_wallet(sender_wallet.id)
 
 #     payment_commands.execute_transaction(
 #         tx_id=str(uuid4()),
@@ -69,8 +68,7 @@
 #         wallet_id=sender.wallet_id, uow=uow
 #     )
 
-#     with uow:
-#         uow.transactions.add_1000_wallet(sender_wallet.id)
+#     uow.transactions.add_1000_wallet(sender_wallet.id)
 
 #     tx_id=str(uuid4())
 #     payment_commands.execute_transaction(
@@ -150,20 +148,18 @@
 #         uow=uow,
 #     )
 
-#     with uow:
-#         fetched_all_cashbacks = uow.cashback_slabs.get_all()
-#         assert fetched_all_cashbacks.cashback_slabs[0].cashback_value == 0.2
+#     fetched_all_cashbacks = uow.cashback_slabs.get_all()
+#     assert fetched_all_cashbacks.cashback_slabs[0].cashback_value == 0.2
 
 #     marketing_commands.set_cashback_slabs(
 #         cashback_slabs=[[20, 100, "PERCENTAGE", 0.2], [100, 200, "PERCENTAGE", 0.3]],
 #         uow=uow,
 #     )
 
-#     with uow:
-#         fetched_all_cashbacks = uow.cashback_slabs.get_all()
-#         fetched_cashback_slabs = fetched_all_cashbacks.cashback_slabs
-#         assert fetched_cashback_slabs[0].start_amount == 0
-#         assert fetched_cashback_slabs[0].end_amount == 20
+#     fetched_all_cashbacks = uow.cashback_slabs.get_all()
+#     fetched_cashback_slabs = fetched_all_cashbacks.cashback_slabs
+#     assert fetched_cashback_slabs[0].start_amount == 0
+#     assert fetched_cashback_slabs[0].end_amount == 20
 
 
 # def test_cashback(seed_verified_auth_user, seed_starred_wallet, mocker):

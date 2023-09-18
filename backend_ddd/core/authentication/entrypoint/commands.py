@@ -24,18 +24,18 @@ def create_closed_loop(
     uow: AbstractUnitOfWork,
 ):
     """Create closed loop"""
-    with uow:
-        closed_loop = auth_mdl.ClosedLoop(
-            id=id,
-            name=name,
-            logo_url=logo_url,
-            description=description,
-            regex=regex,
-            verification_type=auth_mdl.ClosedLoopVerificationType.__members__[
-                verification_type
-            ],
-        )
-        uow.closed_loops.add(closed_loop)
+   
+    closed_loop = auth_mdl.ClosedLoop(
+        id=id,
+        name=name,
+        logo_url=logo_url,
+        description=description,
+        regex=regex,
+        verification_type=auth_mdl.ClosedLoopVerificationType.__members__[
+            verification_type
+        ],
+    )
+    uow.closed_loops.add(closed_loop)
 
     return closed_loop
 
@@ -90,78 +90,73 @@ def create_user(
 
         return EventCode.OTP_SENT, user_id, True
     else:
-        with uow:
-            firebase_uid = fb_svc.get_user(email=phone_number.email)
-            user_id = utils.firebaseUidToUUID(firebase_uid)
-            fetched_user = uow.users.get(user_id=user_id)
+        firebase_uid = fb_svc.get_user(email=phone_number.email)
+        user_id = utils.firebaseUidToUUID(firebase_uid)
+        fetched_user = uow.users.get(user_id=user_id)
 
-            if fetched_user.is_phone_number_verified:
-                return EventCode.USER_VERIFIED, user_id, False
-            else:
-                fb_svc.update_password(
-                    firebase_uid=firebase_uid,
-                    new_password=password,
-                    new_full_name=full_name,
+        if fetched_user.is_phone_number_verified:
+            return EventCode.USER_VERIFIED, user_id, False
+        else:
+            fb_svc.update_password(
+                firebase_uid=firebase_uid,
+                new_password=password,
+                new_full_name=full_name,
+            )
+
+            # Update user details
+            user = auth_mdl.User(
+                id=user_id,
+                personal_email=auth_mdl.PersonalEmail(value=personal_email),
+                phone_number=phone_number,
+                user_type=auth_mdl.UserType.__members__[user_type],
+                pin="0000",
+                full_name=full_name,
+                wallet_id=user_id,
+                location=location_object,
+            )
+            uow.users.save(user)
+
+            if user.user_type is auth_mdl.UserType.CUSTOMER:
+                comms_commands.send_otp_sms(
+                    full_name=fetched_user.full_name,
+                    to=phone_number.sms,
+                    otp_code=fetched_user.otp,
                 )
-
-                # Update user details
-                user = auth_mdl.User(
-                    id=user_id,
-                    personal_email=auth_mdl.PersonalEmail(value=personal_email),
-                    phone_number=phone_number,
-                    user_type=auth_mdl.UserType.__members__[user_type],
-                    pin="0000",
-                    full_name=full_name,
-                    wallet_id=user_id,
-                    location=location_object,
-                )
-                uow.users.save(user)
-
-                if user.user_type is auth_mdl.UserType.CUSTOMER:
-                    comms_commands.send_otp_sms(
-                        full_name=fetched_user.full_name,
-                        to=phone_number.sms,
-                        otp_code=fetched_user.otp,
-                    )
-                return EventCode.OTP_SENT, user_id, False
+            return EventCode.OTP_SENT, user_id, False
 
 
 def change_name(user_id: str, new_name: str, uow: AbstractUnitOfWork):
     """Change a user's name"""
-    with uow:
-        user = uow.users.get(user_id=user_id)
-        user.change_name(new_name)
-        uow.users.save(user)
+    user = uow.users.get(user_id=user_id)
+    user.change_name(new_name)
+    uow.users.save(user)
 
     return user
 
 
 def change_pin(user_id: str, new_pin: str, uow: AbstractUnitOfWork):
     """Change pin"""
-    with uow:
-        user = uow.users.get(user_id=user_id)
-        user.set_pin(new_pin)
-        uow.users.save(user)
+    user = uow.users.get(user_id=user_id)
+    user.set_pin(new_pin)
+    uow.users.save(user)
 
     return user
 
 
 def user_toggle_active(user_id: str, uow: AbstractUnitOfWork):
     """Toggle user active"""
-    with uow:
-        user = uow.users.get(user_id=user_id)
-        user.toggle_active()
-        uow.users.save(user)
+    user = uow.users.get(user_id=user_id)
+    user.toggle_active()
+    uow.users.save(user)
 
     return user
 
 
 def verify_phone_number(user_id: str, otp: str, uow: AbstractUnitOfWork):
     """Verify Phone Number"""
-    with uow:
-        user = uow.users.get(user_id=user_id)
-        user.verify_phone_number(otp)
-        uow.users.save(user)
+    user = uow.users.get(user_id=user_id)
+    user.verify_phone_number(otp)
+    uow.users.save(user)
 
     return user
 
@@ -347,13 +342,12 @@ def auth_retools_update_closed_loop(
     uow: AbstractUnitOfWork,
 ):
     """Update closed loop"""
-    with uow:
-        closed_loop = uow.closed_loops.get(closed_loop_id=closed_loop_id)
-        closed_loop.update_closed_loop(
-            name=name,
-            logo_url=logo_url,
-            description=description,
-        )
-        uow.closed_loops.save(closed_loop)
+    closed_loop = uow.closed_loops.get(closed_loop_id=closed_loop_id)
+    closed_loop.update_closed_loop(
+        name=name,
+        logo_url=logo_url,
+        description=description,
+    )
+    uow.closed_loops.save(closed_loop)
 
     return closed_loop

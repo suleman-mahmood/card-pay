@@ -16,37 +16,36 @@ def seed_user():
 @pytest.fixture
 def seed_starred_wallet():
     def _seed_starred_wallet(uow: AbstractUnitOfWork):
-        with uow:
-            user_id = str(uuid4())
-            
-            user = auth_mdl.User(
-            id=user_id,
-            personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
-            phone_number=auth_mdl.PhoneNumber(value="03269507423"),
-            user_type=auth_mdl.UserType.CUSTOMER,
-            pin="1234",
-            full_name="CardPay",
-            location=auth_mdl.Location(latitude=0, longitude=0),
-            wallet_id=user_id,
-            is_phone_number_verified=True,
-            )
-            
-            payment_commands.create_wallet(user_id=user_id, uow=uow)
-            uow.users.add(user)
+        user_id = str(uuid4())
+        
+        user = auth_mdl.User(
+        id=user_id,
+        personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
+        phone_number=auth_mdl.PhoneNumber(value="03269507423"),
+        user_type=auth_mdl.UserType.CUSTOMER,
+        pin="1234",
+        full_name="CardPay",
+        location=auth_mdl.Location(latitude=0, longitude=0),
+        wallet_id=user_id,
+        is_phone_number_verified=True,
+        )
+        
+        payment_commands.create_wallet(user_id=user_id, uow=uow)
+        uow.users.add(user)
 
-            uow.transactions.add_1000_wallet(wallet_id=user_id)
+        uow.transactions.add_1000_wallet(wallet_id=user_id)
 
-            delete_sql = """
-                delete from starred_wallet_id
-            """
-            uow.cursor.execute(delete_sql)
+        delete_sql = """
+            delete from starred_wallet_id
+        """
+        uow.cursor.execute(delete_sql)
 
-            sql = """
-                insert into starred_wallet_id
-                values (%s)
-            """
-            uow.cursor.execute(sql, [user_id])
-            return user_id
+        sql = """
+            insert into starred_wallet_id
+            values (%s)
+        """
+        uow.cursor.execute(sql, [user_id])
+        return user_id
 
     return _seed_starred_wallet
 

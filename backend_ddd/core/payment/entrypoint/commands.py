@@ -31,35 +31,51 @@ def _execute_transaction(
     uow: AbstractUnitOfWork,
     auth_svc: acl.AbstractAuthenticationService,
 ):
-    with uow:
-        if not auth_svc.user_verification_status_from_user_id(user_id=sender_wallet_id, uow=uow):
-            raise NotVerifiedException("User is not verified")
-        if not auth_svc.user_verification_status_from_user_id(user_id=recipient_wallet_id, uow=uow):
-            raise NotVerifiedException("User is not verified")
+    if not auth_svc.user_verification_status_from_user_id(
+        user_id=sender_wallet_id, uow=uow
+    ):
+        raise NotVerifiedException("User is not verified")
+    if not auth_svc.user_verification_status_from_user_id(
+        user_id=recipient_wallet_id, uow=uow
+    ):
+        raise NotVerifiedException("User is not verified")
 
-        txn_time = datetime.now()
-        tx = uow.transactions.get_wallets_create_transaction(
-            id=tx_id,
-            amount=amount,
-            created_at=txn_time,
-            last_updated=txn_time,
-            mode=transaction_mode,
-            transaction_type=transaction_type,
-            status=mdl.TransactionStatus.PENDING,
-            sender_wallet_id=sender_wallet_id,
-            recipient_wallet_id=recipient_wallet_id,
-        )
+    txn_time = datetime.now()
+    tx = uow.transactions.get_wallets_create_transaction(
+        id=tx_id,
+        amount=amount,
+        created_at=txn_time,
+        last_updated=txn_time,
+        mode=transaction_mode,
+        transaction_type=transaction_type,
+        status=mdl.TransactionStatus.PENDING,
+        sender_wallet_id=sender_wallet_id,
+        recipient_wallet_id=recipient_wallet_id,
+    )
 
-        if utils.is_instant_transaction(transaction_type=transaction_type):
-            try:
-                tx.execute_transaction()
-            except pmt_mdl_ex.TransactionNotAllowedException as e:
-                uow.transactions.save(tx)
-                raise TransactionFailedException(str(e))
+    txn_time = datetime.now()
+    tx = uow.transactions.get_wallets_create_transaction(
+        id=tx_id,
+        amount=amount,
+        created_at=txn_time,
+        last_updated=txn_time,
+        mode=transaction_mode,
+        transaction_type=transaction_type,
+        status=mdl.TransactionStatus.PENDING,
+        sender_wallet_id=sender_wallet_id,
+        recipient_wallet_id=recipient_wallet_id,
+    )
 
+    if utils.is_instant_transaction(transaction_type=transaction_type):
+        try:
+            tx.execute_transaction()
+        except pmt_mdl_ex.TransactionNotAllowedException as e:
             uow.transactions.save(tx)
+            raise TransactionFailedException(str(e))
 
         uow.transactions.save(tx)
+
+    uow.transactions.save(tx)
 
 
 def execute_cashback_transaction(
@@ -95,17 +111,16 @@ def execute_transaction_unique_identifier(
     auth_svc: acl.AbstractAuthenticationService,
     pmt_svc: acl.AbstractPaymentService,
 ):
-    with uow:
-        sender_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
-            unique_identifier=sender_unique_identifier,
-            closed_loop_id=closed_loop_id,
-            uow=uow,
-        )
-        recipient_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
-            unique_identifier=recipient_unique_identifier,
-            closed_loop_id=closed_loop_id,
-            uow=uow,
-        )
+    sender_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
+        unique_identifier=sender_unique_identifier,
+        closed_loop_id=closed_loop_id,
+        uow=uow,
+    )
+    recipient_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
+        unique_identifier=recipient_unique_identifier,
+        closed_loop_id=closed_loop_id,
+        uow=uow,
+    )
 
     _execute_transaction(
         tx_id=tx_id,
@@ -124,32 +139,29 @@ def accept_p2p_pull_transaction(
     uow: AbstractUnitOfWork,
     auth_svc: pmt_acl.AbstractAuthenticationService,
 ):
-    with uow:
-        tx = uow.transactions.get(transaction_id=transaction_id)
-        try:
-            tx.accept_p2p_pull_transaction()
-        except pmt_mdl_ex.TransactionNotAllowedException as e:
-            uow.transactions.save(tx)
-            raise TransactionFailedException(str(e))
-
+    tx = uow.transactions.get(transaction_id=transaction_id)
+    try:
+        tx.accept_p2p_pull_transaction()
+    except pmt_mdl_ex.TransactionNotAllowedException as e:
         uow.transactions.save(tx)
+        raise TransactionFailedException(str(e))
+
+    uow.transactions.save(tx)
 
 
 def accept_payment_gateway_transaction(
     transaction_id: str,
     uow: AbstractUnitOfWork,
 ):
-    with uow:
-        tx = uow.transactions.get(transaction_id=transaction_id)
-        tx.execute_transaction()
-        uow.transactions.save(tx)
+    tx = uow.transactions.get(transaction_id=transaction_id)
+    tx.execute_transaction()
+    uow.transactions.save(tx)
 
 
 def decline_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
-    with uow:
-        tx = uow.transactions.get(transaction_id=transaction_id)
-        tx.decline_p2p_pull_transaction()
-        uow.transactions.save(tx)
+    tx = uow.transactions.get(transaction_id=transaction_id)
+    tx.decline_p2p_pull_transaction()
+    uow.transactions.save(tx)
 
 
 def generate_voucher(tx_id: str, sender_wallet_id: str, amount: int, uow: AbstractUnitOfWork):
@@ -171,14 +183,14 @@ def generate_voucher(tx_id: str, sender_wallet_id: str, amount: int, uow: Abstra
 
 
 # transaction_id ~= voucher_id
-def redeem_voucher(recipient_wallet_id: str, transaction_id: str, uow: AbstractUnitOfWork):
-    with uow:
-        tx = uow.transactions.get_with_different_recipient(
-            transaction_id=transaction_id, recipient_wallet_id=recipient_wallet_id
-        )
-        tx.redeem_voucher()
-        uow.transactions.save(tx)
-
+def redeem_voucher(
+    recipient_wallet_id: str, transaction_id: str, uow: AbstractUnitOfWork
+):
+    tx = uow.transactions.get_with_different_recipient(
+        transaction_id=transaction_id, recipient_wallet_id=recipient_wallet_id
+    )
+    tx.redeem_voucher()
+    uow.transactions.save(tx)
 
 def create_deposit_request(
     tx_id: str,
