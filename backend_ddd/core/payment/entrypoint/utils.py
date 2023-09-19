@@ -1,11 +1,11 @@
-from ...payment.domain.model import TransactionType, TransactionMode
+from core.payment.domain import model as pmt_mdl
 from datetime import timedelta
 
 
-def is_instant_transaction(transaction_type: TransactionType) -> bool:
+def is_instant_transaction(transaction_type: pmt_mdl.TransactionType) -> bool:
     if (
-        transaction_type == TransactionType.P2P_PULL
-        or transaction_type == TransactionType.PAYMENT_GATEWAY
+        transaction_type == pmt_mdl.TransactionType.P2P_PULL
+        or transaction_type == pmt_mdl.TransactionType.PAYMENT_GATEWAY
     ):
         return False
 

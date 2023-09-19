@@ -4,17 +4,7 @@ from typing import Dict
 
 from psycopg2.extras import DictCursor
 
-from ..domain.model import (
-    ClosedLoop,
-    User,
-    ClosedLoopUser,
-    UserType,
-    ClosedLoopVerificationType,
-    PersonalEmail,
-    PhoneNumber,
-    Location,
-    ClosedLoopUserState,
-)
+from core.authentication.domain import model as mdl
 from core.authentication.adapters import exceptions as ex
 
 
@@ -22,15 +12,15 @@ class ClosedLoopAbstractRepository(ABC):
     """ClosedLoop Abstract Repository"""
 
     @abstractmethod
-    def add(self, closed_loop: ClosedLoop):
+    def add(self, closed_loop: mdl.ClosedLoop):
         pass
 
     @abstractmethod
-    def get(self, closed_loop_id: str) -> ClosedLoop:
+    def get(self, closed_loop_id: str) -> mdl.ClosedLoop:
         pass
 
     @abstractmethod
-    def save(self, closed_loop: ClosedLoop):
+    def save(self, closed_loop: mdl.ClosedLoop):
         pass
 
 
@@ -38,15 +28,15 @@ class UserAbstractRepository(ABC):
     """User Abstract Repository"""
 
     @abstractmethod
-    def add(self, user: User):
+    def add(self, user: mdl.User):
         pass
 
     @abstractmethod
-    def get(self, user_id: str) -> User:
+    def get(self, user_id: str) -> mdl.User:
         pass
 
     @abstractmethod
-    def save(self, user: User):
+    def save(self, user: mdl.User):
         pass
 
 
@@ -54,15 +44,15 @@ class FakeClosedLoopRepository(ClosedLoopAbstractRepository):
     """Fake Authentication Repository"""
 
     def __init__(self):
-        self.closed_loops: Dict[str, ClosedLoop] = {}
+        self.closed_loops: Dict[str, mdl.ClosedLoop] = {}
 
-    def add(self, closed_loop: ClosedLoop):
+    def add(self, closed_loop: mdl.ClosedLoop):
         self.closed_loops[closed_loop.id] = closed_loop
 
-    def get(self, closed_loop_id: str) -> ClosedLoop:
+    def get(self, closed_loop_id: str) -> mdl.ClosedLoop:
         return self.closed_loops[closed_loop_id]
 
-    def save(self, closed_loop: ClosedLoop):
+    def save(self, closed_loop: mdl.ClosedLoop):
         self.closed_loops[closed_loop.id] = closed_loop
 
 
@@ -70,15 +60,15 @@ class FakeUserRepository(UserAbstractRepository):
     """Fake Authentication Repository"""
 
     def __init__(self):
-        self.users: Dict[str, User] = {}
+        self.users: Dict[str, mdl.User] = {}
 
-    def add(self, user: User):
+    def add(self, user: mdl.User):
         self.users[user.id] = user
 
-    def get(self, user_id: str) -> User:
+    def get(self, user_id: str) -> mdl.User:
         return self.users[user_id]
 
-    def save(self, user: User):
+    def save(self, user: mdl.User):
         self.users[user.id] = user
 
 
@@ -87,7 +77,7 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
         self.connection = connection
         self.cursor = connection.cursor(cursor_factory=DictCursor)
 
-    def add(self, closed_loop: ClosedLoop):
+    def add(self, closed_loop: mdl.ClosedLoop):
         sql = """
             insert into closed_loops (id, name, logo_url, description, regex, verification_type, created_at)
             values (%(id)s, %(name)s, %(logo_url)s, %(description)s, %(regex)s, %(verification_type)s, %(created_at)s)
@@ -106,7 +96,7 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
             },
         )
 
-    def get(self, closed_loop_id: str) -> ClosedLoop:
+    def get(self, closed_loop_id: str) -> mdl.ClosedLoop:
         sql = """
         select id, name, logo_url, description, regex, verification_type, created_at
         from closed_loops
@@ -121,17 +111,17 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
         )
 
         row = self.cursor.fetchone()
-        return ClosedLoop(
+        return mdl.ClosedLoop(
             id=row["id"],
             name=row["name"],
             logo_url=row["logo_url"],
             description=row["description"],
             regex=row["regex"],
-            verification_type=ClosedLoopVerificationType[row["verification_type"]],
+            verification_type=mdl.ClosedLoopVerificationType[row["verification_type"]],
             created_at=row["created_at"],
         )
 
-    def save(self, closed_loop: ClosedLoop):
+    def save(self, closed_loop: mdl.ClosedLoop):
         sql = """
             insert into closed_loops (id, name, logo_url, description, regex, verification_type, created_at)
             values (%(id)s, %(name)s, %(logo_url)s, %(description)s, %(regex)s, %(verification_type)s, %(created_at)s)
@@ -164,7 +154,7 @@ class UserRepository(UserAbstractRepository):
         self.connection = connection
         self.cursor = connection.cursor(cursor_factory=DictCursor)
 
-    def add(self, user: User):
+    def add(self, user: mdl.User):
         sql = """
             insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at) 
             values (%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s, %(created_at)s)
@@ -218,7 +208,7 @@ class UserRepository(UserAbstractRepository):
 
             self.cursor.execute(sql + args_str)
 
-    def get(self, user_id: str) -> User:
+    def get(self, user_id: str) -> mdl.User:
         sql = """
         select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
         from users 
@@ -232,11 +222,11 @@ class UserRepository(UserAbstractRepository):
         if row is None:
             raise ex.UserNotFoundException("User does not exist in db")
 
-        user = User(
+        user = mdl.User(
             id=row["id"],
-            personal_email=PersonalEmail(row["personal_email"]),
-            phone_number=PhoneNumber(row["phone_number"]),
-            user_type=UserType[row["user_type"]],
+            personal_email=mdl.PersonalEmail(row["personal_email"]),
+            phone_number=mdl.PhoneNumber(row["phone_number"]),
+            user_type=mdl.UserType[row["user_type"]],
             pin=row["pin"],
             full_name=row["full_name"],
             wallet_id=row["wallet_id"],
@@ -244,7 +234,7 @@ class UserRepository(UserAbstractRepository):
             is_phone_number_verified=row["is_phone_number_verified"],
             otp=row["otp"],
             otp_generated_at=row["otp_generated_at"],
-            location=Location(
+            location=mdl.Location(
                 latitude=float(row["location"][1:-1].split(",")[0]),
                 longitude=float(row["location"][1:-1].split(",")[1]),
             ),
@@ -262,12 +252,12 @@ class UserRepository(UserAbstractRepository):
         rows = self.cursor.fetchall()
 
         for row in rows:
-            closed_loop_user = ClosedLoopUser(
+            closed_loop_user = mdl.ClosedLoopUser(
                 closed_loop_id=row["closed_loop_id"],
                 unique_identifier=row["unique_identifier"],
                 id=row["closed_loop_user_id"],
                 unique_identifier_otp=row["unique_identifier_otp"],
-                status=ClosedLoopUserState[row["status"]],
+                status=mdl.ClosedLoopUserState[row["status"]],
                 created_at=row["created_at"],
             )
 
@@ -275,7 +265,7 @@ class UserRepository(UserAbstractRepository):
 
         return user
 
-    def save(self, user: User):
+    def save(self, user: mdl.User):
         sql = """
         insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at)
         values(%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s,%(created_at)s)

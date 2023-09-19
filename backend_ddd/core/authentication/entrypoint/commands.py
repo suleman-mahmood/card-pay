@@ -2,10 +2,10 @@
 from typing import Optional, Tuple
 
 from core.entrypoint.uow import AbstractUnitOfWork
-from core.comms.entrypoint import commands as comms_commands
+from core.comms.entrypoint import commands as comms_cmd
 from core.api import utils
 from core.api.event_codes import EventCode
-from core.authentication.entrypoint import exceptions as ex
+from core.authentication.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import commands as pmt_cmd
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import anti_corruption as acl
@@ -24,7 +24,6 @@ def create_closed_loop(
     uow: AbstractUnitOfWork,
 ):
     """Create closed loop"""
-   
     closed_loop = auth_mdl.ClosedLoop(
         id=id,
         name=name,
@@ -82,7 +81,7 @@ def create_user(
         uow.users.add(user)
 
         if user.user_type is auth_mdl.UserType.CUSTOMER:
-            comms_commands.send_otp_sms(
+            comms_cmd.send_otp_sms(
                 full_name=user.full_name,
                 to=phone_number.sms,
                 otp_code=user.otp,
@@ -117,7 +116,7 @@ def create_user(
             uow.users.save(user)
 
             if user.user_type is auth_mdl.UserType.CUSTOMER:
-                comms_commands.send_otp_sms(
+                comms_cmd.send_otp_sms(
                     full_name=fetched_user.full_name,
                     to=phone_number.sms,
                     otp_code=fetched_user.otp,
@@ -201,7 +200,7 @@ def register_closed_loop(
         unique_identifier=unique_identifier,
         uow=uow,
     ):
-        raise ex.UniqueIdentifierAlreadyExistsException(
+        raise svc_ex.UniqueIdentifierAlreadyExistsException(
             "This User already exists in this organization"
         )
 
@@ -213,7 +212,7 @@ def register_closed_loop(
     )
 
     if user.user_type is auth_mdl.UserType.CUSTOMER:
-        comms_commands.send_email(
+        comms_cmd.send_email(
             subject="Verify closed loop | Otp",
             text=user.closed_loops[closed_loop_id].unique_identifier_otp,
             to=f"{unique_identifier}@lums.edu.pk",  # TODO: fix this
@@ -252,7 +251,7 @@ def verify_closed_loop(
         firestore_user_id = auth_svc.user_id_from_firestore(
             unique_identifier=unique_identifier, uow=uow
         )
-    except ex.UserNotInFirestore:
+    except svc_ex.UserNotInFirestore:
         # This is not an old LUMS user, so just return
         return False, 0
 
@@ -272,7 +271,7 @@ def verify_closed_loop(
         fetched_wallet_balance = auth_svc.wallet_balance_from_firestore(
             user_id=firestore_user_id, uow=uow
         )
-    except ex.WalletNotInFirestore:
+    except svc_ex.WalletNotInFirestore:
         return False, 0
 
     return True, fetched_wallet_balance

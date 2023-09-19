@@ -5,45 +5,25 @@ import psycopg2
 
 from psycopg2.extensions import adapt, register_adapter, AsIs
 from psycopg2.extras import DictCursor
-from ..authentication.domain.model import Location
-from ..payment.adapters.repository import (
-    TransactionAbstractRepository,
-    FakeTransactionRepository,
-    TransactionRepository,
-)
-from ..authentication.adapters.repository import (
-    ClosedLoopAbstractRepository,
-    UserAbstractRepository,
-    FakeClosedLoopRepository,
-    FakeUserRepository,
-    ClosedLoopRepository,
-    UserRepository,
-)
-from ..marketing.adapters.repository import (
-    MarkteingUserAbstractRepository,
-    MarketingUserRepository,
-    CashbackSlabAbstractRepository,
-    FakeCashbackSlabRepository,
-    CashbackSlabRepository,
-    WeightageAbstractRepository,
-    FakeWeightageRepository,
-    WeightageRepository,
-)
+from core.authentication.domain import model as auth_mdl
+from core.payment.adapters import repository as pmt_repo
+from core.authentication.adapters import repository as auth_repo
+from core.marketing.adapters import repository as mktg_repo
 
 
-def adapt_point(point: Location):
+def adapt_point(point: auth_mdl.Location):
     lat = adapt(point.latitude)
     lng = adapt(point.longitude)
     return AsIs("'(%s, %s)'" % (lat, lng))
 
 
 class AbstractUnitOfWork(ABC):
-    users: UserAbstractRepository
-    closed_loops: ClosedLoopAbstractRepository
-    transactions: TransactionAbstractRepository
-    marketing_users: MarkteingUserAbstractRepository
-    cashback_slabs: CashbackSlabAbstractRepository
-    weightages: WeightageAbstractRepository
+    users: auth_repo.UserAbstractRepository
+    closed_loops: auth_repo.ClosedLoopAbstractRepository
+    transactions: pmt_repo.TransactionAbstractRepository
+    marketing_users: mktg_repo.MarkteingUserAbstractRepository
+    cashback_slabs: mktg_repo.CashbackSlabAbstractRepository
+    weightages: mktg_repo.WeightageAbstractRepository
 
     def __init__(self) -> None:
         self.connection: psycopg2.connection
@@ -73,11 +53,11 @@ class AbstractUnitOfWork(ABC):
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
-        self.users = FakeUserRepository()
-        self.closed_loops = FakeClosedLoopRepository()
-        self.transactions = FakeTransactionRepository()
-        self.cashback_slabs = FakeCashbackSlabRepository()
-        self.weightages = FakeWeightageRepository()
+        self.users = auth_repo.FakeUserRepository()
+        self.closed_loops = auth_repo.FakeClosedLoopRepository()
+        self.transactions = pmt_repo.FakeTransactionRepository()
+        self.cashback_slabs = mktg_repo.FakeCashbackSlabRepository()
+        self.weightages = mktg_repo.FakeWeightageRepository()
 
     def commit(self):
         pass
@@ -88,7 +68,7 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 class UnitOfWork(AbstractUnitOfWork):
     def __init__(self):
-        register_adapter(Location, adapt_point)
+        register_adapter(auth_mdl.Location, adapt_point)
 
         db_host = os.environ.get("DB_HOST")
         db_name = os.environ.get("DB_NAME")
@@ -109,12 +89,12 @@ class UnitOfWork(AbstractUnitOfWork):
         self.cursor = self.connection.cursor()
         self.dict_cursor = self.connection.cursor(cursor_factory=DictCursor)
 
-        self.transactions = TransactionRepository(self.connection)
-        self.closed_loops = ClosedLoopRepository(self.connection)
-        self.users = UserRepository(self.connection)
-        self.marketing_users = MarketingUserRepository(self.connection)
-        self.cashback_slabs = CashbackSlabRepository(self.connection)
-        self.weightages = WeightageRepository(self.connection)
+        self.transactions = pmt_repo.TransactionRepository(self.connection)
+        self.closed_loops = auth_repo.ClosedLoopRepository(self.connection)
+        self.users = auth_repo.UserRepository(self.connection)
+        self.marketing_users = mktg_repo.MarketingUserRepository(self.connection)
+        self.cashback_slabs = mktg_repo.CashbackSlabRepository(self.connection)
+        self.weightages = mktg_repo.WeightageRepository(self.connection)
 
     def __enter__(self, *args):
         super().__enter__(*args)

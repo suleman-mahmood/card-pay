@@ -9,23 +9,9 @@ import math
 from dataclasses import dataclass, field
 from uuid import uuid4
 from enum import Enum
-from core.marketing.domain.exceptions import (
-    InvalidSlabException,
-    negative_amount_exception,
-    not_verified_exception,
-    referee_not_verified_exception,
-    user_already_referred_exception,
-    cannot_refer_self,
-    not_deposit_exception,
-    invalid_transaction_type_exception,
-    invalid_weightage_passed_exception,
-    slab_ending_amount_lesser_than_or_equal_to_slab_starting_amount_exception,
-    slab_cashback_value_is_negative_exception,
-    slab_not_continuos_exception,
-    negative_weightage_exception,
-)
-from core.payment.domain.model import TransactionType
 from typing import List
+from core.marketing.domain import exceptions as ex
+from core.payment.domain import model as  pmt_mdl
 from core.marketing.domain.utils import DEFAULT_UUID
 
 
@@ -55,11 +41,11 @@ class AllCashbacks:
     cashback_slabs: List[CashbackSlab]
 
     def _helper_handle_invalid_slabs(self, idx):
-        slab_ending_amount_lesser_than_or_equal_to_slab_starting_amount_exception(
+        ex.slab_ending_amount_lesser_than_or_equal_to_slab_starting_amount_exception(
             slab_ending_amount=self.cashback_slabs[idx].end_amount,
             slab_starting_amount=self.cashback_slabs[idx].start_amount,
         )
-        slab_cashback_value_is_negative_exception(
+        ex.slab_cashback_value_is_negative_exception(
             slab_cashback_value=self.cashback_slabs[idx].cashback_value
         )
 
@@ -67,25 +53,25 @@ class AllCashbacks:
             self.cashback_slabs[idx].cashback_type != CashbackType.PERCENTAGE
             and self.cashback_slabs[idx].cashback_type != CashbackType.ABSOLUTE
         ):
-            raise InvalidSlabException(
+            raise ex.InvalidSlabException(
                 "Cashback type is neither PERCENTAGE nor ABSOLUTE"
             )
         if (
             self.cashback_slabs[idx].cashback_type == CashbackType.PERCENTAGE
             and self.cashback_slabs[idx].cashback_value > 1
         ):
-            raise InvalidSlabException("Cashback percentage value is greater than 1")
+            raise ex.InvalidSlabException("Cashback percentage value is greater than 1")
         elif (
             self.cashback_slabs[idx].cashback_type == CashbackType.ABSOLUTE
             and self.cashback_slabs[idx].cashback_value
             > self.cashback_slabs[idx].end_amount
         ):
-            raise InvalidSlabException(
+            raise ex.InvalidSlabException(
                 "Cashback absolute value is greater than the slab ending amount"
             )
 
         if idx != -1:
-            slab_not_continuos_exception(
+            ex.slab_not_continuos_exception(
                 next_slab_starting_amount=self.cashback_slabs[idx + 1].start_amount,
                 current_slab_ending_amount=self.cashback_slabs[idx].end_amount,
             )
@@ -128,11 +114,11 @@ class Weightage:
     Weightage value will be an absolute amount for REFERRAL
     """
 
-    weightage_type: TransactionType
+    weightage_type: pmt_mdl.TransactionType
     weightage_value: float
 
     def set_weightage(self, weightage_value: float):
-        negative_weightage_exception(weightage_value)
+        ex.negative_weightage_exception(weightage_value)
         self.weightage_value = weightage_value
 
 
@@ -148,33 +134,33 @@ class User:
     def add_referral_loyalty_points(self, weightage: Weightage, referee_verified: bool):
         """Add loyalty points to user account for referral"""
 
-        not_verified_exception(self.marketing_user_verified)
-        referee_not_verified_exception(referee_verified)
-        invalid_weightage_passed_exception(weightage.weightage_type)
+        ex.not_verified_exception(self.marketing_user_verified)
+        ex.referee_not_verified_exception(referee_verified)
+        ex.invalid_weightage_passed_exception(weightage.weightage_type)
 
         self.loyalty_points += math.floor(weightage.weightage_value)
 
     def use_reference(self, referral_id: str):
-        not_verified_exception(self.marketing_user_verified)
-        user_already_referred_exception(self.referral_id)
-        cannot_refer_self(self.id, referral_id)
+        ex.not_verified_exception(self.marketing_user_verified)
+        ex.user_already_referred_exception(self.referral_id)
+        ex.cannot_refer_self(self.id, referral_id)
 
         self.referral_id = referral_id
 
     def add_loyalty_points(
         self,
-        transaction_type: TransactionType,
+        transaction_type: pmt_mdl.TransactionType,
         transaction_amount: int,
         weightage: Weightage,
     ):
         """Add loyalty points to user account for P2P_PUSH, P2P_PULL, and PAYMENT_GATEWAY transaction type"""
 
-        if transaction_type == TransactionType.CASH_BACK:
+        if transaction_type == pmt_mdl.TransactionType.CASH_BACK:
             return
 
-        not_verified_exception(self.marketing_user_verified)
-        negative_amount_exception(transaction_amount)
-        invalid_transaction_type_exception(transaction_type, weightage.weightage_type)
+        ex.not_verified_exception(self.marketing_user_verified)
+        ex.negative_amount_exception(transaction_amount)
+        ex.invalid_transaction_type_exception(transaction_type, weightage.weightage_type)
 
         self.loyalty_points += math.floor(
             transaction_amount * weightage.weightage_value
@@ -192,13 +178,13 @@ class CashbackCalculator:
     def calculate_cashback(
         self,
         deposit_amount: int,
-        invoker_transaction_type: TransactionType,
+        invoker_transaction_type: pmt_mdl.TransactionType,
     ) -> int:
         """Calculate cashback for the passed deposit amount"""
 
-        # not_verified_exception(self.marketing_user_verified)
-        negative_amount_exception(deposit_amount)
-        not_deposit_exception(invoker_transaction_type)
+        # ex.not_verified_exception(self.marketing_user_verified)
+        ex.negative_amount_exception(deposit_amount)
+        ex.not_deposit_exception(invoker_transaction_type)
 
         # If deposit amount is greater than the last slab, then returned calculated cashback value should be 0
         if deposit_amount >= self.all_cashbacks.cashback_slabs[-1].end_amount:

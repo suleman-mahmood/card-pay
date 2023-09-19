@@ -1,8 +1,7 @@
 import pytest
 from uuid import uuid4
 from datetime import datetime
-from core.payment.adapters import repository as pmt_repo
-from core.payment.domain import model as pmt_model
+from core.payment.domain import model as mdl
 from core.entrypoint.uow import UnitOfWork, FakeUnitOfWork
 
 
@@ -22,8 +21,8 @@ def test_transaction_repository(seed_wallet, seed_txn):
         assert repo_tx == tx
 
         tx.amount = 1000
-        tx.mode = pmt_model.TransactionMode.NFC
-        tx.status = pmt_model.TransactionStatus.DECLINED
+        tx.mode = mdl.TransactionMode.NFC
+        tx.status = mdl.TransactionStatus.DECLINED
         recipient_wallet = seed_wallet()
         sender_wallet = seed_wallet()
 
@@ -43,9 +42,9 @@ def test_transaction_repository(seed_wallet, seed_txn):
             amount=100,
             created_at=created_at,
             last_updated=last_updated,
-            mode=pmt_model.TransactionMode.APP_TRANSFER,
-            transaction_type=pmt_model.TransactionType.P2P_PUSH,
-            status=pmt_model.TransactionStatus.SUCCESSFUL,
+            mode=mdl.TransactionMode.APP_TRANSFER,
+            transaction_type=mdl.TransactionType.P2P_PUSH,
+            status=mdl.TransactionStatus.SUCCESSFUL,
             sender_wallet_id=sender_wallet.id,
             recipient_wallet_id=recipient_wallet.id,
         )
@@ -66,8 +65,8 @@ def test_transaction_repository(seed_wallet, seed_txn):
             tx_id=tx_id,
             sender_wallet=sender_wallet,
             recipient_wallet=sender_wallet,
-            transaction_type=pmt_model.TransactionType.VOUCHER,
-            status=pmt_model.TransactionStatus.PENDING,
+            transaction_type=mdl.TransactionType.VOUCHER,
+            status=mdl.TransactionStatus.PENDING,
         )
 
         uow.transactions.add(transaction=tx)

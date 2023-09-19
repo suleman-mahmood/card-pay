@@ -3,29 +3,23 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 from datetime import datetime
-from ..domain.model import (
-    Transaction,
-    Wallet,
-    TransactionMode,
-    TransactionStatus,
-    TransactionType,
-)
-from ..domain.exceptions import TransactionNotFoundException
+from core.payment.domain import model as mdl
+from core.payment.domain import exceptions as ex
 
 
 class TransactionAbstractRepository(ABC):
     """Transaction Abstract Repository"""
 
     @abstractmethod
-    def add(self, transaction: Transaction):
+    def add(self, transaction: mdl.Transaction):
         pass
 
     @abstractmethod
-    def add_wallet(self, wallet: Wallet):
+    def add_wallet(self, wallet: mdl.Wallet):
         pass
 
     @abstractmethod
-    def get(self, transaction_id: str) -> Transaction:
+    def get(self, transaction_id: str) -> mdl.Transaction:
         pass
 
     @abstractmethod
@@ -35,22 +29,22 @@ class TransactionAbstractRepository(ABC):
         amount: int,
         created_at: datetime,
         last_updated: datetime,
-        mode: TransactionMode,
-        transaction_type: TransactionType,
-        status: TransactionStatus,
+        mode: mdl.TransactionMode,
+        transaction_type: mdl.TransactionType,
+        status: mdl.TransactionStatus,
         sender_wallet_id: str,
         recipient_wallet_id: str,
-    ) -> Transaction:
+    ) -> mdl.Transaction:
         pass
 
     @abstractmethod
     def get_with_different_recipient(
         self, transaction_id: str, recipient_wallet_id: str
-    ) -> Transaction:
+    ) -> mdl.Transaction:
         pass
 
     @abstractmethod
-    def save(self, transaction: Transaction):
+    def save(self, transaction: mdl.Transaction):
         pass
 
     @abstractmethod
@@ -62,18 +56,18 @@ class FakeTransactionRepository(TransactionAbstractRepository):
     """Fake Transaction Repository"""
 
     def __init__(self):
-        self.transactions: Dict[str, Transaction] = {}
-        self.wallets: Dict[str, Wallet] = {}
+        self.transactions: Dict[str, mdl.Transaction] = {}
+        self.wallets: Dict[str, mdl.Wallet] = {}
 
-    def add(self, transaction: Transaction):
+    def add(self, transaction: mdl.Transaction):
         self.transactions[transaction.id] = transaction
         self.wallets[transaction.sender_wallet.id] = transaction.sender_wallet
         self.wallets[transaction.recipient_wallet.id] = transaction.recipient_wallet
 
-    def add_wallet(self, wallet: Wallet):
+    def add_wallet(self, wallet: mdl.Wallet):
         self.wallets[wallet.id] = wallet
 
-    def get(self, transaction_id: str) -> Transaction:
+    def get(self, transaction_id: str) -> mdl.Transaction:
         tx = self.transactions[transaction_id]
         tx.sender_wallet = self.wallets[tx.sender_wallet.id]
         tx.recipient_wallet = self.wallets[tx.recipient_wallet.id]
@@ -85,15 +79,15 @@ class FakeTransactionRepository(TransactionAbstractRepository):
         amount: int,
         created_at: datetime,
         last_updated: datetime,
-        mode: TransactionMode,
-        transaction_type: TransactionType,
-        status: TransactionStatus,
+        mode: mdl.TransactionMode,
+        transaction_type: mdl.TransactionType,
+        status: mdl.TransactionStatus,
         sender_wallet_id: str,
         recipient_wallet_id: str,
-    ) -> Transaction:
+    ) -> mdl.Transaction:
         sender_wallet = self.wallets[str(sender_wallet_id)]
         recipient_wallet = self.wallets[str(recipient_wallet_id)]
-        return Transaction(
+        return mdl.Transaction(
             amount=amount,
             mode=mode,
             transaction_type=transaction_type,
@@ -107,7 +101,7 @@ class FakeTransactionRepository(TransactionAbstractRepository):
 
     def get_with_different_recipient(
         self, transaction_id: str, recipient_wallet_id: str
-    ) -> Transaction:
+    ) -> mdl.Transaction:
         tx = self.transactions[transaction_id]
         tx.sender_wallet = self.wallets[tx.sender_wallet.id]
         tx.recipient_wallet = self.wallets[recipient_wallet_id]
@@ -122,7 +116,7 @@ class FakeTransactionRepository(TransactionAbstractRepository):
     def get_wallet(self, wallet_id: str):
         return self.wallets[wallet_id]
 
-    def save(self, transaction: Transaction):
+    def save(self, transaction: mdl.Transaction):
         self.transactions[transaction.id] = transaction
         self.wallets[transaction.sender_wallet.id] = transaction.sender_wallet
         self.wallets[transaction.recipient_wallet.id] = transaction.recipient_wallet
@@ -135,7 +129,7 @@ class TransactionRepository(TransactionAbstractRepository):
         self.connection = connection
         self.cursor = connection.cursor()
 
-    def add(self, transaction: Transaction):
+    def add(self, transaction: mdl.Transaction):
         # updating transactions
         sql = """
             insert into transactions (id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated)
@@ -176,7 +170,7 @@ class TransactionRepository(TransactionAbstractRepository):
             ],
         )
 
-    def add_wallet(self, wallet: Wallet):
+    def add_wallet(self, wallet: mdl.Wallet):
         sql = """
             insert into wallets (id, balance, qr_id)
             values (%s, %s, %s)
@@ -190,7 +184,7 @@ class TransactionRepository(TransactionAbstractRepository):
             ],
         )
 
-    def get(self, transaction_id: str) -> Transaction:
+    def get(self, transaction_id: str) -> mdl.Transaction:
         sql = """
             select id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated
             from transactions
@@ -201,7 +195,7 @@ class TransactionRepository(TransactionAbstractRepository):
         transaction_row = self.cursor.fetchone()
 
         if transaction_row is None:
-            raise TransactionNotFoundException(
+            raise ex.TransactionNotFoundException(
                 f"no transaction object found for id {transaction_id}"
             )
 
@@ -218,18 +212,18 @@ class TransactionRepository(TransactionAbstractRepository):
         self.cursor.execute(sql, [transaction_row[6]])
         recipient_wallet_row = self.cursor.fetchone()
 
-        return Transaction(
+        return mdl.Transaction(
             id=transaction_row[0],
             amount=transaction_row[1],
-            mode=TransactionMode[transaction_row[2]],
-            transaction_type=TransactionType[transaction_row[3]],
-            status=TransactionStatus[transaction_row[4]],
-            sender_wallet=Wallet(
+            mode=mdl.TransactionMode[transaction_row[2]],
+            transaction_type=mdl.TransactionType[transaction_row[3]],
+            status=mdl.TransactionStatus[transaction_row[4]],
+            sender_wallet=mdl.Wallet(
                 id=transaction_row[5],
                 balance=sender_wallet_row[1],
                 qr_id=sender_wallet_row[2],
             ),
-            recipient_wallet=Wallet(
+            recipient_wallet=mdl.Wallet(
                 id=transaction_row[6],
                 balance=recipient_wallet_row[1],
                 qr_id=recipient_wallet_row[2],
@@ -244,12 +238,12 @@ class TransactionRepository(TransactionAbstractRepository):
         amount: int,
         created_at: datetime,
         last_updated: datetime,
-        mode: TransactionMode,
-        transaction_type: TransactionType,
-        status: TransactionStatus,
+        mode: mdl.TransactionMode,
+        transaction_type: mdl.TransactionType,
+        status: mdl.TransactionStatus,
         sender_wallet_id: str,
         recipient_wallet_id: str,
-    ) -> Transaction:
+    ) -> mdl.Transaction:
         sql = """
             select id, balance, qr_id
             from wallets
@@ -261,17 +255,17 @@ class TransactionRepository(TransactionAbstractRepository):
         self.cursor.execute(sql, [recipient_wallet_id])
         recipient_wallet_row = self.cursor.fetchone()
 
-        return Transaction(
+        return mdl.Transaction(
             amount=amount,
             mode=mode,
             transaction_type=transaction_type,
             status=status,
-            recipient_wallet=Wallet(
+            recipient_wallet=mdl.Wallet(
                 id=recipient_wallet_id,
                 balance=recipient_wallet_row[1],
                 qr_id=recipient_wallet_row[2],
             ),
-            sender_wallet=Wallet(
+            sender_wallet=mdl.Wallet(
                 id=sender_wallet_id,
                 balance=sender_wallet_row[1],
                 qr_id=sender_wallet_row[2],
@@ -283,7 +277,7 @@ class TransactionRepository(TransactionAbstractRepository):
 
     def get_with_different_recipient(
         self, transaction_id: str, recipient_wallet_id: str
-    ) -> Transaction:
+    ) -> mdl.Transaction:
         # as voucher has same recipient and sender wallet, we need to change the recipient wallet
         sql = """
             select id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated
@@ -295,7 +289,7 @@ class TransactionRepository(TransactionAbstractRepository):
         transaction_row = self.cursor.fetchone()
 
         if transaction_row is None:
-            raise TransactionNotFoundException(
+            raise ex.TransactionNotFoundException(
                 f"no transaction object found for id {transaction_id}"
             )
 
@@ -311,18 +305,18 @@ class TransactionRepository(TransactionAbstractRepository):
         self.cursor.execute(sql, [recipient_wallet_id])
         recipient_wallet_row = self.cursor.fetchone()
 
-        return Transaction(
+        return mdl.Transaction(
             id=transaction_row[0],
             amount=transaction_row[1],
-            mode=TransactionMode[transaction_row[2]],
-            transaction_type=TransactionType[transaction_row[3]],
-            status=TransactionStatus[transaction_row[4]],
-            sender_wallet=Wallet(
+            mode=mdl.TransactionMode[transaction_row[2]],
+            transaction_type=mdl.TransactionType[transaction_row[3]],
+            status=mdl.TransactionStatus[transaction_row[4]],
+            sender_wallet=mdl.Wallet(
                 id=transaction_row[5],
                 balance=sender_wallet_row[1],
                 qr_id=sender_wallet_row[2],
             ),
-            recipient_wallet=Wallet(
+            recipient_wallet=mdl.Wallet(
                 id=recipient_wallet_id,
                 balance=recipient_wallet_row[1],
                 qr_id=recipient_wallet_row[2],
@@ -331,7 +325,7 @@ class TransactionRepository(TransactionAbstractRepository):
             last_updated=transaction_row[8],
         )
 
-    def save(self, transaction: Transaction):
+    def save(self, transaction: mdl.Transaction):
         sql = """
             insert into transactions (id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated)
             values (%s, %s, %s, %s, %s, %s, %s, %s, %s)

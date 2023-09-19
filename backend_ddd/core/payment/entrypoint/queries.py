@@ -1,12 +1,9 @@
-# from ..domain.model import Wallet
-from ..domain import model as payment_model
-from ...entrypoint.uow import AbstractUnitOfWork
-from typing import List, Dict, Optional
+from typing import List, Optional
 from datetime import datetime
-from dataclasses import dataclass
-from ...authentication.domain import model as auth_mdl
-from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
-from core.payment.entrypoint import view_models as payment_vm
+from core.authentication.domain import model as auth_mdl
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.payment.entrypoint import exceptions as pmt_svc_ex
+from core.payment.entrypoint import view_models as pmt_vm
 
 
 def usecases():
@@ -77,7 +74,7 @@ def get_wallet_id_from_unique_identifier(
     row = uow.cursor.fetchall()
 
     if len(row) == 0:
-        raise pmt_qry_ex.UserDoesNotExistException(
+        raise pmt_svc_ex.UserDoesNotExistException(
             f"No user found against {unique_identifier}"
         )
     assert len(row) == 1
@@ -103,7 +100,7 @@ def get_all_closed_loops_id_and_names(
 
 def get_all_successful_transactions_of_a_user(
     user_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int
-) -> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[pmt_vm.TransactionWithIdsDTO]:
     """generel fuction | Get all transactions of a user"""
     sql = """
         select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
@@ -122,7 +119,7 @@ def get_all_successful_transactions_of_a_user(
     rows = uow.cursor.fetchall()
 
     transactions = [
-        payment_vm.TransactionWithIdsDTO(
+        pmt_vm.TransactionWithIdsDTO(
             id=row[0],
             amount=row[1],
             mode=row[2],
@@ -207,7 +204,7 @@ def payment_retools_get_customers_and_ventors_of_selected_closed_loop(
 def payment_retools_get_all_transactions_of_selected_user(
     user_id: str,
     uow: AbstractUnitOfWork,
-) -> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[pmt_vm.TransactionWithIdsDTO]:
     sql = """
         select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
         txn.sender_wallet_id, txn.recipient_wallet_id,
@@ -224,7 +221,7 @@ def payment_retools_get_all_transactions_of_selected_user(
     rows = uow.cursor.fetchall()
 
     transactions = [
-        payment_vm.TransactionWithIdsDTO(
+        pmt_vm.TransactionWithIdsDTO(
             id=row[0],
             amount=row[1],
             mode=row[2],
@@ -275,7 +272,7 @@ def payment_retools_get_vendors_and_balance(
 def payment_retools_get_transactions_to_be_reconciled(
     vendor_id: str,
     uow: AbstractUnitOfWork,
-) -> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[pmt_vm.TransactionWithIdsDTO]:
     last_reconciliation_timestamp = """
     select max(created_at) from transactions
     where transaction_type = 'RECONCILIATION'::transaction_type_enum
@@ -308,7 +305,7 @@ def payment_retools_get_transactions_to_be_reconciled(
     rows = uow.cursor.fetchall()
 
     transactions = [
-        payment_vm.TransactionWithIdsDTO(
+        pmt_vm.TransactionWithIdsDTO(
             id=row[0],
             amount=row[1],
             mode=row[2],
@@ -386,7 +383,7 @@ def payment_retools_get_reconciled_transactions(
     reconciliation_timestamp: str,
     vendor_id: str,
     uow: AbstractUnitOfWork,
-) -> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[pmt_vm.TransactionWithIdsDTO]:
     datetime_obj = datetime.strptime(
         reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z"
     )
@@ -447,7 +444,7 @@ def payment_retools_get_reconciled_transactions(
     rows = uow.cursor.fetchall()
 
     transactions = [
-        payment_vm.TransactionWithIdsDTO(
+        pmt_vm.TransactionWithIdsDTO(
             id=row[0],
             amount=row[1],
             mode=row[2],
@@ -468,7 +465,7 @@ def payment_retools_get_reconciled_transactions(
 def get_user_wallet_id_and_type_from_qr_id(
     qr_id: str,
     uow: AbstractUnitOfWork,
-) -> Optional[payment_vm.UserWalletIDAndTypeDTO]:
+) -> Optional[pmt_vm.UserWalletIDAndTypeDTO]:
     sql = """
         select w.id, u.user_type
         from wallets w
@@ -482,7 +479,7 @@ def get_user_wallet_id_and_type_from_qr_id(
     if row is None:
         return None
 
-    user_info = payment_vm.UserWalletIDAndTypeDTO(
+    user_info = pmt_vm.UserWalletIDAndTypeDTO(
         user_wallet_id=row[0], user_type=auth_mdl.UserType.__members__[row[1]]
     )
 
@@ -492,7 +489,7 @@ def get_user_wallet_id_and_type_from_qr_id(
 def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
     closed_loop_id: str,
     uow: AbstractUnitOfWork,
-) -> List[payment_vm.VendorQrIdDTO]:
+) -> List[pmt_vm.VendorQrIdDTO]:
     sql = """
 
         select u.id, u.full_name, w.qr_id
@@ -510,7 +507,7 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
     rows = uow.cursor.fetchall()
 
     vendors = [
-        payment_vm.VendorQrIdDTO(id=row[0], full_name=row[1], qr_id=row[2])
+        pmt_vm.VendorQrIdDTO(id=row[0], full_name=row[1], qr_id=row[2])
         for row in rows
     ]
 
@@ -520,7 +517,7 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
 def vendor_app_get_transactions_to_be_reconciled(
     vendor_id: str,
     uow: AbstractUnitOfWork,
-) -> List[payment_vm.TransactionWithIdsDTO]:
+) -> List[pmt_vm.TransactionWithIdsDTO]:
     last_reconciliation_timestamp = """
     select max(created_at) from transactions
     where transaction_type = 'RECONCILIATION'::transaction_type_enum
@@ -554,7 +551,7 @@ def vendor_app_get_transactions_to_be_reconciled(
     rows = uow.cursor.fetchall()
 
     transactions = [
-        payment_vm.TransactionWithIdsDTO(
+        pmt_vm.TransactionWithIdsDTO(
             id=row[0],
             amount=row[1],
             mode=row[2],
@@ -583,7 +580,7 @@ def get_tx_balance(tx_id: str, uow: AbstractUnitOfWork) -> int:
     row = uow.dict_cursor.fetchone()
 
     if row is None:
-        raise pmt_qry_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
+        raise pmt_svc_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
 
     return row["amount"]
 
@@ -598,7 +595,7 @@ def get_tx_recipient(tx_id: str, uow: AbstractUnitOfWork) -> str:
     row = uow.dict_cursor.fetchone()
 
     if row is None:
-        raise pmt_qry_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
+        raise pmt_svc_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
 
     return row["recipient_wallet_id"]
 

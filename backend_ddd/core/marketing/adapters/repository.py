@@ -1,13 +1,7 @@
 from abc import ABC, abstractmethod
-from ..domain.model import (
-    User,
-    CashbackSlab,
-    AllCashbacks,
-    CashbackType,
-    Weightage,
-)
-from ...payment.domain.model import TransactionType
-from ..domain import exceptions as mktg_exc
+from core.marketing.domain import model as mdl
+from core.payment.domain import model as pmt_mdl
+from core.marketing.domain import exceptions as ex
 
 from typing import List, Dict
 
@@ -15,11 +9,11 @@ from typing import List, Dict
 class MarkteingUserAbstractRepository(ABC):
 
     @abstractmethod
-    def get(self, id: str) -> User:
+    def get(self, id: str) -> mdl.User:
         pass
 
     @abstractmethod
-    def save(self, user: User):
+    def save(self, user: mdl.User):
         pass
 
 
@@ -29,7 +23,7 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
         self.connection = connection
         self.cursor = connection.cursor()
 
-    def get(self, id: str) -> User:
+    def get(self, id: str) -> mdl.User:
         sql = """
             select id, loyalty_points, referral_id, is_phone_number_verified
             from users
@@ -44,14 +38,14 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
 
         row = self.cursor.fetchone()
 
-        return User(
+        return mdl.User(
             id=row[0],
             loyalty_points=row[1],
             referral_id=row[2],
             marketing_user_verified=row[3],
         )
 
-    def save(self, user: User):
+    def save(self, user: mdl.User):
         sql = """
             update users
             set loyalty_points = %s,
@@ -73,23 +67,23 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
 class WeightageAbstractRepository(ABC):
 
     @abstractmethod
-    def get(self, weightage_type: TransactionType) -> Weightage:
+    def get(self, weightage_type: pmt_mdl.TransactionType) -> mdl.Weightage:
         pass
 
     @abstractmethod
-    def save(self, weightage: Weightage):
+    def save(self, weightage: mdl.Weightage):
         pass
 
 
 class FakeWeightageRepository(WeightageAbstractRepository):
 
     def __init__(self):
-        self.weightages: Dict[str, Weightage] = {}
+        self.weightages: Dict[str, mdl.Weightage] = {}
 
-    def get(self, weightage_type: TransactionType) -> Weightage:
+    def get(self, weightage_type: pmt_mdl.TransactionType) -> mdl.Weightage:
         return self.weightages[weightage_type.name]
 
-    def save(self, weightage: Weightage):
+    def save(self, weightage: mdl.Weightage):
         self.weightages[weightage.weightage_type.name] = weightage
 
 
@@ -99,7 +93,7 @@ class WeightageRepository(WeightageAbstractRepository):
         self.connection = connection
         self.cursor = connection.cursor()
 
-    def get(self, weightage_type: TransactionType) -> Weightage:
+    def get(self, weightage_type: pmt_mdl.TransactionType) -> mdl.Weightage:
         sql = """
             select weightage_type, weightage_value
             from weightages
@@ -115,16 +109,16 @@ class WeightageRepository(WeightageAbstractRepository):
         row = self.cursor.fetchone()
 
         if row is None:
-            raise mktg_exc.WeightageNotFoundException(
+            raise ex.WeightageNotFoundException(
                 "Weightage not found"
             )        
         
-        return Weightage(
-            weightage_type=TransactionType[row[0]],
+        return mdl.Weightage(
+            weightage_type=pmt_mdl.TransactionType[row[0]],
             weightage_value=row[1],
         )
 
-    def save(self, weightage: Weightage):
+    def save(self, weightage: mdl.Weightage):
         sql = """
             insert into weightages (weightage_type, weightage_value)
             values (%s, %s)
@@ -144,23 +138,23 @@ class WeightageRepository(WeightageAbstractRepository):
 class CashbackSlabAbstractRepository(ABC):
 
     @abstractmethod
-    def get_all(self) -> AllCashbacks:
+    def get_all(self) -> mdl.AllCashbacks:
         pass
 
     @abstractmethod
-    def save_all(self, all_cashbacks: AllCashbacks):
+    def save_all(self, all_cashbacks: mdl.AllCashbacks):
         pass
 
 
 class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
 
     def __init__(self):
-        self.cashback_slabs: List[CashbackSlab] = []
+        self.cashback_slabs: List[mdl.CashbackSlab] = []
 
-    def get_all(self) -> List[CashbackSlab]:
+    def get_all(self) -> List[mdl.CashbackSlab]:
         return self.cashback_slabs
 
-    def save_all(self, cashback_slabs: List[CashbackSlab]):
+    def save_all(self, cashback_slabs: List[mdl.CashbackSlab]):
         """throw exception in commands"""
         self.cashback_slabs = cashback_slabs
 
@@ -171,7 +165,7 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
         self.connection = connection
         self.cursor = connection.cursor()
 
-    def get_all(self) -> AllCashbacks:
+    def get_all(self) -> mdl.AllCashbacks:
         sql = """
             select start_amount, end_amount, cashback_type, cashback_value, id
             from cashback_slabs
@@ -185,20 +179,20 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
         cashback_slabs = []
         for row in rows:
             cashback_slabs.append(
-                CashbackSlab(
+                mdl.CashbackSlab(
                     start_amount=row[0],
                     end_amount=row[1],
-                    cashback_type=CashbackType[row[2]],
+                    cashback_type=mdl.CashbackType[row[2]],
                     cashback_value=row[3],
                     id=row[4],
                 )
             )
 
-        return AllCashbacks(
+        return mdl.AllCashbacks(
             cashback_slabs=cashback_slabs
         )
 
-    def save_all(self, all_cashbacks: AllCashbacks):
+    def save_all(self, all_cashbacks: mdl.AllCashbacks):
 
         sql_del = """
             delete from cashback_slabs

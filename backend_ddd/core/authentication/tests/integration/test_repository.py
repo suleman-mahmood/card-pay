@@ -1,6 +1,5 @@
 import pytest
 from core.entrypoint.uow import UnitOfWork, FakeUnitOfWork
-from ..conftest import seed_closed_loop
 from datetime import datetime
 
 

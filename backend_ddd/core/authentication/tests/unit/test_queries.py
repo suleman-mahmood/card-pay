@@ -1,10 +1,9 @@
 import pytest
-from core.authentication.tests.conftest import *
 from core.entrypoint.uow import UnitOfWork
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import anti_corruption as acl
-from core.authentication.entrypoint import exceptions as auth_exc
+from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.api import view_models as vm
 from uuid import uuid4
 
@@ -74,7 +73,7 @@ def test_get_full_name_from_unique_identifier_and_closed_loop(
         == "Malik Muhammad Moaz"
     )
 
-    with pytest.raises(auth_exc.UserNotFoundException, match="user not found"):
+    with pytest.raises(auth_svc_ex.UserNotFoundException, match="user not found"):
         auth_qry.get_full_name_from_unique_identifier_and_closed_loop(
             unique_identifier="1235", closed_loop_id=closed_loop_id, uow=uow
         )

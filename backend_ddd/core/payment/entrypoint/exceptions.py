@@ -24,3 +24,9 @@ class TransactionFailedException(Exception):
 
 class InvalidQRVersionException(Exception):
     """QR version is invalid"""
+
+class UserDoesNotExistException(Exception):
+    """exception raised for when the user does not exist"""
+
+class TransactionNotFound(Exception):
+    """exception raised for when a transaction is not found"""

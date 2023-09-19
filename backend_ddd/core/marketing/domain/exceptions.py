@@ -1,6 +1,6 @@
 
-from ..domain.utils import DEFAULT_UUID
-from ...payment.domain.model import TransactionType
+from core.marketing.domain.utils import DEFAULT_UUID
+from core.payment.domain import model as pmt_mdl
 
 
 class InvalidReferenceException(Exception):
@@ -73,20 +73,20 @@ def cannot_refer_self(self_id: str, referral_id: str):
 
 
 def not_deposit_exception(transaction_type: str):
-    if transaction_type != TransactionType.PAYMENT_GATEWAY:
+    if transaction_type != pmt_mdl.TransactionType.PAYMENT_GATEWAY:
         raise InvalidTransactionTypeException(
             "Transaction Type is not deposit"
         )
 
 
-def invalid_weightage_passed_exception(weightage_type: TransactionType):
-    if weightage_type != TransactionType.REFERRAL:
+def invalid_weightage_passed_exception(weightage_type: pmt_mdl.TransactionType):
+    if weightage_type != pmt_mdl.TransactionType.REFERRAL:
         raise InvalidWeightageException(
             "Invalid weightage type passed. Weightage type should be REFERRAL"
         )
 
 
-def invalid_transaction_type_exception(transaction_type: TransactionType, weightage_type: TransactionType):
+def invalid_transaction_type_exception(transaction_type: pmt_mdl.TransactionType, weightage_type: pmt_mdl.TransactionType):
     if transaction_type != weightage_type:
         raise InvalidTransactionTypeException(
             "Passed transaction type and weightage type do not match"

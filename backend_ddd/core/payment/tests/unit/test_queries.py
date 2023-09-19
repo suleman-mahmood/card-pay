@@ -4,7 +4,7 @@
 # from core.payment.entrypoint import commands as pmt_cmd
 # from core.payment.entrypoint import queries as pmt_qry
 # from core.payment.domain import model as pmt_mdl
-# from core.marketing.entrypoint import commands as mkt_cmd
+# from core.marketing.entrypoint import commands as mktg_cmd
 # from core.authentication.entrypoint import anti_corruption as auth_acl
 # from core.authentication.tests.conftest import *
 # from core.entrypoint.uow import UnitOfWork
@@ -52,7 +52,7 @@
 #         pmt_svc=pmt_svc,
 #     )
 
-#    mkt_cmd.add_and_set_missing_weightages_to_zero(uow=uow)
+#    mktg_cmd.add_and_set_missing_weightages_to_zero(uow=uow)
 
 #    uow.transactions.add_1000_wallet(wallet_id=user_1.id)
 

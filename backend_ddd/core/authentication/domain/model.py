@@ -15,14 +15,8 @@ from dataclasses import dataclass, field
 from typing import Optional, Dict, Tuple
 from enum import Enum
 from datetime import datetime
-from .utils import _generate_4_digit_otp
-from .exceptions import (
-    InvalidOtpException,
-    ClosedLoopException,
-    VerificationException,
-    InvalidPinException,
-    InvalidNameException,
-)
+from core.authentication.domain.utils import _generate_4_digit_otp
+from core.authentication.domain import exceptions as ex
 
 PK_CODE = "92"
 
@@ -83,10 +77,10 @@ class ClosedLoopUser:
     def verify_unique_identifier(self, otp: Optional[str]) -> None:
         """Verify unique identifier"""
         if self.status == ClosedLoopUserState.VERIFIED:
-            raise VerificationException("User is already in closed loop")
+            raise ex.VerificationException("User is already in closed loop")
 
         if self.unique_identifier is not None and self.unique_identifier_otp != otp:
-            raise InvalidOtpException("Unique identifier otp doesn't match")
+            raise ex.InvalidOtpException("Unique identifier otp doesn't match")
 
         self.status = ClosedLoopUserState.VERIFIED
 
@@ -166,23 +160,23 @@ class User:
     def change_name(self, name: str) -> None:
         """to change name"""
         if name == "":
-            raise InvalidNameException("empty name passed")
+            raise ex.InvalidNameException("empty name passed")
 
         self.full_name = name
 
     def set_pin(self, pin: str) -> None:
         """to set/update pin"""
         if len(pin) != 4:
-            raise InvalidPinException("pin is not 4 digits long")
+            raise ex.InvalidPinException("pin is not 4 digits long")
 
         if pin == self.pin:
-            raise InvalidPinException("passed pin is same as old pin")
+            raise ex.InvalidPinException("passed pin is same as old pin")
 
         if not pin.isnumeric():
-            raise InvalidPinException("pin contains non numeric characters")
+            raise ex.InvalidPinException("pin contains non numeric characters")
 
         if pin == "0000":
-            raise InvalidPinException("forbidden pin passed")
+            raise ex.InvalidPinException("forbidden pin passed")
 
         self.pin = pin
 
@@ -195,7 +189,7 @@ class User:
     def verify_otp(self, otp: str):
         """Verify OTP"""
         if self.otp != otp:
-            raise InvalidOtpException("Otps don't match")
+            raise ex.InvalidOtpException("Otps don't match")
 
         self._generate_new_otp()
 
@@ -208,7 +202,7 @@ class User:
         """Verify phone number"""
         # if phone number verified, raise exception
         if self.is_phone_number_verified:
-            raise VerificationException("Phone number already verified")
+            raise ex.VerificationException("Phone number already verified")
 
         self.verify_otp(otp)
         self.is_phone_number_verified = True
@@ -222,10 +216,10 @@ class User:
         closed_loop_user = self.closed_loops.get(closed_loop_id)
 
         if not closed_loop_user:
-            raise ClosedLoopException("Closed loop not found")
+            raise ex.ClosedLoopException("Closed loop not found")
 
         if closed_loop_user.status == ClosedLoopUserState.VERIFIED:
-            raise VerificationException("User is already verified")
+            raise ex.VerificationException("User is already verified")
 
         closed_loop_user.verify_unique_identifier(otp)
 

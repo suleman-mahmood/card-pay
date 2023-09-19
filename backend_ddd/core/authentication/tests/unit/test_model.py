@@ -1,17 +1,8 @@
 """tests for authentication model"""
 
-from uuid import uuid4
 import pytest
-from ...domain.model import (
-    User,
-    ClosedLoop,
-    ClosedLoopVerificationType,
-    ClosedLoopUser,
-    ClosedLoopUserState,
-    UserType,
-)
-from ...domain.exceptions import InvalidOtpException
-
+from core.authentication.domain import exceptions as ex
+from core.authentication.domain import model as mdl
 
 def test_users_have_unique_otps(seed_user):  # why are we testing this?
     """Test create user"""
@@ -27,14 +18,14 @@ def test_user_verified_otp(seed_user):
     user = seed_user()
     otp = user.otp
 
-    with pytest.raises(InvalidOtpException) as e_info:
+    with pytest.raises(ex.InvalidOtpException) as e_info:
         user.verify_otp(otp="0000")
         assert str(e_info.value) == "Otps don't match"
 
     user.verify_otp(otp=otp)
 
     # Test that the otp changes upon validation
-    with pytest.raises(InvalidOtpException) as e_info:
+    with pytest.raises(ex.InvalidOtpException) as e_info:
         user.verify_otp(otp=otp)
         assert str(e_info.value) == "Otps don't match"
 
@@ -79,7 +70,7 @@ def test_register_open_closed_loop(seed_user, seed_closed_loop):
     """Test user tries to join closed loop"""
     user = seed_user()
     closed_loop = seed_closed_loop()
-    closed_loop_user = ClosedLoopUser(
+    closed_loop_user = mdl.ClosedLoopUser(
         closed_loop_id=closed_loop.id,
         unique_identifier=None,
     )
@@ -89,14 +80,14 @@ def test_register_open_closed_loop(seed_user, seed_closed_loop):
 
     assert len(user.closed_loops) == 1
     assert user.closed_loops[closed_loop.id].closed_loop_id == closed_loop.id
-    assert user.closed_loops[closed_loop.id].status == ClosedLoopUserState.VERIFIED
+    assert user.closed_loops[closed_loop.id].status == mdl.ClosedLoopUserState.VERIFIED
 
 
 def test_register_closed_loop(seed_user, seed_closed_loop):
     """Test user tries to join closed loop"""
     user = seed_user()
     closed_loop = seed_closed_loop()
-    closed_loop_user = ClosedLoopUser(
+    closed_loop_user = mdl.ClosedLoopUser(
         closed_loop_id=closed_loop.id,
         unique_identifier="1234567890",
     )
@@ -105,14 +96,14 @@ def test_register_closed_loop(seed_user, seed_closed_loop):
 
     assert len(user.closed_loops) == 1
     assert user.closed_loops[closed_loop.id].closed_loop_id == closed_loop.id
-    assert user.closed_loops[closed_loop.id].status == ClosedLoopUserState.UN_VERIFIED
+    assert user.closed_loops[closed_loop.id].status == mdl.ClosedLoopUserState.UN_VERIFIED
 
 
 def test_verify_closed_loop(seed_user, seed_closed_loop):
     """Test verify closed loop"""
     user = seed_user()
     closed_loop = seed_closed_loop()
-    closed_loop_user = ClosedLoopUser(
+    closed_loop_user = mdl.ClosedLoopUser(
         closed_loop_id=closed_loop.id,
         unique_identifier="1234567890",
     )
@@ -123,4 +114,4 @@ def test_verify_closed_loop(seed_user, seed_closed_loop):
 
     user.verify_closed_loop(closed_loop_id=closed_loop.id, otp=otp)
 
-    assert user.closed_loops[closed_loop.id].status == ClosedLoopUserState.VERIFIED
+    assert user.closed_loops[closed_loop.id].status == mdl.ClosedLoopUserState.VERIFIED

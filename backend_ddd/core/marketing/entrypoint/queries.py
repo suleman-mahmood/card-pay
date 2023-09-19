@@ -1,5 +1,6 @@
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.marketing.domain import model as mdl
+from core.payment.domain import model as pmt_mdl
 
 
 def get_marketing_user(
@@ -13,7 +14,7 @@ def get_weightage(
     weightage_type: str,
     uow: AbstractUnitOfWork,
 ):
-    weightage_type = mdl.TransactionType[weightage_type]
+    weightage_type = pmt_mdl.TransactionType[weightage_type]
     return uow.weightages.get(weightage_type)
 
 

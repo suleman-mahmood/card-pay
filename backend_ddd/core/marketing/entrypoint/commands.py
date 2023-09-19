@@ -1,7 +1,7 @@
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.domain import model as pmt_mdl
 from core.marketing.domain import model as mdl
-from core.marketing.domain import exceptions as mktg_ex
+from core.marketing.domain import exceptions as mdl_ex
 
 
 def use_reference(
@@ -97,7 +97,7 @@ def add_and_set_missing_weightages_to_zero(
     for transaction_type in pmt_mdl.TransactionType:
         try:
             uow.weightages.get(transaction_type)
-        except mktg_ex.WeightageNotFoundException:
+        except mdl_ex.WeightageNotFoundException:
             add_weightage(
                 weightage_type=transaction_type.name,
                 weightage_value=0,

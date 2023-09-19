@@ -19,13 +19,11 @@
 13. update closed loop
 14. get information of all users of a closed loop
 """
-from core.authentication.entrypoint import exceptions as ex
+from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.domain import model as auth_mdl
 from core.authentication.adapters import exceptions as auth_rep_ex
 from core.api import view_models as vm
-
-# from ..adapters import repository as authentication_repository
-from ...entrypoint.uow import AbstractUnitOfWork
+from core.entrypoint.uow import AbstractUnitOfWork
 
 
 def get_all_closed_loops(uow: AbstractUnitOfWork):
@@ -316,43 +314,43 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 
 #     return closed_loops
 
-# #     sql = """
-# #         select closed_loop_id
-# #         from user_closed_loops
-# #         where user_id = %s
-# #     """
-# #     uow.cursor.execute(
-# #         sql,
-# #         [
-# #             user_id
-# #         ]
-# #     )
-# #     rows = uow.cursor.fetchall()
+    # sql = """
+    #     select closed_loop_id
+    #     from user_closed_loops
+    #     where user_id = %s
+    # """
+    # uow.cursor.execute(
+    #     sql,
+    #     [
+    #         user_id
+    #     ]
+    # )
+    # rows = uow.cursor.fetchall()
 
-# #     sql = """
-# #         select id, name, logo_url, description, regex, verification_type, created_at
-# #         from closed_loops
-# #         where id IN (
-# #     """
-# #     ids_str = ",".join([f"'{row[0]}'" for row in rows])
-# #     sql += ids_str + ")"
-# #     uow.cursor.execute(sql)
+    # sql = """
+    #     select id, name, logo_url, description, regex, verification_type, created_at
+    #     from closed_loops
+    #     where id IN (
+    # """
+    # ids_str = ",".join([f"'{row[0]}'" for row in rows])
+    # sql += ids_str + ")"
+    # uow.cursor.execute(sql)
 
-# #     rows = uow.cursor.fetchall()
-# #     closed_loops = [
-# #         auth_mdl.ClosedLoop(
-# #             id=row[0],
-# #             name=row[1],
-# #             logo_url=row[2],
-# #             description=row[3],
-# #             regex=row[4],
-# #             verification_type=row[5],
-# #             created_at=row[6],
-# #         )
-# #         for row in rows
-# #     ]
+    # rows = uow.cursor.fetchall()
+    # closed_loops = [
+    #     auth_mdl.ClosedLoop(
+    #         id=row[0],
+    #         name=row[1],
+    #         logo_url=row[2],
+    #         description=row[3],
+    #         regex=row[4],
+    #         verification_type=row[5],
+    #         created_at=row[6],
+    #     )
+    #     for row in rows
+    # ]
 
-# #     return closed_loops
+    # return closed_loops
 
 
 # def get_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork):
@@ -540,7 +538,7 @@ def user_id_from_firestore(unique_identifier: str, uow: AbstractUnitOfWork) -> s
     row = uow.cursor.fetchone()
 
     if row is None:
-        raise ex.UserNotInFirestore("User not found")
+        raise auth_svc_ex.UserNotInFirestore("User not found")
 
     return row[0]
 
@@ -559,7 +557,7 @@ def wallet_balance_from_firestore(user_id: str, uow: AbstractUnitOfWork) -> int:
     row = uow.cursor.fetchone()
 
     if row is None:
-        raise ex.WalletNotInFirestore("Wallet not found")
+        raise auth_svc_ex.WalletNotInFirestore("Wallet not found")
 
     return row[0]
 
@@ -673,6 +671,6 @@ def get_full_name_from_unique_identifier_and_closed_loop(
     row = uow.cursor.fetchone()
 
     if row is None:
-        raise ex.UserNotFoundException("user not found")
+        raise auth_svc_ex.UserNotFoundException("user not found")
 
     return row[0]

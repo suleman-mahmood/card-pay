@@ -1,30 +1,27 @@
 from flask import Blueprint, request
 
+from uuid import uuid4
 from core.api import utils
 from core.entrypoint.uow import UnitOfWork
 from core.authentication.entrypoint import queries as auth_qry
-from core.authentication.domain.model import UserType
+from core.authentication.domain import model as auth_mdl
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.authentication.entrypoint import commands as auth_cmd
-from core.marketing.domain import exceptions as mktg_ex
-from core.payment.entrypoint import queries as payment_qry
-from core.payment.entrypoint import commands as payment_cmd
-from core.payment.domain import exceptions as pmt_ex
-from core.marketing.entrypoint import commands as mktg_cmd
+from core.marketing.domain import exceptions as mktg_mdl_ex
+from core.payment.entrypoint import queries as pmt_qry
+from core.payment.entrypoint import commands as pmt_cmd
+from core.payment.domain import exceptions as pmt_mdl_ex
 from core.api import schemas as sch
 from core.authentication.entrypoint import anti_corruption as auth_acl
-from core.payment.entrypoint import exceptions as pmt_cmd_ex
-from uuid import uuid4
+from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import anti_corruption as pmt_acl
-from core.authentication.entrypoint import anti_corruption as auth_acl
-from core.payment.entrypoint import commands as pmt_cmd
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
 
 @retool.route("/create-closed-loop", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(
@@ -64,7 +61,7 @@ def create_closed_loop():
 
 @retool.route("/add-weightage", methods=["POST"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters={
@@ -96,7 +93,7 @@ def add_weightage(uid):
 
 @retool.route("/set-weightage", methods=["POST"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters={
@@ -115,7 +112,7 @@ def set_weightage(uow, uid):
             uow=uow,
         )
         uow.commit_close_connection()
-    except mktg_ex.InvalidWeightageException as e:
+    except mktg_mdl_ex.InvalidWeightageException as e:
         uow.close_connection()
         raise e
 
@@ -131,7 +128,7 @@ def set_weightage(uow, uid):
 
 @retool.route("/set-cashback-slabs", methods=["POST"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.validate_json_payload(
     required_parameters={"cashback_slabs": sch.AllCashbackSlabsSchema}
@@ -148,7 +145,7 @@ def set_cashback_slabs(uid):
         )
         uow.commit_close_connection()
 
-    except mktg_ex.InvalidSlabException as e:
+    except mktg_mdl_ex.InvalidSlabException as e:
         uow.close_connection()
         raise e
 
@@ -167,7 +164,7 @@ def set_cashback_slabs(uid):
 
 @retool.route("/auth-retools-get-all-closed-loops-with-user-counts", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 def auth_retools_get_all_closed_loops_with_user_counts():
@@ -184,7 +181,7 @@ def auth_retools_get_all_closed_loops_with_user_counts():
 
 @retool.route("/auth-retools-update-closed-loop", methods=["PUT"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(
@@ -222,7 +219,7 @@ def auth_retools_update_closed_loop():
     "/auth-retools-get-active-inactive-counts-of-a-closed_loop", methods=["POST"]
 )
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"closed_loop_id": sch.UuidSchema})
@@ -243,7 +240,7 @@ def auth_retools_get_active_inactive_counts_of_a_closed_loop():
 
 @retool.route("/auth-retools-get-all-users-of-a-closed-loop", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"closed_loop_id": sch.UuidSchema})
@@ -266,7 +263,7 @@ def auth_retools_get_information_of_all_users_of_a_closed_loop():
 
 @retool.route("/auth-retools-create-vendor", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(
@@ -302,10 +299,10 @@ def auth_retools_create_vendor():
 
         uow.commit_close_connection()
     except (
-        pmt_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        pmt_mdl_ex.TransactionNotAllowedException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -325,12 +322,12 @@ def auth_retools_create_vendor():
 
 @retool.route("/payment-retools-get-closed-loops", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 def payment_retools_get_closed_loops():
     uow = UnitOfWork()
-    closed_loops = payment_qry.get_all_closed_loops_id_and_names(uow=uow)
+    closed_loops = pmt_qry.get_all_closed_loops_id_and_names(uow=uow)
     uow.close_connection()
 
     return utils.Response(
@@ -345,7 +342,7 @@ def payment_retools_get_closed_loops():
     methods=["POST"],
 )
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"closed_loop_id": sch.UuidSchema})
@@ -356,7 +353,7 @@ def payment_retools_get_customers_and_ventors_of_selected_closed_loop():
         customers,
         vendors,
         counts,
-    ) = payment_qry.payment_retools_get_customers_and_ventors_of_selected_closed_loop(
+    ) = pmt_qry.payment_retools_get_customers_and_ventors_of_selected_closed_loop(
         closed_loop_id=req["closed_loop_id"],
         uow=uow,
     )
@@ -375,14 +372,14 @@ def payment_retools_get_customers_and_ventors_of_selected_closed_loop():
 
 @retool.route("/payment-retools-get-all-transaction-of-selected-user", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"user_wallet_id": sch.UuidSchema})
 def payment_retools_get_all_transaction_of_selected_user():
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    transactions = payment_qry.payment_retools_get_all_transactions_of_selected_user(
+    transactions = pmt_qry.payment_retools_get_all_transactions_of_selected_user(
         user_id=req["user_wallet_id"],
         uow=uow,
     )
@@ -399,7 +396,7 @@ def payment_retools_get_all_transaction_of_selected_user():
 
 @retool.route("/payment-retools-get-vendors-and-balance", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"closed_loop_id": sch.UuidSchema})
@@ -408,7 +405,7 @@ def payment_retools_get_vendors_and_balance():
 
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    vendors = payment_qry.payment_retools_get_vendors_and_balance(
+    vendors = pmt_qry.payment_retools_get_vendors_and_balance(
         closed_loop_id=req["closed_loop_id"],
         uow=uow,
     )
@@ -423,14 +420,14 @@ def payment_retools_get_vendors_and_balance():
 
 @retool.route("/payment-retools-get-transactions-to-be-reconciled", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"vendor_id": sch.UuidSchema})
 def payment_retools_get_transactions_to_be_reconciled():
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    transactions = payment_qry.payment_retools_get_transactions_to_be_reconciled(
+    transactions = pmt_qry.payment_retools_get_transactions_to_be_reconciled(
         vendor_id=req["vendor_id"],
         uow=uow,
     )
@@ -445,7 +442,7 @@ def payment_retools_get_transactions_to_be_reconciled():
 
 @retool.route("/payment-retools-reconcile-vendor", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"vendor_wallet_id": sch.UuidSchema})
@@ -454,7 +451,7 @@ def payment_retools_reconcile_vendor():
     uow = UnitOfWork()
 
     try:
-        payment_cmd.payment_retools_reconcile_vendor(
+        pmt_cmd.payment_retools_reconcile_vendor(
             tx_id=str(uuid4()),
             uow=uow,
             vendor_wallet_id=req["vendor_wallet_id"],
@@ -463,15 +460,15 @@ def payment_retools_reconcile_vendor():
         )
         uow.commit_close_connection()
 
-    except pmt_cmd_ex.TransactionFailedException as e:
+    except pmt_svc_ex.TransactionFailedException as e:
         uow.commit_close_connection()
         raise utils.CustomException(str(e))
 
     except (
-        pmt_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        pmt_mdl_ex.TransactionNotAllowedException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -488,14 +485,14 @@ def payment_retools_reconcile_vendor():
 
 @retool.route("/payment-retools-get-vendors", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"closed_loop_id": sch.UuidSchema})
 def payment_retools_get_vendors():
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    vendors = payment_qry.payment_retools_get_vendors(
+    vendors = pmt_qry.payment_retools_get_vendors(
         closed_loop_id=req["closed_loop_id"],
         uow=uow,
     )
@@ -510,14 +507,14 @@ def payment_retools_get_vendors():
 
 @retool.route("/payment-retools-get-reconciliation-history", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"vendor_id": sch.UuidSchema})
 def payment_retools_get_reconciliation_history():
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    transactions = payment_qry.payment_retools_get_reconciliation_history(
+    transactions = pmt_qry.payment_retools_get_reconciliation_history(
         vendor_id=req["vendor_id"],
         uow=uow,
     )
@@ -532,7 +529,7 @@ def payment_retools_get_reconciliation_history():
 
 @retool.route("/payment-retools-get-reconciled-transactions", methods=["POST"])
 # @utils.authenticate_token
-# @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN])
+# @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(
@@ -544,7 +541,7 @@ def payment_retools_get_reconciliation_history():
 def payment_retools_get_reconciled_transactions():
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    transactions = payment_qry.payment_retools_get_reconciled_transactions(
+    transactions = pmt_qry.payment_retools_get_reconciled_transactions(
         reconciliation_timestamp=req["reconciliation_timestamp"],
         vendor_id=req["vendor_id"],
         uow=uow,
@@ -585,7 +582,7 @@ def qr_retool_get_all_vendor_names_and_qr_ids_of_a_closed_loop():
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
-    vendors = payment_qry.get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
+    vendors = pmt_qry.get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
         closed_loop_id=req["closed_loop_id"],
         uow=uow,
     )

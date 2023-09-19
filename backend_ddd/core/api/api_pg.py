@@ -1,13 +1,13 @@
 from flask import Blueprint, request
 
 from core.payment.entrypoint import commands as pmt_cmd
-from core.payment.entrypoint import exceptions as pmt_cmd_exc
+from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.domain import model as pmt_mdl
+from core.payment.domain import exceptions as pmt_mdl_ex
 from core.entrypoint.uow import UnitOfWork
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.marketing.entrypoint import services as mktg_svc
 from core.marketing.entrypoint import queries as mktg_qry
-from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import queries as pmt_qry
 from core.payment.entrypoint import paypro_service as pp_svc
 
@@ -51,7 +51,7 @@ def pay_pro_callback():
             uow=uow,
         )
 
-    except pmt_cmd_exc.InvalidPayProCredentialsException:
+    except pmt_svc_ex.InvalidPayProCredentialsException:
         uow.close_connection()
         return [
             {
@@ -89,7 +89,7 @@ def pay_pro_callback():
                 auth_svc=pmt_acl.AuthenticationService(),
                 uow=uow,
             )
-        except pmt_mdl.TransactionNotAllowedException:
+        except pmt_mdl_ex.TransactionNotAllowedException:
             pass
 
     res = []

@@ -4,7 +4,7 @@ from core.entrypoint.uow import FakeUnitOfWork
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.domain import model as auth_mdl
 from core.authentication.domain import exceptions as auth_ex
-from core.authentication.entrypoint import exceptions as auth_cmd_ex
+from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.entrypoint import anti_corruption as acl
 from uuid import uuid4
 
@@ -236,7 +236,7 @@ def test_register_closed_loopc(seed_auth_user, seed_auth_closed_loop):
     # another user with the same unique identifier tries to register in closed_loop_2
     auth_svc.set_verified_unique_identifier_already_exists(True)
     with pytest.raises(
-        auth_cmd_ex.UniqueIdentifierAlreadyExistsException,
+        auth_svc_ex.UniqueIdentifierAlreadyExistsException,
         match="This User already exists in this organization",
     ):
         auth_cmd.register_closed_loop(

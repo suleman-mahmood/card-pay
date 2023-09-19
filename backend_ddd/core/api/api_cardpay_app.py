@@ -8,20 +8,18 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import queries as pmt_qry
 from core.payment.domain import exceptions as pmt_mdl_ex
-from core.payment.entrypoint import exceptions as pmt_cmd_ex
+from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.domain.model import UserType
 from core.marketing.entrypoint import commands as mktg_cmd
-from core.marketing.domain import exceptions as mktg_ex
+from core.marketing.domain import exceptions as mktg_mdl_ex
 from core.authentication.entrypoint import commands as auth_cmd
-from core.authentication.domain import exceptions as auth_ex
-from core.authentication.entrypoint import exceptions as auth_cmd_ex
-from core.payment.entrypoint import queries_exceptions as pmt_qry_ex
+from core.authentication.domain import exceptions as auth_mdl_ex
+from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.entrypoint import queries as app_queries
 from core.api import schemas as sch
 from core.payment.entrypoint import anti_corruption as pmt_acl
-from core.payment.entrypoint import exceptions as pmt_ex
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
@@ -133,7 +131,7 @@ def change_name(uid):
         )
         uow.commit_close_connection()
 
-    except auth_ex.InvalidNameException as e:
+    except auth_mdl_ex.InvalidNameException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -165,7 +163,7 @@ def change_pin(uid):
         )
         uow.commit_close_connection()
 
-    except auth_ex.InvalidPinException as e:
+    except auth_mdl_ex.InvalidPinException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -222,8 +220,8 @@ def verify_phone_number(uid):
         uow.commit_close_connection()
 
     except (
-        auth_ex.VerificationException,
-        auth_ex.InvalidOtpException,
+        auth_mdl_ex.VerificationException,
+        auth_mdl_ex.InvalidOtpException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -264,7 +262,7 @@ def register_closed_loop(uid):
         )
         uow.commit_close_connection()
 
-    except auth_cmd_ex.UniqueIdentifierAlreadyExistsException as e:
+    except auth_svc_ex.UniqueIdentifierAlreadyExistsException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -315,17 +313,17 @@ def verify_closed_loop(uid):
                     uow=uow,
                     auth_svc=pmt_acl.AuthenticationService(),
                 )
-            except pmt_ex.TransactionFailedException:
+            except pmt_svc_ex.TransactionFailedException:
                 pass
         uow.commit_close_connection()
     except (
-        auth_ex.ClosedLoopException,
-        auth_ex.VerificationException,
-        auth_ex.InvalidOtpException,
+        auth_mdl_ex.ClosedLoopException,
+        auth_mdl_ex.VerificationException,
+        auth_mdl_ex.InvalidOtpException,
         pmt_mdl_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -361,9 +359,9 @@ def create_deposit_request(uid):
         uow.commit_close_connection()
 
     except (
-        pmt_cmd_ex.DepositAmountTooSmallException,
-        pmt_cmd_ex.NotVerifiedException,
-        pmt_cmd_ex.PaymentUrlNotFoundException,
+        pmt_svc_ex.DepositAmountTooSmallException,
+        pmt_svc_ex.NotVerifiedException,
+        pmt_svc_ex.PaymentUrlNotFoundException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -417,16 +415,16 @@ def execute_p2p_push_transaction(uid):
         )
         uow.commit_close_connection()
 
-    except pmt_cmd_ex.TransactionFailedException as e:
+    except pmt_svc_ex.TransactionFailedException as e:
         uow.commit_close_connection()  # save the failed transactions
         raise utils.CustomException(str(e))
 
     except (
         pmt_mdl_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
-        pmt_qry_ex.UserDoesNotExistException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
+        pmt_svc_ex.UserDoesNotExistException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -480,8 +478,8 @@ def create_p2p_pull_transaction(uid):
         )
         uow.commit_close_connection()
     except (
-        pmt_cmd_ex.NotVerifiedException,
-        pmt_qry_ex.UserDoesNotExistException,
+        pmt_svc_ex.NotVerifiedException,
+        pmt_svc_ex.UserDoesNotExistException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -517,15 +515,15 @@ def accept_p2p_pull_transaction(uid):
         )
         uow.commit_close_connection()
 
-    except pmt_cmd_ex.TransactionFailedException as e:
+    except pmt_svc_ex.TransactionFailedException as e:
         uow.commit_close_connection()
         raise utils.CustomException(str(e))
 
     except (
         pmt_mdl_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -628,9 +626,9 @@ def redeem_voucher(uid):
 
     except (
         pmt_mdl_ex.TransactionNotAllowedException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -674,19 +672,19 @@ def execute_qr_transaction(uid):
         )
         uow.commit_close_connection()
 
-    except pmt_cmd_ex.TransactionFailedException as e:
+    except pmt_svc_ex.TransactionFailedException as e:
         uow.commit_close_connection()
         raise utils.CustomException(str(e))
 
     except (
-        pmt_cmd_ex.InvalidQRCodeException,
-        pmt_cmd_ex.InvalidQRVersionException,
-        pmt_cmd_ex.InvalidUserTypeException,
+        pmt_svc_ex.InvalidQRCodeException,
+        pmt_svc_ex.InvalidQRVersionException,
+        pmt_svc_ex.InvalidUserTypeException,
         pmt_mdl_ex.TransactionNotAllowedException,
-        mktg_ex.InvalidReferenceException,
-        mktg_ex.NegativeAmountException,
-        mktg_ex.InvalidTransactionTypeException,
-        mktg_ex.NotVerifiedException,
+        mktg_mdl_ex.InvalidReferenceException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -725,9 +723,9 @@ def use_reference(uid):
         uow.commit_close_connection()
 
     except (
-        mktg_ex.NotVerifiedException,
-        mktg_ex.InvalidReferenceException,
-        mktg_ex.InvalidWeightageException,
+        mktg_mdl_ex.NotVerifiedException,
+        mktg_mdl_ex.InvalidReferenceException,
+        mktg_mdl_ex.InvalidWeightageException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
@@ -865,7 +863,7 @@ def get_name_from_unique_identifier_and_closed_loop():
             uow=uow,
         )
         uow.close_connection()
-    except auth_cmd_ex.UserNotFoundException as e:
+    except auth_svc_ex.UserNotFoundException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 

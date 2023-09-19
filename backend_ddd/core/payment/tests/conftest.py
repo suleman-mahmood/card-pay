@@ -1,13 +1,13 @@
 import pytest
 from uuid import uuid4
-from core.payment.domain import model as pmt_model
+from core.payment.domain import model as pmt_mdl
 from datetime import datetime
 
 
 @pytest.fixture
 def seed_wallet():
-    def _seed_wallet() -> pmt_model.Wallet:
-        return pmt_model.Wallet(id=str(uuid4()), qr_id=str(uuid4()), balance=0)
+    def _seed_wallet() -> pmt_mdl.Wallet:
+        return pmt_mdl.Wallet(id=str(uuid4()), qr_id=str(uuid4()), balance=0)
 
     return _seed_wallet
 
@@ -19,13 +19,13 @@ def seed_txn(seed_wallet):
         amount=100,
         created_at=datetime.now(),
         last_updated=datetime.now(),
-        mode=pmt_model.TransactionMode.APP_TRANSFER,
-        transaction_type=pmt_model.TransactionType.P2P_PUSH,
-        status=pmt_model.TransactionStatus.SUCCESSFUL,
+        mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=pmt_mdl.TransactionType.P2P_PUSH,
+        status=pmt_mdl.TransactionStatus.SUCCESSFUL,
         recipient_wallet=seed_wallet(),
         sender_wallet=seed_wallet(),
-    ) -> pmt_model.Transaction:
-        return pmt_model.Transaction(
+    ) -> pmt_mdl.Transaction:
+        return pmt_mdl.Transaction(
             id=tx_id,
             amount=amount,
             created_at=created_at,

@@ -1,14 +1,14 @@
 import pytest
-from ..domain import model
+from core.marketing.domain import model as mdl
 from uuid import uuid4
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import commands as payment_commands
 from core.authentication.domain import model as auth_mdl
-from core.payment.domain import model as pmt_mdl
+
 @pytest.fixture
 def seed_user():
-    def _seed_user() -> model.User:
-        return model.User(id=str(uuid4()))
+    def _seed_user() -> mdl.User:
+        return mdl.User(id=str(uuid4()))
 
     return _seed_user
 
