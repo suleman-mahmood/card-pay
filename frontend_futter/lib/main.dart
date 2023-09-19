@@ -10,6 +10,8 @@ import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit
 import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/full_name_cubit.dart';
+
 import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/views/splash_view.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +72,9 @@ class MainApp extends StatelessWidget {
                       RecentTransactionsCubit(locator<ApiRepository>())),
               BlocProvider(
                 create: (context) => PinCubit(locator<ApiRepository>()),
+              ),
+              BlocProvider(
+                create: (context) => FullNameCubit(locator<ApiRepository>()),
               ),
             ],
             child: MaterialApp.router(

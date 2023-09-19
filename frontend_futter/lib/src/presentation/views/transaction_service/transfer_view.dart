@@ -1,7 +1,10 @@
+import 'package:cardpay/src/presentation/cubits/remote/full_name_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
@@ -16,47 +19,54 @@ class TransferView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userNameCubit = BlocProvider.of<FullNameCubit>(context);
+    final userCubit = BlocProvider.of<UserCubit>(context);
+
     final rollNumberController = useTextEditingController();
 
     Widget buildTransferForm() {
       return Column(
         children: [
-          HeightBox(slab: 3),
+          const HeightBox(slab: 3),
           CustomInputField(
             label: AppStrings.rollNumber,
-            hint: PaymentStrings.anyRollNumber,
             controller: rollNumberController,
+            hint: AppStrings.enterRollNumber,
             keyboardType: TextInputType.number,
             hintColor: AppColors.greyColor,
             labelColor: AppColors.secondaryColor,
             color: AppColors.secondaryColor,
           ),
-          HeightBox(slab: 1),
+          const HeightBox(slab: 1),
           Align(
               alignment: Alignment.centerLeft,
               child: Text(PaymentStrings.enterAmount,
                   style: AppTypography.bodyText)),
-          HeightBox(slab: 5),
+          const HeightBox(slab: 5),
           PrimaryButton(
-            text: PaymentStrings.next,
-            color: AppColors.secondaryColor,
-            textColor: AppColors.parrotColor,
-            onPressed: () {
-              String uniqueIdentifier = rollNumberController.text;
+              text: PaymentStrings.next,
+              color: AppColors.secondaryColor,
+              textColor: AppColors.parrotColor,
+              onPressed: () {
+                FocusScope.of(context).unfocus();
 
-              context.router.push(SendRoute(
-                uniqueIdentifier: uniqueIdentifier,
-              ));
-            },
-          ),
+                final uniqueIdentifier = rollNumberController.text;
+
+                userNameCubit.getFullName(
+                  uniqueIdentifier: uniqueIdentifier,
+                  closedLoopId:
+                      userCubit.state.user.closedLoops[0].closedLoopId,
+                );
+
+                context.router.push(SendRoute(
+                  uniqueIdentifier: uniqueIdentifier,
+                  isQr: false,
+                ));
+              }),
         ],
       );
     }
 
-    // return PaymentLayout(
-    //   showBottomBar: false,
-    //   useHorizontalPadding: true,
-    //   backgroundColor: AppColors.parrotColor,
     return Scaffold(
       backgroundColor: AppColors.parrotColor,
       body: Padding(

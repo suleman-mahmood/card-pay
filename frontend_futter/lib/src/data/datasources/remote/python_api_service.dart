@@ -4,6 +4,7 @@ import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
+import 'package:cardpay/src/domain/models/requests/get_full_name_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
@@ -16,6 +17,7 @@ import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_respo
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
@@ -113,4 +115,10 @@ abstract class PythonApiService {
   });
   @GET('/get-latest-force-update-version')
   Future<HttpResponse<GetVersionsResponse>> getVersions();
+
+  @GET('/get-name-from-unique-identifier-and-closed-loop')
+  Future<HttpResponse<GetFullNameResponse>> getFullNameRequest({
+    @Body() GetFullNameRequest? getFullNameRequest,
+    @Header("Authorization") String? token,
+  });
 }

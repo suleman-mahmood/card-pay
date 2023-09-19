@@ -52,6 +52,7 @@ class QrView extends HookWidget {
           uniqueIdentifier: jsonMap["name"],
           qrId: jsonMap["qr_id"],
           v: jsonMap["v"],
+          isQr: true,
         ))
             .then(
           (_) {
@@ -79,7 +80,7 @@ class QrView extends HookWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text('Scan QR', style: AppTypography.mainHeadingWhite),
-                      HeightBox(slab: 1),
+                      const HeightBox(slab: 1),
                       Text(
                         'Place the QR code close to your phone',
                         style: AppTypography.headingFont,
@@ -89,7 +90,7 @@ class QrView extends HookWidget {
                   ),
                 ),
               ),
-              PaddingHorizontal(slab: 2, child: Header(title: '')),
+              const PaddingHorizontal(slab: 2, child: Header(title: '')),
             ],
           ),
         ),

@@ -30,7 +30,7 @@ class RequestAmountView extends HookWidget {
           return TransactionView(
             title: PaymentStrings.requestMoney,
             buttonText: PaymentStrings.continu,
-            rollNumber: senderUniqueIdentifier.value,
+            displayRecipient: true,
             backgroundColor: AppColors.purpleColor,
             onButtonPressed: (amount) => {
               userCubit.createP2PPullTransaction(

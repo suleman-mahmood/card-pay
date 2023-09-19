@@ -25,6 +25,7 @@ class DepositView extends HookWidget {
       children: [
         TransactionView(
           title: DepositViewConstants.title,
+          displayRecipient: false,
           buttonText: DepositViewConstants.buttonText,
           backgroundColor: AppColors.mediumBlueColor,
           onButtonPressed: (amount) => {

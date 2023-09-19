@@ -4,8 +4,8 @@ import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/widgets/loadings/card_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/inputfield_shimmer_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -101,9 +101,11 @@ class DashboardView extends HookWidget {
                 builder: (_, state) {
                   switch (state.runtimeType) {
                     case BalanceLoading:
-                      return const ShimmerLoading(
-                        isLoading: true,
-                        child: CardListItemLoading(),
+                      return Positioned.fill(
+                        child: FieldShimmer(
+                          height: 170,
+                          width: 330,
+                        ),
                       );
                     case BalanceSuccess:
                       return BalanceCard(

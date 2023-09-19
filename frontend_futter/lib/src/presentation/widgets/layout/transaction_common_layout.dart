@@ -2,9 +2,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/full_name_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
+import 'package:cardpay/src/presentation/widgets/loadings/inputfield_shimmer_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -17,7 +19,8 @@ import 'package:url_launcher/url_launcher.dart';
 class TransactionView extends HookWidget {
   final String title;
   final String buttonText;
-  final String? rollNumber;
+  final String? recipientVendor;
+  final bool displayRecipient;
   final Color backgroundColor;
   final void Function(int) onButtonPressed;
 
@@ -25,15 +28,17 @@ class TransactionView extends HookWidget {
     super.key,
     required this.title,
     required this.buttonText,
-    this.rollNumber,
+    required this.displayRecipient,
     required this.backgroundColor,
     required this.onButtonPressed,
+    this.recipientVendor,
   });
 
   @override
   Widget build(BuildContext context) {
     final paymentController = useTextEditingController(text: '');
     final depositCubit = BlocProvider.of<DepositCubit>(context);
+    final fullNameCubit = BlocProvider.of<FullNameCubit>(context);
 
     useEffect(() {
       return () {
@@ -58,7 +63,7 @@ class TransactionView extends HookWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  HeightBox(slab: 3),
+                  const HeightBox(slab: 3),
                   BlocConsumer<TransferCubit, TransferState>(
                     builder: (_, state) {
                       switch (state.runtimeType) {
@@ -76,7 +81,7 @@ class TransactionView extends HookWidget {
                       switch (state.runtimeType) {
                         case TransferSuccess:
                           context.router.push(ConfirmationRoute(
-                            uniqueIdentifier: rollNumber ?? '',
+                            uniqueIdentifier: fullNameCubit.state.fullName,
                             amount: int.parse(paymentController.text),
                           ));
                           break;
@@ -104,8 +109,9 @@ class TransactionView extends HookWidget {
                       }
                     },
                   ),
-                  if (rollNumber != null)
-                    Container(
+                  Visibility(
+                    visible: displayRecipient,
+                    child: Container(
                       width: MediaQuery.of(context).size.width * 0.9,
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -116,14 +122,39 @@ class TransactionView extends HookWidget {
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        '$rollNumber',
-                        style: AppTypography.mainHeading,
-                        textAlign: TextAlign.center,
-                      ),
+                      child: recipientVendor == null
+                          ? BlocBuilder<FullNameCubit, FullNameState>(
+                              builder: (_, state) {
+                                switch (state.runtimeType) {
+                                  case FullNameLoading:
+                                    return Positioned.fill(
+                                        child: FieldShimmer());
+                                  case FullNameSuccess:
+                                    return Text(
+                                      state.fullName,
+                                      style: AppTypography.mainHeading,
+                                      textAlign: TextAlign.center,
+                                    );
+                                  case FullNameFailed:
+                                    return Text(
+                                      "User doesn't exist",
+                                      style: AppTypography.mainHeading,
+                                      textAlign: TextAlign.center,
+                                    );
+                                  default:
+                                    return const SizedBox.shrink();
+                                }
+                              },
+                            )
+                          : Text(
+                              recipientVendor!,
+                              style: AppTypography.mainHeading,
+                              textAlign: TextAlign.center,
+                            ),
                     ),
+                  ),
                   PaymentEntry(controller: paymentController),
-                  HeightBox(slab: 1),
+                  const HeightBox(slab: 1),
                   PrimaryButton(
                     color: backgroundColor,
                     text: buttonText,
@@ -134,7 +165,7 @@ class TransactionView extends HookWidget {
                       );
                     },
                   ),
-                  HeightBox(slab: 4),
+                  const HeightBox(slab: 4),
                 ],
               ),
             ),
