@@ -1,26 +1,25 @@
 [
-    {
-      "title": "What is CardPay?",
-      "listTile": "CardPay provides digital cashless wallet via CardPay which allows seamless transactions within closed loops via QR codes."
-    },
-    {
-      "title": "How to pay with CardPay?",
-      "listTile": "Go to any vendor where CardPay is enabled. Simply scan the vendor's QR code. Enter the 4-digit pin. That's it! Your transaction is done within seconds."
-    },
-    {
-      "title": "How to put money in account?",
-      "listTile": "Open your CardPay app. Tap on Deposit. Enter the amount you want to deposit. A screen will open with PayPro invoice number. Copy the PayPro voucher number. Pay via online banking, mobile banking, or debit/credit card. Further instructions for each method is provided with pictures in Deposit section."},
-    {
-      "title": " Can I take money out/withdraw once I deposit it into CardPay?",
-      "listTile": "Yes and no. You can not directly withdraw the money from CardPay like ATM. But, you can always send in your money to your peer or any CardPay user and receive cash from them in return."},
-    {
-      "title": "Can Alumni's use this?",
-      "listTile": "Yes, but you need to have your LUMS Outlook email access. That's because during sign up, the OTP code is sent your LUMS Outlook email."
-    },
-    {
-      "title": "Is my money secured if I put it in CardPay?",
-      "listTile": "Yes, your money is completely secured with CardPay. CardPay is powered by Amazon AWS security and uses PayPro as a payment gateway."
-    }
-    
-  ]
+  {
+    "title": "What is CardPay?",
+    "listTile": "CardPay provides digital cashless wallet via CardPay which allows seamless transactions within closed loops via QR codes."
+  },
+  {
+    "title": "How to pay with CardPay?",
+    "listTile": "Go to any vendor where CardPay is enabled. Simply scan the vendor's QR code. Enter the 4-digit pin. That's it! Your transaction is done within seconds."
+  },
+  {
+    "title": "How to put money in account?",
+    "listTile": "Open your CardPay app. Tap on Deposit. Enter the amount you want to deposit. A screen will open with PayPro invoice number. Copy the PayPro voucher number. Pay via online banking, mobile banking, or debit/credit card. Further instructions for each method is provided with pictures in Deposit section."},
+  {
+    "title": " Can I take money out/withdraw once I deposit it into CardPay?",
+    "listTile": "Yes and no. You can not directly withdraw the money from CardPay like ATM. But, you can always send in your money to your peer or any CardPay user and receive cash from them in return."},
+  {
+    "title": "Can Alumni's use this?",
+    "listTile": "Yes, but you need to have your LUMS Outlook email access. That's because during sign up, the OTP code is sent your LUMS Outlook email."
+  },
+  {
+    "title": "Is my money secured if I put it in CardPay?",
+    "listTile": "Yes, your money is completely secured with CardPay. CardPay is powered by Amazon AWS security and uses PayPro as a payment gateway."
+  }
   
+]

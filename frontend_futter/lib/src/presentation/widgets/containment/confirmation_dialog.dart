@@ -6,19 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ConfirmationContainer extends HookWidget {
-  final String title1;
-  final String title2;
-  final String text1;
-  final String text2;
+  final String mainHeading1;
+  final String mainHeading2;
+  final String subHeading1;
+  final String subHeading2;
 
   const ConfirmationContainer({
     Key? key,
-    required this.title1,
-    required this.text1,
-    required this.title2,
-    required this.text2,
+    required this.mainHeading1,
+    required this.subHeading1,
+    required this.mainHeading2,
+    required this.subHeading2,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -38,11 +37,11 @@ class ConfirmationContainer extends HookWidget {
               children: [
                 Text(PaymentStrings.details, style: AppTypography.subHeading),
                 HeightBox(slab: 1),
-                Text(title1, style: AppTypography.subHeading),
-                Text(text1, style: AppTypography.bodyText),
+                Text(mainHeading1, style: AppTypography.subHeading),
+                Text(subHeading1, style: AppTypography.bodyText),
                 HeightBox(slab: 1),
-                Text(title2, style: AppTypography.subHeading),
-                Text(text2, style: AppTypography.bodyText),
+                Text(mainHeading2, style: AppTypography.subHeading),
+                Text(subHeading2, style: AppTypography.bodyText),
               ],
             ),
           ),

@@ -64,65 +64,64 @@ class MyDrawer extends HookWidget {
     var selectedRouteName = useState(drawerItems[0].route?.routeName);
 
     return Drawer(
-      child: Column(
-        children: <Widget>[
-          Container(
-            height: 150,
-            child: DrawerHeader(
-              decoration: const BoxDecoration(
-                color: AppColors.secondaryColor,
-                shape: BoxShape.rectangle,
+      child: Container(
+        color: AppColors.secondaryColor,
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: 150,
+              child: DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: AppColors.secondaryColor,
+                  shape: BoxShape.rectangle,
+                ),
+                child: userInfo(context),
               ),
-              child: userInfo(context),
             ),
-          ),
-          for (var item in drawerItems)
-            GestureDetector(
-              child: PaddingAll(
-                slab: 1,
-                child: CustomListTile(
-                  iconBackgroundColor: Colors.transparent,
-                  backgroundColor: AppColors.primaryColor,
-                  textColor: AppColors.greyColor,
-                  iconColor: AppColors.greyColor,
-                  icon: item.icon,
-                  text: item.text,
-                  onTap: () {
-                    if (item.route != null) {
-                      context.router.push(item.route!);
-                      selectedRouteName.value = item.route!.routeName;
-                    } else {
-                      item.onClick!();
-                    }
-                  },
-                  selected: selectedRouteName.value == item.route?.routeName,
+            for (var item in drawerItems)
+              GestureDetector(
+                child: PaddingAll(
+                  slab: 1,
+                  child: CustomListTile(
+                    icon: item.icon,
+                    text: item.text,
+                    onTap: () {
+                      if (item.route != null) {
+                        context.router.push(item.route!);
+                        selectedRouteName.value = item.route!.routeName;
+                      } else {
+                        item.onClick!();
+                      }
+                    },
+                    selected: selectedRouteName.value == item.route?.routeName,
+                  ),
                 ),
               ),
-            ),
-          const Expanded(child: SizedBox()),
-          GestureDetector(
-            onTap: () {
-              closedLoopCubit.getAllClosedLoops();
-              context.router.push(const RegisterOrganizationRoute());
-            },
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.add_circle_outlined,
-                    color: AppColors.greyColor,
-                  ),
-                  WidthBetween(),
-                  Text(
-                    PaymentStrings.registerLoop,
-                    style: TextStyle(color: AppColors.greyColor),
-                  ),
-                ],
+            const Expanded(child: SizedBox()),
+            GestureDetector(
+              onTap: () {
+                closedLoopCubit.getAllClosedLoops();
+                context.router.push(const RegisterOrganizationRoute());
+              },
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.add_circle_outlined,
+                      color: AppColors.greyColor,
+                    ),
+                    WidthBetween(),
+                    Text(
+                      PaymentStrings.registerLoop,
+                      style: TextStyle(color: AppColors.greyColor),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -164,10 +163,9 @@ class CustomListTile extends HookWidget {
   final String? subText;
   final IconData? iconEnd;
   final Color suffixIconColor;
-
   final Function()? onTap;
   final bool selected;
-  final Color iconBackgroundColor;
+
   final Color iconColor;
   final Color textColor;
   final Color backgroundColor;
@@ -181,54 +179,55 @@ class CustomListTile extends HookWidget {
     this.subText,
     this.onTap,
     this.selected = false,
-    required this.iconBackgroundColor,
-    this.iconColor = AppColors.primaryColor,
-    this.textColor = AppColors.blackColor,
-    this.backgroundColor = AppColors.greyColor,
+    this.iconColor = AppColors.greyColor,
+    this.textColor = AppColors.greyColor,
+    this.backgroundColor = AppColors.secondaryColor,
     this.subTextColor = AppColors.greyColor,
     this.suffixIconColor = AppColors.greyColor,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? subTextColor : textColor;
-    final decoration = BoxDecoration(
-      color: selected ? backgroundColor : null,
-      borderRadius: BorderRadius.circular(20.0),
-    );
-
+    final Color finalBackgroundColor = selected ? Colors.blue : backgroundColor;
+    final Color finalTextColor = selected ? Colors.white : textColor;
     return InkWell(
       onTap: onTap,
       child: Container(
-        decoration: decoration,
+        decoration: BoxDecoration(
+          color: finalBackgroundColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: EdgeInsets.all(8.0),
         child: ListTile(
           leading: CircleAvatar(
-            backgroundColor: iconBackgroundColor,
-            radius: 30,
+            backgroundColor:
+                selected ? Colors.transparent : AppColors.lightGreyColor,
             child: Icon(
               icon,
-              color: iconColor,
+              color: selected ? AppColors.secondaryColor : iconColor,
             ),
           ),
           title: Text(
             text,
-            style: AppTypography.mainHeading
-                .copyWith(fontSize: 16, color: textColor),
+            style: AppTypography.mainHeading.copyWith(
+              fontSize: 20,
+              color: finalTextColor,
+            ),
           ),
           subtitle: subText != null
               ? Text(
                   subText!,
-                  style: TextStyle(color: subTextColor, fontSize: 12),
+                  style: TextStyle(
+                      color:
+                          selected ? AppColors.secondaryColor : subTextColor),
                 )
               : null,
           trailing: iconEnd != null
               ? Icon(
                   iconEnd,
-                  size: 16,
-                  color: suffixIconColor,
+                  color: selected ? AppColors.secondaryColor : suffixIconColor,
                 )
               : null,
-          textColor: color,
         ),
       ),
     );

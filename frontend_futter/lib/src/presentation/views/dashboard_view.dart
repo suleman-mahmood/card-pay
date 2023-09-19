@@ -109,7 +109,7 @@ class DashboardView extends HookWidget {
                       );
                     case BalanceSuccess:
                       return BalanceCard(
-                        balance: state.balance.amount.toString(),
+                        balance: 'Rs. ${state.balance.amount.toString()}',
                         topRightImage: 'assets/images/balance_corner.png',
                         bottomLeftImage: 'assets/images/balance_corner2.png',
                       );

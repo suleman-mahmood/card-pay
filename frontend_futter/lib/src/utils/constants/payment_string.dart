@@ -79,4 +79,6 @@ class PaymentStrings {
       'Secure your account for safety';
   static const String logout = 'Logout';
   static const String logoutDescription = 'Permanently delete your data';
+  static const String deleteAccount = 'Delete Account';
+  static const String deleteAccountDescription = 'Permanently delete your data';
 }

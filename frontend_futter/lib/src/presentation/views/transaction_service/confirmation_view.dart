@@ -12,6 +12,7 @@ import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.d
 import 'package:cardpay/src/presentation/widgets/containment/confirmation_dialog.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/utils/constants/payment_string.dart';
+import 'package:intl/intl.dart';
 
 @RoutePage()
 class ConfirmationView extends HookWidget {
@@ -58,12 +59,16 @@ class ConfirmationView extends HookWidget {
     }
 
     Widget buildConfirmationContainer() {
+      final currentDate = DateTime.now();
+      final dateFormat = DateFormat('h:mm a, dd MMM, y');
+      final dateToday = dateFormat.format(currentDate);
+
       return Expanded(
         child: ConfirmationContainer(
-          title1: PaymentStrings.send,
-          text1: uniqueIdentifier,
-          title2: AppStrings.date,
-          text2: AppStrings.dateToday,
+          mainHeading1: PaymentStrings.send,
+          subHeading1: uniqueIdentifier,
+          mainHeading2: AppStrings.date,
+          subHeading2: dateToday,
         ),
       );
     }

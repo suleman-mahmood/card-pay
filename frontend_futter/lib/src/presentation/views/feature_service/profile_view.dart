@@ -85,115 +85,130 @@ class ProfileView extends HookWidget {
     }
 
     return Scaffold(
-      body: PaddingHorizontal(
-        slab: 1,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const HeightBox(slab: 5),
-          Text(
-            PaymentStrings.profile,
-            style: AppTypography.mainHeading,
-          ),
-          const HeightBox(slab: 1),
-          Container(
-            decoration: CustomBoxDecorationAll.getDecoration(),
-            width: double.infinity,
-            child: PaddingAll(
-              slab: 1,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  BlocBuilder<UserCubit, UserState>(
-                    builder: (_, state) {
-                      switch (state.runtimeType) {
-                        case UserLoading:
-                          return ShimmerLoading(
-                            isLoading: isLoading,
-                            child: CircleListItemLoading(),
-                          );
-                        case UserSuccess || UserInitial:
-                          return GestureDetector(
-                            onTap: () {
-                              // context.router.push(
-                              //   EditProfileRoute(),
-                              // );
-                            },
-                            child: PaddingBoxVertical(
-                              slab: 1,
-                              child: GreetingRow(
-                                textColor: AppColors.secondaryColor,
-                                name: state.user.fullName,
-                                size: 16,
-                                imagePath: 'assets/images/talha.jpg',
+      body: SingleChildScrollView(
+        child: PaddingHorizontal(
+          slab: 1,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const HeightBox(slab: 5),
+            Text(
+              PaymentStrings.profile,
+              style: AppTypography.mainHeading,
+            ),
+            const HeightBox(slab: 1),
+            Container(
+              decoration: CustomBoxDecorationAll.getDecoration(),
+              width: double.infinity,
+              child: PaddingAll(
+                slab: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    BlocBuilder<UserCubit, UserState>(
+                      builder: (_, state) {
+                        switch (state.runtimeType) {
+                          case UserLoading:
+                            return ShimmerLoading(
+                              isLoading: isLoading,
+                              child: CircleListItemLoading(),
+                            );
+                          case UserSuccess || UserInitial:
+                            return GestureDetector(
+                              onTap: () {
+                                // context.router.push(
+                                //   EditProfileRoute(),
+                                // );
+                              },
+                              child: PaddingBoxVertical(
+                                slab: 1,
+                                child: GreetingRow(
+                                  textColor: AppColors.secondaryColor,
+                                  name: state.user.fullName,
+                                  size: 16,
+                                  imagePath: 'assets/images/talha.jpg',
+                                ),
                               ),
-                            ),
-                          );
-                        default:
-                          return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                ],
+                            );
+                          default:
+                            return const SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const HeightBox(slab: 3),
-          Container(
-              decoration: CustomBoxDecorationAll.getDecoration(
-                color: AppColors.secondaryColor,
-              ),
-              child: Column(
-                children: [
-                  BlocListener<LoginCubit, LoginState>(
-                    listener: (_, state) {
-                      switch (state.runtimeType) {
-                        case LogoutSuccess:
-                          checkpointsCubit.init();
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            context.router.pushAndPopUntil(
-                              const IntroRoute(),
-                              predicate: (route) => false,
-                            );
-                          });
-                          break;
-                      }
-                    },
-                    child: const SizedBox.shrink(),
-                  ),
-                  HeightBox(slab: 1),
-                  CustomListTile(
-                    iconBackgroundColor: AppColors.lightGreyColor,
-                    icon: Icons.person,
-                    text: PaymentStrings.personalDetails,
-                    subText: PaymentStrings.personalDetailsDescription,
-                    iconEnd: Icons.arrow_forward_ios,
-                    onTap: handleLogout,
-                  ),
-                  CustomListTile(
-                    iconBackgroundColor: AppColors.lightGreyColor,
-                    icon: Icons.notifications,
-                    text: PaymentStrings.notification,
-                    subText: PaymentStrings.notificationDescription,
-                    iconEnd: Icons.arrow_forward_ios,
-                    onTap: _showBottomSheetDelete,
-                  ),
-                  CustomListTile(
-                    iconBackgroundColor: AppColors.lightGreyColor,
-                    icon: Icons.privacy_tip_rounded,
-                    text: PaymentStrings.privacyPolicy,
-                    subText: PaymentStrings.privacyPolicyDescription,
-                    iconEnd: Icons.arrow_forward_ios,
-                  ),
-                  CustomListTile(
-                    iconBackgroundColor: AppColors.lightGreyColor,
-                    icon: Icons.logout,
-                    text: PaymentStrings.logout,
-                    subText: PaymentStrings.logoutDescription,
-                    iconEnd: Icons.arrow_forward_ios,
-                  ),
-                  HeightBox(slab: 1)
-                ],
-              ))
-        ]),
+            const HeightBox(slab: 3),
+            Container(
+                decoration: CustomBoxDecorationAll.getDecoration(
+                  color: AppColors.secondaryColor,
+                ),
+                child: Column(
+                  children: [
+                    BlocListener<LoginCubit, LoginState>(
+                      listener: (_, state) {
+                        switch (state.runtimeType) {
+                          case LogoutSuccess:
+                            checkpointsCubit.init();
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              context.router.pushAndPopUntil(
+                                const IntroRoute(),
+                                predicate: (route) => false,
+                              );
+                            });
+                            break;
+                        }
+                      },
+                      child: const SizedBox.shrink(),
+                    ),
+                    HeightBox(slab: 1),
+                    CustomListTile(
+                      iconColor: AppColors.primaryColor,
+                      textColor: AppColors.blackColor,
+                      icon: Icons.person,
+                      text: PaymentStrings.personalDetails,
+                      subText: PaymentStrings.personalDetailsDescription,
+                      iconEnd: Icons.arrow_forward_ios,
+                    ),
+                    CustomListTile(
+                      iconColor: AppColors.primaryColor,
+                      textColor: AppColors.blackColor,
+                      icon: Icons.notifications,
+                      text: PaymentStrings.notification,
+                      subText: PaymentStrings.notificationDescription,
+                      iconEnd: Icons.arrow_forward_ios,
+                    ),
+                    CustomListTile(
+                      iconColor: AppColors.primaryColor,
+                      textColor: AppColors.blackColor,
+                      icon: Icons.privacy_tip_rounded,
+                      text: PaymentStrings.privacyPolicy,
+                      subText: PaymentStrings.privacyPolicyDescription,
+                      iconEnd: Icons.arrow_forward_ios,
+                    ),
+                    CustomListTile(
+                      iconColor: AppColors.primaryColor,
+                      textColor: AppColors.blackColor,
+                      icon: Icons.delete,
+                      text: PaymentStrings.deleteAccount,
+                      subText: PaymentStrings.deleteAccountDescription,
+                      iconEnd: Icons.arrow_forward_ios,
+                      onTap: _showBottomSheetDelete,
+                    ),
+                    CustomListTile(
+                      iconColor: AppColors.primaryColor,
+                      textColor: AppColors.blackColor,
+                      icon: Icons.logout,
+                      text: PaymentStrings.logout,
+                      subText: PaymentStrings.logoutDescription,
+                      iconEnd: Icons.arrow_forward_ios,
+                      onTap: handleLogout,
+                    ),
+                    HeightBox(slab: 1)
+                  ],
+                ))
+          ]),
+        ),
       ),
     );
   }
