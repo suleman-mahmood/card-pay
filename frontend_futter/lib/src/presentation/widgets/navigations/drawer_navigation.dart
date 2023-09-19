@@ -81,6 +81,7 @@ class MyDrawer extends HookWidget {
               child: PaddingAll(
                 slab: 1,
                 child: CustomListTile(
+                  iconBackgroundColor: Colors.transparent,
                   backgroundColor: AppColors.primaryColor,
                   textColor: AppColors.greyColor,
                   iconColor: AppColors.greyColor,
@@ -166,7 +167,7 @@ class CustomListTile extends HookWidget {
 
   final Function()? onTap;
   final bool selected;
-
+  final Color iconBackgroundColor;
   final Color iconColor;
   final Color textColor;
   final Color backgroundColor;
@@ -180,6 +181,7 @@ class CustomListTile extends HookWidget {
     this.subText,
     this.onTap,
     this.selected = false,
+    required this.iconBackgroundColor,
     this.iconColor = AppColors.primaryColor,
     this.textColor = AppColors.blackColor,
     this.backgroundColor = AppColors.greyColor,
@@ -198,28 +200,31 @@ class CustomListTile extends HookWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        // margin: EdgeInsets.symmetric(vertical: 2.0),
-        padding: EdgeInsets.all(8.0),
         decoration: decoration,
         child: ListTile(
-          leading: Icon(
-            icon,
-            color: iconColor,
+          leading: CircleAvatar(
+            backgroundColor: iconBackgroundColor,
+            radius: 30,
+            child: Icon(
+              icon,
+              color: iconColor,
+            ),
           ),
           title: Text(
             text,
             style: AppTypography.mainHeading
-                .copyWith(fontSize: 20, color: textColor),
+                .copyWith(fontSize: 16, color: textColor),
           ),
           subtitle: subText != null
               ? Text(
                   subText!,
-                  style: TextStyle(color: color),
+                  style: TextStyle(color: subTextColor, fontSize: 12),
                 )
               : null,
           trailing: iconEnd != null
               ? Icon(
                   iconEnd,
+                  size: 16,
                   color: suffixIconColor,
                 )
               : null,

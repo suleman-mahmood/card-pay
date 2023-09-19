@@ -9,6 +9,7 @@ class GreetingRow extends HookWidget {
   final String? imagePath;
   final Color? textColor;
   final int? radius;
+  final double? size;
 
   const GreetingRow({
     super.key,
@@ -16,6 +17,7 @@ class GreetingRow extends HookWidget {
     required this.name,
     this.imagePath,
     this.radius,
+    this.size,
     this.textColor,
   });
 
@@ -36,7 +38,8 @@ class GreetingRow extends HookWidget {
           if (greeting != null && greeting!.isNotEmpty)
             Text(greeting!, style: AppTypography.inputFont),
           Text(name,
-              style: AppTypography.mainHeading.copyWith(color: textColor)),
+              style: AppTypography.mainHeading
+                  .copyWith(color: textColor, fontSize: size)),
         ],
       );
     }

@@ -68,4 +68,15 @@ class PaymentStrings {
   static const String choiceAvatar = 'Choose profile avatar';
   static const String selectDescription =
       'Select an avatar to set as your profile picture. ';
+  static const String personalDetails = 'Personal Details';
+  static const String personalDetailsDescription =
+      'Secure your account for safety';
+  static const String notification = 'Notifications';
+
+  static const String notificationDescription = 'Permanently delete your data';
+  static const String privacyPolicy = 'Privacy Policy';
+  static const String privacyPolicyDescription =
+      'Secure your account for safety';
+  static const String logout = 'Logout';
+  static const String logoutDescription = 'Permanently delete your data';
 }
