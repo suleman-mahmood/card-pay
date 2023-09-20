@@ -92,7 +92,7 @@ class AuthLayout extends HookWidget {
                 },
               ),
               if (showBackButton)
-                PaddingHorizontal(
+                const PaddingHorizontal(
                   slab: 2,
                   child: Header(
                     // title: AppStrings.logIn,

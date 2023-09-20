@@ -10,7 +10,7 @@ import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
 import 'package:cardpay/src/config/animations/app_animations.dart';
 import 'package:cardpay/src/presentation//widgets/actions/button/primary_button.dart';
-import 'package:cardpay/src/utils/constants/signUp_string.dart';
+import 'package:cardpay/src/utils/constants/auth_strings.dart';
 
 @RoutePage()
 class IntroView extends HookWidget {

@@ -13,7 +13,7 @@ import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/full_name_cubit.dart';
 
 import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
-import 'package:cardpay/src/presentation/views/splash_view.dart';
+import 'package:cardpay/src/presentation/views/intro/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/app_themes.dart';

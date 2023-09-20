@@ -1,21 +1,22 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
-import 'package:cardpay/src/presentation/views/dashboard_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/history_transaction_view.dart';
+import 'package:cardpay/src/presentation/views/payment/payment_dashboard_view.dart';
+import 'package:cardpay/src/presentation/views/profile/profile_view.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/animated_bottom_bar.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:cardpay/src/presentation/views/feature_service/profile_view.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 
+import 'payment/transactions_view.dart';
+
 @RoutePage()
-class PaymentDashboardView extends HookWidget {
+class DashboardLayoutView extends HookWidget {
   final bool showBottomBar;
   final Color? backgroundColor;
   final bool useHorizontalPadding;
 
-  const PaymentDashboardView({
+  const DashboardLayoutView({
     Key? key,
     this.showBottomBar = true,
     this.backgroundColor,
@@ -30,11 +31,10 @@ class PaymentDashboardView extends HookWidget {
     final selectedIndex = useState(0);
 
     List<Widget> pageList = [
-      DashboardView(scaffoldKey: scaffoldKey),
-      const TransactionHistoryView(),
-      const TransactionHistoryView(), // FilterHistoryView(),
+      PaymentDashboardView(scaffoldKey: scaffoldKey),
+      const TransactionsView(),
+      const TransactionsView(),
       ProfileView(),
-      // HistroyView(),
     ];
 
     useEffect(() {
@@ -60,16 +60,12 @@ class PaymentDashboardView extends HookWidget {
           padding: horizontalPadding.value
               ? const EdgeInsets.symmetric(horizontal: 18)
               : EdgeInsets.zero,
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top,
-            child: pageList.elementAt(selectedIndex.value),
-          ),
+          child: pageList.elementAt(selectedIndex.value),
         ),
       ),
       floatingActionButton: Transform.translate(
-        offset: Offset(0, -8),
-        child: Container(
+        offset: const Offset(0, -8),
+        child: SizedBox(
           width: 72,
           height: 72,
           child: FloatingActionButton(

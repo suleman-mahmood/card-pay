@@ -18,7 +18,7 @@ import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
-import 'package:cardpay/src/utils/constants/signUp_string.dart';
+import 'package:cardpay/src/utils/constants/auth_strings.dart';
 import 'package:cardpay/src/config/extensions/validation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -50,14 +50,14 @@ class LoginView extends HookWidget {
       if (state.checkPoints.verifiedPhoneOtp &&
           state.checkPoints.verifiedClosedLoop &&
           state.checkPoints.pinSetup) {
-        route = PaymentDashboardRoute();
+        route = DashboardLayoutRoute();
       } else if (state.checkPoints.verifiedPhoneOtp &&
           state.checkPoints.verifiedClosedLoop &&
           state.checkPoints.pinSetup == false) {
         route = PinRoute();
       } else if (state.checkPoints.verifiedPhoneOtp &&
           state.checkPoints.verifiedClosedLoop == false) {
-        route = RegisterOrganizationRoute();
+        route = ClosedLoopRoute();
       }
 
       WidgetsBinding.instance.addPostFrameCallback(
@@ -132,16 +132,16 @@ class LoginView extends HookWidget {
           key: formKey,
           child: Column(
             children: [
-              HeightBox(slab: 6),
-              HeightBox(slab: 2),
-              Align(
+              const HeightBox(slab: 6),
+              const HeightBox(slab: 2),
+              const Align(
                 alignment: Alignment.centerLeft,
-                child: const MainHeading(
+                child: MainHeading(
                   accountTitle: AppStrings.logIn,
                   accountDescription: AppStrings.logInDescription,
                 ),
               ),
-              HeightBox(slab: 2),
+              const HeightBox(slab: 2),
               PhoneNumberInput(
                 controller: phoneNumberController,
                 dropdownItems: AppStrings.phoneCountryCodes,
@@ -165,14 +165,14 @@ class LoginView extends HookWidget {
                 obscureText: true,
                 onChanged: (v) => password.value = v,
               ),
-              HeightBox(slab: 1),
+              const HeightBox(slab: 1),
               // TODO: handle it later
               // Align(
               //   alignment: Alignment.centerRight,
               //   child: Text(AppStrings.forgot,
               //       style: AppTypography.subHeadingBold),
               // ),
-              HeightBox(slab: 3),
+              const HeightBox(slab: 3),
               PrimaryButton(
                 text: AppStrings.logIn,
                 onPressed: handleLogin,

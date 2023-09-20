@@ -6,11 +6,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/containment/bottom_sheets/bottom_sheet_check_box.dart';
 import 'package:cardpay/src/presentation/widgets/containment/lists/history_list.dart';
-import 'package:cardpay/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/utils/constants/payment_strings.dart';
 
 @RoutePage()
-class FilterHistoryView extends HookWidget {
-  const FilterHistoryView({Key? key}) : super(key: key);
+class DetailedTransactionsView extends HookWidget {
+  const DetailedTransactionsView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,30 +33,37 @@ class FilterHistoryView extends HookWidget {
       Icons.calendar_today
     ];
 
-    final header = PaddingHorizontal(
-      slab: 1,
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(PaymentStrings.transactionHistory,
-                style: AppTypography.bodyText),
-          ),
-          Builder(
-            builder: (BuildContext innerContext) {
-              return InkWell(
-                onTap: () {
-                  showModalBottomSheet<void>(
-                    context: innerContext,
-                    // showDragHandle: true,
-                    builder: (BuildContext context) {
-                      return FilterBottomSheet(
-                        checks: checks,
-                        labels: labels,
-                        icons: icons,
-                      );
-                    },
-                  );
-                },
+    final transactionList = Flexible(
+      flex: 1,
+      child: TransactionList(),
+    );
+
+    void _showModalBottomSheet() {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return FilterBottomSheet(
+            checks: checks,
+            labels: labels,
+            icons: icons,
+          );
+        },
+      );
+    }
+
+    return Column(
+      children: [
+        const HeightBox(slab: 5),
+        PaddingHorizontal(
+          slab: 1,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(PaymentStrings.transactionHistory,
+                    style: AppTypography.bodyText),
+              ),
+              InkWell(
+                onTap: _showModalBottomSheet,
                 child: Transform.scale(
                   scale: 1.75,
                   child: Icon(
@@ -64,22 +71,10 @@ class FilterHistoryView extends HookWidget {
                     color: AppColors.greyColor.withOpacity(0.35),
                   ),
                 ),
-              );
-            },
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-
-    final transactionList = Flexible(
-      flex: 1,
-      child: TransactionList(),
-    );
-
-    return Column(
-      children: [
-        const HeightBox(slab: 5),
-        header,
+        ),
         const HeightBox(slab: 3),
         transactionList,
       ],

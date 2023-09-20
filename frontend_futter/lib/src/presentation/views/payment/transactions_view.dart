@@ -1,3 +1,4 @@
+// TODO: delete this in future when adding detailed transactions
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
@@ -10,13 +11,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/presentation/widgets/containment/lists/history_list.dart';
-import 'package:cardpay/src/utils/constants/payment_string.dart';
-
-const double _borderRadiusValue = 30.0;
+import 'package:cardpay/src/utils/constants/payment_strings.dart';
 
 @RoutePage()
-class TransactionHistoryView extends HookWidget {
-  const TransactionHistoryView({Key? key}) : super(key: key);
+class TransactionsView extends HookWidget {
+  const TransactionsView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

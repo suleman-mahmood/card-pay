@@ -5,23 +5,12 @@ const double _borderRadiusValue = 30.0;
 
 class CustomBoxDecoration {
   static BoxDecoration getDecoration() {
-    return BoxDecoration(
+    return const BoxDecoration(
       color: AppColors.secondaryColor,
-      borderRadius: const BorderRadius.only(
+      borderRadius: BorderRadius.only(
         topLeft: Radius.circular(_borderRadiusValue),
         topRight: Radius.circular(_borderRadiusValue),
       ),
-      boxShadow: const [
-        // BoxShadow(
-        //   color: AppColors.greyColor,
-        //   blurRadius: 10.0,
-        //   spreadRadius: 5.0,
-        //   offset: Offset(
-        //     3.0,
-        //     3.0,
-        //   ),
-        // )
-      ],
     );
   }
 }

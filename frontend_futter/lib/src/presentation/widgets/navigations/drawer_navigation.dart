@@ -4,7 +4,7 @@ import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
-import 'package:cardpay/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/utils/constants/payment_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
@@ -101,7 +101,7 @@ class MyDrawer extends HookWidget {
             GestureDetector(
               onTap: () {
                 closedLoopCubit.getAllClosedLoops();
-                context.router.push(const RegisterOrganizationRoute());
+                context.router.push(const ClosedLoopRoute());
               },
               child: Container(
                 padding: const EdgeInsets.all(16.0),

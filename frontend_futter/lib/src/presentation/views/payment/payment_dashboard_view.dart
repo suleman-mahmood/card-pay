@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/views/payment/transfer_amount_view.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
@@ -17,13 +19,14 @@ import 'package:cardpay/src/presentation/widgets/containment/cards/balance_card.
 import 'package:cardpay/src/presentation/widgets/containment/cards/transaction_history_card.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/greeting_card.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/services_card.dart';
-import 'package:cardpay/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/utils/constants/payment_strings.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 @RoutePage()
-class DashboardView extends HookWidget {
+class PaymentDashboardView extends HookWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
 
-  DashboardView({
+  PaymentDashboardView({
     Key? key,
     this.scaffoldKey,
   }) : super(key: key);
@@ -31,10 +34,10 @@ class DashboardView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final userCubit = BlocProvider.of<UserCubit>(context);
-
     final balanceCubit = BlocProvider.of<BalanceCubit>(context);
     final recentTransactionsCubit =
         BlocProvider.of<RecentTransactionsCubit>(context);
+    final depositCubit = BlocProvider.of<DepositCubit>(context);
 
     String displayName(String fullName) {
       final words = fullName.split(" ");
@@ -43,6 +46,12 @@ class DashboardView extends HookWidget {
         return "";
       }
       return words[0];
+    }
+
+    showDepositUrl(String checkoutUrl) async {
+      await launchUrl(Uri.parse(checkoutUrl));
+
+      depositCubit.init();
     }
 
     return RefreshIndicator(
@@ -68,7 +77,6 @@ class DashboardView extends HookWidget {
                       switch (state.runtimeType) {
                         case UserLoading:
                           return const ShimmerLoading(
-                            isLoading: true,
                             child: CircleListItemLoading(),
                           );
                         case UserSuccess || UserInitial:
@@ -176,13 +184,13 @@ class DashboardView extends HookWidget {
                 children: [
                   CustomBox(
                     imagePath: 'assets/images/Upwork-3.png',
-                    text: PaymentStrings.deposite,
-                    route: DepositRoute(),
+                    text: PaymentStrings.deposit,
+                    route: DepositAmountRoute(),
                   ),
                   CustomBox(
                     imagePath: 'assets/images/Upwork.png',
                     text: PaymentStrings.transfer,
-                    route: TransferRoute(),
+                    route: TransferRecipientRoute(),
                   )
                 ],
               ),

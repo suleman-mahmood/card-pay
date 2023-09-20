@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/utils/constants/payment_strings.dart';
 
 class PhoneNumberInput extends HookWidget {
   final TextEditingController controller;

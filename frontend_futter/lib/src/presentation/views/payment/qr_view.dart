@@ -48,12 +48,13 @@ class QrView extends HookWidget {
 
         controller.pauseCamera();
         context.router
-            .push(SendRoute(
-          uniqueIdentifier: jsonMap["name"],
-          qrId: jsonMap["qr_id"],
-          v: jsonMap["v"],
-          isQr: true,
-        ))
+            .push(
+          QrAmountRoute(
+            vendorName: jsonMap["name"],
+            qrId: jsonMap["qr_id"],
+            v: jsonMap["v"],
+          ),
+        )
             .then(
           (_) {
             controller.resumeCamera();

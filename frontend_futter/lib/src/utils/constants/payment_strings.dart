@@ -2,6 +2,14 @@ class PaymentStrings {
   static const String greet = 'Hello';
 
   static const List<String> phoneCountryCodes = ['+92', '+91', '+7'];
+  static const List<String> quickAmounts = [
+    '1500',
+    '3000',
+    '1500',
+    '1000',
+    '7000',
+    '5000'
+  ];
 
   static const String name = 'Talha';
   static const String fName = 'Talha husnain';
@@ -29,9 +37,10 @@ class PaymentStrings {
   static const String carry = 'Continue';
   static const String pAmount = '+250';
   static const String nAmount = '-250';
-  static const String deposite = 'Deposit ';
+  static const String deposit = 'Deposit ';
   static const String request = 'Request';
   static const String transfer = 'Transfer';
+  static const String qrTitle = 'Pay - QR';
   static const String sendMoney = 'Send Money';
   static const String faq = 'Faqs';
   static const String recentTransactions = 'Recent Transactions';
@@ -49,7 +58,7 @@ class PaymentStrings {
 
   static const String faqs = 'Faqs';
   static const String alert = 'Alert';
-  static const String continu = 'Continue';
+  static const String continueText = 'Continue';
   static const String next = 'Next';
   static const String done = 'Done';
   static const String apply = 'Apply';
@@ -72,6 +81,8 @@ class PaymentStrings {
   static const String personalDetailsDescription =
       'Secure your account for safety';
   static const String notification = 'Notifications';
+  static const String delete = 'Delete account';
+  static const String deleteDescription = 'Remove all your data';
 
   static const String notificationDescription = 'Permanently delete your data';
   static const String privacyPolicy = 'Privacy Policy';

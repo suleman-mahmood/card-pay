@@ -11,7 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
-import 'package:cardpay/src/utils/constants/signUp_string.dart';
+import 'package:cardpay/src/utils/constants/auth_strings.dart';
 import '../../widgets/layout/pin_numpad_layout.dart';
 
 @RoutePage()
@@ -21,17 +21,24 @@ class PinView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final pinController = useTextEditingController();
+
     final showErrorMessage = useState(false);
     final isPinConfirmed = useState(false);
     final error = useState('');
-
-    String prevPin = '';
 
     final userCubit = BlocProvider.of<UserCubit>(context);
     final pinCubit = BlocProvider.of<PinCubit>(context);
     final balanceCubit = BlocProvider.of<BalanceCubit>(context);
     final recentTransactionsCubit =
         BlocProvider.of<RecentTransactionsCubit>(context);
+
+    String prevPin = '';
+
+    useEffect(() {
+      return () {
+        pinController.dispose();
+      };
+    }, []);
 
     void handlePinSetup() {
       String newPin = pinController.text;
@@ -62,12 +69,6 @@ class PinView extends HookWidget {
       prevPin = newPin;
       pinController.clear();
     }
-
-    useEffect(() {
-      return () {
-        pinController.dispose();
-      };
-    }, []);
 
     return Scaffold(
       backgroundColor: AppColors.darkBlueColor,

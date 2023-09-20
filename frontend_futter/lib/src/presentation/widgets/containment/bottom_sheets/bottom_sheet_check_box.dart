@@ -1,7 +1,7 @@
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
-import 'package:cardpay/src/utils/constants/payment_string.dart';
+import 'package:cardpay/src/utils/constants/payment_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';

@@ -5,7 +5,6 @@ import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:cardpay/src/domain/models/closed_loop.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
-import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -17,11 +16,11 @@ import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
 import 'package:cardpay/src/presentation/widgets/selections/organization_drop_down.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
-import 'package:cardpay/src/utils/constants/signUp_string.dart';
+import 'package:cardpay/src/utils/constants/auth_strings.dart';
 
 @RoutePage()
-class RegisterOrganizationView extends HookWidget {
-  const RegisterOrganizationView({Key? key}) : super(key: key);
+class ClosedLoopView extends HookWidget {
+  const ClosedLoopView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +30,6 @@ class RegisterOrganizationView extends HookWidget {
     final formKey = useMemoized(() => GlobalKey<FormState>());
 
     final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
-
-    useEffect(() {
-      someFunction() async {
-        await closedLoopCubit.getAllClosedLoops();
-      }
-
-      someFunction();
-    }, []);
 
     void _showOTPBottomSheet() {
       showModalBottomSheet(

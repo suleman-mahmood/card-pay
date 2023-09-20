@@ -6,7 +6,7 @@ import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/otp_input_field.dart';
-import 'package:cardpay/src/utils/constants/signUp_string.dart';
+import 'package:cardpay/src/utils/constants/auth_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

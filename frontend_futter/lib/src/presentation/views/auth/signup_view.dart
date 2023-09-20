@@ -24,7 +24,7 @@ import 'package:cardpay/src/presentation/widgets/selections/phonenumber_drop_dow
 import 'package:cardpay/src/presentation/widgets/layout/auth_layout.dart';
 import 'package:cardpay/src/presentation/widgets/headings/main_heading.dart';
 import 'package:cardpay/src/presentation/widgets/text_inputs/input_field.dart';
-import 'package:cardpay/src/utils/constants/signUp_string.dart';
+import 'package:cardpay/src/utils/constants/auth_strings.dart';
 import 'package:cardpay/src/config/extensions/validation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -51,9 +51,11 @@ class SignupView extends HookWidget {
     final signupCubit = BlocProvider.of<SignupCubit>(context);
     final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
 
-    void onPhoneNumberChanged(String newValue) {
-      dropdownValue.value = newValue;
-    }
+    useEffect(() {
+      return () {
+        phoneNumberController.dispose();
+      };
+    }, []);
 
     void _showOTPBottomSheet() {
       showModalBottomSheet(
@@ -73,49 +75,6 @@ class SignupView extends HookWidget {
         },
       );
     }
-
-    Widget _buildLoginText() {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-            AppStrings.alreadyHaveAccount,
-            style: AppTypography.bodyText,
-          ),
-          const WidthBetween(),
-          GestureDetector(
-            onTap: () {
-              context.router.push(const LoginRoute());
-            },
-            child: Text(
-              AppStrings.logIn,
-              style: AppTypography.linkText,
-            ),
-          ),
-        ],
-      );
-    }
-
-    void handleCreateAccount() async {
-      showTermsError.value = true;
-
-      if (!formKey.currentState!.validate()) {
-        return;
-      }
-
-      await signupCubit.createCustomer(
-        personalEmail.value,
-        phoneNumber.value,
-        fullName.value,
-        password.value,
-      );
-    }
-
-    useEffect(() {
-      return () {
-        phoneNumberController.dispose();
-      };
-    }, []);
 
     void _showDialog(bool showMaybeLaterButton) {
       showDialog(
@@ -153,6 +112,25 @@ class SignupView extends HookWidget {
             ),
           ],
         ),
+      );
+    }
+
+    void onPhoneNumberChanged(String newValue) {
+      dropdownValue.value = newValue;
+    }
+
+    void handleCreateAccount() async {
+      showTermsError.value = true;
+
+      if (!formKey.currentState!.validate()) {
+        return;
+      }
+
+      await signupCubit.createCustomer(
+        personalEmail.value,
+        phoneNumber.value,
+        fullName.value,
+        password.value,
       );
     }
 
@@ -208,7 +186,7 @@ class SignupView extends HookWidget {
                         context.router.push(const LoginRoute());
                       } else if (state.eventCodes == EventCodes.OTP_VERIFIED) {
                         closedLoopCubit.getAllClosedLoops();
-                        context.router.push(const RegisterOrganizationRoute());
+                        context.router.push(const ClosedLoopRoute());
                       }
                       break;
                   }
@@ -228,7 +206,25 @@ class SignupView extends HookWidget {
                   }
                 },
               ),
-              _buildLoginText(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    AppStrings.alreadyHaveAccount,
+                    style: AppTypography.bodyText,
+                  ),
+                  const WidthBetween(),
+                  GestureDetector(
+                    onTap: () {
+                      context.router.push(const LoginRoute());
+                    },
+                    child: Text(
+                      AppStrings.logIn,
+                      style: AppTypography.linkText,
+                    ),
+                  ),
+                ],
+              ),
               const HeightBox(slab: 4),
               CustomInputField(
                 label: AppStrings.username,

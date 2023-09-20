@@ -1,24 +1,25 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cardpay/src/presentation/views/feature_service/faqs_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/payment_dashboard_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/qr_view.dart';
-import 'package:cardpay/src/presentation/views/feature_service/profile_view.dart';
-import 'package:cardpay/src/presentation/views/splash_view.dart';
-import 'package:cardpay/src/presentation/views/intro_view.dart';
-import 'package:cardpay/src/presentation/views/authentification_service/signup_view.dart';
-import 'package:cardpay/src/presentation/views/authentification_service/register_organisation_view.dart';
-import 'package:cardpay/src/presentation/views/authentification_service/login_view.dart';
-import 'package:cardpay/src/presentation/views/authentification_service/pin_view.dart';
-import 'package:cardpay/src/presentation/views/dashboard_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/deposite_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/transfer_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/request_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/send_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/history_transaction_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/request_amount_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/filtered_history_view.dart';
-import 'package:cardpay/src/presentation/views/transaction_service/confirmation_view.dart';
-import 'package:cardpay/src/presentation/views/feature_service/edit_profile_view.dart';
+import 'package:cardpay/src/presentation/views/faqs_view.dart';
+import 'package:cardpay/src/presentation/views/dashboard_layout_view.dart';
+import 'package:cardpay/src/presentation/views/intro/intro_view.dart';
+import 'package:cardpay/src/presentation/views/intro/splash_view_animated.dart';
+import 'package:cardpay/src/presentation/views/payment/deposit_amount_view.dart';
+import 'package:cardpay/src/presentation/views/payment/qr_amount_view.dart';
+import 'package:cardpay/src/presentation/views/payment/qr_view.dart';
+import 'package:cardpay/src/presentation/views/payment/request_amount_view.dart';
+import 'package:cardpay/src/presentation/views/payment/request_sender_view.dart';
+import 'package:cardpay/src/presentation/views/payment/transfer_amount_view.dart';
+import 'package:cardpay/src/presentation/views/payment/transfer_recipient_view.dart';
+import 'package:cardpay/src/presentation/views/profile/edit_profile_view.dart';
+import 'package:cardpay/src/presentation/views/profile/profile_view.dart';
+import 'package:cardpay/src/presentation/views/auth/signup_view.dart';
+import 'package:cardpay/src/presentation/views/auth/closed_loop_view.dart';
+import 'package:cardpay/src/presentation/views/auth/login_view.dart';
+import 'package:cardpay/src/presentation/views/auth/pin_view.dart';
+import 'package:cardpay/src/presentation/views/payment/payment_dashboard_view.dart';
+import 'package:cardpay/src/presentation/views/payment/transactions_view.dart';
+import 'package:cardpay/src/presentation/views/payment/detailed_transactions_view.dart';
+import 'package:cardpay/src/presentation/views/payment/receipt_view.dart';
 
 import 'package:flutter/material.dart';
 
@@ -38,7 +39,7 @@ class AppRouter extends _$AppRouter {
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: RegisterOrganizationRoute.page,
+          page: ClosedLoopRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
@@ -50,27 +51,27 @@ class AppRouter extends _$AppRouter {
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: DashboardRoute.page,
+          page: DashboardLayoutRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: DepositRoute.page,
+          page: DepositAmountRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: TransferRoute.page,
+          page: TransferRecipientRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: RequestRoute.page,
+          page: QrAmountRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: SendRoute.page,
+          page: TransferAmountRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: TransactionHistoryRoute.page,
+          page: TransactionsRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
@@ -78,11 +79,15 @@ class AppRouter extends _$AppRouter {
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: FilterHistoryRoute.page,
+          page: RequestSenderRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
-          page: ConfirmationRoute.page,
+          page: DetailedTransactionsRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: ReceiptRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(

@@ -2,7 +2,7 @@ import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/utils/constants/signUp_string.dart';
+import 'package:cardpay/src/utils/constants/auth_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,18 +11,18 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/containment/confirmation_dialog.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
-import 'package:cardpay/src/utils/constants/payment_string.dart';
 import 'package:intl/intl.dart';
+import 'package:cardpay/src/utils/constants/payment_strings.dart';
 
 @RoutePage()
-class ConfirmationView extends HookWidget {
+class ReceiptView extends HookWidget {
   final int amount;
-  final String uniqueIdentifier;
+  final String recipientName;
 
-  const ConfirmationView({
+  const ReceiptView({
     super.key,
     required this.amount,
-    required this.uniqueIdentifier,
+    required this.recipientName,
   });
 
   @override
@@ -66,7 +66,7 @@ class ConfirmationView extends HookWidget {
       return Expanded(
         child: ConfirmationContainer(
           mainHeading1: PaymentStrings.send,
-          subHeading1: uniqueIdentifier,
+          subHeading1: recipientName,
           mainHeading2: AppStrings.date,
           subHeading2: dateToday,
         ),
@@ -105,7 +105,7 @@ class ConfirmationView extends HookWidget {
           PrimaryButton(
             text: PaymentStrings.done,
             color: AppColors.parrotColor,
-            onPressed: () => context.router.push(PaymentDashboardRoute()),
+            onPressed: () => context.router.push(DashboardLayoutRoute()),
           ),
           const HeightBox(slab: 5),
         ],

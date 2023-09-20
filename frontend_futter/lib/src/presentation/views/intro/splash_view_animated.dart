@@ -8,8 +8,8 @@ import 'dart:math';
 import 'package:cardpay/src/config/themes/colors.dart';
 
 @RoutePage()
-class SplashView extends HookWidget {
-  const SplashView({Key? key}) : super(key: key);
+class SplashViewAnimated extends HookWidget {
+  const SplashViewAnimated({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
