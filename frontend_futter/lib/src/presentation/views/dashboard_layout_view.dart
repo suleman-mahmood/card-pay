@@ -18,8 +18,8 @@ class DashboardLayoutView extends HookWidget {
 
   const DashboardLayoutView({
     Key? key,
-    this.showBottomBar = true,
     this.backgroundColor,
+    this.showBottomBar = true,
     this.useHorizontalPadding = true,
   }) : super(key: key);
 
