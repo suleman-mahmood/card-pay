@@ -1,12 +1,13 @@
-import pytest
 import os
+from uuid import uuid4
+
+import pytest
 import sentry_sdk
 from core.api.api import app as flask_app
 from core.authentication.domain import model as auth_mdl
-from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.entrypoint import commands as auth_cmd
+from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint.uow import UnitOfWork
-from uuid import uuid4
 
 
 @pytest.fixture(autouse=True)
@@ -19,11 +20,14 @@ def initialize_pytest_config(mocker):
 
     os.environ["EMAIL_USER"] = ""
     os.environ["EMAIL_PASSWORD"] = ""
+
+    # PayPro stuff
     os.environ["USERNAME"] = ""
     os.environ["CLIENT_ID"] = ""
     os.environ["CLIENT_SECRET"] = ""
     os.environ["PAYPRO_BASE_URL"] = ""
     os.environ["TOKEN_VALIDITY"] = ""
+
     os.environ["SMS_API_TOKEN"] = ""
     os.environ["SMS_API_SECRET"] = ""
     os.environ["RETOOL_SECRET"] = ""
@@ -39,9 +43,7 @@ def initialize_pytest_config(mocker):
         "core.authentication.entrypoint.firebase_service.update_password",
         return_value=None,
     )
-    mocker.patch(
-        "core.authentication.entrypoint.firebase_service.get_user", return_value=""
-    )
+    mocker.patch("core.authentication.entrypoint.firebase_service.get_user", return_value="")
 
 
 @pytest.fixture()
@@ -145,9 +147,7 @@ def _create_closed_loop_helper(client):
     return closed_loop_id
 
 
-def _register_user_in_closed_loop(
-    mocker, client, user_id, closed_loop_id, unique_identifier
-):
+def _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_identifier):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
 
     headers = {
@@ -161,9 +161,7 @@ def _register_user_in_closed_loop(
     )
 
 
-def _verify_user_in_closed_loop(
-    mocker, client, user_id, closed_loop_id, unique_identifier_otp
-):
+def _verify_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_identifier_otp):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     headers = {
         "Authorization": "Bearer pytest_auth_token",

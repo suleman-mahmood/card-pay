@@ -1,15 +1,16 @@
 """Payments micro-service commands"""
-import requests
-import os
-import logging
 import json
+import logging
+import os
 from datetime import datetime, timedelta
 from typing import List, Tuple
+
+import requests
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.domain import exceptions as pmt_mdl_ex
-from core.payment.entrypoint.exceptions import *
-from core.payment.entrypoint import utils
 from core.payment.entrypoint import commands as cmd
+from core.payment.entrypoint import utils
+from core.payment.entrypoint.exceptions import *
 
 
 def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
@@ -103,7 +104,7 @@ def get_deposit_checkout_url(
 ) -> str:
     auth_token = _get_paypro_auth_token(uow=uow)
 
-    now = datetime.now()
+    now = datetime.now(tz=None)
     date_hour_later = now + timedelta(hours=1)
 
     config = {

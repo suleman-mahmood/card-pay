@@ -1,12 +1,13 @@
-import pytest
-from core.authentication.tests.conftest import *
 from uuid import uuid4
-from core.payment.entrypoint import commands as pmt_cmd
+
+import pytest
+from core.authentication.domain import model as auth_mdl
+from core.authentication.tests.conftest import *
 from core.entrypoint.uow import AbstractUnitOfWork, FakeUnitOfWork
 from core.payment.domain import model as pmt_mdl
-from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import anti_corruption as acl
-from core.authentication.domain import model as auth_mdl
+from core.payment.entrypoint import commands as pmt_cmd
+from core.payment.entrypoint import exceptions as pmt_svc_ex
 
 
 def test_accept_p2p_pull_transaction(seed_verified_auth_user):
@@ -151,9 +152,7 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
     uow.transactions.add_1000_wallet(wallet_id=sender_customer.wallet_id)
 
     # test qr txn to invalid qr version
-    with pytest.raises(
-        pmt_svc_ex.InvalidQRVersionException, match="Invalid QR version"
-    ):
+    with pytest.raises(pmt_svc_ex.InvalidQRVersionException, match="Invalid QR version"):
         pmt_cmd.execute_qr_transaction(
             tx_id=str(uuid4()),
             amount=400,
@@ -283,12 +282,8 @@ def test_reconcile_vendor(
         pmt_svc=pmt_svc,
     )
 
-    sender_balance = uow.transactions.get_wallet(
-        wallet_id=sender_customer.wallet_id
-    ).balance
-    vendor_balance = uow.transactions.get_wallet(
-        wallet_id=recipient_vendor.wallet_id
-    ).balance
+    sender_balance = uow.transactions.get_wallet(wallet_id=sender_customer.wallet_id).balance
+    vendor_balance = uow.transactions.get_wallet(wallet_id=recipient_vendor.wallet_id).balance
 
     assert sender_balance == 400
     assert vendor_balance == 600
@@ -305,18 +300,14 @@ def test_reconcile_vendor(
     )
 
     cardpay_balance = uow.transactions.get_wallet(wallet_id=cardpay.wallet_id).balance
-    vendor_balance = uow.transactions.get_wallet(
-        wallet_id=recipient_vendor.wallet_id
-    ).balance
+    vendor_balance = uow.transactions.get_wallet(wallet_id=recipient_vendor.wallet_id).balance
 
     assert vendor_balance == 0
     assert cardpay_balance == 600
 
     # test reconciliation with zero balance
     pmt_svc.set_wallet_balance(0)
-    with pytest.raises(
-        pmt_svc_ex.TransactionFailedException, match="Amount is zero or negative"
-    ):
+    with pytest.raises(pmt_svc_ex.TransactionFailedException, match="Amount is zero or negative"):
         pmt_cmd.payment_retools_reconcile_vendor(
             tx_id=str(uuid4()),
             vendor_wallet_id=vendor_wallet.id,
@@ -350,43 +341,3 @@ def test_failing_txn(seed_verified_auth_user):
     assert fetched_failed_tx.amount == 1000
     assert fetched_failed_tx.status == pmt_mdl.TransactionStatus.FAILED
     uow.close_connection()
-
-
-# Keep these commented, only for testing at certain times
-
-# def test_get_paypro_token():
-# uow = UnitOfWork()
-
-# token = _get_paypro_auth_token(uow=uow)
-# sleep(1)
-# token_2 = _get_paypro_auth_token(uow=uow)
-
-# assert token == token_2
-
-
-# def test_get_deposit_checkout_url():
-# uow = UnitOfWork()
-
-# payment_url = get_deposit_checkout_url(
-# amount=500,
-# transaction_id=str(uuid4()),
-# email="test@tdd.com",
-# full_name="TDD test case",
-# phone_number="03333333333",
-# uow=uow,
-# )
-
-# assert payment_url is not None
-
-
-# def _get_latest_failed_txn_of_user(user_id: str, uow: AbstractUnitOfWork):
-#     sql = """
-#         select id from transactions txn
-#         where (sender_wallet_id = %s or recipient_wallet_id = %s)
-#         and status = 'FAILED'::transaction_status_enum
-#         order by created_at desc
-#     """
-#     uow.cursor.execute(sql, [user_id, user_id])
-#     rows = uow.cursor.fetchone()
-
-#     return uow.transactions.get(transaction_id=rows[0])
