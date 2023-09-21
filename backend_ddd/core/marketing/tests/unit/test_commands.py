@@ -1,9 +1,12 @@
-# from core.marketing.entrypoint import commands as mktg_cmd
-# from core.marketing.entrypoint import queries as mktg_qry
-# from core.entrypoint.uow import UnitOfWork, AbstractUnitOfWork
 # from core.payment.entrypoint import commands as pmt_cmd
 # from core.payment.entrypoint import queries as pmt_qry
-# from core.authentication.tests.conftest import seed_auth_user, seed_verified_auth_user
+from core.authentication.tests.conftest import *
+
+# from core.marketing.entrypoint import queries as mktg_qry
+from core.entrypoint.uow import FakeUnitOfWork
+from core.marketing.entrypoint import commands as mktg_cmd
+from core.marketing.tests.conftest import *
+
 # from core.marketing.tests.conftest import seed_starred_wallet
 # from uuid import uuid4
 # from core.payment.domain import model as pmt_mdl
@@ -90,32 +93,35 @@
 #     assert fetched_sender.loyalty_points == 1000
 
 
-# def test_use_reference_and_add_referral_loyalty_points(seed_verified_auth_user):
-#     uow = UnitOfWork()
-#     referee = seed_verified_auth_user(uow)
-#     referral = seed_verified_auth_user(uow)
-#     mktg_cmd.add_weightage(
-#         weightage_type="REFERRAL",
-#         weightage_value=10,
-#         uow=uow,
-#     )
-#     mktg_cmd.use_reference(
-#         referee_id=referee.id,
-#         referral_id=referral.id,
-#         uow=uow,
-#     )
+def test_use_reference(seed_marketing_user):
+    uow = FakeUnitOfWork()
 
-#     fetched_loyalty_points = mktg_qry.get_weightage(
-#         weightage_type="REFERRAL",
-#         uow=uow,
-#     ).weightage_value
-#     fetched_referee = mktg_qry.get_marketing_user(user_id=referee.id, uow=uow)
-#     fetched_referral = mktg_qry.get_marketing_user(
-#         user_id=referral.id, uow=uow
-#     )
+    referee = seed_marketing_user(uow)
+    referral = seed_marketing_user(uow)
 
-#     assert fetched_referee.referral_id == referral.id
-#     assert fetched_referral.loyalty_points == fetched_loyalty_points
+    mktg_cmd.add_weightage(
+        weightage_type="REFERRAL",
+        weightage_value=10,
+        uow=uow,
+    )
+
+    mktg_cmd.use_reference(
+        referee_id=referee.id,
+        referral_id=referral.id,
+        uow=uow,
+    )
+
+    fetched_referee = uow.marketing_users.get(id=referee.id)
+    fetched_referral = uow.marketing_users.get(id=referral.id)
+    assert fetched_referee.referral_id == referral.id
+    assert fetched_referral.loyalty_points == 10
+
+    # fetched_loyalty_points = mktg_qry.get_weightage(
+    #     weightage_type="REFERRAL",
+    #     uow=uow,
+    # ).weightage_value
+    # fetched_referee = mktg_qry.get_marketing_user(user_id=referee.id, uow=uow)
+    # fetched_referral = mktg_qry.get_marketing_user(user_id=referral.id, uow=uow)
 
 
 # def test_add_and_set_weightage():

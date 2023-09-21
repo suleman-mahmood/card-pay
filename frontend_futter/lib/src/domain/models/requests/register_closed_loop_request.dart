@@ -27,7 +27,18 @@ class RegisterClosedLoopRequest {
     };
   }
 
+  factory RegisterClosedLoopRequest.fromMap(Map<String, dynamic> map) {
+    return RegisterClosedLoopRequest(
+      closedLoopId: map['closed_loop_id'] as String,
+      uniqueIdentifier: map['unique_identifier'] as String,
+    );
+  }
+
   String toJson() => json.encode(toMap());
+
+  factory RegisterClosedLoopRequest.fromJson(String source) =>
+      RegisterClosedLoopRequest.fromMap(
+          json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() =>

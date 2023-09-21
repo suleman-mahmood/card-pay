@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
+from typing import Dict, List
+
+from core.marketing.adapters import exceptions as ex
+from core.marketing.domain import exceptions as mdl_ex
 from core.marketing.domain import model as mdl
 from core.payment.domain import model as pmt_mdl
-from core.marketing.domain import exceptions as ex
-
-from typing import List, Dict
 
 
-class MarkteingUserAbstractRepository(ABC):
-
+class MarketingUserAbstractRepository(ABC):
     @abstractmethod
     def get(self, id: str) -> mdl.User:
         pass
@@ -17,8 +17,7 @@ class MarkteingUserAbstractRepository(ABC):
         pass
 
 
-class MarketingUserRepository(MarkteingUserAbstractRepository):
-
+class MarketingUserRepository(MarketingUserAbstractRepository):
     def __init__(self, connection):
         self.connection = connection
         self.cursor = connection.cursor()
@@ -29,14 +28,12 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
             from users
             where id = %s
         """
-        self.cursor.execute(
-            sql,
-            [
-                id
-            ]
-        )
+        self.cursor.execute(sql, [id])
 
         row = self.cursor.fetchone()
+
+        if row is None:
+            raise ex.UserNotExists("The user doesn't exist in the database")
 
         return mdl.User(
             id=row[0],
@@ -54,18 +51,21 @@ class MarketingUserRepository(MarkteingUserAbstractRepository):
         """
         # Here users is the same table as in authentication microservice
 
-        self.cursor.execute(
-            sql,
-            [
-                user.loyalty_points,
-                user.referral_id,
-                user.id
-            ]
-        )
+        self.cursor.execute(sql, [user.loyalty_points, user.referral_id, user.id])
+
+
+class FakeMarketingUserRepository(MarketingUserAbstractRepository):
+    def __init__(self):
+        self.marketing_users: Dict[str, mdl.User] = {}
+
+    def get(self, id: str) -> mdl.User:
+        return self.marketing_users[id]
+
+    def save(self, user: mdl.User):
+        self.marketing_users[user.id] = user
 
 
 class WeightageAbstractRepository(ABC):
-
     @abstractmethod
     def get(self, weightage_type: pmt_mdl.TransactionType) -> mdl.Weightage:
         pass
@@ -76,7 +76,6 @@ class WeightageAbstractRepository(ABC):
 
 
 class FakeWeightageRepository(WeightageAbstractRepository):
-
     def __init__(self):
         self.weightages: Dict[str, mdl.Weightage] = {}
 
@@ -88,7 +87,6 @@ class FakeWeightageRepository(WeightageAbstractRepository):
 
 
 class WeightageRepository(WeightageAbstractRepository):
-
     def __init__(self, connection):
         self.connection = connection
         self.cursor = connection.cursor()
@@ -103,16 +101,14 @@ class WeightageRepository(WeightageAbstractRepository):
             sql,
             [
                 weightage_type.name,
-            ]
+            ],
         )
 
         row = self.cursor.fetchone()
 
         if row is None:
-            raise ex.WeightageNotFoundException(
-                "Weightage not found"
-            )        
-        
+            raise mdl_ex.WeightageNotFoundException("Weightage not found")
+
         return mdl.Weightage(
             weightage_type=pmt_mdl.TransactionType[row[0]],
             weightage_value=row[1],
@@ -126,17 +122,10 @@ class WeightageRepository(WeightageAbstractRepository):
             set weightage_type = excluded.weightage_type,
             weightage_value = excluded.weightage_value
         """
-        self.cursor.execute(
-            sql,
-            [
-                weightage.weightage_type.name,
-                weightage.weightage_value
-            ]
-        )
+        self.cursor.execute(sql, [weightage.weightage_type.name, weightage.weightage_value])
 
 
 class CashbackSlabAbstractRepository(ABC):
-
     @abstractmethod
     def get_all(self) -> mdl.AllCashbacks:
         pass
@@ -147,7 +136,6 @@ class CashbackSlabAbstractRepository(ABC):
 
 
 class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
-
     def __init__(self):
         self.cashback_slabs: List[mdl.CashbackSlab] = []
 
@@ -160,7 +148,6 @@ class FakeCashbackSlabRepository(CashbackSlabAbstractRepository):
 
 
 class CashbackSlabRepository(CashbackSlabAbstractRepository):
-
     def __init__(self, connection):
         self.connection = connection
         self.cursor = connection.cursor()
@@ -188,12 +175,9 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
                 )
             )
 
-        return mdl.AllCashbacks(
-            cashback_slabs=cashback_slabs
-        )
+        return mdl.AllCashbacks(cashback_slabs=cashback_slabs)
 
     def save_all(self, all_cashbacks: mdl.AllCashbacks):
-
         sql_del = """
             delete from cashback_slabs
             """
@@ -213,19 +197,13 @@ class CashbackSlabRepository(CashbackSlabAbstractRepository):
                 cashback_slab.end_amount,
                 cashback_slab.cashback_type.name,
                 cashback_slab.cashback_value,
-                cashback_slab.id
+                cashback_slab.id,
             )
             for cashback_slab in all_cashbacks.cashback_slabs
         ]
 
-        args_str = ','.join(
-            self.cursor.mogrify(
-                "(%s,%s,%s,%s,%s)",
-                x
-            ).decode("utf-8")
-            for x in args
+        args_str = ",".join(
+            self.cursor.mogrify("(%s,%s,%s,%s,%s)", x).decode("utf-8") for x in args
         )
 
-        self.cursor.execute(
-            sql + args_str
-        )
+        self.cursor.execute(sql + args_str)

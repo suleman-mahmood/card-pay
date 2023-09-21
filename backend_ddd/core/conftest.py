@@ -172,6 +172,7 @@ def _verify_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_
         json={
             "closed_loop_id": closed_loop_id,
             "unique_identifier_otp": unique_identifier_otp,
+            "referral_unique_identifier": "",
         },
         headers=headers,
     )

@@ -26,6 +26,7 @@ class ClosedLoopView extends HookWidget {
   Widget build(BuildContext context) {
     final showRollNumberField = useState<bool>(false);
     final uniqueIdentifier = useState<String>('');
+    final referralUniqueIdentifier = useState<String>('');
     final selectedClosedLoop = useState<ClosedLoop>(ClosedLoop());
     final formKey = useMemoized(() => GlobalKey<FormState>());
 
@@ -45,6 +46,7 @@ class ClosedLoopView extends HookWidget {
                 onAction: (otp) => closedLoopCubit.verifyClosedLoop(
                   selectedClosedLoop.value.id,
                   otp,
+                  referralUniqueIdentifier.value,
                 ),
               ),
             ),
@@ -117,20 +119,41 @@ class ClosedLoopView extends HookWidget {
             maintainSize: false,
             child: Form(
               key: formKey,
-              child: CustomInputField(
-                label: AppStrings.rollNumber,
-                hint: AppStrings.enterRollNumber,
-                onChanged: (v) => uniqueIdentifier.value = v,
-                validator: (uniqueIdentifierValue) {
-                  if (uniqueIdentifierValue == null) {
-                    return AppStrings.nullRollNumber;
-                  }
-                  final regExp = RegExp(selectedClosedLoop.value.regex);
-                  if (!regExp.hasMatch(uniqueIdentifierValue)) {
-                    return AppStrings.invalidRollNumber;
-                  }
-                  return null;
-                },
+              child: Column(
+                children: [
+                  CustomInputField(
+                    label: AppStrings.rollNumber,
+                    hint: AppStrings.enterRollNumber,
+                    onChanged: (v) => uniqueIdentifier.value = v,
+                    validator: (uniqueIdentifierValue) {
+                      if (uniqueIdentifierValue == null) {
+                        return AppStrings.nullRollNumber;
+                      }
+                      final regExp = RegExp(selectedClosedLoop.value.regex);
+                      if (!regExp.hasMatch(uniqueIdentifierValue)) {
+                        return AppStrings.invalidRollNumber;
+                      }
+                      return null;
+                    },
+                  ),
+                  const HeightBox(slab: 2),
+                  CustomInputField(
+                    label: AppStrings.referralRollNumber,
+                    hint: AppStrings.enterRollNumber,
+                    onChanged: (v) => referralUniqueIdentifier.value = v,
+                    validator: (referralUniqueIdentifierValue) {
+                      if (referralUniqueIdentifierValue == null ||
+                          referralUniqueIdentifierValue == '') {
+                        return null;
+                      }
+                      final regExp = RegExp(selectedClosedLoop.value.regex);
+                      if (!regExp.hasMatch(referralUniqueIdentifierValue)) {
+                        return AppStrings.invalidRollNumber;
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
             ),
           ),

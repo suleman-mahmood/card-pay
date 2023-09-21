@@ -1,14 +1,14 @@
 """unit of work"""
 import os
 from abc import ABC, abstractmethod
-import psycopg2
 
-from psycopg2.extensions import adapt, register_adapter, AsIs
-from psycopg2.extras import DictCursor
-from core.authentication.domain import model as auth_mdl
-from core.payment.adapters import repository as pmt_repo
+import psycopg2
 from core.authentication.adapters import repository as auth_repo
+from core.authentication.domain import model as auth_mdl
 from core.marketing.adapters import repository as mktg_repo
+from core.payment.adapters import repository as pmt_repo
+from psycopg2.extensions import AsIs, adapt, register_adapter
+from psycopg2.extras import DictCursor
 
 
 def adapt_point(point: auth_mdl.Location):
@@ -21,7 +21,7 @@ class AbstractUnitOfWork(ABC):
     users: auth_repo.UserAbstractRepository
     closed_loops: auth_repo.ClosedLoopAbstractRepository
     transactions: pmt_repo.TransactionAbstractRepository
-    marketing_users: mktg_repo.MarkteingUserAbstractRepository
+    marketing_users: mktg_repo.MarketingUserAbstractRepository
     cashback_slabs: mktg_repo.CashbackSlabAbstractRepository
     weightages: mktg_repo.WeightageAbstractRepository
 
@@ -54,6 +54,7 @@ class AbstractUnitOfWork(ABC):
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
         self.users = auth_repo.FakeUserRepository()
+        self.marketing_users = mktg_repo.FakeMarketingUserRepository()
         self.closed_loops = auth_repo.FakeClosedLoopRepository()
         self.transactions = pmt_repo.FakeTransactionRepository()
         self.cashback_slabs = mktg_repo.FakeCashbackSlabRepository()

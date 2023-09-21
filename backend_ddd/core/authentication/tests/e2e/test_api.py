@@ -1,18 +1,18 @@
-from random import randint
+import os
 from json import loads
+from random import randint
 from uuid import uuid4
 
 from core.api import utils
-from core.authentication.entrypoint import queries as auth_qry
 from core.authentication.entrypoint import commands as auth_cmd
-from core.entrypoint.uow import UnitOfWork
+from core.authentication.entrypoint import queries as auth_qry
 from core.conftest import (
-    _verify_phone_number,
     _create_closed_loop_helper,
     _register_user_in_closed_loop,
+    _verify_phone_number,
     _verify_user_in_closed_loop,
 )
-import os
+from core.entrypoint.uow import UnitOfWork
 
 
 def _get_random_unique_identifier() -> str:
@@ -164,9 +164,7 @@ def test_get_all_closed_loops_api(seed_api_customer, mocker, client):
         headers=headers,
     )
 
-    response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers
-    )
+    response = client.get("http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers)
 
     payload = loads(response.data.decode())
     assert payload["message"] == "User is not verified"
@@ -174,9 +172,7 @@ def test_get_all_closed_loops_api(seed_api_customer, mocker, client):
 
     _verify_phone_number(user_id, mocker, client)
 
-    response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers
-    )
+    response = client.get("http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers)
 
     assert closed_loop_id_2 in [
         closed_loop["id"] for closed_loop in loads(response.data.decode())["data"]
@@ -255,6 +251,7 @@ def test_verify_closed_loop_api(seed_api_customer, seed_api_cardpay, mocker, cli
         json={
             "closed_loop_id": closed_loop_id,
             "unique_identifier_otp": otp,
+            "referral_unique_identifier": "",
         },
         headers=headers,
     )
@@ -368,9 +365,7 @@ def test_get_user_balance_api(seed_api_customer, mocker, client):
         "Content-Type": "application/json",
     }
 
-    response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers
-    )
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers)
 
     payload = loads(response.data.decode())
 
@@ -378,9 +373,7 @@ def test_get_user_balance_api(seed_api_customer, mocker, client):
     assert payload["message"] == "User is not verified"
 
     _verify_phone_number(user_id, mocker, client)
-    response = client.get(
-        "http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers
-    )
+    response = client.get("http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers)
 
     assert (
         loads(response.data.decode())

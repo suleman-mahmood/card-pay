@@ -10,6 +10,7 @@ from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint import queries as app_queries
 from core.entrypoint.uow import UnitOfWork
+from core.marketing.adapters import exceptions as mktg_repo_ex
 from core.marketing.domain import exceptions as mktg_mdl_ex
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.payment.domain import exceptions as pmt_mdl_ex
@@ -284,6 +285,8 @@ def register_closed_loop(uid):
     required_parameters={
         "closed_loop_id": sch.UuidSchema,
         "unique_identifier_otp": sch.OtpSchema,
+        # TODO: change this when closed loops other than LUMS are added
+        "referral_unique_identifier": sch.LUMSReferralRollNumberSchema,
     }
 )
 def verify_closed_loop(uid):
@@ -314,15 +317,30 @@ def verify_closed_loop(uid):
                 )
             except pmt_svc_ex.TransactionFailedException:
                 pass
+
+        if req["referral_unique_identifier"] != "":
+            wallet_id = pmt_qry.get_wallet_id_from_unique_identifier(
+                unique_identifier=req["referral_unique_identifier"],
+                closed_loop_id=req["closed_loop_id"],
+                uow=uow,
+            )
+            mktg_cmd.use_reference(
+                referee_id=uid,
+                referral_id=wallet_id,
+                uow=uow,
+            )
         uow.commit_close_connection()
     except (
         auth_mdl_ex.ClosedLoopException,
         auth_mdl_ex.VerificationException,
         auth_mdl_ex.InvalidOtpException,
         pmt_mdl_ex.TransactionNotAllowedException,
+        pmt_svc_ex.UserDoesNotExistException,
+        mktg_repo_ex.UserNotExists,
         mktg_mdl_ex.NegativeAmountException,
         mktg_mdl_ex.InvalidTransactionTypeException,
         mktg_mdl_ex.NotVerifiedException,
+        mktg_mdl_ex.InvalidReferenceException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))

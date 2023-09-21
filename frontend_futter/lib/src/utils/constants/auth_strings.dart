@@ -72,6 +72,7 @@ class AppStrings {
   static const String sign = 'Sign in to your organization to get started';
   static const String enterRollNumber = 'Enter your Roll Number';
   static const String rollNumber = 'Roll Number';
+  static const String referralRollNumber = 'Referral roll Number (optional)';
   static const String create = 'Create Account';
   static const String phone = 'Phone Number';
   static const String enterPhoneNUmber = '+92';

@@ -94,11 +94,12 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, List<ClosedLoop>> {
   Future<void> verifyClosedLoop(
     String closedLoopId,
     String uniqueIdentifierOtp,
+    String referralUniqueIdentifier,
   ) async {
     if (isBusy) return;
 
     await run(() async {
-      emit(ClosedLoopLoading());
+      emit(const ClosedLoopLoading());
 
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
@@ -107,6 +108,7 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, List<ClosedLoop>> {
         request: VerifyClosedLoopRequest(
           closedLoopId: closedLoopId,
           uniqueIdentifierOtp: uniqueIdentifierOtp,
+          referralUniqueIdentifier: referralUniqueIdentifier,
         ),
         token: token,
       );
