@@ -1,17 +1,16 @@
 """Authentication commands"""
 from typing import Optional, Tuple
 
-from core.entrypoint.uow import AbstractUnitOfWork
-from core.comms.entrypoint import commands as comms_cmd
 from core.api import utils
 from core.api.event_codes import EventCode
-from core.authentication.entrypoint import exceptions as svc_ex
-from core.payment.entrypoint import commands as pmt_cmd
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import anti_corruption as acl
+from core.authentication.entrypoint import exceptions as svc_ex
+from core.comms.entrypoint import commands as comms_cmd
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.payment.entrypoint import commands as pmt_cmd
 
 LUMS_CLOSED_LOOP_ID = "f23a19c5-040c-4924-830d-d1b687238c2b"
-PAYPRO_USER_ID = "bd85b580-9510-4596-afc4-b737eeb3d492"
 
 
 def create_closed_loop(
@@ -30,9 +29,7 @@ def create_closed_loop(
         logo_url=logo_url,
         description=description,
         regex=regex,
-        verification_type=auth_mdl.ClosedLoopVerificationType.__members__[
-            verification_type
-        ],
+        verification_type=auth_mdl.ClosedLoopVerificationType.__members__[verification_type],
     )
     uow.closed_loops.add(closed_loop)
 
@@ -247,12 +244,21 @@ def verify_closed_loop(
     unique_identifier = user.closed_loops[closed_loop_id].unique_identifier
     assert unique_identifier is not None
 
+    # TODO: combine these in the service
     try:
         firestore_user_id = auth_svc.user_id_from_firestore(
             unique_identifier=unique_identifier, uow=uow
         )
     except svc_ex.UserNotInFirestore:
         # This is not an old LUMS user, so just return
+        return False, 0
+
+    try:
+        fetched_wallet_balance = auth_svc.wallet_balance_from_firestore(
+            user_id=firestore_user_id, uow=uow
+        )
+    except svc_ex.WalletNotInFirestore:
+        print("svc_ex.WalletNotInFirestore")
         return False, 0
 
     sql = """
@@ -267,12 +273,7 @@ def verify_closed_loop(
 
     uow.dict_cursor.execute(sql, {"user_id": firestore_user_id})
 
-    try:
-        fetched_wallet_balance = auth_svc.wallet_balance_from_firestore(
-            user_id=firestore_user_id, uow=uow
-        )
-    except svc_ex.WalletNotInFirestore:
-        return False, 0
+    print(f"Wallet balance {fetched_wallet_balance}")
 
     return True, fetched_wallet_balance
 

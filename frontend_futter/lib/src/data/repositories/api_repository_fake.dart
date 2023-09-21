@@ -6,7 +6,6 @@ import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
-import 'package:cardpay/src/domain/models/requests/get_full_name_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
@@ -292,12 +291,13 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     );
   }
 
-  Future<DataState<GetFullNameResponse>> getFullNameRequest({
-    required GetFullNameRequest request,
+  Future<DataState<GetFullNameResponse>> getFullName({
+    required String uniqueIdentifier,
+    required String closedLoopId,
     required String token,
   }) {
-    GetFullNameResponse getFullNameRequest = GetFullNameResponse(
-      fullName: 'Talha',
+    GetFullNameResponse getFullNameRequest = const GetFullNameResponse(
+      fullName: 'Schrodinger Catu',
       message: 'User name successfully',
     );
 

@@ -92,7 +92,7 @@ class PinView extends HookWidget {
                     recentTransactionsCubit.getUserRecentTransactions();
 
                     context.router.pushAndPopUntil(
-                      PaymentDashboardRoute(),
+                      DashboardLayoutRoute(),
                       predicate: (route) => route.data?.name == "IntroRoute",
                     );
                 }

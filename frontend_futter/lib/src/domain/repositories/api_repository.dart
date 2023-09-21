@@ -4,7 +4,6 @@ import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
-import 'package:cardpay/src/domain/models/requests/get_full_name_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
@@ -24,7 +23,6 @@ import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
-import 'package:cardpay/src/domain/models/requests/get_full_name_request.dart';
 
 import 'package:cardpay/src/utils/data_state.dart';
 
@@ -87,8 +85,9 @@ abstract class ApiRepository {
   );
   Future<DataState<GetVersionsResponse>> getVersions();
 
-  Future<DataState<GetFullNameResponse>> getFullNameRequest({
-    required GetFullNameRequest request,
+  Future<DataState<GetFullNameResponse>> getFullName({
+    required String uniqueIdentifier,
+    required String closedLoopId,
     required String token,
   });
 }

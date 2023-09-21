@@ -4,7 +4,7 @@ const String appTitle = 'CardPay';
 // Networking and APIs
 const String localhostUrl = 'http://127.0.0.1:5000';
 const String appEngineUrl = 'https://cardpay-1.el.r.appspot.com';
-const String ngrokUrl = 'https://8337-111-68-103-169.ngrok-free.app';
+const String ngrokUrl = 'https://d7fd-221-120-220-11.ngrok-free.app';
 
 const String baseUrl = '$appEngineUrl/api/v1';
 

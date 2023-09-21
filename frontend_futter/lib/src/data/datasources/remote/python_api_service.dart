@@ -4,7 +4,6 @@ import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
-import 'package:cardpay/src/domain/models/requests/get_full_name_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
@@ -117,8 +116,9 @@ abstract class PythonApiService {
   Future<HttpResponse<GetVersionsResponse>> getVersions();
 
   @GET('/get-name-from-unique-identifier-and-closed-loop')
-  Future<HttpResponse<GetFullNameResponse>> getFullNameRequest({
-    @Body() GetFullNameRequest? getFullNameRequest,
-    @Header("Authorization") String? token,
+  Future<HttpResponse<GetFullNameResponse>> getFullName({
+    @Query("unique_identifier") required String uniqueIdentifier,
+    @Query("closed_loop_id") required String closedLoopId,
+    @Header("Authorization") required String token,
   });
 }

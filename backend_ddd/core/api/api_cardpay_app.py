@@ -1,25 +1,24 @@
-from flask import Blueprint, request
 from uuid import uuid4
 
-
-from core.api import utils
-from core.entrypoint.uow import UnitOfWork
-from core.payment.entrypoint import commands as pmt_cmd
-from core.payment.domain import model as pmt_mdl
-from core.payment.entrypoint import queries as pmt_qry
-from core.payment.domain import exceptions as pmt_mdl_ex
-from core.payment.entrypoint import exceptions as pmt_svc_ex
-from core.authentication.entrypoint import queries as auth_qry
-from core.authentication.domain.model import UserType
-from core.marketing.entrypoint import commands as mktg_cmd
-from core.marketing.domain import exceptions as mktg_mdl_ex
-from core.authentication.entrypoint import commands as auth_cmd
-from core.authentication.domain import exceptions as auth_mdl_ex
-from core.authentication.entrypoint import exceptions as auth_svc_ex
-from core.authentication.entrypoint import anti_corruption as auth_acl
-from core.entrypoint import queries as app_queries
 from core.api import schemas as sch
+from core.api import utils
+from core.authentication.domain import exceptions as auth_mdl_ex
+from core.authentication.domain.model import UserType
+from core.authentication.entrypoint import anti_corruption as auth_acl
+from core.authentication.entrypoint import commands as auth_cmd
+from core.authentication.entrypoint import exceptions as auth_svc_ex
+from core.authentication.entrypoint import queries as auth_qry
+from core.entrypoint import queries as app_queries
+from core.entrypoint.uow import UnitOfWork
+from core.marketing.domain import exceptions as mktg_mdl_ex
+from core.marketing.entrypoint import commands as mktg_cmd
+from core.payment.domain import exceptions as pmt_mdl_ex
+from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
+from core.payment.entrypoint import commands as pmt_cmd
+from core.payment.entrypoint import exceptions as pmt_svc_ex
+from core.payment.entrypoint import queries as pmt_qry
+from flask import Blueprint, request
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
@@ -854,8 +853,9 @@ def get_latest_force_update_version():
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
-def get_name_from_unique_identifier_and_closed_loop():
+def get_name_from_unique_identifier_and_closed_loop(uid):
     uow = UnitOfWork()
+
     try:
         full_name = auth_qry.get_full_name_from_unique_identifier_and_closed_loop(
             unique_identifier=request.args.get("unique_identifier"),
@@ -863,9 +863,14 @@ def get_name_from_unique_identifier_and_closed_loop():
             uow=uow,
         )
         uow.close_connection()
+
     except auth_svc_ex.UserNotFoundException as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
 
     return utils.Response(
         message="User full name returned successfully",

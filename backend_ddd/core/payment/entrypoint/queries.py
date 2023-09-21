@@ -1,5 +1,6 @@
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
+
 from core.authentication.domain import model as auth_mdl
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import exceptions as pmt_svc_ex
@@ -74,9 +75,7 @@ def get_wallet_id_from_unique_identifier(
     row = uow.cursor.fetchall()
 
     if len(row) == 0:
-        raise pmt_svc_ex.UserDoesNotExistException(
-            f"No user found against {unique_identifier}"
-        )
+        raise pmt_svc_ex.UserDoesNotExistException(f"No user found against {unique_identifier}")
     assert len(row) == 1
 
     return row[0]
@@ -103,16 +102,30 @@ def get_all_successful_transactions_of_a_user(
 ) -> List[pmt_vm.TransactionWithIdsDTO]:
     """generel fuction | Get all transactions of a user"""
     sql = """
-        select txn.id, txn.amount, txn.mode, txn.transaction_type, txn.status, txn.created_at, txn.last_updated,
-        txn.sender_wallet_id, txn.recipient_wallet_id,
-        sender.full_name AS sender_name,
-        recipient.full_name AS recipient_name
-        from transactions txn
-        inner join users sender on txn.sender_wallet_id = sender.id
-        inner join users recipient on txn.recipient_wallet_id = recipient.id
-        where txn.sender_wallet_id = %s or txn.recipient_wallet_id = %s
-        and txn.status = 'SUCCESSFUL'::transaction_status_enum
-        order by txn.created_at desc
+        select 
+            txn.id, 
+            txn.amount, 
+            txn.mode, 
+            txn.transaction_type, 
+            txn.status, 
+            txn.created_at, 
+            txn.last_updated,
+            txn.sender_wallet_id,
+            txn.recipient_wallet_id,
+            sender.full_name AS sender_name,
+            recipient.full_name AS recipient_name
+        from 
+            transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+        where 
+            (
+                txn.sender_wallet_id = %s 
+                or txn.recipient_wallet_id = %s
+            )
+            and txn.status = 'SUCCESSFUL'::transaction_status_enum
+        order by 
+            txn.created_at desc
         limit %s offset %s
     """
     uow.cursor.execute(sql, [user_id, user_id, page_size, offset])
@@ -194,9 +207,7 @@ def payment_retools_get_customers_and_ventors_of_selected_closed_loop(
         for row in rows
     ]
 
-    counts = [
-        {"customers": len(customers), "vendors": len(vendors), "total": user_count}
-    ]
+    counts = [{"customers": len(customers), "vendors": len(vendors), "total": user_count}]
 
     return customers, vendors, counts
 
@@ -384,12 +395,8 @@ def payment_retools_get_reconciled_transactions(
     vendor_id: str,
     uow: AbstractUnitOfWork,
 ) -> List[pmt_vm.TransactionWithIdsDTO]:
-    datetime_obj = datetime.strptime(
-        reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z"
-    )
-    formatted_reconciliation_timestamp = datetime_obj.strftime(
-        "%Y-%m-%d %H:%M:%S.%f"
-    )
+    datetime_obj = datetime.strptime(reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z")
+    formatted_reconciliation_timestamp = datetime_obj.strftime("%Y-%m-%d %H:%M:%S.%f")
 
     # NOTE: the above time is not perfect to the millisecond
     previous_vendor_reconciliation_timestamp = """
@@ -432,15 +439,11 @@ def payment_retools_get_reconciled_transactions(
 
     if row[0] is not None:
         previous_reconciliation_timestamp = row[0]
-        sql += (
-            f" and txn.last_updated >= '{str(previous_reconciliation_timestamp)}'"
-        )
+        sql += f" and txn.last_updated >= '{str(previous_reconciliation_timestamp)}'"
 
     sql += " order by txn.last_updated desc"
 
-    uow.cursor.execute(
-        sql, [vendor_id, vendor_id, str(formatted_reconciliation_timestamp)]
-    )
+    uow.cursor.execute(sql, [vendor_id, vendor_id, str(formatted_reconciliation_timestamp)])
     rows = uow.cursor.fetchall()
 
     transactions = [
@@ -506,10 +509,7 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
     uow.cursor.execute(sql, [closed_loop_id])
     rows = uow.cursor.fetchall()
 
-    vendors = [
-        pmt_vm.VendorQrIdDTO(id=row[0], full_name=row[1], qr_id=row[2])
-        for row in rows
-    ]
+    vendors = [pmt_vm.VendorQrIdDTO(id=row[0], full_name=row[1], qr_id=row[2]) for row in rows]
 
     return vendors
 

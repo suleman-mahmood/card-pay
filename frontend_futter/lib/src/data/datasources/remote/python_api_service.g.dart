@@ -450,17 +450,19 @@ class _PythonApiService implements PythonApiService {
   }
 
   @override
-  Future<HttpResponse<GetFullNameResponse>> getFullNameRequest({
-    GetFullNameRequest? getFullNameRequest,
-    String? token,
+  Future<HttpResponse<GetFullNameResponse>> getFullName({
+    required String uniqueIdentifier,
+    required String closedLoopId,
+    required String token,
   }) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
+    final queryParameters = <String, dynamic>{
+      r'unique_identifier': uniqueIdentifier,
+      r'closed_loop_id': closedLoopId,
+    };
     final _headers = <String, dynamic>{r'Authorization': token};
     _headers.removeWhere((k, v) => v == null);
-    final _data = <String, dynamic>{};
-    _data.addAll(getFullNameRequest?.toMap() ?? <String, dynamic>{});
+    final Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<HttpResponse<GetFullNameResponse>>(Options(
       method: 'GET',

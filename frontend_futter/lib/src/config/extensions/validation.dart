@@ -1,4 +1,4 @@
-extension stringAddOns on String {
+extension StringAddons on String {
   bool get isValidLumsRollNumber {
     final rollNumberRegExp = RegExp(r"^[0-9]{8}$");
     return rollNumberRegExp.hasMatch(this);

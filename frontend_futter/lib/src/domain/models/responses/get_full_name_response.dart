@@ -21,7 +21,7 @@ class GetFullNameResponse {
 
   factory GetFullNameResponse.fromMap(Map<String, dynamic> map) {
     return GetFullNameResponse(
-      fullName: map['data'] ?? '',
+      fullName: map['data']["full_name"] ?? '',
       message: map['message'] ?? '',
     );
   }

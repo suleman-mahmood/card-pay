@@ -1,4 +1,3 @@
-import 'package:cardpay/src/domain/models/requests/get_full_name_request.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/data_state.dart';
@@ -23,11 +22,9 @@ class FullNameCubit extends BaseCubit<FullNameState, void> {
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
-      final response = await _apiRepository.getFullNameRequest(
-        request: GetFullNameRequest(
-          uniqueIdentifier: uniqueIdentifier,
-          closedLoopId: closedLoopId,
-        ),
+      final response = await _apiRepository.getFullName(
+        uniqueIdentifier: uniqueIdentifier,
+        closedLoopId: closedLoopId,
         token: token,
       );
 

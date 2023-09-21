@@ -1,15 +1,16 @@
 """Payments micro-service commands"""
 from datetime import datetime
 from uuid import uuid4
-from core.entrypoint.uow import AbstractUnitOfWork
-from core.payment.domain import model as pmt_mdl
+
 from core.authentication.domain import model as auth_mdl
+from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.domain import exceptions as mdl_ex
-from core.authentication.entrypoint.commands import PAYPRO_USER_ID
+from core.payment.domain import model as pmt_mdl
+from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
-from core.payment.entrypoint import anti_corruption as acl
 
+PAYPRO_USER_ID = "bd85b580-9510-4596-afc4-b737eeb3d492"
 
 
 # please only call this from create_user
@@ -30,15 +31,10 @@ def _execute_transaction(
     uow: AbstractUnitOfWork,
     auth_svc: acl.AbstractAuthenticationService,
 ):
-    if not auth_svc.user_verification_status_from_user_id(
-        user_id=sender_wallet_id, uow=uow
-    ):
+    if not auth_svc.user_verification_status_from_user_id(user_id=sender_wallet_id, uow=uow):
         raise svc_ex.NotVerifiedException("User is not verified")
-    if not auth_svc.user_verification_status_from_user_id(
-        user_id=recipient_wallet_id, uow=uow
-    ):
+    if not auth_svc.user_verification_status_from_user_id(user_id=recipient_wallet_id, uow=uow):
         raise svc_ex.NotVerifiedException("User is not verified")
-
 
     txn_time = datetime.now()
     tx = uow.transactions.get_wallets_create_transaction(
@@ -193,6 +189,7 @@ def redeem_voucher(recipient_wallet_id: str, transaction_id: str, uow: AbstractU
     )
     tx.redeem_voucher()
     uow.transactions.save(tx)
+
 
 def create_deposit_request(
     tx_id: str,
