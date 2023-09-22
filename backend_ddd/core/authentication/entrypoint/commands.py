@@ -114,9 +114,9 @@ def create_user(
 
             if user.user_type is auth_mdl.UserType.CUSTOMER:
                 comms_cmd.send_otp_sms(
-                    full_name=fetched_user.full_name,
+                    full_name=user.full_name,
                     to=phone_number.sms,
-                    otp_code=fetched_user.otp,
+                    otp_code=user.otp,
                 )
             return EventCode.OTP_SENT, user_id, False
 
