@@ -105,7 +105,8 @@ def get_deposit_checkout_url(
     auth_token = _get_paypro_auth_token(uow=uow)
 
     now = datetime.now(tz=None)
-    date_hour_later = now + timedelta(hours=1)
+    date_hour_earlier = now - timedelta(minutes=30)
+    date_hour_later = now + timedelta(minutes=30)
 
     config = {
         "method": "post",
@@ -122,7 +123,7 @@ def get_deposit_checkout_url(
                 "OrderAmount": amount,
                 "OrderDueDate": date_hour_later.isoformat(),
                 "OrderType": "Service",
-                "IssueDate": now.isoformat(),
+                "IssueDate": date_hour_earlier.isoformat(),
                 "OrderExpireAfterSeconds": 60 * 60,
                 "CustomerName": full_name,
                 "CustomerMobile": phone_number,
