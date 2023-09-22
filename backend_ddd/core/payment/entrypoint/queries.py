@@ -112,10 +112,10 @@ def get_all_successful_transactions_of_a_user(
             txn.status, 
             txn.created_at, 
             txn.last_updated,
-            txn.sender_wallet_id,
-            txn.recipient_wallet_id,
-            sender.full_name AS sender_name,
-            recipient.full_name AS recipient_name
+            txn.sender_wallet_id as sender_id,
+            txn.recipient_wallet_id as recipient_id,
+            sender.full_name as sender_name,
+            recipient.full_name as recipient_name
         from 
             transactions txn
             inner join users sender on txn.sender_wallet_id = sender.id
