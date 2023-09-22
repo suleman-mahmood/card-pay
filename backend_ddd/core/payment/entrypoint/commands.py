@@ -10,7 +10,7 @@ from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
 
-PAYPRO_USER_ID = "bd85b580-9510-4596-afc4-b737eeb3d492"
+PAYPRO_USER_ID = "93c74873-294f-4d64-a7cc-2435032e3553"
 
 
 # please only call this from create_user

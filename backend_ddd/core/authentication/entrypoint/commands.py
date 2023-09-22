@@ -10,7 +10,7 @@ from core.comms.entrypoint import commands as comms_cmd
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import commands as pmt_cmd
 
-LUMS_CLOSED_LOOP_ID = "f23a19c5-040c-4924-830d-d1b687238c2b"
+LUMS_CLOSED_LOOP_ID = "2456ce60-7b0a-4369-a392-2400653dbdaf"
 
 
 def create_closed_loop(
