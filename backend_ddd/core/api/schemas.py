@@ -34,9 +34,12 @@ class PasswordSchema(AbstractSchema):
     def validate(self):
         if not isinstance(self.value, str):
             raise utils.CustomException("Password passed is not a string")
-        if not re.match(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=-]{8,}$", self.value):
-            raise utils.CustomException("Invalid Password Passed")
 
+        if len(self.value)<8:
+            raise utils.CustomException("Password is less than 8 characters")
+
+        if re.match(r"^( )*$", self.value):
+            raise utils.CustomException("Password passed is empty")
 
 @dataclass()
 class PhoneNumberSchema(AbstractSchema):
@@ -70,8 +73,11 @@ class UserNameSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Name passed is not a string")
 
+        if re.match(r"^( )*$", self.value):
+            raise utils.CustomException("Name passed is empty")
+
         if not re.match(
-            r"^[A-Za-z]{1}[a-z]{2,15}\s*[A-Za-z]{1}[a-z]{2,15}(\s*[A-Za-z]{1}[a-z]{2,15})?$",
+            r"^\s{0,5}[A-Za-z]{1}[a-z]{2,20}\s+[A-Za-z]{1}[a-z]{2,20}(\s+[A-Za-z]{1}[a-z]{2,20}){0,3}\s{0,5}$",
             self.value,
         ):
             raise utils.CustomException("Invalid Name Passed")
@@ -100,8 +106,14 @@ class PinSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Pin passed is not a string")
 
-        if not re.match(r"^[0-9]{4}$", self.value) or self.value == "0000":
-            raise utils.CustomException("Invalid Pin Passed")
+        if self.value == "0000":
+            raise utils.CustomException("Pin cannot be 0000, please use another pin.")
+
+        if len(self.value) < 4:
+            raise utils.CustomException("Pin cannot be less than 4 digits")
+
+        if not re.match(r"^[0-9]{4}$", self.value):
+            raise utils.CustomException("Pin can only contain digits")
 
 
 @dataclass()
@@ -112,8 +124,14 @@ class OtpSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("OTP passed is not a string")
 
-        if not re.match(r"^[0-9]{4}$", self.value) or self.value == "0000":
-            raise utils.CustomException("Invalid Otp Passed")
+        if self.value == "0000":
+            raise utils.CustomException("OTP cannot be 0000, please pass a valid OTP.")
+
+        if len(self.value) < 4:
+            raise utils.CustomException("OTP cannot be less than 4 digits")
+
+        if not re.match(r"^[0-9]{4}$", self.value):
+            raise utils.CustomException("OTP can only contain digits")
 
 
 @dataclass()
@@ -156,9 +174,9 @@ class LUMSRollNumberSchema(AbstractSchema):
 
         # TODO: Add the one from Retool here
         if not (
-            re.match(r"^2[0-9]{7}$", self.value)
-            or re.match(r"^2[0-9]{3}M[0-9]{3}", self.value)
-            or re.match(r"^2[0-9]{3}m[0-9]{3}", self.value)
+            # re.match(r"^2[0-9]{7}$", self.value)
+            re.match(r"^2[0-9]{3}[M|m|0-9][0-9]{3}", self.value)
+            # or re.match(r"^2[0-9]{3}m[0-9]{3}", self.value)
         ):
             raise utils.CustomException("Invalid Roll Number Passed")
 

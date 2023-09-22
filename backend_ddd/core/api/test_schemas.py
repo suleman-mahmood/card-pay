@@ -10,8 +10,8 @@ def test_validate_payload():
             "valid_inputs": ["shaheer@gmail.com", "another.valid@email.com.pk", "26100279@lums.edu.pk"],
         },
         sch.PasswordSchema: {
-            "invalid_inputs": ["","    ", "short", "no_digit",1238719],
-            "valid_inputs": ["StrongP@ssw0rd", "AnotherStr0ng!Password"],
+            "invalid_inputs": ["","    ", "short", 1238719],
+            "valid_inputs": ["StrongP@ssw0rd", "AnotherStr0ng!Password" ,"no_digit","!!@#%$^)(*$)%*#anypassword"],
         },
         sch.PhoneNumberSchema: {
             "invalid_inputs": ["","    ", "123456789", "invalid_format",123],
@@ -22,8 +22,8 @@ def test_validate_payload():
             "valid_inputs": ["CUSTOMER", "VENDOR", "ADMIN"],
         },
         sch.UserNameSchema: {
-            "invalid_inputs": ["","    ", "InvalidName1", "Special%Name",123, " shaheer ahmad", "shaheer ahmad ", "FiRst NaMe", "Ab Kh"],
-            "valid_inputs": ["John Doe", "Alice Smith","Shaheer   Ahmad", "shaheer ahmad", "Ali Khan", "Abdur Rehman Shamsi", "Three worded name"],
+            "invalid_inputs": ["","    ", "InvalidName1", "Special%Name",123, "FiRst NaMe", "Ab Kh", "Noone has a name this long lmao", "ajeeboghareebgiganticassfirstname lastname"],
+            "valid_inputs": ["John Doe", "Alice Smith","Shaheer   Ahmad", "shaheer ahmad"," shaheer ahmad", "shaheer ahmad ", "Ali Khan", "Abdur Rehman Shamsi", "Three worded name", "Four Worded Name okay", "whothehell gives fivewordednames totheir children"],
         },
         sch.LocationSchema: {
             "invalid_inputs": ["","    ", [1.2,], [45.678,"Invalid"], "InvalidFormat", 123, [], [1.23,45.678,90.123], {1.23,9.42}],
