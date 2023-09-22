@@ -6,7 +6,6 @@ import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.d
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
-import 'package:cardpay/src/presentation/widgets/loadings/inputfield_shimmer_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/utils/constants/payment_strings.dart';
@@ -116,7 +115,7 @@ class TransferAmountView extends HookWidget {
           builder: (_, state) {
             switch (state.runtimeType) {
               case FullNameLoading:
-                return Positioned.fill(child: FieldShimmer());
+                return const CircularProgressIndicator();
               case FullNameSuccess:
                 return Text(
                   state.fullName,

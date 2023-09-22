@@ -5,7 +5,6 @@ import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
-import 'package:cardpay/src/presentation/widgets/loadings/inputfield_shimmer_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -92,12 +91,6 @@ class PaymentDashboardView extends HookWidget {
                 switch (state.runtimeType) {
                   case BalanceLoading:
                     return const CircularProgressIndicator();
-                  // return Positioned.fill(
-                  //   child: FieldShimmer(
-                  //     height: 170,
-                  //     width: 330,
-                  //   ),
-                  // );
                   case BalanceSuccess:
                     return BalanceCard(
                       balance: 'Rs. ${state.balance.amount.toString()}',
