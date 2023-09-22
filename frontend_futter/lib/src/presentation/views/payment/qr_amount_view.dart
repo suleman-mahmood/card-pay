@@ -141,10 +141,15 @@ class QrAmountView extends HookWidget {
                     builder: (_, state) {
                       switch (state.runtimeType) {
                         case TransferFailed:
-                          return Text(
-                            state.errorMessage,
-                            style: const TextStyle(color: Colors.red),
-                            textAlign: TextAlign.center,
+                          return Column(
+                            children: [
+                              Text(
+                                state.errorMessage,
+                                style: const TextStyle(color: Colors.red),
+                                textAlign: TextAlign.center,
+                              ),
+                              const HeightBox(slab: 3),
+                            ],
                           );
                         default:
                           return const SizedBox.shrink();

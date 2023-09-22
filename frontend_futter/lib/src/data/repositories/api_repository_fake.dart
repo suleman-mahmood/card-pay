@@ -30,6 +30,7 @@ import 'package:cardpay/src/domain/models/version.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:cardpay/src/utils/data_state.dart';
+import 'package:dio/dio.dart';
 import 'base/base_api_repository.dart';
 
 class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
@@ -44,6 +45,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       eventCode: EventCodes.OTP_SENT,
       userId: "123",
     );
+
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
 
     return Future.delayed(
       const Duration(seconds: 1),
@@ -60,11 +76,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Phone number verified successfully',
     );
 
-    // return Future.value(DataFailed(DioError(
-    //   requestOptions: RequestOptions(),
-    //   type: DioErrorType.unknown,
-    //   error: null,
-    // )));
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
     return Future.delayed(
       const Duration(seconds: 1),
       () => DataSuccess(verificationStatus),
@@ -101,6 +127,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'close loop registered successfully',
     );
 
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
     return Future.delayed(
       const Duration(seconds: 1),
       () => DataSuccess(registerClosedLoopResponse),
@@ -116,6 +157,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'close loop verified successfully',
     );
 
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
     return Future.delayed(
       const Duration(seconds: 1),
       () => DataSuccess(VerifyClosedLoopRequest),
@@ -130,6 +186,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     ChangePinResponse ChangePinRequest = ChangePinResponse(
       message: 'Pin changed successfully',
     );
+
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
 
     return Future.delayed(
       const Duration(seconds: 1),
@@ -208,6 +279,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
         checkoutUrl:
             'https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d');
 
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
     return Future.delayed(
       const Duration(seconds: 1),
       () => DataSuccess(CreateDepositRequest),
@@ -224,6 +310,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Execute successfully',
     );
 
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
     return Future.delayed(
       const Duration(seconds: 1),
       () => DataSuccess(ExecuteP2PPushTransactionRequest),
@@ -239,6 +340,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       message: 'Execute qr successfully',
     );
 
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
     return Future.delayed(
       const Duration(seconds: 1),
       () => DataSuccess(ExecuteP2PPushTransactionRequest),
@@ -253,6 +369,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
         CreateP2PPullTransactionResponse(
       message: 'Transection is successfully',
     );
+
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
 
     return Future.delayed(
       const Duration(seconds: 1),

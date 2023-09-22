@@ -158,6 +158,25 @@ class ClosedLoopView extends HookWidget {
             ),
           ),
           const HeightBox(slab: 4),
+          BlocBuilder<ClosedLoopCubit, ClosedLoopState>(
+            builder: (_, state) {
+              switch (state.runtimeType) {
+                case ClosedLoopFailed || ClosedLoopUnknownFailure:
+                  return Column(
+                    children: [
+                      Text(
+                        state.errorMessage,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                      const HeightBox(slab: 4),
+                    ],
+                  );
+                default:
+                  return const SizedBox.shrink();
+              }
+            },
+          ),
           Visibility(
             visible: showRollNumberField.value,
             child: Center(
@@ -167,19 +186,7 @@ class ClosedLoopView extends HookWidget {
               ),
             ),
           ),
-          BlocConsumer<ClosedLoopCubit, ClosedLoopState>(
-            builder: (_, state) {
-              switch (state.runtimeType) {
-                case ClosedLoopFailed:
-                  return Text(
-                    state.errorMessage,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  );
-                default:
-                  return const SizedBox.shrink();
-              }
-            },
+          BlocListener<ClosedLoopCubit, ClosedLoopState>(
             listener: (_, state) {
               switch (state.runtimeType) {
                 case ClosedLoopSuccess:
@@ -194,6 +201,7 @@ class ClosedLoopView extends HookWidget {
                   break;
               }
             },
+            child: const SizedBox.shrink(),
           ),
         ],
       ),

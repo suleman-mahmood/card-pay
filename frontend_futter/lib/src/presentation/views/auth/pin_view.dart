@@ -3,6 +3,7 @@ import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/pin_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
 import 'package:flutter/material.dart';
@@ -112,6 +113,24 @@ class PinView extends HookWidget {
                           : AppStrings.enterPin,
                       style: AppTypography.mainHeadingWhite,
                     ),
+                  ),
+                  BlocBuilder<PinCubit, PinState>(
+                    builder: (_, state) {
+                      switch (state.runtimeType) {
+                        case PinFailed || PinUnknownFailure:
+                          return Column(
+                            children: [
+                              const HeightBox(slab: 3),
+                              Text(
+                                state.errorMessage,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          );
+                        default:
+                          return const SizedBox.shrink();
+                      }
+                    },
                   ),
                   Expanded(flex: 1, child: Container()),
                   if (showErrorMessage.value)

@@ -7,7 +7,6 @@ import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
-import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,7 +122,7 @@ class SignupView extends HookWidget {
       showTermsError.value = true;
 
       if (!formKey.currentState!.validate()) {
-        return;
+        // return;
       }
 
       await signupCubit.createCustomer(
@@ -171,7 +170,7 @@ class SignupView extends HookWidget {
                 accountDescription: AppStrings.createAccountDesc,
               ),
               const HeightBox(slab: 1),
-              BlocConsumer<SignupCubit, SignupState>(
+              BlocListener<SignupCubit, SignupState>(
                 listener: (_, state) {
                   switch (state.runtimeType) {
                     case SignupSuccess:
@@ -191,20 +190,7 @@ class SignupView extends HookWidget {
                       break;
                   }
                 },
-                builder: (_, state) {
-                  switch (state.runtimeType) {
-                    case UserSuccess:
-                      if (state.eventCodes == EventCodes.OTP_INCORRECT) {
-                        return const Text(
-                          AppStrings.incorrectOtp,
-                          style: TextStyle(color: Colors.red),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                },
+                child: const SizedBox.shrink(),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -310,7 +296,25 @@ class SignupView extends HookWidget {
                 },
               ),
               const HeightBox(slab: 3),
-
+              BlocBuilder<SignupCubit, SignupState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case SignupFailed || SignupUnknownFailure:
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            state.errorMessage,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          const HeightBox(slab: 3),
+                        ],
+                      );
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
               CheckBoxFormField(
                 isChecked: acceptPrivacyTerms,
                 text: AppStrings.acceptPrivacyTerms,
