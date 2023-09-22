@@ -94,22 +94,22 @@ def execute_transaction_unique_identifier(
     auth_svc: acl.AbstractAuthenticationService,
     pmt_svc: acl.AbstractPaymentService,
 ):
-    sender_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
+    sender_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier_and_closed_loop_id(
         unique_identifier=sender_unique_identifier,
         closed_loop_id=closed_loop_id,
         uow=uow,
     )
-    recipient_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
+    recipient_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier_and_closed_loop_id(
         unique_identifier=recipient_unique_identifier,
         closed_loop_id=closed_loop_id,
         uow=uow,
     )
-    sender_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
+    sender_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier_and_closed_loop_id(
         unique_identifier=sender_unique_identifier,
         closed_loop_id=closed_loop_id,
         uow=uow,
     )
-    recipient_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier(
+    recipient_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier_and_closed_loop_id(
         unique_identifier=recipient_unique_identifier,
         closed_loop_id=closed_loop_id,
         uow=uow,

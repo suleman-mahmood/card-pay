@@ -317,7 +317,7 @@ def auth_retools_create_vendor():
     ).__dict__
 
 
-## PAYMENT RETOOLS
+# PAYMENT RETOOLS
 
 
 @retool.route("/payment-retools-get-closed-loops", methods=["POST"])
@@ -346,27 +346,19 @@ def payment_retools_get_closed_loops():
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_json_payload(required_parameters={"closed_loop_id": sch.UuidSchema})
-def payment_retools_get_customers_and_ventors_of_selected_closed_loop():
+def payment_retools_get_customers_and_vendors_of_selected_closed_loop():
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    (
-        customers,
-        vendors,
-        counts,
-    ) = pmt_qry.payment_retools_get_customers_and_ventors_of_selected_closed_loop(
+    customer_vendor_counts_dto = pmt_qry.payment_retools_get_customers_and_vendors_of_selected_closed_loop(
         closed_loop_id=req["closed_loop_id"],
         uow=uow,
     )
     uow.close_connection()
 
     return utils.Response(
-        message="All users returned successfully",
+        message="User, Vendor and total count returned successfully",
         status_code=200,
-        data={
-            "customers": customers,
-            "vendors": vendors,
-            "counts": counts,
-        },
+        data=customer_vendor_counts_dto,
     ).__dict__
 
 

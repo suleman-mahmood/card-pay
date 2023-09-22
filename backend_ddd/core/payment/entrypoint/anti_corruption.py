@@ -47,7 +47,7 @@ class FakeAuthenticationService(AbstractAuthenticationService):
 @dataclass
 class AbstractPaymentService(ABC):
     @abstractmethod
-    def get_wallet_id_from_unique_identifier(
+    def get_wallet_id_from_unique_identifier_and_closed_loop_id(
         self,
         unique_identifier: str,
         closed_loop_id: str,
@@ -77,13 +77,13 @@ class AbstractPaymentService(ABC):
 
 
 class PaymentService(AbstractPaymentService):
-    def get_wallet_id_from_unique_identifier(
+    def get_wallet_id_from_unique_identifier_and_closed_loop_id(
         self,
         unique_identifier: str,
         closed_loop_id: str,
         uow: AbstractUnitOfWork,
     ) -> str:
-        return pmt_qry.get_wallet_id_from_unique_identifier(
+        return pmt_qry.get_wallet_id_from_unique_identifier_and_closed_loop_id(
             unique_identifier=unique_identifier,
             closed_loop_id=closed_loop_id,
             uow=uow,
@@ -123,7 +123,7 @@ class FakePaymentService(AbstractPaymentService):
     def set_wallet_id_from_unique_identifier(self, wallet_id: str):
         self.wallet_id_from_unique_identifier = wallet_id
 
-    def get_wallet_id_from_unique_identifier(
+    def get_wallet_id_from_unique_identifier_and_closed_loop_id(
         self,
         unique_identifier: str,
         closed_loop_id: str,
