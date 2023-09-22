@@ -133,6 +133,13 @@ def get_deposit_checkout_url(
         ],
     }
 
+    logging.info(
+        {
+            "message": "Trying to generate deposit invoice from PayPro",
+            "config": config,
+        },
+    )
+
     # pp_order_res = requests.request(**config)
     pp_order_res = requests.post(
         config["url"],
@@ -143,12 +150,18 @@ def get_deposit_checkout_url(
     )
     pp_order_res.raise_for_status()
 
+    logging.info(
+        {
+            "message": "PayPro invoice generated",
+            "pp_order_res": pp_order_res.json(),
+        },
+    )
+
     response_data = pp_order_res.json()[1]
 
     try:
         payment_url = response_data["Click2Pay"]
     except:
-        print(response_data)
         raise PaymentUrlNotFoundException(
             "PayPro response does not contain payment url, please try again"
         )

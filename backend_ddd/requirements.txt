@@ -10,3 +10,4 @@ sentry-sdk[flask]
 pytest-mock
 flask-cors
 pre-commit
+google-cloud-logging

@@ -1,18 +1,23 @@
 # from dataclasses import asdict
 
-import firebase_admin
 import os
+
+import firebase_admin
+import google.cloud.logging
 import sentry_sdk
-
-from sentry_sdk.integrations.flask import FlaskIntegration
-from flask import Flask
-
 from core.api import utils
-from core.api.api_vendor_app import vendor_app
 from core.api.api_cardpay_app import cardpay_app
-from core.api.api_retool_app import retool as retool_app
 from core.api.api_pg import pg
+from core.api.api_retool_app import retool as retool_app
+from core.api.api_vendor_app import vendor_app
+from flask import Flask
+from sentry_sdk.integrations.flask import FlaskIntegration
 
+""" 
+    --- --- --- --- --- --- --- --- --- --- --- ---
+    Sentry setup
+    --- --- --- --- --- --- --- --- --- --- --- ---
+"""
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN"),
     integrations=[
@@ -23,6 +28,27 @@ sentry_sdk.init(
     # We recommend adjusting this value in production.
     traces_sample_rate=1.0,
 )
+
+"""
+    --- --- --- --- --- --- --- --- --- --- --- ---
+    Google cloud logging setup
+    --- --- --- --- --- --- --- --- --- --- --- ---
+"""
+
+# Instantiates a client
+client = google.cloud.logging.Client()
+
+# Retrieves a Cloud Logging handler based on the environment
+# you're running in and integrates the handler with the
+# Python logging module. By default this captures all logs
+# at INFO level and higher
+client.setup_logging()
+
+"""
+    --- --- --- --- --- --- --- --- --- --- --- ---
+    Flask app setup
+    --- --- --- --- --- --- --- --- --- --- --- ---
+"""
 
 app = Flask(__name__)
 app.config["PROPAGATE_EXCEPTIONS"] = True
