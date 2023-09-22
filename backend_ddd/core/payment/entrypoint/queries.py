@@ -77,8 +77,7 @@ def get_wallet_id_from_unique_identifier_and_closed_loop_id(
     row = uow.cursor.fetchall()
 
     if len(row) == 0:
-        raise pmt_svc_ex.UserDoesNotExistException(
-            f"No user found against {unique_identifier}")
+        raise pmt_svc_ex.UserDoesNotExistException(f"No user found against {unique_identifier}")
     assert len(row) == 1
 
     return row[0]
@@ -92,13 +91,10 @@ def get_all_closed_loops_id_and_names(
             from closed_loops
         """
 
-    uow.cursor.execute(sql)
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql)
+    rows = uow.dict_cursor.fetchall()
 
-    closed_loops = [
-        pmt_vm.ClosedLoopIdNameDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    closed_loops = [pmt_vm.ClosedLoopIdNameDTO.from_db_dict_row(row) for row in rows]
 
     return closed_loops
 
@@ -134,13 +130,10 @@ def get_all_successful_transactions_of_a_user(
             txn.created_at desc
         limit %s offset %s
     """
-    uow.cursor.execute(sql, [user_id, user_id, page_size, offset])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [user_id, user_id, page_size, offset])
+    rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
     return transactions
 
 
@@ -165,13 +158,10 @@ def payment_retools_get_customers_and_vendors_of_selected_closed_loop(
             where ucl.closed_loop_id = %s
             and u.user_type = 'CUSTOMER'::user_type_enum
         """
-    uow.cursor.execute(sql, [closed_loop_id])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [closed_loop_id])
+    rows = uow.dict_cursor.fetchall()
 
-    customers = [
-        pmt_vm.CustomerDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    customers = [pmt_vm.CustomerDTO.from_db_dict_row(row) for row in rows]
 
     sql = """
             select u.id, u.full_name, u.wallet_id, ucl.unique_identifier, ucl.closed_loop_user_id
@@ -181,13 +171,10 @@ def payment_retools_get_customers_and_vendors_of_selected_closed_loop(
             and u.user_type = 'VENDOR'::user_type_enum
         """
 
-    uow.cursor.execute(sql, [closed_loop_id])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [closed_loop_id])
+    rows = uow.dict_cursor.fetchall()
 
-    vendors = [
-        pmt_vm.VendorDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    vendors = [pmt_vm.VendorDTO.from_db_dict_row(row) for row in rows]
 
     counts = pmt_vm.CountsDTO(
         customers=len(customers),
@@ -218,13 +205,10 @@ def payment_retools_get_all_transactions_of_selected_user(
         order by txn.created_at desc
     """
 
-    uow.cursor.execute(sql, [user_id, user_id])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [user_id, user_id])
+    rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
 
     return transactions
 
@@ -243,12 +227,9 @@ def payment_retools_get_vendors_and_balance(
         and w.balance > 0
     """
 
-    uow.cursor.execute(sql, [closed_loop_id])
-    rows = uow.cursor.fetchall()
-    vendors = [
-        pmt_vm.VendorAndBalanceDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    uow.dict_cursor.execute(sql, [closed_loop_id])
+    rows = uow.dict_cursor.fetchall()
+    vendors = [pmt_vm.VendorAndBalanceDTO.from_db_dict_row(row) for row in rows]
 
     return vendors
 
@@ -285,13 +266,10 @@ def payment_retools_get_transactions_to_be_reconciled(
 
     sql += " order by txn.last_updated desc"
 
-    uow.cursor.execute(sql, [vendor_id, vendor_id])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [vendor_id, vendor_id])
+    rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
 
     return transactions
 
@@ -308,13 +286,10 @@ def payment_retools_get_vendors(
             and u.user_type = 'VENDOR'::user_type_enum
         """
 
-    uow.cursor.execute(sql, [closed_loop_id])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [closed_loop_id])
+    rows = uow.dict_cursor.fetchall()
 
-    vendors = [
-        pmt_vm.VendorDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    vendors = [pmt_vm.VendorDTO.from_db_dict_row(row) for row in rows]
 
     return vendors
 
@@ -331,13 +306,10 @@ def payment_retools_get_reconciliation_history(
         order by txn.created_at desc
     """
 
-    uow.cursor.execute(sql, [vendor_id])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [vendor_id])
+    rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithDatesDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    transactions = [pmt_vm.TransactionWithDates.from_db_dict_row(row) for row in rows]
 
     return transactions
 
@@ -347,10 +319,8 @@ def payment_retools_get_reconciled_transactions(
     vendor_id: str,
     uow: AbstractUnitOfWork,
 ) -> List[pmt_vm.TransactionWithIdsDTO]:
-    datetime_obj = datetime.strptime(
-        reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z")
-    formatted_reconciliation_timestamp = datetime_obj.strftime(
-        "%Y-%m-%d %H:%M:%S.%f")
+    datetime_obj = datetime.strptime(reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z")
+    formatted_reconciliation_timestamp = datetime_obj.strftime("%Y-%m-%d %H:%M:%S.%f")
 
     # NOTE: the above time is not perfect to the millisecond
     previous_vendor_reconciliation_timestamp = """
@@ -397,14 +367,10 @@ def payment_retools_get_reconciled_transactions(
 
     sql += " order by txn.last_updated desc"
 
-    uow.cursor.execute(sql, [vendor_id, vendor_id, str(
-        formatted_reconciliation_timestamp)])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [vendor_id, vendor_id, str(formatted_reconciliation_timestamp)])
+    rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
     return transactions
 
 
@@ -419,8 +385,8 @@ def get_user_wallet_id_and_type_from_qr_id(
         where w.qr_id = %s
     """
 
-    uow.cursor.execute(sql, [qr_id])
-    row = uow.cursor.fetchone()
+    uow.dict_cursor.execute(sql, [qr_id])
+    row = uow.dict_cursor.fetchone()
 
     if row is None:
         return None
@@ -445,8 +411,8 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
             and ucl.status = 'VERIFIED'::closed_loop_user_state_enum
         """
 
-    uow.cursor.execute(sql, [closed_loop_id])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [closed_loop_id])
+    rows = uow.dict_cursor.fetchall()
 
     vendors = [pmt_vm.VendorQrIdDTO.from_db_dict_row(row) for row in rows]
 
@@ -486,13 +452,10 @@ def vendor_app_get_transactions_to_be_reconciled(
 
     sql += " order by txn.last_updated desc"
 
-    uow.cursor.execute(sql, [vendor_id])
-    rows = uow.cursor.fetchall()
+    uow.dict_cursor.execute(sql, [vendor_id])
+    rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row)
-        for row in rows
-    ]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
 
     return transactions
 
@@ -507,8 +470,7 @@ def get_tx_balance(tx_id: str, uow: AbstractUnitOfWork) -> int:
     row = uow.dict_cursor.fetchone()
 
     if row is None:
-        raise pmt_svc_ex.TransactionNotFound(
-            f"Transaction not found for id {tx_id}")
+        raise pmt_svc_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
 
     return row["amount"]
 
@@ -523,8 +485,7 @@ def get_tx_recipient(tx_id: str, uow: AbstractUnitOfWork) -> str:
     row = uow.dict_cursor.fetchone()
 
     if row is None:
-        raise pmt_svc_ex.TransactionNotFound(
-            f"Transaction not found for id {tx_id}")
+        raise pmt_svc_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
 
     return row["recipient_wallet_id"]
 
