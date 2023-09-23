@@ -66,5 +66,3 @@
     -   Log to display the arguments passed to the function
     -   Arguments check including authentication
     -   Log on all types of error occured
-
-shhh, triggering vendor portal deployment
