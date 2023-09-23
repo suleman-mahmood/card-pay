@@ -326,7 +326,7 @@ def payment_retools_get_transactions_to_be_reconciled(
             and txn.transaction_type != 'RECONCILIATION'::transaction_type_enum
     """
 
-    if row is not None:
+    if row is not None and row["max"] is not None:
         last_reconciliation_timestamp = row["max"]
         sql += f" and txn.last_updated >= '{str(last_reconciliation_timestamp)}'"
 
@@ -450,7 +450,7 @@ def payment_retools_get_reconciled_transactions(
             and txn.last_updated < %(ts)s
     """
 
-    if row is not None:
+    if row is not None and row["max"] is not None:
         previous_reconciliation_timestamp = row["max"]
         sql += f" and txn.last_updated >= '{str(previous_reconciliation_timestamp)}'"
 
@@ -534,8 +534,8 @@ def vendor_app_get_transactions_to_be_reconciled(
             and sender_wallet_id = %(vendor_id)s;
     """
 
-    uow.cursor.execute(sql, {"vendor_id": vendor_id})
-    row = uow.cursor.fetchone()
+    uow.dict_cursor.execute(sql, {"vendor_id": vendor_id})
+    row = uow.dict_cursor.fetchone()
 
     sql = """
         select 
@@ -555,18 +555,18 @@ def vendor_app_get_transactions_to_be_reconciled(
             inner join users sender on txn.sender_wallet_id = sender.id
             inner join users recipient on txn.recipient_wallet_id = recipient.id
         where
-            txn.recipient_wallet_id = %s
+            txn.recipient_wallet_id = %(vendor_id)s
             and txn.status = 'SUCCESSFUL'::transaction_status_enum
             and txn.transaction_type != 'RECONCILIATION'::transaction_type_enum
     """
 
-    if row is not None:
-        last_reconciliation_timestamp = row[0]
+    if row is not None and row["max"] is not None:
+        last_reconciliation_timestamp = row["max"]
         sql += f" and txn.last_updated >= '{str(last_reconciliation_timestamp)}'"
 
     sql += " order by txn.last_updated desc"
 
-    uow.dict_cursor.execute(sql, [vendor_id])
+    uow.dict_cursor.execute(sql, {"vendor_id": vendor_id})
     rows = uow.dict_cursor.fetchall()
 
     transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
