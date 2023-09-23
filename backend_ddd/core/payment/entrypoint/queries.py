@@ -379,7 +379,9 @@ def get_user_wallet_id_and_type_from_qr_id(
     uow: AbstractUnitOfWork,
 ) -> Optional[pmt_vm.UserWalletIDAndTypeDTO]:
     sql = """
-        select w.id, u.user_type
+        select 
+            w.id as user_wallet_id,
+            u.user_type as user_type
         from wallets w
         join users u on w.id = u.wallet_id
         where w.qr_id = %s
