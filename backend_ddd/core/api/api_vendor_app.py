@@ -55,3 +55,20 @@ def get_vendor_balance(uid):
             "balance": balance,
         },
     ).__dict__
+
+
+@vendor_app.route("/get-vendor", methods=["GET"])
+@cross_origin(origin="*", headers=["Authorization"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.user_verified
+def get_vendor(uid):
+    uow = UnitOfWork()
+    user = auth_qry.get_user_from_user_id(user_id=uid, uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="User returned successfully",
+        status_code=200,
+        data=user.__dict__,
+    ).__dict__
