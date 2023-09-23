@@ -9,6 +9,11 @@ from core.authentication.entrypoint import queries as auth_qry
 
 vendor_app = Blueprint("vendor_app", __name__, url_prefix="/api/v1/vendor-app")
 
+cors = CORS(
+    vendor_app,
+    resources={"/*": {"origins": "*"}},
+)
+
 
 @vendor_app.route("/get-vendor-transactions-to-be-reconciled", methods=["GET"])
 @cross_origin(origin="*", headers=["Authorization"])
