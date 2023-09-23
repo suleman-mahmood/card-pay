@@ -32,7 +32,7 @@ const Table: React.FC<Props> = ({ txns, balance }) => {
       setTimes((times) => [...times, timeAgo]);
       setCreatedAt((createdAt) => [
         ...createdAt,
-        parsedTimeGMT.tz("Asia/Karachi").toString(),
+        parsedTimeGMT.tz("Asia/Karachi").format("LLL").toString(),
       ]);
     });
   }, [txns]);
@@ -46,15 +46,12 @@ const Table: React.FC<Props> = ({ txns, balance }) => {
       <h1 className="mb-2 text-4xl font-bold text-center text-black">
         Transactions
       </h1>
-      {/*<h2 className="mb-2 text-2xl font-bold text-center">CardPay Cafe</h2>*/}
       <h3 className="mb-2 text-md text-center text-violet-600">
         Balance: {balance}
       </h3>
-      <table className="table table-lg">
-        {/* head */}
+      <table className="table lg:table-lg md:table-md sm:table-sm">
         <thead>
           <tr className="bg-white">
-            <th></th>
             <th>Sender Name</th>
             <th>Amount</th>
             <th>Time</th>
@@ -74,12 +71,18 @@ const Table: React.FC<Props> = ({ txns, balance }) => {
         </thead>
         <tbody>
           {txns.map((txn, index) => (
-            <tr key={index}>
-              <th>{index + 1}</th>
+            <tr
+              key={index}
+              className={`${
+                times[index] === "a few seconds ago" ? "bg-lime-500" : ""
+              }`}
+            >
               <td>{txn.sender_name}</td>
               <td>{txn.amount}</td>
               <td>{createdAt[index]}</td>
-              <td>{times[index]}</td>
+              <td>
+                <em>{times[index]}</em>
+              </td>
             </tr>
           ))}
         </tbody>
