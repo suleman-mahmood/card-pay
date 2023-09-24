@@ -19,4 +19,7 @@ def get_weightage(
 
 
 def get_all_cashbacks(uow: AbstractUnitOfWork) -> mdl.AllCashbacks:
-    return uow.cashback_slabs.get_all()
+    all_cashbacks = uow.cashback_slabs.get_all()
+    all_cashbacks.handle_invalid_slabs()
+
+    return all_cashbacks

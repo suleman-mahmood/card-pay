@@ -11,6 +11,7 @@ from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
 
 PAYPRO_USER_ID = "93c74873-294f-4d64-a7cc-2435032e3553"
+MIN_DEPOSIT_AMOUNT = 1000
 
 
 # please only call this from create_user
@@ -191,9 +192,9 @@ def create_deposit_request(
 ) -> str:
     user = uow.users.get(user_id=user_id)
 
-    if amount < 1000:
+    if amount < MIN_DEPOSIT_AMOUNT:
         raise svc_ex.DepositAmountTooSmallException(
-            "Deposit amount is less than the minimum allowed deposit"
+            f"Deposit amount is less than the minimum allowed deposit {MIN_DEPOSIT_AMOUNT}"
         )
 
     _execute_transaction(

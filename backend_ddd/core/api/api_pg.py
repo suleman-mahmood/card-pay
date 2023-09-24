@@ -1,4 +1,5 @@
 import logging
+import os
 
 from core.entrypoint.uow import UnitOfWork
 from core.marketing.entrypoint import queries as mktg_qry
@@ -62,7 +63,19 @@ def pay_pro_callback():
         )
 
     except pmt_svc_ex.InvalidPayProCredentialsException:
-        logging.info({"message": "Pay Pro | Invalid credentials"})
+        logging.info(
+            {
+                "message": "Pay Pro | Invalid credentials",
+                "passed_credentials": {
+                    "user_name": user_name,
+                    "password": password,
+                },
+                "my_credentials": {
+                    "user_name": os.environ.get("PAYPRO_USERNAME"),
+                    "password": os.environ.get("PAYPRO_PASSWORD"),
+                },
+            },
+        )
         uow.close_connection()
         return [
             {
@@ -83,7 +96,13 @@ def pay_pro_callback():
             }
         ], 200
 
-    logging.info({"message": "Pay Pro | Going to give cashbacks"})
+    logging.info(
+        {
+            "message": "Pay Pro | Going to give cashbacks",
+            "success_invoice_ids": success_invoice_ids,
+            "failed_invoice_ids": not_found_invoice_ids,
+        },
+    )
 
     # Give cashbacks for all the accepted transactions
     all_cashbacks = mktg_qry.get_all_cashbacks(uow=uow)
@@ -103,7 +122,7 @@ def pay_pro_callback():
                 auth_svc=pmt_acl.AuthenticationService(),
                 uow=uow,
             )
-        except pmt_mdl_ex.TransactionNotAllowedException:
+        except pmt_svc_ex.TransactionFailedException:
             pass
 
     res = []

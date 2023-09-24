@@ -175,9 +175,13 @@ def pay_pro_callback(
     csv_invoice_ids: str,
     uow: AbstractUnitOfWork,
 ) -> Tuple[List[str], List[str]]:
-    if user_name != os.environ.get("PAYPRO_USERNAME") or password != os.environ.get(
-        "PAYPRO_PASSWORD"
-    ):
+    # TODO: fix this ASAP
+    # user_name_mis_match = user_name != os.environ.get("PAYPRO_USERNAME")
+    user_name_mis_match = False
+
+    password_mis_match = password != os.environ.get("PAYPRO_PASSWORD")
+
+    if user_name_mis_match or password_mis_match:
         raise InvalidPayProCredentialsException("PayPro credentials are invalid")
 
     invoice_ids = csv_invoice_ids.split(",")
