@@ -295,6 +295,15 @@ def verify_closed_loop(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
+    referral_unique_identifier = ""
+    try:
+        referral_unique_identifier = req["referral_unique_identifier"]
+        referral_unique_identifier = (
+            referral_unique_identifier if referral_unique_identifier is not None else ""
+        )
+    except KeyError:
+        pass
+
     try:
         should_migrate_balance, balance = auth_cmd.verify_closed_loop(
             user_id=uid,
@@ -320,12 +329,9 @@ def verify_closed_loop(uid):
             except pmt_svc_ex.TransactionFailedException:
                 pass
 
-        if (
-            req["referral_unique_identifier"] is not None
-            and req["referral_unique_identifier"] != ""
-        ):
+        if referral_unique_identifier != "":
             wallet_id = pmt_qry.get_wallet_id_from_unique_identifier(
-                unique_identifier=req["referral_unique_identifier"],
+                unique_identifier=referral_unique_identifier,
                 closed_loop_id=req["closed_loop_id"],
                 uow=uow,
             )
@@ -346,7 +352,6 @@ def verify_closed_loop(uid):
         mktg_mdl_ex.InvalidTransactionTypeException,
         mktg_mdl_ex.NotVerifiedException,
         mktg_mdl_ex.InvalidReferenceException,
-        KeyError,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
