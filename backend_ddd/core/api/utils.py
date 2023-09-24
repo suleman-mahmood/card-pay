@@ -1,17 +1,16 @@
-from uuid import uuid5, NAMESPACE_OID
-from typing import List, Dict, Union, Tuple
+import os
+from dataclasses import dataclass
 from functools import wraps
+from typing import Dict, List, Optional, Union
+from uuid import NAMESPACE_OID, uuid5
+
+from core.api import schemas as sch
+from core.api.event_codes import EventCode
+from core.authentication.domain.model import UserType
+from core.authentication.entrypoint import queries as auth_qry
+from core.entrypoint.uow import UnitOfWork
 from firebase_admin import auth
 from flask import request
-from dataclasses import dataclass
-import os
-
-
-from core.entrypoint.uow import UnitOfWork
-from core.authentication.entrypoint import queries as auth_qry
-from core.authentication.domain.model import UserType
-from core.api.event_codes import EventCode
-from core.api import schemas as sch
 
 
 @dataclass(frozen=True)
@@ -77,9 +76,7 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
         @wraps(func)
         def wrapper(*args, **kwargs):
             uow = UnitOfWork()
-            user_type = auth_qry.get_user_type_from_user_id(
-                user_id=kwargs["uid"], uow=uow
-            )
+            user_type = auth_qry.get_user_type_from_user_id(user_id=kwargs["uid"], uow=uow)
             uow.close_connection()
 
             if user_type not in allowed_user_types:
@@ -102,7 +99,10 @@ def handle_missing_payload(func):
     return wrapper
 
 
-def validate_json_payload(required_parameters: Dict[str, sch.AbstractSchema]):
+def validate_json_payload(
+    required_parameters: Dict[str, sch.AbstractSchema],
+    optional_parameters: Optional[Dict[str, sch.AbstractSchema]] = None,
+):
     def inner_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -110,9 +110,7 @@ def validate_json_payload(required_parameters: Dict[str, sch.AbstractSchema]):
             if "RETOOL_SECRET" in req.keys():
                 req.pop("RETOOL_SECRET")
             if set(required_parameters) != set(req.keys()):
-                raise CustomException(
-                    "invalid json payload, missing or extra parameters"
-                )
+                raise CustomException("invalid json payload, missing or extra parameters")
 
             for param, schema in required_parameters.items():
                 schema(req[param]).validate()

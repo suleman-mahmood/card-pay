@@ -285,9 +285,11 @@ def register_closed_loop(uid):
     required_parameters={
         "closed_loop_id": sch.UuidSchema,
         "unique_identifier_otp": sch.OtpSchema,
+    },
+    optional_parameters={
         # TODO: change this when closed loops other than LUMS are added
         "referral_unique_identifier": sch.LUMSReferralRollNumberSchema,
-    }
+    },
 )
 def verify_closed_loop(uid):
     req = request.get_json(force=True)
@@ -318,7 +320,10 @@ def verify_closed_loop(uid):
             except pmt_svc_ex.TransactionFailedException:
                 pass
 
-        if req["referral_unique_identifier"] != "":
+        if (
+            req["referral_unique_identifier"] is not None
+            and req["referral_unique_identifier"] != ""
+        ):
             wallet_id = pmt_qry.get_wallet_id_from_unique_identifier(
                 unique_identifier=req["referral_unique_identifier"],
                 closed_loop_id=req["closed_loop_id"],
