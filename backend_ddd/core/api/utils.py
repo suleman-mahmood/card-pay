@@ -1,4 +1,6 @@
 import os
+from abc import ABCMeta
+from copy import deepcopy
 from dataclasses import dataclass
 from functools import wraps
 from typing import Dict, List, Optional, Union
@@ -100,15 +102,22 @@ def handle_missing_payload(func):
 
 
 def validate_json_payload(
-    required_parameters: Dict[str, sch.AbstractSchema],
-    optional_parameters: Optional[Dict[str, sch.AbstractSchema]] = None,
+    required_parameters: Dict[str, ABCMeta],
+    optional_parameters: Optional[Dict[str, ABCMeta]] = None,
 ):
     def inner_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            req = request.get_json(force=True)
+            req = deepcopy(request.get_json(force=True))
+
             if "RETOOL_SECRET" in req.keys():
                 req.pop("RETOOL_SECRET")
+
+            # Remove all optional parameters from the request
+            if optional_parameters is not None:
+                for k, _ in optional_parameters.items():
+                    req.pop(k, None)
+
             if set(required_parameters) != set(req.keys()):
                 raise CustomException("invalid json payload, missing or extra parameters")
 

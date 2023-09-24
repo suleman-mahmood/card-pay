@@ -105,13 +105,13 @@ def handle_exceptions(e: utils.CustomException):
         "event_code": e.event_code.name,
     }
 
-    logging.info(
-        {
-            "message": "Custom exception triggered",
-            "payload": payload,
-            "status_code": e.status_code,
-            "exception": e,
-            "request_body": request.get_json(),
-        },
-    )
+    # logging.info(
+    #     {
+    #         "message": "Custom exception triggered",
+    #         "payload": payload,
+    #         "status_code": e.status_code,
+    #         "exception": e,
+    #         "request_body": request.get_json(),
+    #     },
+    # )
     return payload, e.status_code

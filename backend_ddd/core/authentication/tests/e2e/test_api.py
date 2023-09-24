@@ -3,6 +3,7 @@ from json import loads
 from random import randint
 from uuid import uuid4
 
+import pytest
 from core.api import utils
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import queries as auth_qry
@@ -225,10 +226,25 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
     )
 
 
-def test_verify_closed_loop_api(seed_api_customer, seed_api_cardpay, mocker, client):
+@pytest.mark.parametrize(
+    "json_body",
+    [
+        ({}),
+        (
+            {
+                "referral_unique_identifier": None,
+            }
+        ),
+        (
+            {
+                "referral_unique_identifier": "",
+            }
+        ),
+    ],
+)
+def test_verify_closed_loop_api(seed_api_customer, mocker, client, json_body):
     user_id = seed_api_customer(mocker, client)
     closed_loop_id = _create_closed_loop_helper(client)
-    cardpay_id = seed_api_cardpay(mocker, client)
 
     _verify_phone_number(user_id, mocker, client)
     _register_user_in_closed_loop(
@@ -251,11 +267,10 @@ def test_verify_closed_loop_api(seed_api_customer, seed_api_cardpay, mocker, cli
         json={
             "closed_loop_id": closed_loop_id,
             "unique_identifier_otp": otp,
-            "referral_unique_identifier": "",
+            **json_body,
         },
         headers=headers,
     )
-
     assert (
         loads(response.data.decode())
         == utils.Response(
