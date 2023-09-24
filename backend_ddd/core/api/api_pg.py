@@ -1,15 +1,16 @@
-from flask import Blueprint, request
+import logging
 
+from core.entrypoint.uow import UnitOfWork
+from core.marketing.entrypoint import queries as mktg_qry
+from core.marketing.entrypoint import services as mktg_svc
+from core.payment.domain import exceptions as pmt_mdl_ex
+from core.payment.domain import model as pmt_mdl
+from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
-from core.payment.domain import model as pmt_mdl
-from core.payment.domain import exceptions as pmt_mdl_ex
-from core.entrypoint.uow import UnitOfWork
-from core.payment.entrypoint import anti_corruption as pmt_acl
-from core.marketing.entrypoint import services as mktg_svc
-from core.marketing.entrypoint import queries as mktg_qry
-from core.payment.entrypoint import queries as pmt_qry
 from core.payment.entrypoint import paypro_service as pp_svc
+from core.payment.entrypoint import queries as pmt_qry
+from flask import Blueprint, request
 
 pg = Blueprint("pg", __name__, url_prefix="/api/v1")
 
@@ -18,9 +19,17 @@ pg = Blueprint("pg", __name__, url_prefix="/api/v1")
 def pay_pro_callback():
     """This api will only be called by PayPro"""
 
-    req = request.get_json(force=True)
+    logging.info(
+        {
+            "message": "Pay Pro | Callback triggered",
+            "json_body": request.get_json(),
+        },
+    )
+
+    req = request.get_json()
 
     if request.get_json() is None:
+        logging.info({"message": "Pay Pro | No json body"})
         return [
             {
                 "StatusCode": "01",
@@ -34,6 +43,7 @@ def pay_pro_callback():
         password = req["password"]
         csv_invoice_ids = req["csvinvoiceids"]
     except KeyError as e:
+        logging.info({"message": "Pay Pro | Wrong json body"})
         return [
             {
                 "StatusCode": "01",
@@ -52,6 +62,7 @@ def pay_pro_callback():
         )
 
     except pmt_svc_ex.InvalidPayProCredentialsException:
+        logging.info({"message": "Pay Pro | Invalid credentials"})
         uow.close_connection()
         return [
             {
@@ -62,6 +73,7 @@ def pay_pro_callback():
         ], 200
 
     except Exception:
+        logging.info({"message": "Pay Pro | An exception triggered"})
         uow.close_connection()
         return [
             {
@@ -70,6 +82,8 @@ def pay_pro_callback():
                 "Description": "Service Failure",
             }
         ], 200
+
+    logging.info({"message": "Pay Pro | Going to give cashbacks"})
 
     # Give cashbacks for all the accepted transactions
     all_cashbacks = mktg_qry.get_all_cashbacks(uow=uow)
@@ -109,6 +123,13 @@ def pay_pro_callback():
                 "Description": "No records found.",
             }
         )
+
+    logging.info(
+        {
+            "message": "Pay Pro | Callback finished successfully",
+            "response": res,
+        },
+    )
 
     uow.commit_close_connection()
     return res, 200

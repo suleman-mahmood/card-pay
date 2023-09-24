@@ -1,5 +1,6 @@
 # from dataclasses import asdict
 
+import logging
 import os
 
 import firebase_admin
@@ -10,7 +11,7 @@ from core.api.api_cardpay_app import cardpay_app
 from core.api.api_pg import pg
 from core.api.api_retool_app import retool as retool_app
 from core.api.api_vendor_app import vendor_app
-from flask import Flask
+from flask import Flask, request
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 """ 
@@ -103,4 +104,14 @@ def handle_exceptions(e: utils.CustomException):
         "message": e.message,
         "event_code": e.event_code.name,
     }
+
+    logging.info(
+        {
+            "message": "Custom exception triggered",
+            "payload": payload,
+            "status_code": e.status_code,
+            "exception": e,
+            "request_body": request.get_json(),
+        },
+    )
     return payload, e.status_code
