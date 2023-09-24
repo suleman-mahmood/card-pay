@@ -346,6 +346,7 @@ def verify_closed_loop(uid):
         mktg_mdl_ex.InvalidTransactionTypeException,
         mktg_mdl_ex.NotVerifiedException,
         mktg_mdl_ex.InvalidReferenceException,
+        KeyError,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
