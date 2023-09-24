@@ -13,9 +13,10 @@ interface Transaction {
 interface Props {
   txns: Transaction[]; // Define the txns prop here
   balance: number;
+  vendor_name: string;
 }
 
-const Table: React.FC<Props> = ({ txns, balance }) => {
+const Table: React.FC<Props> = ({ txns, balance, vendor_name }) => {
   const [times, setTimes] = useState<string[]>([]);
   const [createdAt, setCreatedAt] = useState<string[]>([]);
 
@@ -43,7 +44,10 @@ const Table: React.FC<Props> = ({ txns, balance }) => {
 
   return (
     <div className="overflow-x-auto">
-      <h1 className="mb-2 text-4xl font-bold text-center text-black">
+      <h1 className="mb-2 text-4xl font-bold text-center text-violet-600">
+        {vendor_name}
+      </h1>
+      <h1 className="mb-2 text-2xl font-bold text-center text-black">
         Transactions
       </h1>
       <h3 className="mb-2 text-md text-center text-violet-600">

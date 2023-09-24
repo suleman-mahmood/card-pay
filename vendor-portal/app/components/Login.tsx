@@ -13,7 +13,6 @@ function Login() {
 
   const [phone, setPhone] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [phoneToSend, setPhoneToSend] = useState<string>("");
   const [errorPhone, setErrorPhone] = useState<string>("");
   const [errorPassword, setErrorPassword] = useState<string>("");
 
@@ -38,25 +37,27 @@ function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateInput(phone)) {
+      let phoneToSend = "";
+
       if (phone.length == 10 && phone[0] != "0") {
-        setPhoneToSend("92" + phone + "@cardpay.com.pk");
+        phoneToSend = "92" + phone + "@cardpay.com.pk";
       }
       if (phone.length == 11 && phone[0] == "0") {
-        setPhoneToSend("92" + phone.slice(1) + "@cardpay.com.pk");
+        phoneToSend = "92" + phone.slice(1) + "@cardpay.com.pk";
+      }
+
+      if (phoneToSend) {
+        signInWithEmailAndPassword(auth, phoneToSend, password)
+          .then(() => {
+            setErrorPassword("");
+            router.push("/dashboard");
+          })
+          .catch((error) => {
+            setErrorPassword(error.code);
+          });
       }
     }
   };
-
-  useEffect(() => {
-    signInWithEmailAndPassword(auth, phoneToSend, password)
-      .then(() => {
-        setErrorPassword("");
-        router.push("/dashboard");
-      })
-      .catch((error) => {
-        setErrorPassword(error.code);
-      });
-  }, [phoneToSend, password]);
 
   return (
     <div className="form-control w-full max-w-xs">
@@ -87,13 +88,12 @@ function Login() {
         {errorPassword && (
           <span className="italic text-xs text-red-500">{errorPassword}</span>
         )}
-        <Link
-          href="/dashboard"
+        <div
           className="btn btn-primary mt-6 max-w-xs w-full"
           onClick={handleSubmit}
         >
           Login
-        </Link>
+        </div>
       </form>
     </div>
   );

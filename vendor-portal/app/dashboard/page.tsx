@@ -1,6 +1,4 @@
 "use client";
-/* eslint-disable */
-
 import React from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -10,19 +8,20 @@ import { auth } from "../../services/initialize-firebase";
 import Table from "./components/Table";
 import { TypeAnimation } from "react-type-animation";
 
-interface Transaction {
+export interface Transaction {
   amount: number;
   created_at: string;
   last_updated: string;
   sender_name: string;
 }
 
-function page() {
+export default function page() {
   const router = useRouter();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [txns, setTxns] = useState<Transaction[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [balance, setBalance] = useState<number>(0);
+  const [vendor_name, setVendorName] = useState<string>("");
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
@@ -30,6 +29,7 @@ function page() {
         setUser(user);
         fetchTransactions(user);
         fetchVendorBalance(user);
+        fetchVendor(user);
       } else {
         router.push("/");
       }
@@ -93,13 +93,38 @@ function page() {
       });
   };
 
+  const fetchVendor = async (user: FirebaseUser) => {
+    const token = await user?.getIdToken();
+    fetch(`https://cardpay-1.el.r.appspot.com/api/v1/vendor-app/get-vendor`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP Error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const vendor_name = data.data.full_name;
+        setVendorName(vendor_name);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
+
   return isFetching ? (
     <div className="flex min-h-screen flex-col items-center justify-between p-24">
       <TypeAnimation
         sequence={[
           // Same substring at the start will only be typed out once, initially
           "CardPay",
-          1000, // wait 1s before replacing "Mice" with "Hamsters"
+          1000,
           "Payment Sirf CardPay",
           1000,
           "Thora Intezar Farmaein",
@@ -113,9 +138,7 @@ function page() {
     </div>
   ) : (
     <div className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Table txns={txns} balance={balance} />
+      <Table txns={txns} balance={balance} vendor_name={vendor_name} />
     </div>
   );
 }
-
-export default page;
