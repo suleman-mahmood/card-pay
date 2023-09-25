@@ -1,4 +1,6 @@
 import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/numpad_buttons.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -13,8 +15,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
-final List<String> buttons = ['1500', '3000', '1500', '1000', '7000', '5000'];
 
 @RoutePage()
 class QrAmountView extends HookWidget {
@@ -35,6 +35,9 @@ class QrAmountView extends HookWidget {
     final selectedButton = useState<String?>(null);
 
     final transferCubit = BlocProvider.of<TransferCubit>(context);
+    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
+    final recentTransactionsCubit =
+        BlocProvider.of<RecentTransactionsCubit>(context);
 
     useEffect(() {
       return () {
@@ -95,7 +98,9 @@ class QrAmountView extends HookWidget {
         runSpacing: 9,
         alignment: WrapAlignment.spaceEvenly,
         crossAxisAlignment: WrapCrossAlignment.center,
-        children: buttons.map((amount) => paymentButton(amount)).toList(),
+        children: PaymentStrings.quickAmountsQr
+            .map((amount) => paymentButton(amount))
+            .toList(),
       );
     }
 
@@ -158,10 +163,14 @@ class QrAmountView extends HookWidget {
                     listener: (_, state) {
                       switch (state.runtimeType) {
                         case TransferSuccess:
-                          context.router.push(ReceiptRoute(
-                            recipientName: vendorName,
-                            amount: int.parse(paymentController.text),
-                          ));
+                          balanceCubit.getUserBalance();
+                          recentTransactionsCubit.getUserRecentTransactions();
+                          context.router.push(
+                            ReceiptRoute(
+                              recipientName: vendorName,
+                              amount: int.parse(paymentController.text),
+                            ),
+                          );
                           break;
                       }
                     },

@@ -73,6 +73,10 @@ class ReceiptView extends HookWidget {
       );
     }
 
+    handleDoneClick() {
+      context.router.push(DashboardLayoutRoute());
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -105,7 +109,7 @@ class ReceiptView extends HookWidget {
           PrimaryButton(
             text: PaymentStrings.done,
             color: AppColors.parrotColor,
-            onPressed: () => context.router.push(DashboardLayoutRoute()),
+            onPressed: handleDoneClick,
           ),
           const HeightBox(slab: 5),
         ],

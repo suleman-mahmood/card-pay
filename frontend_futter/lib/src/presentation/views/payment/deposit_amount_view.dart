@@ -94,7 +94,7 @@ class DepositAmountView extends HookWidget {
         runSpacing: 9,
         alignment: WrapAlignment.spaceEvenly,
         crossAxisAlignment: WrapCrossAlignment.center,
-        children: PaymentStrings.quickAmounts
+        children: PaymentStrings.quickAmountsDeposit
             .map((amount) => paymentButton(amount))
             .toList(),
       );

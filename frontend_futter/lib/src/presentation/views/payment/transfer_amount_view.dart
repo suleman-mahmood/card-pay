@@ -1,5 +1,7 @@
 import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/full_name_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/transfer_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/numpad_buttons.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
@@ -33,6 +35,9 @@ class TransferAmountView extends HookWidget {
 
     final transferCubit = BlocProvider.of<TransferCubit>(context);
     final fullNameCubit = BlocProvider.of<FullNameCubit>(context);
+    final balanceCubit = BlocProvider.of<BalanceCubit>(context);
+    final recentTransactionsCubit =
+        BlocProvider.of<RecentTransactionsCubit>(context);
 
     useEffect(() {
       return () {
@@ -58,8 +63,10 @@ class TransferAmountView extends HookWidget {
                 separatorBuilder: (context, index) => const HeightBox(slab: 1),
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
-                  return Text(text[index],
-                      style: AppTypography.mainHeadingGrey);
+                  return Text(
+                    text[index],
+                    style: AppTypography.mainHeadingGrey,
+                  );
                 },
               ),
             );
@@ -93,7 +100,7 @@ class TransferAmountView extends HookWidget {
         runSpacing: 9,
         alignment: WrapAlignment.spaceEvenly,
         crossAxisAlignment: WrapCrossAlignment.center,
-        children: PaymentStrings.quickAmounts
+        children: PaymentStrings.quickAmountsTransfer
             .map((amount) => paymentButton(amount))
             .toList(),
       );
@@ -175,10 +182,14 @@ class TransferAmountView extends HookWidget {
                     listener: (_, state) {
                       switch (state.runtimeType) {
                         case TransferSuccess:
-                          context.router.push(ReceiptRoute(
-                            recipientName: fullNameCubit.state.fullName,
-                            amount: int.parse(paymentController.text),
-                          ));
+                          balanceCubit.getUserBalance();
+                          recentTransactionsCubit.getUserRecentTransactions();
+                          context.router.push(
+                            ReceiptRoute(
+                              recipientName: fullNameCubit.state.fullName,
+                              amount: int.parse(paymentController.text),
+                            ),
+                          );
                           break;
                       }
                     },

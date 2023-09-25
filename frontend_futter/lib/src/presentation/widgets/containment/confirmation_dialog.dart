@@ -36,10 +36,10 @@ class ConfirmationContainer extends HookWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(PaymentStrings.details, style: AppTypography.subHeading),
-                HeightBox(slab: 1),
+                const HeightBox(slab: 1),
                 Text(mainHeading1, style: AppTypography.subHeading),
                 Text(subHeading1, style: AppTypography.bodyText),
-                HeightBox(slab: 1),
+                const HeightBox(slab: 1),
                 Text(mainHeading2, style: AppTypography.subHeading),
                 Text(subHeading2, style: AppTypography.bodyText),
               ],

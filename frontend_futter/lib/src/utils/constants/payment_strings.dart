@@ -2,13 +2,29 @@ class PaymentStrings {
   static const String greet = 'Hello';
 
   static const List<String> phoneCountryCodes = ['+92', '+91', '+7'];
-  static const List<String> quickAmounts = [
-    '1500',
-    '3000',
-    '1500',
-    '1000',
-    '7000',
-    '5000'
+  static const List<String> quickAmountsDeposit = [
+    '1,000',
+    '2,500',
+    '3,500',
+    '5,000',
+    '7,500',
+    '10,000'
+  ];
+  static const List<String> quickAmountsTransfer = [
+    '100',
+    '200',
+    '250',
+    '500',
+    '750',
+    '1000'
+  ];
+  static const List<String> quickAmountsQr = [
+    '100',
+    '200',
+    '250',
+    '500',
+    '750',
+    '1000'
   ];
 
   static const String name = 'Talha';
@@ -67,10 +83,11 @@ class PaymentStrings {
 
   static const String chat = 'chat';
   static const String filterTransactions = 'Filtered Transactions';
-  static const String enterAmount = 'Enter the amount you want to deposit';
+  static const String enterAmount =
+      'Enter the recipient roll number you wish to send money to';
   static const String transferRollNumberInfo =
       "Enter Recipient's Roll Number to send money";
-  static const String enterPhone = 'Enter your phone number';
+  static const String enterPhone = '3333593987';
   static const String helpDetail = 'How we can help you today?';
   static const String org = 'Select your organization';
   // Profile Strings

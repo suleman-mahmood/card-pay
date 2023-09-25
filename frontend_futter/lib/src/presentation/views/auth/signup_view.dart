@@ -122,7 +122,7 @@ class SignupView extends HookWidget {
       showTermsError.value = true;
 
       if (!formKey.currentState!.validate()) {
-        // return;
+        return;
       }
 
       await signupCubit.createCustomer(

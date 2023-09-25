@@ -57,7 +57,7 @@ class ClosedLoopCubit extends BaseCubit<ClosedLoopState, List<ClosedLoop>> {
     if (isBusy) return;
 
     await run(() async {
-      emit(ClosedLoopLoading());
+      emit(const ClosedLoopLoading());
 
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??

@@ -8,16 +8,16 @@ class AppStrings {
   static const String createAccountDesc =
       'Let\'s get you started by creating your account';
   static const String username = 'Full name';
-  static const String enterUsername = 'Enter your full name';
+  static const String enterUsername = 'Famous Person';
   static const String email = 'Personal email address';
-  static const String enterEmail = 'Enter your personal email address';
+  static const String enterEmail = 'personal_email@address.com';
   static const String password = 'Password';
   static const String confirmPin = 'Please Confirm your Pin';
   static const String passwordNotMatched = '  Error: Pin did not matched';
   static const String weakPassword = '  Error: weak Pin use strong Pin';
-  static const String enterPassword = 'Enter your password';
+  static const String enterPassword = 's0mething\$ecrEt';
   static const String confirmPassword = 'Confirm Password';
-  static const String reEnterPassword = 'Please re-enter your password';
+  static const String reEnterPassword = 's0mething\$ecrEt';
   static const String forgot = 'Forgot password ?';
   static const String date = 'Date';
   static const String testPhone = '3333462677';
@@ -70,9 +70,9 @@ class AppStrings {
   static const String organization = 'Organization';
   static const String register = 'Register  organization';
   static const String sign = 'Sign in to your organization to get started';
-  static const String enterRollNumber = 'Enter your Roll Number';
+  static const String enterRollNumber = '23100011';
   static const String rollNumber = 'Roll Number';
-  static const String referralRollNumber = 'Referral roll Number (optional)';
+  static const String referralRollNumber = 'Referral Roll Number (optional)';
   static const String create = 'Create Account';
   static const String phone = 'Phone Number';
   static const String enterPhoneNUmber = '+92';

@@ -90,7 +90,12 @@ class PaymentDashboardView extends HookWidget {
               builder: (_, state) {
                 switch (state.runtimeType) {
                   case BalanceLoading:
-                    return const CircularProgressIndicator();
+                    return const Column(
+                      children: [
+                        CircularProgressIndicator(),
+                        HeightBox(slab: 3),
+                      ],
+                    );
                   case BalanceSuccess:
                     return BalanceCard(
                       balance: 'Rs. ${state.balance.amount.toString()}',

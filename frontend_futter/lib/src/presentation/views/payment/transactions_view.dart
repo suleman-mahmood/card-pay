@@ -46,9 +46,7 @@ class TransactionsView extends HookWidget {
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: TransactionList(),
-                  ),
+                  Expanded(child: TransactionList()),
                 ],
               ),
             ),
