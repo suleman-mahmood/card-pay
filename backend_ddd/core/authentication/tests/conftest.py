@@ -1,14 +1,14 @@
 """Fixtures for seeding data for tests."""
+from copy import deepcopy
+from datetime import datetime
+from typing import Tuple
+from uuid import uuid4
+
 import pytest
 from core.authentication.domain import model as auth_mdl
-from uuid import uuid4
-from core.payment.domain import model as pmt_mdl
-from core.entrypoint.uow import AbstractUnitOfWork
 from core.authentication.entrypoint import commands as auth_cmd
-from copy import deepcopy
-from uuid import uuid4
-from typing import Tuple
-from datetime import datetime
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.payment.domain import model as pmt_mdl
 
 
 @pytest.fixture
@@ -62,7 +62,9 @@ def seed_closed_loop_user():
 
 @pytest.fixture
 def seed_auth_user():
-    def _seed_auth_user(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+    def _seed_auth_user(
+        uow: AbstractUnitOfWork,
+    ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
@@ -87,7 +89,9 @@ def seed_auth_user():
 
 @pytest.fixture
 def seed_verified_auth_user(seed_auth_user):
-    def _seed_auth_user(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+    def _seed_auth_user(
+        uow: AbstractUnitOfWork,
+    ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user, wallet = seed_auth_user(uow)
         auth_cmd.verify_phone_number(
             user_id=user.id,
@@ -117,7 +121,9 @@ def seed_auth_closed_loop():
 
 @pytest.fixture
 def seed_auth_vendor():
-    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+    def _seed_auth_vendor(
+        uow: AbstractUnitOfWork,
+    ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
@@ -142,7 +148,9 @@ def seed_auth_vendor():
 
 @pytest.fixture
 def seed_verified_auth_vendor(seed_auth_vendor):
-    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+    def _seed_auth_vendor(
+        uow: AbstractUnitOfWork,
+    ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user, wallet = seed_auth_vendor(uow)
         auth_cmd.verify_phone_number(
             user_id=user.id,

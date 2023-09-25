@@ -10,7 +10,6 @@ from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
 
-PAYPRO_USER_ID = "93c74873-294f-4d64-a7cc-2435032e3553"
 MIN_DEPOSIT_AMOUNT = 1000
 
 
@@ -118,11 +117,7 @@ def execute_transaction_unique_identifier(
     )
 
 
-def accept_p2p_pull_transaction(
-    transaction_id: str,
-    uow: AbstractUnitOfWork,
-    auth_svc: acl.AbstractAuthenticationService,
-):
+def accept_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
     tx = uow.transactions.get(transaction_id=transaction_id)
     try:
         tx.accept_p2p_pull_transaction()
@@ -131,25 +126,15 @@ def accept_p2p_pull_transaction(
         raise svc_ex.TransactionFailedException(str(e))
 
     uow.transactions.save(tx)
-    uow.transactions.save(tx)
 
 
-def accept_payment_gateway_transaction(
-    transaction_id: str,
-    uow: AbstractUnitOfWork,
-):
-    tx = uow.transactions.get(transaction_id=transaction_id)
-    tx.execute_transaction()
-    uow.transactions.save(tx)
+def accept_payment_gateway_transaction(transaction_id: str, uow: AbstractUnitOfWork):
     tx = uow.transactions.get(transaction_id=transaction_id)
     tx.execute_transaction()
     uow.transactions.save(tx)
 
 
 def decline_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
-    tx = uow.transactions.get(transaction_id=transaction_id)
-    tx.decline_p2p_pull_transaction()
-    uow.transactions.save(tx)
     tx = uow.transactions.get(transaction_id=transaction_id)
     tx.decline_p2p_pull_transaction()
     uow.transactions.save(tx)
@@ -199,7 +184,7 @@ def create_deposit_request(
 
     _execute_transaction(
         tx_id=tx_id,
-        sender_wallet_id=PAYPRO_USER_ID,
+        sender_wallet_id=pp_svc.get_paypro_wallet(),
         recipient_wallet_id=user_id,
         amount=amount,
         transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,

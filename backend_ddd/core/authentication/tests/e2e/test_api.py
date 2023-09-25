@@ -280,6 +280,69 @@ def test_verify_closed_loop_api(seed_api_customer, mocker, client, json_body):
     )
 
 
+def test_verify_closed_loop_with_referral_api(seed_api_customer, mocker, client):
+    closed_loop_id = _create_closed_loop_helper(client)
+
+    user_id = seed_api_customer(mocker, client)
+    _verify_phone_number(user_id, mocker, client)
+    _register_user_in_closed_loop(
+        mocker, client, user_id, closed_loop_id, _get_random_unique_identifier()
+    )
+
+    referral_unique_identifier = _get_random_unique_identifier()
+    referral_id = seed_api_customer(mocker, client)
+    _verify_phone_number(referral_id, mocker, client)
+
+    _register_user_in_closed_loop(
+        mocker=mocker,
+        client=client,
+        user_id=referral_id,
+        closed_loop_id=closed_loop_id,
+        unique_identifier=referral_unique_identifier,
+    )
+
+    uow = UnitOfWork()
+    referral_user = uow.users.get(user_id=referral_id)
+    referral_otp = referral_user.closed_loops[closed_loop_id].unique_identifier_otp
+    uow.close_connection()
+
+    _verify_user_in_closed_loop(
+        mocker=mocker,
+        client=client,
+        user_id=referral_id,
+        closed_loop_id=closed_loop_id,
+        unique_identifier_otp=referral_otp,
+    )
+
+    uow = UnitOfWork()
+    user = uow.users.get(user_id=user_id)
+    uow.close_connection()
+
+    otp = user.closed_loops[closed_loop_id].unique_identifier_otp
+
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/verify-closed-loop",
+        json={
+            "closed_loop_id": closed_loop_id,
+            "unique_identifier_otp": otp,
+            "referral_unique_identifier": referral_unique_identifier,
+        },
+        headers=headers,
+    )
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
+            message="Closed loop verified successfully",
+            status_code=200,
+        ).__dict__
+    )
+
+
 def test_verify_phone_number_api(seed_api_customer, mocker, client):
     user_id = seed_api_customer(mocker, client)
 

@@ -32,11 +32,7 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
     )
 
     # accept previously created pull transaction
-    pmt_cmd.accept_p2p_pull_transaction(
-        transaction_id=tx_id,
-        uow=uow,
-        auth_svc=acl.FakeAuthenticationService(),
-    )
+    pmt_cmd.accept_p2p_pull_transaction(transaction_id=tx_id, uow=uow)
 
     # fetch tx from memory
     fetched_tx = uow.transactions.get(transaction_id=tx_id)
@@ -341,3 +337,79 @@ def test_failing_txn(seed_verified_auth_user):
     assert fetched_failed_tx.amount == 1000
     assert fetched_failed_tx.status == pmt_mdl.TransactionStatus.FAILED
     uow.close_connection()
+
+
+def test_accept_payment_gateway(seed_verified_auth_user):
+    uow = FakeUnitOfWork()
+    user, _ = seed_verified_auth_user(uow)
+    pp_user, _ = seed_verified_auth_user(uow)
+
+    uow.transactions.add_1000_wallet(wallet_id=pp_user.id)
+    tx_id = str(uuid4())
+
+    auth_svc = acl.FakeAuthenticationService()
+    pp_svc = acl.FakePayproService()
+    pp_svc.set_paypro_wallet(wallet_id=pp_user.id)
+
+    pmt_cmd.create_deposit_request(
+        tx_id=tx_id,
+        user_id=user.id,
+        amount=1000,
+        auth_svc=auth_svc,
+        pp_svc=pp_svc,
+        uow=uow,
+    )
+
+    fetched_tx = uow.transactions.get(transaction_id=tx_id)
+
+    assert fetched_tx.id == tx_id
+    assert fetched_tx.amount == 1000
+    assert fetched_tx.mode == pmt_mdl.TransactionMode.APP_TRANSFER
+    assert fetched_tx.transaction_type == pmt_mdl.TransactionType.PAYMENT_GATEWAY
+    assert fetched_tx.status == pmt_mdl.TransactionStatus.PENDING
+    assert fetched_tx.recipient_wallet.balance == 0
+    assert fetched_tx.sender_wallet.balance == 1000
+
+    pmt_cmd.accept_payment_gateway_transaction(transaction_id=tx_id, uow=uow)
+
+    fetched_tx = uow.transactions.get(transaction_id=tx_id)
+
+    assert fetched_tx.id == tx_id
+    assert fetched_tx.amount == 1000
+    assert fetched_tx.mode == pmt_mdl.TransactionMode.APP_TRANSFER
+    assert fetched_tx.transaction_type == pmt_mdl.TransactionType.PAYMENT_GATEWAY
+    assert fetched_tx.status == pmt_mdl.TransactionStatus.SUCCESSFUL
+    assert fetched_tx.recipient_wallet.balance == 1000
+    assert fetched_tx.sender_wallet.balance == 0
+
+
+def test_create_deposit_request(seed_verified_auth_user, seed_wallet):
+    uow = FakeUnitOfWork()
+    user, _ = seed_verified_auth_user(uow)
+    pp_user, _ = seed_verified_auth_user(uow)
+
+    uow.transactions.add_1000_wallet(wallet_id=pp_user.id)
+    tx_id = str(uuid4())
+
+    auth_svc = acl.FakeAuthenticationService()
+    pp_svc = acl.FakePayproService()
+    pp_svc.set_paypro_wallet(wallet_id=pp_user.id)
+
+    pmt_cmd.create_deposit_request(
+        tx_id=tx_id,
+        user_id=user.id,
+        amount=1000,
+        auth_svc=auth_svc,
+        pp_svc=pp_svc,
+        uow=uow,
+    )
+
+    fetched_tx = uow.transactions.get(transaction_id=tx_id)
+
+    assert fetched_tx.id == tx_id
+    assert fetched_tx.amount == 1000
+    assert fetched_tx.mode == pmt_mdl.TransactionMode.APP_TRANSFER
+    assert fetched_tx.transaction_type == pmt_mdl.TransactionType.PAYMENT_GATEWAY
+    assert fetched_tx.status == pmt_mdl.TransactionStatus.PENDING
+    assert fetched_tx.recipient_wallet.balance == 0
+    assert fetched_tx.sender_wallet.balance == 1000

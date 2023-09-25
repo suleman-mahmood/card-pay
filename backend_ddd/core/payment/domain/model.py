@@ -1,8 +1,9 @@
 """payments microservices domain model"""
 from dataclasses import dataclass, field
-from uuid import uuid4
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from uuid import uuid4
+
 from core.payment.domain import exceptions as ex
 
 TX_UPPER_LIMIT = 10000
@@ -65,21 +66,19 @@ class Transaction:
     amount: int
     created_at: datetime
     last_updated: datetime
-    
+
     mode: TransactionMode
     transaction_type: TransactionType
     status: TransactionStatus
     recipient_wallet: Wallet
     sender_wallet: Wallet
 
-
     def execute_transaction(self):
         """for executing a transaction"""
+        # TODO: add check if its already successfull etc, more checks here pls
         if self.amount > self.sender_wallet.balance:
             self.status = TransactionStatus.FAILED
-            raise ex.TransactionNotAllowedException(
-                "Insufficient balance in sender's wallet"
-            )
+            raise ex.TransactionNotAllowedException("Insufficient balance in sender's wallet")
 
         if (
             self.transaction_type != TransactionType.RECONCILIATION
@@ -92,9 +91,7 @@ class Transaction:
 
         if not isinstance(self.amount, int):
             self.status = TransactionStatus.FAILED
-            raise ex.TransactionNotAllowedException(
-                "Constraint violated, amount is not an integer"
-            )
+            raise ex.TransactionNotAllowedException("Constraint violated, amount is not an integer")
 
         if self.amount <= 0:
             self.status = TransactionStatus.FAILED
@@ -129,9 +126,7 @@ class Transaction:
     def redeem_voucher(self):
         """for validating and redeeming vouchers"""
         if self.transaction_type != TransactionType.VOUCHER:
-            raise ex.TransactionNotAllowedException(
-                "This is not a voucher redemption transaction"
-            )
+            raise ex.TransactionNotAllowedException("This is not a voucher redemption transaction")
 
         if self.status != TransactionStatus.PENDING:
             raise ex.TransactionNotAllowedException(

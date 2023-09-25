@@ -330,7 +330,7 @@ def verify_closed_loop(uid):
                 pass
 
         if referral_unique_identifier != "":
-            wallet_id = pmt_qry.get_wallet_id_from_unique_identifier(
+            wallet_id = pmt_qry.get_wallet_id_from_unique_identifier_and_closed_loop_id(
                 unique_identifier=referral_unique_identifier,
                 closed_loop_id=req["closed_loop_id"],
                 uow=uow,
@@ -536,11 +536,7 @@ def accept_p2p_pull_transaction(uid):
     uow = UnitOfWork()
 
     try:
-        pmt_cmd.accept_p2p_pull_transaction(
-            transaction_id=req["transaction_id"],
-            uow=uow,
-            auth_svc=pmt_acl.AuthenticationService(),
-        )
+        pmt_cmd.accept_p2p_pull_transaction(transaction_id=req["transaction_id"], uow=uow)
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:

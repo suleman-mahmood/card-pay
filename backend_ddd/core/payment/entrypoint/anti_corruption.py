@@ -1,11 +1,14 @@
-from dataclasses import dataclass
-from core.entrypoint.uow import AbstractUnitOfWork
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import queries as auth_qry
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
 from core.payment.entrypoint import view_models as pmt_vm
-from core.authentication.domain import model as auth_mdl
-from core.payment.entrypoint import paypro_service as pp_svc
+
+PAYPRO_USER_ID = "93c74873-294f-4d64-a7cc-2435032e3553"
 
 
 @dataclass
@@ -176,9 +179,15 @@ class AbstractPayproService(ABC):
     ) -> str:
         pass
 
+    @abstractmethod
+    def get_paypro_wallet(self) -> str:
+        pass
+
 
 @dataclass
 class FakePayproService(AbstractPayproService):
+    pp_wallet_id: str = ""
+
     def get_deposit_checkout_url(
         self,
         amount: int,
@@ -189,6 +198,12 @@ class FakePayproService(AbstractPayproService):
         uow: AbstractUnitOfWork,
     ) -> str:
         return ""
+
+    def set_paypro_wallet(self, wallet_id):
+        self.pp_wallet_id = wallet_id
+
+    def get_paypro_wallet(self) -> str:
+        return self.pp_wallet_id
 
 
 @dataclass
@@ -210,3 +225,6 @@ class PayproService(AbstractPayproService):
             email=email,
             uow=uow,
         )
+
+    def get_paypro_wallet(self) -> str:
+        return PAYPRO_USER_ID
