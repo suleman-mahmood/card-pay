@@ -5,6 +5,7 @@ import 'package:cardpay/src/data/repositories/api_repository_fake.dart';
 import 'package:cardpay/src/data/repositories/api_repository_imp.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,6 +20,19 @@ Future<void> initializeDependencies() async {
 
   final dio = Dio();
   dio.interceptors.add(AwesomeDioInterceptor());
+  dio.interceptors.add(RetryInterceptor(
+    dio: dio,
+    logPrint: print, // specify log function (optional)
+    retries: 3, // retry count (optional)
+    retryDelays: const [
+      // set delays between retries (optional)
+      Duration(seconds: 1), // wait 1 sec before first retry
+      Duration(seconds: 2), // wait 2 sec before second retry
+      Duration(seconds: 2), // wait 2 sec before third retry
+      Duration(seconds: 2), // wait 2 sec before fourth retry
+      Duration(seconds: 2), // wait 2 sec before fifth retry
+    ],
+  ));
 
   locator.registerSingleton<Dio>(dio);
 
