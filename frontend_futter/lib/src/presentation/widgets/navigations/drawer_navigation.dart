@@ -87,8 +87,7 @@ class MyDrawer extends HookWidget {
                     text: item.text,
                     onTap: () {
                       if (item.route != null) {
-                        if (context.router.routeData.name !=
-                            item.route!.routeName) {
+                        if (context.routeData.name != item.route!.routeName) {
                           context.router.push(item.route!);
                         }
                         selectedRouteName.value = item.route!.routeName;

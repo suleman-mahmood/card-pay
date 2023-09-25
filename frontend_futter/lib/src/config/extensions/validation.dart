@@ -12,9 +12,11 @@ extension StringAddons on String {
 
   bool get isValidPassword {
     // Minimum eight characters, at least one letter and one number:
-    final passwordRegExp =
-        RegExp(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=-]{8,}$");
-    return passwordRegExp.hasMatch(this);
+    // final passwordRegExp =
+    //     RegExp(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=-]{8,}$");
+    // return passwordRegExp.hasMatch(this);
+    if (length < 8) return false;
+    return true;
   }
 
   bool get isValidPin {
