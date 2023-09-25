@@ -16,12 +16,6 @@ class NumPad extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    useEffect(() {
-      return () {
-        controller.dispose();
-      };
-    }, []);
-
     return Padding(
       padding: EdgeInsets.only(top: 16),
       child: Column(
@@ -60,12 +54,6 @@ class NumberPadRow extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    useEffect(() {
-      return () {
-        controller.dispose();
-      };
-    }, []);
-
     return SizedBox(
       height: height,
       child: Row(

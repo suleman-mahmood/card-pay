@@ -2,30 +2,16 @@ class PaymentStrings {
   static const String greet = 'Hello';
 
   static const List<String> phoneCountryCodes = ['+92', '+91', '+7'];
-  static const List<String> quickAmountsDeposit = [
-    '1,000',
-    '2,500',
-    '3,500',
-    '5,000',
-    '7,500',
-    '10,000'
+  static const List<int> quickAmountsDeposit = [
+    1000,
+    2500,
+    3500,
+    5000,
+    7500,
+    10000
   ];
-  static const List<String> quickAmountsTransfer = [
-    '100',
-    '200',
-    '250',
-    '500',
-    '750',
-    '1000'
-  ];
-  static const List<String> quickAmountsQr = [
-    '100',
-    '200',
-    '250',
-    '500',
-    '750',
-    '1000'
-  ];
+  static const List<int> quickAmountsTransfer = [100, 200, 250, 500, 750, 1000];
+  static const List<int> quickAmountsQr = [100, 200, 250, 500, 750, 1000];
 
   static const String name = 'Talha';
   static const String fName = 'Talha husnain';

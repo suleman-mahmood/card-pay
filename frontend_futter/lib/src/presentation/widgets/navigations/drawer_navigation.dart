@@ -33,7 +33,7 @@ class MyDrawer extends HookWidget {
     DrawerItem(
         icon: Icons.home,
         text: PaymentStrings.home,
-        route: PaymentDashboardRoute()),
+        route: DashboardLayoutRoute()),
     DrawerItem(
         icon: Icons.phone_outlined,
         text: PaymentStrings.help,
@@ -87,7 +87,10 @@ class MyDrawer extends HookWidget {
                     text: item.text,
                     onTap: () {
                       if (item.route != null) {
-                        context.router.push(item.route!);
+                        if (context.router.routeData.name !=
+                            item.route!.routeName) {
+                          context.router.push(item.route!);
+                        }
                         selectedRouteName.value = item.route!.routeName;
                       } else {
                         item.onClick!();

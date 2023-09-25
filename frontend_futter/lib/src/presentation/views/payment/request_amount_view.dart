@@ -29,16 +29,9 @@ class RequestAmountView extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final paymentController = useTextEditingController(text: '');
-    final selectedButton = useState<String?>(null);
 
     final transferCubit = BlocProvider.of<TransferCubit>(context);
     final fullNameCubit = BlocProvider.of<FullNameCubit>(context);
-
-    useEffect(() {
-      return () {
-        paymentController.dispose();
-      };
-    }, []);
 
     Widget buildAmountDisplay() {
       return PaddingAll(
@@ -68,7 +61,7 @@ class RequestAmountView extends HookWidget {
       );
     }
 
-    Widget paymentButton(String amount) {
+    Widget paymentButton(int amount) {
       return OutlinedButton(
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: AppColors.greyColor),
@@ -76,13 +69,10 @@ class RequestAmountView extends HookWidget {
             borderRadius: BorderRadius.circular(10),
           ),
         ),
-        onPressed: () {
-          selectedButton.value = amount;
-          paymentController.text = amount;
-        },
+        onPressed: () => paymentController.text = amount.toString(),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          child: Text(amount, style: AppTypography.bodyText),
+          child: Text(amount.toString(), style: AppTypography.bodyText),
         ),
       );
     }

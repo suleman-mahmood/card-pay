@@ -119,12 +119,6 @@ class LoginView extends HookWidget {
       );
     }
 
-    useEffect(() {
-      return () {
-        phoneNumberController.dispose();
-      };
-    }, []);
-
     return AuthLayout(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),

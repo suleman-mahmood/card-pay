@@ -38,12 +38,6 @@ class CustomInputField extends HookWidget {
       passwordVisible.value = !passwordVisible.value;
     }
 
-    useEffect(() {
-      return () {
-        controller?.dispose();
-      };
-    }, [controller]);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

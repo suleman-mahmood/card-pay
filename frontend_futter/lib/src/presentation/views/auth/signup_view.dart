@@ -50,12 +50,6 @@ class SignupView extends HookWidget {
     final signupCubit = BlocProvider.of<SignupCubit>(context);
     final closedLoopCubit = BlocProvider.of<ClosedLoopCubit>(context);
 
-    useEffect(() {
-      return () {
-        phoneNumberController.dispose();
-      };
-    }, []);
-
     void _showOTPBottomSheet() {
       showModalBottomSheet(
         context: context,

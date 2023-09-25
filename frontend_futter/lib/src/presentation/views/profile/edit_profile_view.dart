@@ -101,11 +101,6 @@ class EditProfileView extends HookWidget {
           );
         },
       );
-      useEffect(() {
-        return () {
-          Navigator.of(modalContext).pop();
-        };
-      }, []);
     }
 
     void onPhoneNumberChanged(String newValue) {
@@ -169,11 +164,6 @@ class EditProfileView extends HookWidget {
           );
         },
       );
-      useEffect(() {
-        return () {
-          Navigator.of(modalContext).pop();
-        };
-      }, []);
     }
 
     void _showBottomSheetDelete() {
@@ -220,11 +210,6 @@ class EditProfileView extends HookWidget {
           );
         },
       );
-      useEffect(() {
-        return () {
-          Navigator.of(modalContext).pop();
-        };
-      }, []);
     }
 
     return ProfileLayout(

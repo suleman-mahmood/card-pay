@@ -66,14 +66,6 @@ class OTPInput extends HookWidget {
       (index) => useTextEditingController(),
     );
 
-    useEffect(() {
-      return () {
-        for (var controller in controllers) {
-          controller.dispose();
-        }
-      };
-    }, []);
-
     return PaddingHorizontal(
       slab: 1,
       child: Row(

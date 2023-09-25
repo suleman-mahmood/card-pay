@@ -35,12 +35,6 @@ class PinView extends HookWidget {
 
     String prevPin = '';
 
-    useEffect(() {
-      return () {
-        pinController.dispose();
-      };
-    }, []);
-
     void handlePinSetup() {
       String newPin = pinController.text;
 
