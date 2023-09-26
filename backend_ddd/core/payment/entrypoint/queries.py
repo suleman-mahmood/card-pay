@@ -459,6 +459,7 @@ def payment_retools_get_reconciled_transactions(
                 or txn.recipient_wallet_id = %(vendor_id)s
             )
             and txn.status = 'SUCCESSFUL'::transaction_status_enum
+            and txn.transaction_type != 'RECONCILIATION'::transaction_type_enum
             and txn.last_updated < %(ts)s
     """
 
