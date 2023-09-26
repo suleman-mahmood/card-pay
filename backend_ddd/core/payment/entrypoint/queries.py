@@ -394,17 +394,33 @@ def payment_retools_get_reconciliation_history(
 
 
 def payment_retools_get_reconciled_transactions(
-    reconciliation_timestamp: str,
+    reconciliation_txn_id: str,
     vendor_id: str,
     uow: AbstractUnitOfWork,
 ) -> List[pmt_vm.TransactionWithIdsDTO]:
-    datetime_obj = datetime.strptime(reconciliation_timestamp, "%a, %d %b %Y %H:%M:%S %Z")
-    formatted_reconciliation_timestamp = datetime_obj.strftime("%Y-%m-%d %H:%M:%S.%f")
+   
+    sql = """
+        select
+            created_at
+        from
+            transactions
+        where
+            id = %(reconciliation_txn_id)s
+    """
 
-    # NOTE: the above time is not perfect to the millisecond
+    uow.dict_cursor.execute(
+        sql,
+        {
+            "reconciliation_txn_id": reconciliation_txn_id
+        },
+    )
+
+    selected_reconciliation_timestamp = uow.dict_cursor.fetchone()
+
+
     sql = """
         select 
-            max(created_at)
+            max(created_at) as prev_created_at
         from 
             transactions
         where 
@@ -416,7 +432,7 @@ def payment_retools_get_reconciled_transactions(
     uow.dict_cursor.execute(
         sql,
         {
-            "ts": str(formatted_reconciliation_timestamp),
+            "ts": str(selected_reconciliation_timestamp["created_at"]),
             "vendor_id": vendor_id,
         },
     )
@@ -446,12 +462,12 @@ def payment_retools_get_reconciled_transactions(
                 txn.sender_wallet_id = %(vendor_id)s 
                 or txn.recipient_wallet_id = %(vendor_id)s
             )
-            and txn.status != 'PENDING'::transaction_status_enum
+            and txn.status = 'SUCCESSFUL'::transaction_status_enum
             and txn.last_updated < %(ts)s
     """
 
-    if row is not None and row["max"] is not None:
-        previous_reconciliation_timestamp = row["max"]
+    if row is not None and row["prev_created_at"] is not None:
+        previous_reconciliation_timestamp = row["prev_created_at"]
         sql += f" and txn.last_updated >= '{str(previous_reconciliation_timestamp)}'"
 
     sql += " order by txn.last_updated desc"
@@ -460,7 +476,7 @@ def payment_retools_get_reconciled_transactions(
         sql,
         {
             "vendor_id": vendor_id,
-            "ts": str(formatted_reconciliation_timestamp),
+            "ts": str(selected_reconciliation_timestamp["created_at"]),
         },
     )
     rows = uow.dict_cursor.fetchall()

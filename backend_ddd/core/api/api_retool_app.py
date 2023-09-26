@@ -527,17 +527,18 @@ def payment_retools_get_reconciliation_history():
 @utils.validate_json_payload(
     required_parameters={
         "vendor_id": sch.UuidSchema,
-        "reconciliation_timestamp": sch.TimestampSchema,
+        "reconciliation_txn_id": sch.UuidSchema,
     }
 )
 def payment_retools_get_reconciled_transactions():
     req = request.get_json(force=True)
     uow = UnitOfWork()
     transactions = pmt_qry.payment_retools_get_reconciled_transactions(
-        reconciliation_timestamp=req["reconciliation_timestamp"],
         vendor_id=req["vendor_id"],
+        reconciliation_txn_id=req["reconciliation_txn_id"],
         uow=uow,
     )
+
     uow.close_connection()
 
     return utils.Response(
