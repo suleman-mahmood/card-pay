@@ -398,7 +398,6 @@ def payment_retools_get_reconciled_transactions(
     vendor_id: str,
     uow: AbstractUnitOfWork,
 ) -> List[pmt_vm.TransactionWithIdsDTO]:
-   
     sql = """
         select
             created_at
@@ -410,13 +409,10 @@ def payment_retools_get_reconciled_transactions(
 
     uow.dict_cursor.execute(
         sql,
-        {
-            "reconciliation_txn_id": reconciliation_txn_id
-        },
+        {"reconciliation_txn_id": reconciliation_txn_id},
     )
 
     selected_reconciliation_timestamp = uow.dict_cursor.fetchone()
-
 
     sql = """
         select 
@@ -468,7 +464,7 @@ def payment_retools_get_reconciled_transactions(
 
     if row is not None and row["prev_created_at"] is not None:
         previous_reconciliation_timestamp = row["prev_created_at"]
-        sql += f" and txn.last_updated >= '{str(previous_reconciliation_timestamp)}'"
+        sql += f" and txn.last_updated > '{str(previous_reconciliation_timestamp)}'"
 
     sql += " order by txn.last_updated desc"
 
