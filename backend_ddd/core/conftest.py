@@ -49,7 +49,7 @@ def initialize_pytest_config(mocker):
 @pytest.fixture()
 def app():
     app = flask_app
-    sentry_sdk.init(None)  # Disable the initialized sentry
+    sentry_sdk.init(transport = print)  # Disable the initialized sentry
     app.config.update(
         {
             "TESTING": True,
