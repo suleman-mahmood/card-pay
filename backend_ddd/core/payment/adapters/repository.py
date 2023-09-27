@@ -47,10 +47,6 @@ class TransactionAbstractRepository(ABC):
     def save(self, transaction: mdl.Transaction):
         pass
 
-    @abstractmethod
-    def add_1000_wallet(self, wallet_id: str):
-        pass
-
 
 class FakeTransactionRepository(TransactionAbstractRepository):
     """Fake Transaction Repository"""
@@ -106,12 +102,6 @@ class FakeTransactionRepository(TransactionAbstractRepository):
         tx.sender_wallet = self.wallets[tx.sender_wallet.id]
         tx.recipient_wallet = self.wallets[recipient_wallet_id]
         return tx
-
-    # only for test
-    def add_1000_wallet(self, wallet_id: str):
-        wallet = self.wallets[wallet_id]
-        wallet.balance += 1000
-        self.wallets[wallet_id] = wallet
 
     def get_wallet(self, wallet_id: str):
         return self.wallets[wallet_id]
@@ -371,20 +361,5 @@ class TransactionRepository(TransactionAbstractRepository):
             [
                 transaction.recipient_wallet.balance,
                 transaction.recipient_wallet.id,
-            ],
-        )
-
-    def add_1000_wallet(self, wallet_id: str):
-        # update wallet balance
-        sql = """
-            update wallets
-            set balance = %s
-            where id=%s
-        """
-        self.cursor.execute(
-            sql,
-            [
-                1000,
-                wallet_id,
             ],
         )

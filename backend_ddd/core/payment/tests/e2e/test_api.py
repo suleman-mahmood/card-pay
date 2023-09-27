@@ -32,7 +32,7 @@ def _post_p2p_push_transaction(client, url, json_data, headers):
 
 
 def test_execute_p2p_push_one_to_many_valid(
-    seed_api_admin, seed_api_cardpay, seed_api_customer, mocker, client
+    seed_api_admin, seed_api_cardpay, seed_api_customer, add_1000_wallet, mocker, client
 ):
     """
     Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
@@ -108,7 +108,7 @@ def test_execute_p2p_push_one_to_many_valid(
         )
         for recipient_id in recipient_ids
     ]
-    uow.transactions.add_1000_wallet(wallet_id=sender_id)
+    add_1000_wallet(uow=uow, wallet_id=sender_id)
     uow.commit_close_connection()
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
@@ -193,7 +193,7 @@ def test_execute_p2p_push_one_to_many_valid(
 
 
 def test_execute_p2p_push_one_to_many_all_invalid(
-    seed_api_admin, seed_api_cardpay, seed_api_customer, mocker, client
+    seed_api_admin, seed_api_cardpay, seed_api_customer, add_1000_wallet, mocker, client
 ):
     """
     Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
@@ -270,7 +270,7 @@ def test_execute_p2p_push_one_to_many_all_invalid(
         )
         for recipient_id in recipient_ids
     ]
-    uow.transactions.add_1000_wallet(wallet_id=sender_id)
+    add_1000_wallet(uow=uow, wallet_id=sender_id)
     uow.commit_close_connection()
 
     post_requests = [
@@ -317,7 +317,7 @@ def test_execute_p2p_push_one_to_many_all_invalid(
 
 
 def test_execute_p2p_push_one_to_many_half_valid_invalid(
-    seed_api_admin, seed_api_cardpay, seed_api_customer, mocker, client
+    seed_api_admin, seed_api_cardpay, seed_api_customer, add_1000_wallet, mocker, client
 ):
     """
     Testing NUMBER_OF_RECIPIENTS transactions in parallel. Setup invloves one sender and NUMBER_OF_RECIPIENTS recipients.
@@ -388,7 +388,7 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
         )
         for recipient_id in recipient_ids
     ]
-    uow.transactions.add_1000_wallet(wallet_id=sender_id)
+    add_1000_wallet(uow=uow, wallet_id=sender_id)
     uow.commit_close_connection()
 
     post_requests = [
@@ -436,7 +436,7 @@ def test_execute_p2p_push_one_to_many_half_valid_invalid(
 
 
 def test_execute_p2p_push_api(
-    seed_api_admin, seed_api_customer, seed_api_cardpay, mocker, client
+    seed_api_admin, seed_api_customer, seed_api_cardpay, add_1000_wallet, mocker, client
 ):
     sender_id = seed_api_customer(mocker, client)
     recipient_id = seed_api_customer(mocker, client)
@@ -490,7 +490,7 @@ def test_execute_p2p_push_api(
         )
     )
 
-    uow.transactions.add_1000_wallet(wallet_id=sender_id)
+    add_1000_wallet(uow=uow, wallet_id=sender_id)
     uow.commit_close_connection()
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)

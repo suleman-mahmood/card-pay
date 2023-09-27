@@ -7,7 +7,13 @@ from core.api.api import app as flask_app
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import queries as auth_qry
-from core.entrypoint.uow import UnitOfWork
+from core.entrypoint.uow import AbstractUnitOfWork, UnitOfWork, FakeUnitOfWork
+from core.payment.domain import model as pmt_mdl
+from core.authentication.entrypoint import anti_corruption as auth_acl
+from core.payment.entrypoint import commands as pmt_cmd
+from copy import deepcopy
+from typing import Tuple
+from datetime import datetime
 
 
 @pytest.fixture(autouse=True)
@@ -125,6 +131,252 @@ def seed_api_admin():
         return user_id
 
     return _seed_api_user
+
+
+@pytest.fixture
+def seed_user():
+    def _seed_user() -> auth_mdl.User:
+        uid = str(uuid4())
+
+        return auth_mdl.User(
+            id=uid,
+            personal_email=auth_mdl.PersonalEmail(value="sulemanmahmood99@gmail.com"),
+            user_type=auth_mdl.UserType.CUSTOMER,
+            phone_number=auth_mdl.PhoneNumber(value="3000000000"),
+            pin="0000",
+            full_name="Suleman Mahmood",
+            location=auth_mdl.Location(latitude=0, longitude=0),
+            wallet_id=uid,
+        )
+
+    return _seed_user
+
+
+@pytest.fixture
+def seed_closed_loop():
+    def _seed_closed_loop() -> auth_mdl.ClosedLoop:
+        return auth_mdl.ClosedLoop(
+            id=str(uuid4()),
+            name="Test Loop",
+            logo_url="https://www.google.com",
+            description="This is a test loop.",
+            regex="No regex yet",
+            verification_type=auth_mdl.ClosedLoopVerificationType.ROLLNUMBER,
+        )
+
+    return _seed_closed_loop
+
+
+@pytest.fixture
+def seed_closed_loop_user():
+    def _seed_closed_loop_user() -> auth_mdl.ClosedLoopUser:
+        return auth_mdl.ClosedLoopUser(
+            id=str(uuid4()),
+            closed_loop_id=str(uuid4()),
+            created_at=datetime.now(),
+            status=auth_mdl.ClosedLoopUserState.UN_VERIFIED,
+            unique_identifier=None,
+            unique_identifier_otp="1234",
+        )
+
+    return _seed_closed_loop_user
+
+
+@pytest.fixture
+def seed_auth_user():
+    def _seed_auth_user(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+        user_id = str(uuid4())
+        user = auth_mdl.User(
+            id=user_id,
+            personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
+            phone_number=auth_mdl.PhoneNumber(value="03034952255"),
+            user_type=auth_mdl.UserType.CUSTOMER,
+            pin="0000",
+            full_name="Malik Muhammad Moaz",
+            location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
+            wallet_id=user_id,
+        )
+        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
+        uow.transactions.add_wallet(
+            wallet=wallet,
+        )
+        uow.users.add(user)
+
+        return deepcopy(user), deepcopy(wallet)
+
+    return _seed_auth_user
+
+
+@pytest.fixture
+def seed_verified_auth_user(seed_auth_user):
+    def _seed_auth_user(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+        user, wallet = seed_auth_user(uow)
+        auth_cmd.verify_phone_number(
+            user_id=user.id,
+            otp=user.otp,
+            uow=uow,
+        )
+        return user, wallet
+
+    return _seed_auth_user
+
+
+@pytest.fixture
+def seed_auth_closed_loop():
+    def _seed_auth_closed_loop(id: str, uow: AbstractUnitOfWork):
+        auth_cmd.create_closed_loop(
+            id=id,
+            name="Test Closed Loop",
+            logo_url="https://test.com/logo.png",
+            description="Test description",
+            regex="No regex yet",
+            verification_type="NONE",
+            uow=uow,
+        )
+
+    return _seed_auth_closed_loop
+
+
+@pytest.fixture
+def seed_auth_vendor():
+    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+        user_id = str(uuid4())
+        user = auth_mdl.User(
+            id=user_id,
+            personal_email=auth_mdl.PersonalEmail(value="zainalikhokhar40@gmail.com"),
+            phone_number=auth_mdl.PhoneNumber(value="+923123456789"),
+            user_type=auth_mdl.UserType.VENDOR,
+            pin="1234",
+            full_name="Zain Ali Khokhar",
+            location=auth_mdl.Location(latitude=0, longitude=0),
+            wallet_id=user_id,
+        )
+        wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
+        uow.transactions.add_wallet(
+            wallet=wallet,
+        )
+        uow.users.add(user)
+
+        return user, wallet
+
+    return _seed_auth_vendor
+
+
+@pytest.fixture
+def seed_verified_auth_vendor(seed_auth_vendor):
+    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+        user, wallet = seed_auth_vendor(uow)
+        auth_cmd.verify_phone_number(
+            user_id=user.id,
+            otp=user.otp,
+            uow=uow,
+        )
+        return user, wallet
+
+    return _seed_auth_vendor
+
+@pytest.fixture
+def seed_auth_cardpay():
+    def _seed_auth_cardpay(uow: AbstractUnitOfWork) -> auth_mdl.User:
+        user_id = str(uuid4())
+        user = auth_mdl.User(
+            id=user_id,
+            personal_email=auth_mdl.PersonalEmail(value="cpay@gmail.com"),
+            phone_number=auth_mdl.PhoneNumber(value="+923123456987"),
+            user_type=auth_mdl.UserType.CARDPAY,
+            pin="1234",
+            full_name="Card Pay",
+            location=auth_mdl.Location(latitude=0, longitude=0),
+            wallet_id=user_id,
+        )
+
+        uow.transactions.add_wallet(
+            wallet=pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
+        )
+        uow.users.add(user)
+
+        return user
+
+    return _seed_auth_cardpay
+
+
+@pytest.fixture
+def seed_verified_auth_cardpay_fake(seed_auth_cardpay):
+    def _seed_auth_cardpay(uow: AbstractUnitOfWork) -> auth_mdl.User:
+        user = seed_auth_cardpay(uow)
+        auth_cmd.verify_phone_number(
+            user_id=user.id,
+            otp=user.otp,
+            uow=uow,
+        )
+        return user
+
+    return _seed_auth_cardpay
+
+@pytest.fixture
+def seed_starred_wallet(add_1000_wallet):
+    def _seed_starred_wallet(uow: AbstractUnitOfWork):
+        user_id = str(uuid4())
+
+        user = auth_mdl.User(
+            id=user_id,
+            personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
+            phone_number=auth_mdl.PhoneNumber(value="03269507423"),
+            user_type=auth_mdl.UserType.CUSTOMER,
+            pin="1234",
+            full_name="CardPay",
+            location=auth_mdl.Location(latitude=0, longitude=0),
+            wallet_id=user_id,
+            is_phone_number_verified=True,
+        )
+
+        pmt_cmd.create_wallet(user_id=user_id, uow=uow)
+        uow.users.add(user)
+
+        add_1000_wallet(wallet_id=user_id, uow=uow)
+
+        delete_sql = """
+            delete from starred_wallet_id
+        """
+        uow.cursor.execute(delete_sql)
+
+        sql = """
+            insert into starred_wallet_id
+            values (%s)
+        """
+        uow.cursor.execute(sql, [user_id])
+        return user_id
+
+    return _seed_starred_wallet
+
+@pytest.fixture
+def add_1000_wallet():
+    def add_1000_wallet_factory(uow: AbstractUnitOfWork, wallet_id: str):
+            # update wallet balance
+            sql = """
+                update wallets
+                set balance = %s
+                where id=%s
+            """
+            uow.cursor.execute(
+                sql,
+                [
+                    1000,
+                    wallet_id,
+                ],
+            )
+    
+    return add_1000_wallet_factory
+
+@pytest.fixture
+def add_1000_wallet_fake():
+    def add_1000_wallet_factory(uow: FakeUnitOfWork, wallet_id: str):
+            # update wallet balance
+        wallet = uow.transactions.wallets[wallet_id]
+        wallet.balance += 1000
+        uow.transactions.wallets[wallet_id] = wallet
+    
+    return add_1000_wallet_factory
 
 
 # API TEST HELPER FUNCTIONS

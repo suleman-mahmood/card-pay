@@ -1,11 +1,9 @@
 # from core.payment.entrypoint import commands as pmt_cmd
 # from core.payment.entrypoint import queries as pmt_qry
-from core.authentication.tests.conftest import *
 
 # from core.marketing.entrypoint import queries as mktg_qry
 from core.entrypoint.uow import FakeUnitOfWork
 from core.marketing.entrypoint import commands as mktg_cmd
-from core.marketing.tests.conftest import *
 
 # from core.marketing.tests.conftest import seed_starred_wallet
 # from uuid import uuid4
