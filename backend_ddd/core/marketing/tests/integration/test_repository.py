@@ -2,7 +2,6 @@ import pytest
 from core.entrypoint.uow import UnitOfWork
 from core.marketing.domain import model as mdl
 from core.payment.domain import model as pmt_mdl
-from core.authentication.tests.conftest import seed_auth_user
 
 
 def test_marketing_user_repository_add_get_save(seed_auth_user):

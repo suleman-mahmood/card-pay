@@ -2,7 +2,6 @@ from uuid import uuid4
 
 import pytest
 from core.authentication.domain import model as auth_mdl
-from core.authentication.tests.conftest import *
 from core.entrypoint.uow import AbstractUnitOfWork, FakeUnitOfWork
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as acl
@@ -10,13 +9,13 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 
 
-def test_accept_p2p_pull_transaction(seed_verified_auth_user):
+def test_accept_p2p_pull_transaction(seed_verified_auth_user,add_1000_wallet_fake):
     uow = FakeUnitOfWork()
     _, sender_wallet = seed_verified_auth_user(uow)
     _, recipient_wallet = seed_verified_auth_user(uow)
 
     # for testing purposes
-    uow.transactions.add_1000_wallet(wallet_id=sender_wallet.id)
+    add_1000_wallet_fake(uow=uow, wallet_id=sender_wallet.id)
 
     # make pull transaction
     tx_id = str(uuid4())
@@ -49,13 +48,13 @@ def test_accept_p2p_pull_transaction(seed_verified_auth_user):
     uow.close_connection()
 
 
-def test_decline_p2p_pull_transaction(seed_verified_auth_user):
+def test_decline_p2p_pull_transaction(seed_verified_auth_user, add_1000_wallet_fake):
     uow = FakeUnitOfWork()
     sender, _ = seed_verified_auth_user(uow=uow)
     recipient, _ = seed_verified_auth_user(uow=uow)
 
     # for testing purposes
-    uow.transactions.add_1000_wallet(wallet_id=sender.id)
+    add_1000_wallet_fake(uow=uow,wallet_id=sender.id)
 
     tx_id = str(uuid4())
     pmt_cmd._execute_transaction(
@@ -84,11 +83,11 @@ def test_decline_p2p_pull_transaction(seed_verified_auth_user):
     uow.close_connection()
 
 
-def test_generate_voucher(seed_verified_auth_user):
+def test_generate_voucher(seed_verified_auth_user,add_1000_wallet_fake):
     uow = FakeUnitOfWork()
 
     user, _ = seed_verified_auth_user(uow=uow)
-    uow.transactions.add_1000_wallet(wallet_id=user.id)
+    add_1000_wallet_fake(uow=uow, wallet_id=user.id)
 
     tx_id = str(uuid4())
     pmt_cmd.generate_voucher(
@@ -108,12 +107,12 @@ def test_generate_voucher(seed_verified_auth_user):
     assert fetched_tx.status == pmt_mdl.TransactionStatus.PENDING
 
 
-def test_redeem_voucher(seed_verified_auth_user):
+def test_redeem_voucher(seed_verified_auth_user, add_1000_wallet_fake):
     uow = FakeUnitOfWork()
     generator, _ = seed_verified_auth_user(uow=uow)
     redeemer, _ = seed_verified_auth_user(uow=uow)
 
-    uow.transactions.add_1000_wallet(wallet_id=generator.id)
+    add_1000_wallet_fake(uow=uow, wallet_id=generator.id)
 
     tx_id = str(uuid4())
     pmt_cmd.generate_voucher(
@@ -138,14 +137,14 @@ def test_redeem_voucher(seed_verified_auth_user):
     assert fetched_tx.status == pmt_mdl.TransactionStatus.SUCCESSFUL
 
 
-def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_user):
+def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_user, add_1000_wallet_fake):
     uow = FakeUnitOfWork()
     auth_svc = acl.FakeAuthenticationService()
     pmt_svc = acl.FakePaymentService()
     sender_customer, _ = seed_verified_auth_user(uow)
     vendor, vendor_wallet = seed_verified_auth_vendor(uow)
 
-    uow.transactions.add_1000_wallet(wallet_id=sender_customer.wallet_id)
+    add_1000_wallet_fake(uow=uow,wallet_id=sender_customer.wallet_id)
 
     # test qr txn to invalid qr version
     with pytest.raises(pmt_svc_ex.InvalidQRVersionException, match="Invalid QR version"):
@@ -243,16 +242,16 @@ def test_execute_qr_transaction(seed_verified_auth_vendor, seed_verified_auth_us
 
 
 def test_reconcile_vendor(
-    seed_verified_auth_user, seed_verified_auth_vendor, seed_verified_auth_cardpay
+    seed_verified_auth_user, seed_verified_auth_vendor, seed_verified_auth_cardpay_fake, add_1000_wallet_fake
 ):
     uow = FakeUnitOfWork()
     sender_customer, _ = seed_verified_auth_user(uow)
     recipient_vendor, vendor_wallet = seed_verified_auth_vendor(uow)
-    cardpay = seed_verified_auth_cardpay(uow)
+    cardpay = seed_verified_auth_cardpay_fake(uow)
     auth_svc = acl.FakeAuthenticationService()
     pmt_svc = acl.FakePaymentService()
 
-    uow.transactions.add_1000_wallet(wallet_id=sender_customer.wallet_id)
+    add_1000_wallet_fake(uow=uow,wallet_id=sender_customer.wallet_id)
     pmt_svc.set_user_wallet_id_and_type(
         wallet_id=vendor_wallet.id, user_type=auth_mdl.UserType.VENDOR
     )
@@ -339,12 +338,12 @@ def test_failing_txn(seed_verified_auth_user):
     uow.close_connection()
 
 
-def test_accept_payment_gateway(seed_verified_auth_user):
+def test_accept_payment_gateway(seed_verified_auth_user, add_1000_wallet_fake):
     uow = FakeUnitOfWork()
     user, _ = seed_verified_auth_user(uow)
     pp_user, _ = seed_verified_auth_user(uow)
 
-    uow.transactions.add_1000_wallet(wallet_id=pp_user.id)
+    add_1000_wallet_fake(uow= uow, wallet_id=pp_user.id)
     tx_id = str(uuid4())
 
     auth_svc = acl.FakeAuthenticationService()
@@ -383,12 +382,12 @@ def test_accept_payment_gateway(seed_verified_auth_user):
     assert fetched_tx.sender_wallet.balance == 0
 
 
-def test_create_deposit_request(seed_verified_auth_user, seed_wallet):
+def test_create_deposit_request(seed_verified_auth_user, seed_wallet, add_1000_wallet_fake):
     uow = FakeUnitOfWork()
     user, _ = seed_verified_auth_user(uow)
     pp_user, _ = seed_verified_auth_user(uow)
 
-    uow.transactions.add_1000_wallet(wallet_id=pp_user.id)
+    add_1000_wallet_fake(uow=uow, wallet_id=pp_user.id)
     tx_id = str(uuid4())
 
     auth_svc = acl.FakeAuthenticationService()

@@ -533,60 +533,6 @@ def get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
     return vendors
 
 
-def vendor_app_get_transactions_to_be_reconciled(
-    vendor_id: str,
-    uow: AbstractUnitOfWork,
-) -> List[pmt_vm.TransactionWithIdsDTO]:
-    sql = """
-        select 
-            max(created_at)
-        from
-            transactions
-        where 
-            transaction_type = 'RECONCILIATION'::transaction_type_enum
-            and sender_wallet_id = %(vendor_id)s;
-    """
-
-    uow.dict_cursor.execute(sql, {"vendor_id": vendor_id})
-    row = uow.dict_cursor.fetchone()
-
-    sql = """
-        select 
-            txn.id, 
-            txn.amount, 
-            txn.mode, 
-            txn.transaction_type, 
-            txn.status, 
-            txn.created_at, 
-            txn.last_updated,
-            txn.sender_wallet_id as sender_id,
-            txn.recipient_wallet_id as recipient_id,
-            sender.full_name as sender_name,
-            recipient.full_name as recipient_name
-        from 
-            transactions txn
-            inner join users sender on txn.sender_wallet_id = sender.id
-            inner join users recipient on txn.recipient_wallet_id = recipient.id
-        where
-            txn.recipient_wallet_id = %(vendor_id)s
-            and txn.status = 'SUCCESSFUL'::transaction_status_enum
-            and txn.transaction_type != 'RECONCILIATION'::transaction_type_enum
-    """
-
-    if row is not None and row["max"] is not None:
-        last_reconciliation_timestamp = row["max"]
-        sql += f" and txn.last_updated >= '{str(last_reconciliation_timestamp)}'"
-
-    sql += " order by txn.last_updated desc"
-
-    uow.dict_cursor.execute(sql, {"vendor_id": vendor_id})
-    rows = uow.dict_cursor.fetchall()
-
-    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
-
-    return transactions
-
-
 def get_tx_balance(tx_id: str, uow: AbstractUnitOfWork) -> int:
     sql = """
         select amount

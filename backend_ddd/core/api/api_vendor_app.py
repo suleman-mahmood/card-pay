@@ -22,7 +22,7 @@ cors = CORS(
 @utils.user_verified
 def get_vendor_transactions_to_be_reconciled(uid):
     uow = UnitOfWork()
-    transactions = pmt_qry.vendor_app_get_transactions_to_be_reconciled(
+    transactions = pmt_qry.payment_retools_get_transactions_to_be_reconciled(
         vendor_id=uid,
         uow=uow,
     )
