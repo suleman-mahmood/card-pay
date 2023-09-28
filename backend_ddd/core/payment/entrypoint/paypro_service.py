@@ -12,6 +12,8 @@ from core.payment.entrypoint import commands as cmd
 from core.payment.entrypoint import utils
 from core.payment.entrypoint.exceptions import *
 
+REQUEST_TIMEOUT = 10  # 10 seconds
+
 
 def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
     sql = """
@@ -59,7 +61,11 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
         },
     }
 
-    pp_auth_res = requests.request(**config)
+    try:
+        pp_auth_res = requests.request(**config, timeout=REQUEST_TIMEOUT)
+    except requests.exceptions.Timeout:
+        raise PayProsGetAuthTokenTimedOut("PayPro's request timed out, retry again please!")
+
     pp_auth_res.raise_for_status()
 
     auth_token = pp_auth_res.headers.get("token")
@@ -140,14 +146,18 @@ def get_deposit_checkout_url(
         },
     )
 
-    # pp_order_res = requests.request(**config)
-    pp_order_res = requests.post(
-        config["url"],
-        headers=config["headers"],
-        data=json.dumps(
-            config["data"],
-        ),
-    )
+    try:
+        pp_order_res = requests.post(
+            config["url"],
+            headers=config["headers"],
+            data=json.dumps(
+                config["data"],
+            ),
+            timeout=REQUEST_TIMEOUT,
+        )
+    except requests.exceptions.Timeout:
+        raise PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
+
     pp_order_res.raise_for_status()
 
     logging.info(

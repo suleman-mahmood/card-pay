@@ -18,6 +18,14 @@ class PaymentUrlNotFoundException(Exception):
     """exception raised for when payment url is not found"""
 
 
+class PayProsCreateOrderTimedOut(Exception):
+    """PayPro's request timed out, retry again please!"""
+
+
+class PayProsGetAuthTokenTimedOut(Exception):
+    """PayPro's request timed out, retry again please!"""
+
+
 class NotVerifiedException(Exception):
     """User is not verified"""
 

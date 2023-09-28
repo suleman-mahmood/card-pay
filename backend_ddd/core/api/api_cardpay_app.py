@@ -481,6 +481,8 @@ def create_deposit_request(uid):
         pmt_svc_ex.DepositAmountTooSmallException,
         pmt_svc_ex.NotVerifiedException,
         pmt_svc_ex.PaymentUrlNotFoundException,
+        pmt_svc_ex.PayProsCreateOrderTimedOut,
+        pmt_svc_ex.PayProsGetAuthTokenTimedOut,
     ) as e:
         logging.info(
             {
