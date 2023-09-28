@@ -2,10 +2,9 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 
-from psycopg2.extras import DictCursor
-
-from core.authentication.domain import model as mdl
 from core.authentication.adapters import exceptions as ex
+from core.authentication.domain import model as mdl
+from psycopg2.extras import DictCursor
 
 
 class ClosedLoopAbstractRepository(ABC):
@@ -131,8 +130,7 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
                 logo_url = excluded.logo_url,
                 description = excluded.description,
                 regex = excluded.regex,
-                verification_type = excluded.verification_type,
-                created_at = excluded.created_at
+                verification_type = excluded.verification_type
         """
 
         self.cursor.execute(
@@ -268,7 +266,7 @@ class UserRepository(UserAbstractRepository):
     def save(self, user: mdl.User):
         sql = """
         insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at)
-        values(%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s,%(created_at)s)
+        values(%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s, %(created_at)s)
         on conflict(id) do update set
             id = excluded.id,
             personal_email = excluded.personal_email,
@@ -281,8 +279,7 @@ class UserRepository(UserAbstractRepository):
             is_phone_number_verified = excluded.is_phone_number_verified,
             otp = excluded.otp,
             otp_generated_at = excluded.otp_generated_at,
-            location = excluded.location,
-            created_at = excluded.created_at
+            location = excluded.location
         """
 
         self.cursor.execute(
@@ -300,7 +297,6 @@ class UserRepository(UserAbstractRepository):
                 "otp": user.otp,
                 "otp_generated_at": user.otp_generated_at,
                 "location": user.location,
-                "created_at": user.created_at,
             },
         )
 

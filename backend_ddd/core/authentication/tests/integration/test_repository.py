@@ -1,6 +1,6 @@
-import pytest
-from core.entrypoint.uow import UnitOfWork, FakeUnitOfWork
 from datetime import datetime
+
+from core.entrypoint.uow import FakeUnitOfWork, UnitOfWork
 
 
 def test_closed_loop_repository(seed_closed_loop):
@@ -13,7 +13,6 @@ def test_closed_loop_repository(seed_closed_loop):
         assert fetched_closed_loop == closed_loop
 
         closed_loop.name = "New test loop"
-        closed_loop.created_at = datetime.now()
         closed_loop.description = "New description"
         closed_loop.logo_url = "New logo url"
         closed_loop.regex = "New regex"
