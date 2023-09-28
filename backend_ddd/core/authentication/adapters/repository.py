@@ -297,6 +297,7 @@ class UserRepository(UserAbstractRepository):
                 "otp": user.otp,
                 "otp_generated_at": user.otp_generated_at,
                 "location": user.location,
+                "created_at": user.created_at,
             },
         )
 
