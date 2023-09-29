@@ -61,6 +61,8 @@ def test_validate_payload():
                 "Three worded name",
                 "Four Worded Name okay",
                 "whothehell gives fivewordednames totheir children",
+                "Muneeb Ur Rehman",
+                "Shams ud din",
             ],
         },
         sch.LocationSchema: {

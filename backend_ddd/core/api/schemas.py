@@ -78,7 +78,7 @@ class UserNameSchema(AbstractSchema):
             raise utils.CustomException("Name passed is empty")
 
         if not re.match(
-            r"^\s{0,5}[A-Za-z]{1}[a-z]{2,20}\s+[A-Za-z]{1}[a-z]{2,20}(\s+[A-Za-z]{1}[a-z]{2,20}){0,3}\s{0,5}$",
+            r"^\s{0,5}[A-Za-z]{1}[a-z]{2,20}\s+[A-Za-z]{1}[a-z]{1,20}(\s+[A-Za-z]{1}[a-z]{2,20}){0,3}\s{0,5}$",
             self.value,
         ):
             raise utils.CustomException("Invalid Name Passed")
