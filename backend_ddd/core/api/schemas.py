@@ -35,11 +35,12 @@ class PasswordSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Password passed is not a string")
 
-        if len(self.value)<8:
+        if len(self.value) < 8:
             raise utils.CustomException("Password is less than 8 characters")
 
         if re.match(r"^( )*$", self.value):
             raise utils.CustomException("Password passed is empty")
+
 
 @dataclass()
 class PhoneNumberSchema(AbstractSchema):
@@ -172,12 +173,19 @@ class LUMSRollNumberSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Roll number passed is not a string")
 
-        # TODO: Add the one from Retool here
-        if not (
-            # re.match(r"^2[0-9]{7}$", self.value)
-            re.match(r"^2[0-9]{3}[M|m|0-9][0-9]{3}", self.value)
-            # or re.match(r"^2[0-9]{3}m[0-9]{3}", self.value)
-        ):
+        if not re.match(r"^2[0-9]{3}[M|m|0-9][0-9]{3}", self.value):
+            raise utils.CustomException("Invalid Roll Number Passed")
+
+
+@dataclass()
+class LUMSRollNumberOrFacultySchema(AbstractSchema):
+    value: str
+
+    def validate(self):
+        if not isinstance(self.value, str):
+            raise utils.CustomException("Roll number passed is not a string")
+
+        if not re.match(r"^2[0-9]{3}[M|m|0-9][0-9]{3}|[A-Za-z\.\_]{4,}$", self.value):
             raise utils.CustomException("Invalid Roll Number Passed")
 
 

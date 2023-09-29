@@ -226,6 +226,70 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
     )
 
 
+def test_register_closed_loop_faculty_api(seed_api_customer, mocker, client):
+    user_id = seed_api_customer(mocker, client)
+    closed_loop_id = _create_closed_loop_helper(client)
+    unique_identifier = "someone.lastname"
+    _verify_phone_number(user_id, mocker, client)
+
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/register-closed-loop",
+        json={
+            "closed_loop_id": closed_loop_id,
+            "unique_identifier": unique_identifier,
+        },
+        headers=headers,
+    )
+
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
+            message="User registered into loop successfully",
+            status_code=200,
+        ).__dict__
+    )
+
+
+def test_verify_closed_loop_faculty_api(seed_api_customer, mocker, client):
+    user_id = seed_api_customer(mocker, client)
+    closed_loop_id = _create_closed_loop_helper(client)
+    unique_identifier = "someone.lastname"
+    _verify_phone_number(user_id, mocker, client)
+    _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_identifier)
+
+    uow = UnitOfWork()
+    user = uow.users.get(user_id)
+    uow.close_connection()
+
+    otp = user.closed_loops[closed_loop_id].unique_identifier_otp
+
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/verify-closed-loop",
+        json={
+            "closed_loop_id": closed_loop_id,
+            "unique_identifier_otp": otp,
+        },
+        headers=headers,
+    )
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
+            message="Closed loop verified successfully",
+            status_code=200,
+        ).__dict__
+    )
+
+
 @pytest.mark.parametrize(
     "json_body",
     [

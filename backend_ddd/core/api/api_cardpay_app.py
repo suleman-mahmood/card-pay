@@ -296,7 +296,7 @@ def verify_phone_number(uid):
     required_parameters={
         "closed_loop_id": sch.UuidSchema,
         # TODO: change this when closed loops other than LUMS are added
-        "unique_identifier": sch.LUMSRollNumberSchema,
+        "unique_identifier": sch.LUMSRollNumberOrFacultySchema,
     }
 )
 def register_closed_loop(uid):
