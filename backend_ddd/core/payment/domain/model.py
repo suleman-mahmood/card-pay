@@ -76,9 +76,15 @@ class Transaction:
     def execute_transaction(self):
         """for executing a transaction"""
         # TODO: add check if its already successfull etc, more checks here pls
+
+        if self.status == TransactionStatus.SUCCESSFUL:
+            raise ex.TransactionNotAllowedException(
+                "Transaction is already executed")
+
         if self.amount > self.sender_wallet.balance:
             self.status = TransactionStatus.FAILED
-            raise ex.TransactionNotAllowedException("Insufficient balance in sender's wallet")
+            raise ex.TransactionNotAllowedException(
+                "Insufficient balance in sender's wallet")
 
         if (
             self.transaction_type != TransactionType.RECONCILIATION
@@ -91,11 +97,13 @@ class Transaction:
 
         if not isinstance(self.amount, int):
             self.status = TransactionStatus.FAILED
-            raise ex.TransactionNotAllowedException("Constraint violated, amount is not an integer")
+            raise ex.TransactionNotAllowedException(
+                "Constraint violated, amount is not an integer")
 
         if self.amount <= 0:
             self.status = TransactionStatus.FAILED
-            raise ex.TransactionNotAllowedException("Amount is zero or negative")
+            raise ex.TransactionNotAllowedException(
+                "Amount is zero or negative")
 
         if self.recipient_wallet.id == self.sender_wallet.id:
             self.status = TransactionStatus.FAILED
@@ -111,14 +119,16 @@ class Transaction:
     def accept_p2p_pull_transaction(self):
         """for accepting a p2p pull transaction"""
         if self.transaction_type != TransactionType.P2P_PULL:
-            raise ex.TransactionNotAllowedException("This is not a p2p pull transaction")
+            raise ex.TransactionNotAllowedException(
+                "This is not a p2p pull transaction")
 
         self.execute_transaction()
 
     def decline_p2p_pull_transaction(self):
         """for declining a p2p pull transaction"""
         if self.transaction_type != TransactionType.P2P_PULL:
-            raise ex.TransactionNotAllowedException("This is not a p2p pull transaction")
+            raise ex.TransactionNotAllowedException(
+                "This is not a p2p pull transaction")
 
         self.status = TransactionStatus.DECLINED
         self.last_updated = datetime.now()
@@ -126,7 +136,8 @@ class Transaction:
     def redeem_voucher(self):
         """for validating and redeeming vouchers"""
         if self.transaction_type != TransactionType.VOUCHER:
-            raise ex.TransactionNotAllowedException("This is not a voucher redemption transaction")
+            raise ex.TransactionNotAllowedException(
+                "This is not a voucher redemption transaction")
 
         if self.status != TransactionStatus.PENDING:
             raise ex.TransactionNotAllowedException(
