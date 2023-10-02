@@ -88,8 +88,7 @@ def get_wallet_id_from_unique_identifier_and_closed_loop_id(
     rows = uow.dict_cursor.fetchall()
 
     if len(rows) == 0:
-        raise pmt_svc_ex.UserDoesNotExistException(
-            f"No user found against {unique_identifier}")
+        raise pmt_svc_ex.UserDoesNotExistException(f"No user found against {unique_identifier}")
     assert len(rows) == 1
 
     return rows[0]["user_id"]
@@ -106,8 +105,7 @@ def get_all_closed_loops_id_and_names(
     uow.dict_cursor.execute(sql)
     rows = uow.dict_cursor.fetchall()
 
-    closed_loops = [
-        pmt_vm.ClosedLoopIdNameDTO.from_db_dict_row(row) for row in rows]
+    closed_loops = [pmt_vm.ClosedLoopIdNameDTO.from_db_dict_row(row) for row in rows]
 
     return closed_loops
 
@@ -153,8 +151,7 @@ def get_all_successful_transactions_of_a_user(
     )
     rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
     return transactions
 
 
@@ -254,8 +251,7 @@ def payment_retools_get_all_transactions_of_selected_user(
     uow.dict_cursor.execute(sql, {"user_id": user_id})
     rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
 
     return transactions
 
@@ -282,8 +278,7 @@ def payment_retools_get_vendors_and_balance(
 
     uow.dict_cursor.execute(sql, {"closed_loop_id": closed_loop_id})
     rows = uow.dict_cursor.fetchall()
-    vendors = [pmt_vm.VendorAndBalanceDTO.from_db_dict_row(
-        row) for row in rows]
+    vendors = [pmt_vm.VendorAndBalanceDTO.from_db_dict_row(row) for row in rows]
 
     return vendors
 
@@ -302,8 +297,7 @@ def payment_retools_get_transactions_to_be_reconciled(
             and sender_wallet_id = %(vendor_id)s;
     """
 
-    uow.dict_cursor.execute(last_reconciliation_timestamp, {
-                            "vendor_id": vendor_id})
+    uow.dict_cursor.execute(last_reconciliation_timestamp, {"vendor_id": vendor_id})
     row = uow.dict_cursor.fetchone()
 
     sql = """
@@ -341,8 +335,7 @@ def payment_retools_get_transactions_to_be_reconciled(
     uow.dict_cursor.execute(sql, {"vendor_id": vendor_id})
     rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
 
     return transactions
 
@@ -395,8 +388,7 @@ def payment_retools_get_reconciliation_history(
     uow.dict_cursor.execute(sql, {"vendor_id": vendor_id})
     rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithDates.from_db_dict_row(row) for row in rows]
+    transactions = [pmt_vm.TransactionWithDates.from_db_dict_row(row) for row in rows]
 
     return transactions
 
@@ -486,8 +478,7 @@ def payment_retools_get_reconciled_transactions(
     )
     rows = uow.dict_cursor.fetchall()
 
-    transactions = [
-        pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
     return transactions
 
 
@@ -552,8 +543,7 @@ def get_tx_balance(tx_id: str, uow: AbstractUnitOfWork) -> int:
     row = uow.dict_cursor.fetchone()
 
     if row is None:
-        raise pmt_svc_ex.TransactionNotFound(
-            f"Transaction not found for id {tx_id}")
+        raise pmt_svc_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
 
     return row["amount"]
 
@@ -568,8 +558,7 @@ def get_tx_recipient(tx_id: str, uow: AbstractUnitOfWork) -> str:
     row = uow.dict_cursor.fetchone()
 
     if row is None:
-        raise pmt_svc_ex.TransactionNotFound(
-            f"Transaction not found for id {tx_id}")
+        raise pmt_svc_ex.TransactionNotFound(f"Transaction not found for id {tx_id}")
 
     return row["recipient_wallet_id"]
 
@@ -629,6 +618,7 @@ def get_daily_transactions(uow: AbstractUnitOfWork):
     FROM transactions
     where
         status = 'SUCCESSFUL'
+        and transaction_type != 'CARD_PAY'
 
     GROUP BY day
     ORDER BY day desc;
@@ -651,6 +641,7 @@ def get_monthly_transactions(uow: AbstractUnitOfWork):
             transactions
         where
             status = 'SUCCESSFUL'
+            and transaction_type != 'CARD_PAY'
 
         GROUP BY DATE_TRUNC('month', created_at)
         ORDER BY month;
@@ -660,6 +651,7 @@ def get_monthly_transactions(uow: AbstractUnitOfWork):
     rows = uow.dict_cursor.fetchall()
 
     return [pmt_vm.MonthlyTransactionsDTO.from_db_dict_row(row) for row in rows]
+
 
 # def get_all_beneficiaries_of_passed_user(
 #     sender_id: str, uow: AbstractUnitOfWork, page_size: int, offset: int
