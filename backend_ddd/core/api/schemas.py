@@ -74,14 +74,17 @@ class UserNameSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Name passed is not a string")
 
+        if any(char.isdigit() for char in self.value):
+            raise utils.CustomException("Name cannot contain digits")
+
         if re.match(r"^( )*$", self.value):
             raise utils.CustomException("Name passed is empty")
 
-        if not re.match(
-            r"^\s{0,5}[A-Za-z]{1}[a-z]{2,20}\s+[A-Za-z]{1}[a-z]{1,20}(\s+[A-Za-z]{1}[a-z]{2,20}){0,3}\s{0,5}$",
-            self.value,
-        ):
-            raise utils.CustomException("Invalid Name Passed")
+        if len(self.value) > 50:
+            raise utils.CustomException("Name passed is too long")
+
+        if len(self.value.split(" "))<2:
+            raise utils.CustomException("Last Name is missing")
 
 
 @dataclass()

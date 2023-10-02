@@ -43,11 +43,8 @@ def test_validate_payload():
                 "    ",
                 "InvalidName1",
                 "Special%Name",
+                "Firstname",
                 123,
-                "FiRst NaMe",
-                "Ab Kh",
-                "Noone has a name this long lmao",
-                "ajeeboghareebgiganticassfirstname lastname",
             ],
             "valid_inputs": [
                 "John Doe",
