@@ -109,7 +109,7 @@ def test_validate_payload():
                 "LUMS12345",
                 "lums12345",
             ],
-            "valid_inputs": ["26100266", "2610M003", "2610m003"],
+            "valid_inputs": ["26100266", "2610M003", "2610m003", "10010023"],
         },
         sch.WeightageTypeSchema: {
             "invalid_inputs": [
@@ -183,7 +183,8 @@ def test_validate_payload():
             "valid_inputs": ["NONE", "ROLLNUMBER", "EMAIL", "MEMBERSHIP_ID"],
         },
         sch.RegexSchema: {
-            "invalid_inputs": ["[A-1]", "++", " [A-Z]\\", 2],  # empty strings are valid
+            # empty strings are valid
+            "invalid_inputs": ["[A-1]", "++", " [A-Z]\\", 2],
             "valid_inputs": [
                 "",
                 "^[A-Z]{1,15}[a-z]{0,15}(/s*[A-Z]{1}[a-z]{1,15}){0,4}$",
@@ -213,6 +214,7 @@ def test_validate_payload():
         ("26100266"),
         ("2610M003"),
         ("2610m003"),
+        ("10010023"),
         ("someone.last"),
         ("asdasdas"),
         ("small"),

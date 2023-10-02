@@ -93,7 +93,8 @@ class LocationSchema(AbstractSchema):
             raise utils.CustomException("Passed Location is not a tuple")
 
         if len(self.value) != 2:
-            raise utils.CustomException("one or two location coordinates missing")
+            raise utils.CustomException(
+                "one or two location coordinates missing")
 
         if not isinstance(self.value[0], float) or not isinstance(self.value[1], float):
             raise utils.CustomException("Invalid Location Passed")
@@ -108,7 +109,8 @@ class PinSchema(AbstractSchema):
             raise utils.CustomException("Pin passed is not a string")
 
         if self.value == "0000":
-            raise utils.CustomException("Pin cannot be 0000, please use another pin.")
+            raise utils.CustomException(
+                "Pin cannot be 0000, please use another pin.")
 
         if len(self.value) < 4:
             raise utils.CustomException("Pin cannot be less than 4 digits")
@@ -126,7 +128,8 @@ class OtpSchema(AbstractSchema):
             raise utils.CustomException("OTP passed is not a string")
 
         if self.value == "0000":
-            raise utils.CustomException("OTP cannot be 0000, please pass a valid OTP.")
+            raise utils.CustomException(
+                "OTP cannot be 0000, please pass a valid OTP.")
 
         if len(self.value) < 4:
             raise utils.CustomException("OTP cannot be less than 4 digits")
@@ -162,7 +165,8 @@ class AmountSchema(AbstractSchema):
             raise utils.CustomException("Amount is zero or negative")
 
         if self.value >= TX_UPPER_LIMIT:
-            raise utils.CustomException(f"Amount is greater than or equal to {TX_UPPER_LIMIT}")
+            raise utils.CustomException(
+                f"Amount is greater than or equal to {TX_UPPER_LIMIT}")
 
 
 @dataclass()
@@ -173,7 +177,7 @@ class LUMSRollNumberSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Roll number passed is not a string")
 
-        if not re.match(r"^2[0-9]{3}[M|m|0-9][0-9]{3}", self.value):
+        if not re.match(r"^[2|1][0-9]{3}[M|m|0-9][0-9]{3}", self.value):
             raise utils.CustomException("Invalid Roll Number Passed")
 
 
@@ -185,7 +189,7 @@ class LUMSRollNumberOrFacultySchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Roll number passed is not a string")
 
-        if not re.match(r"^2[0-9]{3}[M|m|0-9][0-9]{3}|[A-Za-z\.\_]{4,}$", self.value):
+        if not re.match(r"^[2|1][0-9]{3}[M|m|0-9][0-9]{3}|[A-Za-z\.\_]{4,}$", self.value):
             raise utils.CustomException("Invalid Roll Number Passed")
 
 
@@ -195,7 +199,8 @@ class LUMSReferralRollNumberSchema(AbstractSchema):
 
     def validate(self):
         if not isinstance(self.value, str):
-            raise utils.CustomException("Referral roll number passed is not a string")
+            raise utils.CustomException(
+                "Referral roll number passed is not a string")
 
         # Referral can be an empty string when no one is referred
         if self.value == "":
@@ -215,7 +220,8 @@ class WeightageTypeSchema(AbstractSchema):
 
     def validate(self):
         if not isinstance(self.value, str):
-            raise utils.CustomException("Weightage Type passed is not a string")
+            raise utils.CustomException(
+                "Weightage Type passed is not a string")
 
         # TODO: Change this once the weightage type is restricted to a subset of Transaction Types
         if not re.match(
@@ -231,7 +237,8 @@ class WeightageValueSchema(AbstractSchema):
 
     def validate(self):
         if not isinstance(self.value, (float, int)):
-            raise utils.CustomException("Weightage Value passed is not a float or integer")
+            raise utils.CustomException(
+                "Weightage Value passed is not a float or integer")
 
         if self.value < 0:
             raise utils.CustomException(
@@ -245,7 +252,8 @@ class AllCashbackSlabsSchema(AbstractSchema):
 
     def validate(self):
         if not isinstance(self.value, str):
-            raise utils.CustomException("Cashback Slabs passed is not a string")
+            raise utils.CustomException(
+                "Cashback Slabs passed is not a string")
 
         if not re.match(
             r"""^\[\s*(\[\s*(\d+)\s*,\s*(\d+)\s*,\s*("PERCENTAGE"|"ABSOLUTE")\s*,\s*(\d+(\.\d+)?|\d+)\s*\])(\s*,\s*(\[\s*(\d+)\s*,\s*(\d+)\s*,\s*("PERCENTAGE"|"ABSOLUTE")\s*,\s*(\d+(\.\d+)?|\d+)\s*\]))*\s*\]$""",
@@ -294,7 +302,8 @@ class VerificationTypeSchema(AbstractSchema):
 
     def validate(self):
         if not isinstance(self.value, str):
-            raise utils.CustomException("Verification Type passed is not a string")
+            raise utils.CustomException(
+                "Verification Type passed is not a string")
 
         if not re.match(r"^(NONE|ROLLNUMBER|EMAIL|MEMBERSHIP_ID)$", self.value):
             raise utils.CustomException("Invalid Verification Type Passed")
