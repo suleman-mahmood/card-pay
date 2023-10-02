@@ -586,3 +586,174 @@ def qr_retool_get_all_vendor_names_and_qr_ids_of_a_closed_loop():
         status_code=200,
         data=vendors,
     ).__dict__
+
+
+@retool.route("/get-daily-successful-deposits", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_daily_successful_deposits():
+    uow = UnitOfWork()
+
+    deposits_dtos = pmt_qry.get_daily_successful_deposits(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Daily successful deposits returned successfully",
+        status_code=200,
+        data={
+            "deposits": deposits_dtos
+        },
+    ).__dict__
+
+
+@retool.route("/get-daily-pending-deposits", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_daily_pending_deposits():
+    uow = UnitOfWork()
+
+    deposits_dtos = pmt_qry.get_daily_pending_deposits(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Daily pending deposits returned successfully",
+        status_code=200,
+        data={
+            "deposits": deposits_dtos
+        },
+    ).__dict__
+
+
+@retool.route("/get-daily-transactions", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_daily_transactions():
+    uow = UnitOfWork()
+
+    transactions_dtos = pmt_qry.get_daily_transactions(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Daily transactions returned successfully",
+        status_code=200,
+        data={
+            "transactions": transactions_dtos
+        },
+    ).__dict__
+
+
+@retool.route("/get-monthly-transactions", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_monthly_transactions():
+    uow = UnitOfWork()
+
+    transactions_dtos = pmt_qry.get_monthly_transactions(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Monthly transactions returned successfully",
+        status_code=200,
+        data={
+            "transactions": transactions_dtos
+        },
+    ).__dict__
+
+
+@retool.route("/get-total-users", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_total_users():
+    uow = UnitOfWork()
+
+    total_users = auth_qry.get_total_users(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Total users returned successfully",
+        status_code=200,
+        data={
+            "total_users": total_users
+        },
+    ).__dict__
+
+
+@retool.route("/get-signed-up-daily-users", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_signed_up_daily_users():
+    uow = UnitOfWork()
+
+    daily_users = auth_qry.get_signed_up_daily_users(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Daily users returned successfully",
+        status_code=200,
+        data={
+            "daily_users": daily_users
+        },
+    ).__dict__
+
+
+@retool.route("/get-total-phone-number-verified-users", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_total_phone_number_verified_users():
+    uow = UnitOfWork()
+
+    total_users = auth_qry.get_total_phone_number_verified_users(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Total users returned successfully",
+        status_code=200,
+        data={
+            "total_users": total_users
+        },
+    ).__dict__
+
+
+@retool.route("get-total-verified-closed-loops-users", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_total_verified_closed_loops_users():
+    uow = UnitOfWork()
+
+    total_users = auth_qry.get_total_verified_closed_loops_users(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Total users returned successfully",
+        status_code=200,
+        data={
+            "total_users": total_users
+        },
+    ).__dict__
+
+
+@retool.route("/get-total-dashboard-reached-users", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_total_dashboard_reached_users():
+    uow = UnitOfWork()
+
+    total_users = auth_qry.get_total_dashboard_reached_users(
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Total users returned successfully",
+        status_code=200,
+        data={
+            "total_users": total_users
+        },
+    ).__dict__

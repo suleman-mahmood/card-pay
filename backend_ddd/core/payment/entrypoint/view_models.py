@@ -147,6 +147,7 @@ class VendorAndBalanceDTO:
             balance=row["balance"],
         )
 
+
 @dataclass(frozen=True)
 class VendorIdNameAndWalletIdDTO:
     id: str
@@ -160,6 +161,7 @@ class VendorIdNameAndWalletIdDTO:
             full_name=row["full_name"],
             wallet_id=row["wallet_id"],
         )
+
 
 @dataclass(frozen=True)
 class TransactionWithDates:
@@ -176,4 +178,76 @@ class TransactionWithDates:
             amount=row["amount"],
             created_at=row["created_at"],
             last_updated=row["last_updated"],
+        )
+
+
+@dataclass(frozen=True)
+class DailySuccessfulDepositsDTO:
+    day: datetime
+    successful_deposit_count: int
+    total_amount: int
+    avg_amount: int
+    heros: List[str]
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "DailySuccessfulDepositsDTO":
+        return DailySuccessfulDepositsDTO(
+            day=row["day"],
+            successful_deposit_count=row["successful_deposit_count"],
+            total_amount=row["total_amount"],
+            avg_amount=row["avg_amount"],
+            heros=row["heros"],
+        )
+
+
+@dataclass(frozen=True)
+class DailyPendingDepositsDTO:
+    day: datetime
+    pending_deposit_count: int
+    total_amount: int
+    avg_amount: int
+    heros: List[str]
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "DailyPendingDepositsDTO":
+        return DailyPendingDepositsDTO(
+            day=row["day"],
+            pending_deposit_count=row["pending_deposit_count"],
+            total_amount=row["total_amount"],
+            avg_amount=row["avg_amount"],
+            heros=row["pending_heros"],
+        )
+
+
+@dataclass(frozen=True)
+class DailyTransactionsDTO:
+    day: datetime
+    transaction_count: int
+    total_amount: int
+    avg_amount: int
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "DailyTransactionsDTO":
+        return DailyTransactionsDTO(
+            day=row["day"],
+            transaction_count=row["transaction_count"],
+            total_amount=row["total_amount"],
+            avg_amount=row["avg_amount"],
+        )
+
+
+@dataclass(frozen=True)
+class MonthlyTransactionsDTO:
+    month: datetime
+    transaction_count: int
+    total_amount: int
+    avg_amount: int
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "MonthlyTransactionsDTO":
+        return MonthlyTransactionsDTO(
+            month=row["month"],
+            transaction_count=row["transaction_count"],
+            total_amount=row["total_amount"],
+            avg_amount=row["avg_amount"],
         )

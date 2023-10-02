@@ -1,5 +1,6 @@
 export DB_HOST=localhost && \
-export DB_NAME=cardpay && \
+export DB_NAME=postgres && \
+# export DB_NAME=cardpay && \
 export DB_USER=postgres && \
 export DB_PASSWORD=root && \
 export DB_PORT=5432 && \

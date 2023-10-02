@@ -23,6 +23,7 @@ from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.domain import model as auth_mdl
 from core.authentication.adapters import exceptions as auth_rep_ex
 from core.api import view_models as vm
+from core.authentication.entrypoint import view_models as auth_vm
 from core.entrypoint.uow import AbstractUnitOfWork
 
 
@@ -673,4 +674,74 @@ def get_full_name_from_unique_identifier_and_closed_loop(
     if row is None:
         raise auth_svc_ex.UserNotFoundException("user not found")
 
+    return row[0]
+
+
+def get_total_users(uow: AbstractUnitOfWork):
+    sql = """
+        select
+            count(*) as user_count
+        from users;
+        """
+
+    uow.cursor.execute(sql)
+    row = uow.cursor.fetchone()
+    return row[0]
+
+
+def get_signed_up_daily_users(uow: AbstractUnitOfWork):
+    sql = """
+        select
+            date(created_at) as day,
+            count(*) as user_count
+        from users
+        group by day
+        order by day desc;
+        """
+
+    uow.dict_cursor.execute(sql)
+    rows = uow.dict_cursor.fetchall()
+
+    return [auth_vm.SignedUpDailyUsersDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_total_phone_number_verified_users(uow: AbstractUnitOfWork):
+    sql = """
+        select
+            count(*)
+        from
+            users
+        where is_phone_number_verified
+        """
+
+    uow.cursor.execute(sql)
+    row = uow.cursor.fetchone()
+    return row[0]
+
+
+def get_total_verified_closed_loops_users(uow: AbstractUnitOfWork):
+    sql = """
+        select
+            count(*)
+        from
+            user_closed_loops
+        where status = 'VERIFIED'
+        """
+
+    uow.cursor.execute(sql)
+    row = uow.cursor.fetchone()
+    return row[0]
+
+
+def get_total_dashboard_reached_users(uow: AbstractUnitOfWork):
+    sql = """
+        select
+            count(*)
+        from
+            users
+        where pin != '0000'
+        """
+
+    uow.cursor.execute(sql)
+    row = uow.cursor.fetchone()
     return row[0]
