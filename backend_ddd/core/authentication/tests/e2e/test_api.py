@@ -165,7 +165,8 @@ def test_get_all_closed_loops_api(seed_api_customer, mocker, client):
         headers=headers,
     )
 
-    response = client.get("http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers)
 
     payload = loads(response.data.decode())
     assert payload["message"] == "User is not verified"
@@ -173,7 +174,8 @@ def test_get_all_closed_loops_api(seed_api_customer, mocker, client):
 
     _verify_phone_number(user_id, mocker, client)
 
-    response = client.get("http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-all-closed-loops", headers=headers)
 
     assert closed_loop_id_2 in [
         closed_loop["id"] for closed_loop in loads(response.data.decode())["data"]
@@ -213,7 +215,8 @@ def test_register_closed_loop_api(seed_api_customer, mocker, client):
 
     response = client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id, "unique_identifier": unique_identifier},
+        json={"closed_loop_id": closed_loop_id,
+              "unique_identifier": unique_identifier},
         headers=headers,
     )
 
@@ -261,7 +264,8 @@ def test_verify_closed_loop_faculty_api(seed_api_customer, mocker, client):
     closed_loop_id = _create_closed_loop_helper(client)
     unique_identifier = "someone.lastname"
     _verify_phone_number(user_id, mocker, client)
-    _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_identifier)
+    _register_user_in_closed_loop(
+        mocker, client, user_id, closed_loop_id, unique_identifier)
 
     uow = UnitOfWork()
     user = uow.users.get(user_id)
@@ -477,13 +481,15 @@ def test_get_user_api(seed_api_customer, mocker, client):
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
     }
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user", headers=headers)
     payload = loads(response.data.decode())
     assert payload["message"] == "User is not verified"
     assert response.status_code == 400
 
     _verify_phone_number(user_id, mocker, client)
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user", headers=headers)
 
     x = loads(response.data.decode())
     assert x["message"] == "User returned successfully"
@@ -507,7 +513,8 @@ def test_get_user_balance_api(seed_api_customer, mocker, client):
         "Content-Type": "application/json",
     }
 
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers)
 
     payload = loads(response.data.decode())
 
@@ -515,7 +522,8 @@ def test_get_user_balance_api(seed_api_customer, mocker, client):
     assert payload["message"] == "User is not verified"
 
     _verify_phone_number(user_id, mocker, client)
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user-balance", headers=headers)
 
     assert (
         loads(response.data.decode())
@@ -537,7 +545,8 @@ def test_authenticate_token(seed_api_customer, mocker, client):
         "Authorization": "pytest_auth_token",
         "Content-Type": "application/json",
     }
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user", headers=headers)
     payload = loads(response.data.decode())
     assert payload["message"] == "Unauthorized, invalid header"
     assert response.status_code == 401
@@ -546,7 +555,8 @@ def test_authenticate_token(seed_api_customer, mocker, client):
         "Authorization": "",
         "Content-Type": "application/json",
     }
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user", headers=headers)
     payload = loads(response.data.decode())
     assert payload["message"] == "Unauthorized, invalid header"
     assert response.status_code == 401
@@ -555,7 +565,8 @@ def test_authenticate_token(seed_api_customer, mocker, client):
         "Authorization": "Bearer ",
         "Content-Type": "application/json",
     }
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user", headers=headers)
     payload = loads(response.data.decode())
     assert payload["message"] == "Unauthorized, invalid header"
     assert response.status_code == 401
@@ -564,7 +575,8 @@ def test_authenticate_token(seed_api_customer, mocker, client):
         "Authorization": "Bearer",
         "Content-Type": "application/json",
     }
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user", headers=headers)
     payload = loads(response.data.decode())
     assert payload["message"] == "Unauthorized, invalid header"
     assert response.status_code == 401
@@ -575,13 +587,42 @@ def test_authenticate_token(seed_api_customer, mocker, client):
     }
 
     _verify_phone_number(user_id, mocker, client)
-    response = client.get("http://127.0.0.1:5000/api/v1/get-user", headers=headers)
+    response = client.get(
+        "http://127.0.0.1:5000/api/v1/get-user", headers=headers)
 
     x = loads(response.data.decode())
     assert x["message"] == "User returned successfully"
     assert x["status_code"] == 200
     assert x["data"]["id"] == user_id
 
+
+def test_sanitize_input_fields_register_closed_loop(seed_api_customer, mocker, client):
+    user_id = seed_api_customer(mocker, client)
+    closed_loop_id = _create_closed_loop_helper(client)
+    unique_identifier = _get_random_unique_identifier()
+
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
+    mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+    _verify_phone_number(user_id, mocker, client)
+
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/register-closed-loop",
+        json={"closed_loop_id": "     " + closed_loop_id + "    ",
+              "unique_identifier": "     " + unique_identifier + "     "},
+        headers=headers,
+    )
+
+    assert (
+        loads(response.data.decode())
+        == utils.Response(
+            message="User registered into loop successfully",
+            status_code=200,
+        ).__dict__
+    )
 
 # TODO: need to write the test for create vendor
 # def test_auth_retools_create_vendor(mocker, client):

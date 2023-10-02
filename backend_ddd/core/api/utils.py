@@ -78,7 +78,8 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
         @wraps(func)
         def wrapper(*args, **kwargs):
             uow = UnitOfWork()
-            user_type = auth_qry.get_user_type_from_user_id(user_id=kwargs["uid"], uow=uow)
+            user_type = auth_qry.get_user_type_from_user_id(
+                user_id=kwargs["uid"], uow=uow)
             uow.close_connection()
 
             if user_type not in allowed_user_types:
@@ -101,14 +102,14 @@ def handle_missing_payload(func):
     return wrapper
 
 
-def validate_json_payload(
+def validate_and_sanitize_json_payload(
     required_parameters: Dict[str, ABCMeta],
     optional_parameters: Optional[Dict[str, ABCMeta]] = None,
 ):
     def inner_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            req = deepcopy(request.get_json(force=True))
+            req = request.get_json(force=True)
 
             if "RETOOL_SECRET" in req.keys():
                 req.pop("RETOOL_SECRET")
@@ -119,9 +120,14 @@ def validate_json_payload(
                     req.pop(k, None)
 
             if set(required_parameters) != set(req.keys()):
-                raise CustomException("invalid json payload, missing or extra parameters")
+                raise CustomException(
+                    "invalid json payload, missing or extra parameters")
 
             for param, schema in required_parameters.items():
+                # Assuming that all input strings should not contain leading or trailing whitespaces
+                if isinstance(req[param], str):
+                    req[param] = req[param].strip()
+
                 schema(req[param]).validate()
 
             return func(*args, **kwargs)

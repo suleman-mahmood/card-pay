@@ -38,9 +38,12 @@ def initialize_pytest_config(mocker):
     os.environ["SMS_API_SECRET"] = ""
     os.environ["RETOOL_SECRET"] = ""
 
-    mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
-    mocker.patch("core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
-    mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_otp_sms",
+                 return_value=None)
+    mocker.patch(
+        "core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_email",
+                 return_value=None)
     mocker.patch(
         "core.authentication.entrypoint.firebase_service.create_user",
         return_value=None,
@@ -49,13 +52,14 @@ def initialize_pytest_config(mocker):
         "core.authentication.entrypoint.firebase_service.update_password",
         return_value=None,
     )
-    mocker.patch("core.authentication.entrypoint.firebase_service.get_user", return_value="")
+    mocker.patch(
+        "core.authentication.entrypoint.firebase_service.get_user", return_value="")
 
 
 @pytest.fixture()
 def app():
     app = flask_app
-    sentry_sdk.init(transport = print)  # Disable the initialized sentry
+    sentry_sdk.init(transport=print)  # Disable the initialized sentry
     app.config.update(
         {
             "TESTING": True,
@@ -140,7 +144,8 @@ def seed_user():
 
         return auth_mdl.User(
             id=uid,
-            personal_email=auth_mdl.PersonalEmail(value="sulemanmahmood99@gmail.com"),
+            personal_email=auth_mdl.PersonalEmail(
+                value="sulemanmahmood99@gmail.com"),
             user_type=auth_mdl.UserType.CUSTOMER,
             phone_number=auth_mdl.PhoneNumber(value="3000000000"),
             pin="0000",
@@ -196,7 +201,8 @@ def seed_auth_user():
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=user_id,
         )
-        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
+        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(
+            id=user_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
             wallet=wallet,
         )
@@ -243,7 +249,8 @@ def seed_auth_vendor():
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
-            personal_email=auth_mdl.PersonalEmail(value="zainalikhokhar40@gmail.com"),
+            personal_email=auth_mdl.PersonalEmail(
+                value="zainalikhokhar40@gmail.com"),
             phone_number=auth_mdl.PhoneNumber(value="+923123456789"),
             user_type=auth_mdl.UserType.VENDOR,
             pin="1234",
@@ -274,6 +281,7 @@ def seed_verified_auth_vendor(seed_auth_vendor):
         return user, wallet
 
     return _seed_auth_vendor
+
 
 @pytest.fixture
 def seed_auth_cardpay():
@@ -313,6 +321,7 @@ def seed_verified_auth_cardpay_fake(seed_auth_cardpay):
 
     return _seed_auth_cardpay
 
+
 @pytest.fixture
 def seed_starred_wallet(add_1000_wallet):
     def _seed_starred_wallet(uow: AbstractUnitOfWork):
@@ -349,33 +358,35 @@ def seed_starred_wallet(add_1000_wallet):
 
     return _seed_starred_wallet
 
+
 @pytest.fixture
 def add_1000_wallet():
     def add_1000_wallet_factory(uow: AbstractUnitOfWork, wallet_id: str):
-            # update wallet balance
-            sql = """
+        # update wallet balance
+        sql = """
                 update wallets
                 set balance = %s
                 where id=%s
             """
-            uow.cursor.execute(
-                sql,
-                [
-                    1000,
-                    wallet_id,
-                ],
-            )
-    
+        uow.cursor.execute(
+            sql,
+            [
+                1000,
+                wallet_id,
+            ],
+        )
+
     return add_1000_wallet_factory
+
 
 @pytest.fixture
 def add_1000_wallet_fake():
     def add_1000_wallet_factory(uow: FakeUnitOfWork, wallet_id: str):
-            # update wallet balance
+        # update wallet balance
         wallet = uow.transactions.wallets[wallet_id]
         wallet.balance += 1000
         uow.transactions.wallets[wallet_id] = wallet
-    
+
     return add_1000_wallet_factory
 
 
@@ -408,7 +419,8 @@ def _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, uniqu
     }
     client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id, "unique_identifier": unique_identifier},
+        json={"closed_loop_id": closed_loop_id,
+              "unique_identifier": unique_identifier},
         headers=headers,
     )
 
@@ -442,7 +454,8 @@ def _marketing_setup(seed_api_admin, client, mocker, weightage_type, weightage_v
     )
     client.post(
         "http://127.0.0.1:5000/api/v1/add-weightage",
-        json={"weightage_type": weightage_type, "weightage_value": weightage_value},
+        json={"weightage_type": weightage_type,
+              "weightage_value": weightage_value},
         headers=headers,
     )
     # No need for this in execute p2p push
