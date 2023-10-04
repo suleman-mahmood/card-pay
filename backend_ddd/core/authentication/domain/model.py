@@ -10,13 +10,14 @@ Authentication domain model
     - block card
     - guest sign up
 """
-from uuid import uuid4
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Tuple
-from enum import Enum
 from datetime import datetime
-from core.authentication.domain.utils import _generate_4_digit_otp
+from enum import Enum
+from typing import Dict, Optional, Tuple
+from uuid import uuid4
+
 from core.authentication.domain import exceptions as ex
+from core.authentication.domain.utils import _generate_4_digit_otp
 
 PK_CODE = "92"
 
@@ -41,7 +42,7 @@ class ClosedLoop:
     regex: Optional[str]
     verification_type: ClosedLoopVerificationType
 
-    created_at: datetime = datetime.now()
+    created_at: datetime = field(default_factory=datetime.now)
 
     def update_closed_loop(
         self,
@@ -72,7 +73,7 @@ class ClosedLoopUser:
     id: str = field(default_factory=lambda: str(uuid4()))
     unique_identifier_otp: str = field(default_factory=_generate_4_digit_otp)
     status: ClosedLoopUserState = ClosedLoopUserState.UN_VERIFIED
-    created_at: datetime = datetime.now()
+    created_at: datetime = field(default_factory=datetime.now)
 
     def verify_unique_identifier(self, otp: Optional[str]) -> None:
         """Verify unique identifier"""
@@ -150,7 +151,7 @@ class User:
     closed_loops: Dict[str, ClosedLoopUser] = field(default_factory=dict)
     otp: str = field(default_factory=_generate_4_digit_otp)
     otp_generated_at: datetime = field(default_factory=datetime.now)
-    created_at: datetime = datetime.now()
+    created_at: datetime = field(default_factory=datetime.now)
 
     @property
     def qr_code(self) -> str:
