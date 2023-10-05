@@ -143,7 +143,7 @@ def test_update(seed_event):
             event_start_timestamp=EVENT_START,
             event_end_timestamp=EVENT_END,
             registration_fee=-1,
-            current_time=datetime.now(),
+            current_time=REGISTRATION_START - timedelta(seconds=1),
         )
 
     with pytest.raises(
