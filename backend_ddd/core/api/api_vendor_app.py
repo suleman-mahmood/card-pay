@@ -81,9 +81,9 @@ def get_vendor(uid):
 """
 
 
-@cardpay_app.route("/get-live-events", methods=["GET"])
+@vendor_app.route("/get-live-events", methods=["GET"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.CUSTOMER])
 @utils.user_verified
 def get_live_events(uid):
     raise utils.CustomException("Not implemented")
