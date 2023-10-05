@@ -1,11 +1,11 @@
-from flask import Blueprint, request
-from flask_cors import CORS, cross_origin
-
+from core.api import schemas as sch
 from core.api import utils
-from core.entrypoint.uow import UnitOfWork
-from core.payment.entrypoint import queries as pmt_qry
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import queries as auth_qry
+from core.entrypoint.uow import UnitOfWork
+from core.payment.entrypoint import queries as pmt_qry
+from flask import Blueprint, request
+from flask_cors import CORS, cross_origin
 
 vendor_app = Blueprint("vendor_app", __name__, url_prefix="/api/v1/vendor-app")
 
@@ -72,3 +72,82 @@ def get_vendor(uid):
         status_code=200,
         data=user.__dict__,
     ).__dict__
+
+
+""" 
+    --- --- --- --- --- --- --- --- --- --- --- ---
+    Events
+    --- --- --- --- --- --- --- --- --- --- --- ---
+"""
+
+
+@cardpay_app.route("/get-live-events", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_live_events(uid):
+    raise utils.CustomException("Not implemented")
+    uow = UnitOfWork()
+
+    try:
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="", status_code=200, data={}).__dict__
+
+
+@vendor_app.route("/mark-entry-event-attendance", methods=["POST"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.user_verified
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"event_id": sch.UuidSchema, "qr_id": sch.UuidSchema}
+)
+def mark_entry_event_attendance(uid):
+    raise utils.CustomException("Not implemented")
+    uow = UnitOfWork()
+
+    try:
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="", status_code=200, data={}).__dict__
+
+
+@vendor_app.route("/mark-exit-event-attendance", methods=["POST"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.user_verified
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"event_id": sch.UuidSchema, "qr_id": sch.UuidSchema}
+)
+def mark_exit_event_attendance(uid):
+    raise utils.CustomException("Not implemented")
+    uow = UnitOfWork()
+
+    try:
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="", status_code=200, data={}).__dict__

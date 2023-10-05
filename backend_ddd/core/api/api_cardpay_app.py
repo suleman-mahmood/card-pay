@@ -679,8 +679,7 @@ def accept_p2p_pull_transaction(uid):
     uow = UnitOfWork()
 
     try:
-        pmt_cmd.accept_p2p_pull_transaction(
-            transaction_id=req["transaction_id"], uow=uow)
+        pmt_cmd.accept_p2p_pull_transaction(transaction_id=req["transaction_id"], uow=uow)
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
@@ -1076,3 +1075,128 @@ def get_name_from_unique_identifier_and_closed_loop(uid):
         status_code=200,
         data={"full_name": full_name},
     ).__dict__
+
+
+""" 
+    --- --- --- --- --- --- --- --- --- --- --- ---
+    Events
+    --- --- --- --- --- --- --- --- --- --- --- ---
+"""
+
+
+@cardpay_app.route("/get-live-events", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_live_events(uid):
+    raise utils.CustomException("Not implemented")
+
+    uow = UnitOfWork()
+
+    try:
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="", status_code=200, data={}).__dict__
+
+
+@cardpay_app.route("/get-event-details", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_event_details(uid):
+    raise utils.CustomException("Not implemented")
+
+    event_id = request.args.get("event_id")
+
+    uow = UnitOfWork()
+
+    try:
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="", status_code=200, data={}).__dict__
+
+
+@cardpay_app.route("/get-booked-events", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_booked_events(uid):
+    raise utils.CustomException("Not implemented")
+    uow = UnitOfWork()
+
+    try:
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="", status_code=200, data={}).__dict__
+
+
+@cardpay_app.route("/get-attendance-qr", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_attendance_qr(uid):
+    raise utils.CustomException("Not implemented")
+
+    event_id = request.args.get("event_id")
+
+    uow = UnitOfWork()
+
+    try:
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="", status_code=200, data={}).__dict__
+
+
+@cardpay_app.route("/register-event", methods=["POST"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema})
+def register_event(uid):
+    raise utils.CustomException("Not implemented")
+    uow = UnitOfWork()
+
+    try:
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="", status_code=200, data={}).__dict__
