@@ -66,3 +66,15 @@
     -   Log to display the arguments passed to the function
     -   Arguments check including authentication
     -   Log on all types of error occured
+
+
+### Sync prod and dev db on CloudSQL on GCP
+- Run prod proxy
+- Create a backup of the prod db:
+`pg_dump -h localhost -p 5433 -U postgres -d cardpay-prod-db -f dumpfile.sql `
+- Close prod proxy
+
+- Run dev proxy
+- Restore from backup to the dev db
+`psql -h localhost -p 5433 -U postgres -d cardpay-dev-db -f dumpfile.sql`
+- Close dev proxy
