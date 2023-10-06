@@ -7,6 +7,7 @@ from core.authentication.adapters import repository as auth_repo
 from core.authentication.domain import model as auth_mdl
 from core.marketing.adapters import repository as mktg_repo
 from core.payment.adapters import repository as pmt_repo
+from core.event.adapters import repository as event_repo
 from psycopg2.extensions import AsIs, adapt, register_adapter
 from psycopg2.extras import DictCursor
 
@@ -24,6 +25,7 @@ class AbstractUnitOfWork(ABC):
     marketing_users: mktg_repo.MarketingUserAbstractRepository
     cashback_slabs: mktg_repo.CashbackSlabAbstractRepository
     weightages: mktg_repo.WeightageAbstractRepository
+    events: event_repo.EventAbstractRepository
 
     def __init__(self) -> None:
         self.connection: psycopg2.connection
@@ -59,6 +61,7 @@ class FakeUnitOfWork(AbstractUnitOfWork):
         self.transactions = pmt_repo.FakeTransactionRepository()
         self.cashback_slabs = mktg_repo.FakeCashbackSlabRepository()
         self.weightages = mktg_repo.FakeWeightageRepository()
+        self.events = event_repo.FakeEventRepository()
 
     def commit(self):
         pass
@@ -96,6 +99,7 @@ class UnitOfWork(AbstractUnitOfWork):
         self.marketing_users = mktg_repo.MarketingUserRepository(self.connection)
         self.cashback_slabs = mktg_repo.CashbackSlabRepository(self.connection)
         self.weightages = mktg_repo.WeightageRepository(self.connection)
+        self.events = event_repo.EventRepository(self.connection)
 
     def __enter__(self, *args):
         super().__enter__(*args)

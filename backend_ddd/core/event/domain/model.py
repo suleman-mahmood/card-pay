@@ -22,8 +22,8 @@ class Registration:
     Note: Only created when a valid registration takes place.
     """
 
-    user_id: str
     qr_id: str
+    user_id: str
     attendance_status: EventAttendanceStatus
 
     @property
