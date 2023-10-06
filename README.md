@@ -78,3 +78,12 @@
 - Restore from backup to the dev db
 `psql -h localhost -p 5433 -U postgres -d cardpay-dev-db -f dumpfile.sql`
 - Close dev proxy
+
+### Setup GCP Application Default Credentials
+- Install gcloud CLI
+- Follow installation steps
+- Setup credentials
+`./google-cloud-sdk/bin/gcloud auth application-default login`
+- Add project to path
+`export GCLOUD_PROJECT=cardpay-1`
+
