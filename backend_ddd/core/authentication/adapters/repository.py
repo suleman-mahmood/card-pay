@@ -49,6 +49,8 @@ class FakeClosedLoopRepository(ClosedLoopAbstractRepository):
         self.closed_loops[closed_loop.id] = closed_loop
 
     def get(self, closed_loop_id: str) -> mdl.ClosedLoop:
+        if closed_loop_id not in self.closed_loops:
+            raise ex.ClosedLoopNotFound("CLosed loop not found")
         return self.closed_loops[closed_loop_id]
 
     def save(self, closed_loop: mdl.ClosedLoop):
@@ -65,6 +67,8 @@ class FakeUserRepository(UserAbstractRepository):
         self.users[user.id] = user
 
     def get(self, user_id: str) -> mdl.User:
+        if user_id not in self.users:
+            raise ex.UserNotFoundException("User not found")
         return self.users[user_id]
 
     def save(self, user: mdl.User):
@@ -110,6 +114,10 @@ class ClosedLoopRepository(ClosedLoopAbstractRepository):
         )
 
         row = self.cursor.fetchone()
+
+        if row is None:
+            raise ex.ClosedLoopNotFound("Closed loop not found")
+
         return mdl.ClosedLoop(
             id=row["id"],
             name=row["name"],

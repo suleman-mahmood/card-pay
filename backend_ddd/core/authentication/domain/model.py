@@ -90,10 +90,11 @@ class UserType(str, Enum):
     """User type enum"""
 
     CUSTOMER = 1  # Student, Faculty, Staff, etc.
-    VENDOR = 2  # Shopkeeper, Society, Student Council etc.
+    VENDOR = 2  # Shopkeeper etc.
     ADMIN = 3  # Admin of the closed loop system
     PAYMENT_GATEWAY = 4  # Payment gateway
     CARDPAY = 5  # Cardpay
+    SOCIETY = 6  #  Society, Student Council, Event organizers etc
 
 
 @dataclass(frozen=True)

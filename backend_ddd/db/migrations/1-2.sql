@@ -1,9 +1,3 @@
-drop table if exists events cascade;
-drop table if exists registrations cascade;
-
-drop type if exists event_status_enum cascade;
-drop type if exists event_attendance_status cascade;
-
 create type event_status_enum as enum ('DRAFT', 'APPROVED', 'CANCELLED');
 create type event_attendance_status as enum ('UN_ATTENDED', 'ATTENDED');
 

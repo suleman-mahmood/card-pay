@@ -1,5 +1,8 @@
 from datetime import datetime
+from uuid import uuid4
 
+import pytest
+from core.authentication.adapters import exceptions as exc
 from core.entrypoint.uow import FakeUnitOfWork, UnitOfWork
 
 
@@ -7,6 +10,9 @@ def test_closed_loop_repository(seed_closed_loop):
     closed_loop = seed_closed_loop()
 
     for uow in [UnitOfWork(), FakeUnitOfWork()]:
+        with pytest.raises(exc.ClosedLoopNotFound):
+            uow.closed_loops.get(closed_loop_id=str(uuid4()))
+
         uow.closed_loops.add(closed_loop=closed_loop)
         fetched_closed_loop = uow.closed_loops.get(closed_loop_id=closed_loop.id)
 
@@ -31,6 +37,9 @@ def test_user_repository(seed_user, seed_closed_loop_user):
     user.closed_loops = {cl_1.closed_loop_id: cl_1, cl_2.closed_loop_id: cl_2}
 
     for uow in [UnitOfWork(), FakeUnitOfWork()]:
+        with pytest.raises(exc.UserNotFoundException):
+            uow.users.get(user_id=str(uuid4()))
+
         if uow.__class__.__name__ == "UnitOfWork":
             uow.cursor.execute(
                 """
