@@ -87,3 +87,6 @@
 - Add project to path
 `export GCLOUD_PROJECT=cardpay-1`
 
+### Dev deployment
+- Run `gcloud init` and initialize the development project
+- Replace the connections in db with dev ones from env
