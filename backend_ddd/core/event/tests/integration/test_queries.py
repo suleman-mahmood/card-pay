@@ -1,16 +1,17 @@
-import pytest
+from datetime import datetime, timedelta
 from typing import List
 from uuid import uuid4
-from datetime import datetime, timedelta
-from core.entrypoint.uow import UnitOfWork
+
+import pytest
+from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.authentication.entrypoint import commands as auth_cmd
-from core.authentication.domain import model as auth_mdl
-from core.event.entrypoint import queries as qry
+from core.entrypoint.uow import UnitOfWork
 from core.event.domain import model as mdl
-from core.event.entrypoint import view_models as vm
 from core.event.entrypoint import commands as cmd
 from core.event.entrypoint import exceptions as ex
+from core.event.entrypoint import queries as qry
+from core.event.entrypoint import view_models as vm
 
 
 def test_get_live_events(seed_verified_auth_event_organizer, seed_event_cmd):
@@ -36,11 +37,11 @@ def test_get_live_events(seed_verified_auth_event_organizer, seed_event_cmd):
         auth_svc=auth_acl.AuthenticationService(),
     )
 
-    with pytest.raises(ex.EventDoesNotExist, match="No events found."):
-        qry.get_live_events(
-            closed_loop_id=closed_loop_id,
-            uow=uow,
-        )
+    events = qry.get_live_events(
+        closed_loop_id=closed_loop_id,
+        uow=uow,
+    )
+    assert len(events) == 0
 
     event: mdl.Event = seed_event_cmd(
         uow=uow,
@@ -112,11 +113,11 @@ def test_get_registered_events(
     user: auth_mdl.User
     user, _ = seed_verified_auth_user(uow)
 
-    with pytest.raises(ex.EventDoesNotExist, match="No registered events found."):
-        qry.get_registered_events(
-            user_id=user.id,
-            uow=uow,
-        )
+    events = qry.get_registered_events(
+        user_id=user.id,
+        uow=uow,
+    )
+    assert len(events) == 0
 
     cmd.register_user(
         event_id=event.id,

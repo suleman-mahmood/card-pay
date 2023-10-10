@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from uuid import uuid4
 
 from core.api import schemas as sch
@@ -11,6 +12,10 @@ from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint import queries as app_queries
 from core.entrypoint.uow import UnitOfWork
+from core.event.domain import exceptions as event_mdl_exc
+from core.event.entrypoint import commands as event_cmd
+from core.event.entrypoint import exceptions as event_svc_ex
+from core.event.entrypoint import queries as event_qry
 from core.marketing.adapters import exceptions as mktg_repo_ex
 from core.marketing.domain import exceptions as mktg_mdl_ex
 from core.marketing.entrypoint import commands as mktg_cmd
@@ -130,9 +135,7 @@ def create_customer():
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(
-    required_parameters={"new_name": sch.UserNameSchema}
-)
+@utils.validate_and_sanitize_json_payload(required_parameters={"new_name": sch.UserNameSchema})
 def change_name(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -163,9 +166,7 @@ def change_name(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(
-    required_parameters={"new_pin": sch.PinSchema}
-)
+@utils.validate_and_sanitize_json_payload(required_parameters={"new_pin": sch.PinSchema})
 def change_pin(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -217,9 +218,7 @@ def change_pin(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(
-    required_parameters={"user_id": sch.UuidSchema}
-)
+@utils.validate_and_sanitize_json_payload(required_parameters={"user_id": sch.UuidSchema})
 def user_toggle_active(uid):
     uow = UnitOfWork()
 
@@ -468,9 +467,7 @@ def verify_closed_loop(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(
-    required_parameters={"amount": sch.AmountSchema}
-)
+@utils.validate_and_sanitize_json_payload(required_parameters={"amount": sch.AmountSchema})
 def create_deposit_request(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -681,17 +678,13 @@ def create_p2p_pull_transaction(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(
-    required_parameters={"transaction_id": sch.UuidSchema}
-)
+@utils.validate_and_sanitize_json_payload(required_parameters={"transaction_id": sch.UuidSchema})
 def accept_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
     try:
-        pmt_cmd.accept_p2p_pull_transaction(
-            transaction_id=req["transaction_id"], uow=uow
-        )
+        pmt_cmd.accept_p2p_pull_transaction(transaction_id=req["transaction_id"], uow=uow)
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
@@ -722,9 +715,7 @@ def accept_p2p_pull_transaction(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(
-    required_parameters={"transaction_id": sch.UuidSchema}
-)
+@utils.validate_and_sanitize_json_payload(required_parameters={"transaction_id": sch.UuidSchema})
 def decline_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -1103,18 +1094,12 @@ def get_name_from_unique_identifier_and_closed_loop(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
 def get_live_events(uid):
-    raise utils.CustomException("Not implemented")
-
     closed_loop_id = request.args.get("closed_loop_id")
-
     uow = UnitOfWork()
 
     try:
+        event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
         uow.close_connection()
-
-    except () as e:
-        uow.close_connection()
-        raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
@@ -1123,70 +1108,16 @@ def get_live_events(uid):
     return utils.Response(message="", status_code=200, data={}).__dict__
 
 
-@cardpay_app.route("/get-event-details", methods=["GET"])
+@cardpay_app.route("/get-registered-events", methods=["GET"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
-def get_event_details(uid):
-    raise utils.CustomException("Not implemented")
-
-    event_id = request.args.get("event_id")
-
+def get_registered_events(uid):
     uow = UnitOfWork()
 
     try:
+        event_qry.get_registered_events(user_id=uid, uow=uow)
         uow.close_connection()
-
-    except () as e:
-        uow.close_connection()
-        raise utils.CustomException(str(e))
-
-    except Exception as e:
-        uow.close_connection()
-        raise e
-
-    return utils.Response(message="", status_code=200, data={}).__dict__
-
-
-@cardpay_app.route("/get-booked-events", methods=["GET"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
-@utils.user_verified
-def get_booked_events(uid):
-    raise utils.CustomException("Not implemented")
-    uow = UnitOfWork()
-
-    try:
-        uow.close_connection()
-
-    except () as e:
-        uow.close_connection()
-        raise utils.CustomException(str(e))
-
-    except Exception as e:
-        uow.close_connection()
-        raise e
-
-    return utils.Response(message="", status_code=200, data={}).__dict__
-
-
-@cardpay_app.route("/get-attendance-qr", methods=["GET"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
-@utils.user_verified
-def get_attendance_qr(uid):
-    raise utils.CustomException("Not implemented")
-
-    event_id = request.args.get("event_id")
-
-    uow = UnitOfWork()
-
-    try:
-        uow.close_connection()
-
-    except () as e:
-        uow.close_connection()
-        raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
@@ -1199,17 +1130,30 @@ def get_attendance_qr(uid):
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
-@utils.validate_and_sanitize_json_payload(
-    required_parameters={"event_id": sch.UuidSchema}
-)
+@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema})
 def register_event(uid):
-    raise utils.CustomException("Not implemented")
+    req = request.get_json(force=True)
     uow = UnitOfWork()
 
     try:
-        uow.close_connection()
+        user = uow.users.get(user_id=uid)
+        event_cmd.register_user(
+            event_id=req["event_id"],
+            qr_id=str(uuid4()),
+            current_time=datetime.now(),
+            uow=uow,
+            user_id=uid,
+            users_closed_loop_ids=list(user.closed_loops.keys()),
+        )
+        uow.commit_close_connection()
 
-    except () as e:
+    except (
+        event_mdl_exc.EventNotApproved,
+        event_mdl_exc.RegistrationEnded,
+        event_mdl_exc.UserInvalidClosedLoop,
+        event_mdl_exc.EventCapacityExceeded,
+        event_mdl_exc.RegistrationAlreadyExists,
+    ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -1217,4 +1161,7 @@ def register_event(uid):
         uow.close_connection()
         raise e
 
-    return utils.Response(message="", status_code=200, data={}).__dict__
+    return utils.Response(
+        message="User successfully registered for the event",
+        status_code=200,
+    ).__dict__

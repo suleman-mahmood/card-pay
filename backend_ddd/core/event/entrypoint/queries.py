@@ -1,6 +1,6 @@
 from core.entrypoint.uow import AbstractUnitOfWork
-from core.event.entrypoint import view_models as event_vm
 from core.event.entrypoint import exceptions as event_ex
+from core.event.entrypoint import view_models as event_vm
 
 
 def get_live_events(
@@ -34,9 +34,6 @@ def get_live_events(
     """
     uow.dict_cursor.execute(sql, {"closed_loop_id": closed_loop_id})
     events = uow.dict_cursor.fetchall()
-
-    if len(events) == 0:
-        raise event_ex.EventDoesNotExist("No events found.")
 
     return [event_vm.EventDTO.from_db_dict_row(event) for event in events]
 
@@ -72,7 +69,5 @@ def get_registered_events(
     """
     uow.dict_cursor.execute(sql, {"user_id": user_id})
     events = uow.dict_cursor.fetchall()
-    if len(events) == 0:
-        raise event_ex.EventDoesNotExist("No registered events found.")
 
     return [event_vm.EventDTO.from_db_dict_row(event) for event in events]

@@ -4,5 +4,3 @@ class EventNotCreatedByOrganizer(Exception):
 
 class ClosedLoopDoesNotExist(Exception):
     """The closed loop doesn't exist"""
-class EventDoesNotExist(Exception):
-    """Event does not exist"""

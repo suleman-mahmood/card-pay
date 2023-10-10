@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-from ..domain import model as event_model
 from typing import List
+
+from ..domain import model as event_model
 
 
 class EventNotDrafted(Exception):
@@ -61,10 +62,6 @@ class RegistrationAlreadyExists(Exception):
 
 class UserInvalidClosedLoop(Exception):
     """exception for when closed loop registration is invalid"""
-
-
-class EventNotApprovedException(Exception):
-    """exception for when registration has not started"""
 
 
 class RegistrationEnded(Exception):

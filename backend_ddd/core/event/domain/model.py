@@ -200,7 +200,7 @@ class Event:
             raise ex.EventNotApproved("Cannot register to an event that is not approved.")
 
         if current_time < self.registration_start_timestamp:
-            raise ex.EventNotApprovedException("Registration has not started yet.")
+            raise ex.EventNotApproved("Registration has not started yet.")
 
         if current_time >= self.registration_end_timestamp:
             raise ex.RegistrationEnded("Registration time has passed.")
