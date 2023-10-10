@@ -130,7 +130,9 @@ def create_customer():
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(required_parameters={"new_name": sch.UserNameSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"new_name": sch.UserNameSchema}
+)
 def change_name(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -161,7 +163,9 @@ def change_name(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(required_parameters={"new_pin": sch.PinSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"new_pin": sch.PinSchema}
+)
 def change_pin(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -213,7 +217,9 @@ def change_pin(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(required_parameters={"user_id": sch.UuidSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"user_id": sch.UuidSchema}
+)
 def user_toggle_active(uid):
     uow = UnitOfWork()
 
@@ -462,7 +468,9 @@ def verify_closed_loop(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(required_parameters={"amount": sch.AmountSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"amount": sch.AmountSchema}
+)
 def create_deposit_request(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -673,13 +681,17 @@ def create_p2p_pull_transaction(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(required_parameters={"transaction_id": sch.UuidSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"transaction_id": sch.UuidSchema}
+)
 def accept_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
     try:
-        pmt_cmd.accept_p2p_pull_transaction(transaction_id=req["transaction_id"], uow=uow)
+        pmt_cmd.accept_p2p_pull_transaction(
+            transaction_id=req["transaction_id"], uow=uow
+        )
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
@@ -710,7 +722,9 @@ def accept_p2p_pull_transaction(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
 @utils.user_verified
 @utils.handle_missing_payload
-@utils.validate_and_sanitize_json_payload(required_parameters={"transaction_id": sch.UuidSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"transaction_id": sch.UuidSchema}
+)
 def decline_p2p_pull_transaction(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -1091,6 +1105,8 @@ def get_name_from_unique_identifier_and_closed_loop(uid):
 def get_live_events(uid):
     raise utils.CustomException("Not implemented")
 
+    closed_loop_id = request.args.get("closed_loop_id")
+
     uow = UnitOfWork()
 
     try:
@@ -1183,7 +1199,9 @@ def get_attendance_qr(uid):
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
-@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"event_id": sch.UuidSchema}
+)
 def register_event(uid):
     raise utils.CustomException("Not implemented")
     uow = UnitOfWork()

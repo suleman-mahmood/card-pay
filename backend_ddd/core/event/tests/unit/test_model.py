@@ -6,17 +6,17 @@ from core.event.domain import exceptions as ex
 from core.event.domain import model as mdl
 
 # valid event timestamps
-REGISTRATION_START = datetime.now() + timedelta(seconds=1)
-REGISTRATION_END = datetime.now() + timedelta(seconds=2)
-EVENT_START = datetime.now() + timedelta(seconds=3)
-EVENT_END = datetime.now() + timedelta(seconds=4)
+REGISTRATION_START = datetime.now() + timedelta(minutes=1)
+REGISTRATION_END = datetime.now() + timedelta(minutes=2)
+EVENT_START = datetime.now() + timedelta(minutes=3)
+EVENT_END = datetime.now() + timedelta(minutes=4)
 
 
 def event_time_validator(event: mdl.Event) -> mdl.Event:
-    event.registration_start_timestamp = datetime.now() + timedelta(seconds=1)
-    event.registration_end_timestamp = datetime.now() + timedelta(seconds=2)
-    event.event_start_timestamp = datetime.now() + timedelta(seconds=3)
-    event.event_end_timestamp = datetime.now() + timedelta(seconds=4)
+    event.registration_start_timestamp = datetime.now() + timedelta(minutes=1)
+    event.registration_end_timestamp = datetime.now() + timedelta(minutes=2)
+    event.event_start_timestamp = datetime.now() + timedelta(minutes=3)
+    event.event_end_timestamp = datetime.now() + timedelta(minutes=4)
 
     return event
 
@@ -24,10 +24,12 @@ def event_time_validator(event: mdl.Event) -> mdl.Event:
 def test_publish(seed_event):
     event: mdl.Event = seed_event(status=mdl.EventStatus.APPROVED)
 
-    with pytest.raises(ex.EventNotDrafted, match="Only events in draft may be published."):
+    with pytest.raises(
+        ex.EventNotDrafted, match="Only events in draft may be published."
+    ):
         event.publish()
 
-    event.registration_start_timestamp = datetime.now() + timedelta(seconds=3)
+    event.registration_start_timestamp = datetime.now() + timedelta(minutes=3)
     event.status = mdl.EventStatus.DRAFT
 
     with pytest.raises(
@@ -37,7 +39,7 @@ def test_publish(seed_event):
         event.publish()
 
     event_time_validator(event)
-    event.event_end_timestamp = datetime.now() + timedelta(seconds=2)
+    event.event_end_timestamp = datetime.now() + timedelta(minutes=2)
 
     with pytest.raises(
         ex.EventEndsBeforeStartTime,
@@ -55,7 +57,7 @@ def test_publish(seed_event):
         event.publish()
 
     event_time_validator(event)
-    event.registration_end_timestamp = datetime.now() + timedelta(seconds=5)
+    event.registration_end_timestamp = datetime.now() + timedelta(minutes=5)
 
     with pytest.raises(
         ex.EventEndsBeforeRegistrationStartTime,
@@ -74,7 +76,9 @@ def test_publish(seed_event):
 
     event.registration_fee = 1
 
-    with pytest.raises(ex.EventCapacityExceeded, match="Event capacity cannot be less than 1."):
+    with pytest.raises(
+        ex.EventCapacityExceeded, match="Event capacity cannot be less than 1."
+    ):
         event.capacity = 0
         event.publish()
 
@@ -123,7 +127,7 @@ def test_update(seed_event):
             event_start_timestamp=EVENT_START,
             event_end_timestamp=EVENT_END,
             registration_fee=2,
-            current_time=REGISTRATION_START + timedelta(seconds=0.5),
+            current_time=REGISTRATION_START + timedelta(minutes=0.5),
         )
 
     with pytest.raises(
@@ -141,7 +145,7 @@ def test_update(seed_event):
             event_start_timestamp=EVENT_START,
             event_end_timestamp=EVENT_END,
             registration_fee=-1,
-            current_time=REGISTRATION_START - timedelta(seconds=1),
+            current_time=REGISTRATION_START - timedelta(minutes=1),
         )
 
     with pytest.raises(
@@ -154,7 +158,7 @@ def test_update(seed_event):
             capacity=1,
             description="The ultimate fintech hackathon.",
             image_url="https://media.licdn.com/dms/image/D4D16AQGJJTwwC6-6mA/profile-displaybackgroundimage-shrink_200_800/0/1686490135139?e=2147483647&v=beta&t=eJwseRkzlGuk3D8ImC5Ga1EajMf4kdgOkK3C0oHDHT4",
-            registration_start_timestamp=REGISTRATION_START - timedelta(seconds=1),
+            registration_start_timestamp=REGISTRATION_START - timedelta(minutes=1),
             registration_end_timestamp=REGISTRATION_END,
             event_start_timestamp=EVENT_START,
             event_end_timestamp=EVENT_END,
@@ -210,7 +214,7 @@ def test_update(seed_event):
             image_url="https://media.licdn.com/dms/image/D4D16AQGJJTwwC6-6mA/profile-displaybackgroundimage-shrink_200_800/0/1686490135139?e=2147483647&v=beta&t=eJwseRkzlGuk3D8ImC5Ga1EajMf4kdgOkK3C0oHDHT4",
             registration_start_timestamp=REGISTRATION_START,
             registration_end_timestamp=REGISTRATION_END,
-            event_start_timestamp=REGISTRATION_START - timedelta(seconds=1),
+            event_start_timestamp=REGISTRATION_START - timedelta(minutes=1),
             event_end_timestamp=EVENT_END,
             registration_fee=1,
             current_time=datetime.now(),
@@ -229,7 +233,7 @@ def test_update(seed_event):
             registration_start_timestamp=REGISTRATION_START,
             registration_end_timestamp=REGISTRATION_END,
             event_start_timestamp=REGISTRATION_START,
-            event_end_timestamp=REGISTRATION_END - timedelta(seconds=1),
+            event_end_timestamp=REGISTRATION_END - timedelta(minutes=1),
             registration_fee=1,
             current_time=datetime.now(),
         )
@@ -254,7 +258,9 @@ def test_update(seed_event):
             current_time=datetime.now(),
         )
 
-    with pytest.raises(ex.EventCapacityNonInteger, match="Event capacity must be an integer."):
+    with pytest.raises(
+        ex.EventCapacityNonInteger, match="Event capacity must be an integer."
+    ):
         event.update(
             name="CARD PAY FAIR",
             venue="SDSB B2",
@@ -275,22 +281,24 @@ def test_update(seed_event):
         capacity=2,
         description="The ultimate ahhm.",
         image_url="https://media.licdn.com/dms/image/D4D16AQGJJTwwC6-6mA/profile-displaybackgroundimage-shrink_200_800/0/1686490135139?e=2147483647&v=beta&t=eJwseRkzlGuk3D8ImC5Ga1EajMf4kdgOkK3C0oHDHT4",
-        registration_start_timestamp=REGISTRATION_START - timedelta(seconds=1),
-        registration_end_timestamp=REGISTRATION_END - timedelta(seconds=2),
-        event_start_timestamp=EVENT_START - timedelta(seconds=3),
-        event_end_timestamp=EVENT_END - timedelta(seconds=4),
+        registration_start_timestamp=REGISTRATION_START - timedelta(minutes=1),
+        registration_end_timestamp=REGISTRATION_END - timedelta(minutes=2),
+        event_start_timestamp=EVENT_START - timedelta(minutes=3),
+        event_end_timestamp=EVENT_END - timedelta(minutes=4),
         registration_fee=10000,
-        current_time=REGISTRATION_START - timedelta(seconds=2),
+        current_time=REGISTRATION_START - timedelta(minutes=2),
     )
 
     assert event.name == "MOAZ FAIR"
     assert event.venue == "HOCKEY GROUND"
     assert event.capacity == 2
     assert event.description == "The ultimate ahhm."
-    assert event.registration_start_timestamp == REGISTRATION_START - timedelta(seconds=1)
-    assert event.registration_end_timestamp == REGISTRATION_END - timedelta(seconds=2)
-    assert event.event_start_timestamp == EVENT_START - timedelta(seconds=3)
-    assert event.event_end_timestamp == EVENT_END - timedelta(seconds=4)
+    assert event.registration_start_timestamp == REGISTRATION_START - timedelta(
+        minutes=1
+    )
+    assert event.registration_end_timestamp == REGISTRATION_END - timedelta(minutes=2)
+    assert event.event_start_timestamp == EVENT_START - timedelta(minutes=3)
+    assert event.event_end_timestamp == EVENT_END - timedelta(minutes=4)
     assert event.registration_fee == 10000
 
 
@@ -320,7 +328,7 @@ def test_register(seed_event):
             qr_id=str(uuid4()),
             user_id=user_id,
             users_closed_loop_ids=[],
-            current_time=REGISTRATION_START - timedelta(seconds=1),
+            current_time=REGISTRATION_START - timedelta(minutes=1),
         )
 
     with pytest.raises(ex.RegistrationEnded, match="Registration time has passed."):
@@ -328,7 +336,7 @@ def test_register(seed_event):
             qr_id=str(uuid4()),
             user_id=user_id,
             users_closed_loop_ids=[],
-            current_time=REGISTRATION_END + timedelta(seconds=1),
+            current_time=REGISTRATION_END + timedelta(minutes=1),
         )
 
     with pytest.raises(
@@ -353,12 +361,15 @@ def test_register(seed_event):
         qr_id=qr_id,
         user_id=user_id,
         users_closed_loop_ids=users_closed_loop_ids,
-        current_time=REGISTRATION_START + timedelta(seconds=0.5),
+        current_time=REGISTRATION_START + timedelta(minutes=0.5),
     )
 
     assert event.registrations[user_id].qr_id == qr_id
     assert event.registrations[user_id].user_id == user_id
-    assert event.registrations[user_id].attendance_status == mdl.EventAttendanceStatus.UN_ATTENDED
+    assert (
+        event.registrations[user_id].attendance_status
+        == mdl.EventAttendanceStatus.UN_ATTENDED
+    )
 
     with pytest.raises(
         ex.EventCapacityExceeded,
@@ -368,7 +379,7 @@ def test_register(seed_event):
             qr_id=str(uuid4()),
             user_id=str(uuid4()),
             users_closed_loop_ids=users_closed_loop_ids,
-            current_time=REGISTRATION_START + timedelta(seconds=0.5),
+            current_time=REGISTRATION_START + timedelta(minutes=0.5),
         )
 
     event.capacity = 2
@@ -381,7 +392,7 @@ def test_register(seed_event):
             qr_id=str(uuid4()),
             user_id=user_id,
             users_closed_loop_ids=users_closed_loop_ids,
-            current_time=REGISTRATION_START + timedelta(seconds=0.5),
+            current_time=REGISTRATION_START + timedelta(minutes=0.5),
         )
 
     assert len(event.registrations) == 1
@@ -405,13 +416,15 @@ def test_mark_attenance(seed_event, seed_registration):
     with pytest.raises(ex.AttendancePostEventException, match="Event has ended."):
         event.mark_attendance(
             user_id=registration.user_id,
-            current_time=EVENT_END + timedelta(seconds=1),
+            current_time=EVENT_END + timedelta(minutes=1),
         )
 
-    with pytest.raises(ex.EventRegistrationNotStarted, match="Attendance has not started yet."):
+    with pytest.raises(
+        ex.EventRegistrationNotStarted, match="Attendance has not started yet."
+    ):
         event.mark_attendance(
             user_id=registration.user_id,
-            current_time=REGISTRATION_START - timedelta(seconds=1),
+            current_time=REGISTRATION_START - timedelta(minutes=1),
         )
 
     with pytest.raises(
@@ -420,13 +433,13 @@ def test_mark_attenance(seed_event, seed_registration):
     ):
         event.mark_attendance(
             user_id=registration.user_id,
-            current_time=REGISTRATION_START + timedelta(seconds=0.5),
+            current_time=REGISTRATION_START + timedelta(minutes=0.5),
         )
 
     event.registrations[registration.user_id] = registration
     event.mark_attendance(
         user_id=registration.user_id,
-        current_time=REGISTRATION_START + timedelta(seconds=0.5),
+        current_time=REGISTRATION_START + timedelta(minutes=0.5),
     )
 
     with pytest.raises(
@@ -435,7 +448,7 @@ def test_mark_attenance(seed_event, seed_registration):
     ):
         event.mark_attendance(
             user_id=registration.user_id,
-            current_time=REGISTRATION_START + timedelta(seconds=0.5),
+            current_time=REGISTRATION_START + timedelta(minutes=0.5),
         )
 
     assert registration.attendance_status == mdl.EventAttendanceStatus.ATTENDED
@@ -461,7 +474,7 @@ def test_cancel(seed_event):
     ):
         event.cancel(
             cancellation_reason="",
-            current_time=EVENT_END + timedelta(seconds=1),
+            current_time=EVENT_END + timedelta(minutes=1),
         )
 
     event.cancel(

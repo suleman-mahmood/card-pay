@@ -9,10 +9,10 @@ from core.event.domain import model as event_mdl
 from core.event.entrypoint import anti_corruption as acl
 from core.event.entrypoint import commands as event_cmd
 
-REGISTRATION_START = datetime.now() + timedelta(seconds=1)
-REGISTRATION_END = datetime.now() + timedelta(seconds=2)
-EVENT_START = datetime.now() + timedelta(seconds=3)
-EVENT_END = datetime.now() + timedelta(seconds=4)
+REGISTRATION_START = datetime.now() + timedelta(minutes=1)
+REGISTRATION_END = datetime.now() + timedelta(minutes=2)
+EVENT_START = datetime.now() + timedelta(minutes=3)
+EVENT_END = datetime.now() + timedelta(minutes=4)
 
 
 def seed_event_cmd(
@@ -101,7 +101,9 @@ def test_register_user(seed_event):
     qr_id = str(uuid4())
     closed_loop_id = str(uuid4())
 
-    event = seed_event_cmd(seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow)
+    event = seed_event_cmd(
+        seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow
+    )
 
     with pytest.raises(event_mdl_ex.EventNotApproved):
         event_cmd.register_user(
@@ -140,7 +142,9 @@ def test_mark_attendance(seed_event):
     qr_id = str(uuid4())
     closed_loop_id = str(uuid4())
 
-    event = seed_event_cmd(seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow)
+    event = seed_event_cmd(
+        seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow
+    )
 
     event_cmd.publish(event_id=event.id, uow=uow)
     event_cmd.register_user(
@@ -182,7 +186,9 @@ def test_cancel(seed_event):
 
     closed_loop_id = str(uuid4())
 
-    event = seed_event_cmd(seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow)
+    event = seed_event_cmd(
+        seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow
+    )
 
     with pytest.raises(event_mdl_ex.EventNotApproved):
         event_cmd.cancel(

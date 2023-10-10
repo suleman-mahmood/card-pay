@@ -38,12 +38,9 @@ def initialize_pytest_config(mocker):
     os.environ["SMS_API_SECRET"] = ""
     os.environ["RETOOL_SECRET"] = ""
 
-    mocker.patch("core.comms.entrypoint.commands.send_otp_sms",
-                 return_value=None)
-    mocker.patch(
-        "core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
-    mocker.patch("core.comms.entrypoint.commands.send_email",
-                 return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
     mocker.patch(
         "core.authentication.entrypoint.firebase_service.create_user",
         return_value=None,
@@ -53,7 +50,8 @@ def initialize_pytest_config(mocker):
         return_value=None,
     )
     mocker.patch(
-        "core.authentication.entrypoint.firebase_service.get_user", return_value="")
+        "core.authentication.entrypoint.firebase_service.get_user", return_value=""
+    )
 
 
 @pytest.fixture()
@@ -144,8 +142,7 @@ def seed_user():
 
         return auth_mdl.User(
             id=uid,
-            personal_email=auth_mdl.PersonalEmail(
-                value="sulemanmahmood99@gmail.com"),
+            personal_email=auth_mdl.PersonalEmail(value="sulemanmahmood99@gmail.com"),
             user_type=auth_mdl.UserType.CUSTOMER,
             phone_number=auth_mdl.PhoneNumber(value="3000000000"),
             pin="0000",
@@ -189,7 +186,9 @@ def seed_closed_loop_user():
 
 @pytest.fixture
 def seed_auth_user():
-    def _seed_auth_user(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+    def _seed_auth_user(
+        uow: AbstractUnitOfWork,
+    ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
@@ -202,7 +201,8 @@ def seed_auth_user():
             wallet_id=user_id,
         )
         wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(
-            id=user_id, qr_id=str(uuid4()), balance=0)
+            id=user_id, qr_id=str(uuid4()), balance=0
+        )
         uow.transactions.add_wallet(
             wallet=wallet,
         )
@@ -215,7 +215,9 @@ def seed_auth_user():
 
 @pytest.fixture
 def seed_verified_auth_user(seed_auth_user):
-    def _seed_auth_user(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+    def _seed_auth_user(
+        uow: AbstractUnitOfWork,
+    ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user, wallet = seed_auth_user(uow)
         auth_cmd.verify_phone_number(
             user_id=user.id,
@@ -245,12 +247,13 @@ def seed_auth_closed_loop():
 
 @pytest.fixture
 def seed_auth_vendor():
-    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+    def _seed_auth_vendor(
+        uow: AbstractUnitOfWork,
+    ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
-            personal_email=auth_mdl.PersonalEmail(
-                value="zainalikhokhar40@gmail.com"),
+            personal_email=auth_mdl.PersonalEmail(value="zainalikhokhar40@gmail.com"),
             phone_number=auth_mdl.PhoneNumber(value="+923123456789"),
             user_type=auth_mdl.UserType.VENDOR,
             pin="1234",
@@ -270,8 +273,53 @@ def seed_auth_vendor():
 
 
 @pytest.fixture
+def seed_auth_event_organizer():
+    def _seed_auth_event_organizer(
+        uow: AbstractUnitOfWork,
+    ) -> auth_mdl.User:
+        user_id = str(uuid4())
+        user = auth_mdl.User(
+            id=user_id,
+            personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@party.com"),
+            phone_number=auth_mdl.PhoneNumber(value="+9230349522255"),
+            user_type=auth_mdl.UserType.EVENT_ORGANIZER,
+            pin="5877",
+            full_name="Malik M. Moaz",
+            location=auth_mdl.Location(latitude=0, longitude=0),
+            wallet_id=user_id,
+        )
+        wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
+        uow.transactions.add_wallet(
+            wallet=wallet,
+        )
+        uow.users.add(user)
+
+        return user
+
+    return _seed_auth_event_organizer
+
+
+@pytest.fixture
+def seed_verified_auth_event_organizer(seed_auth_event_organizer):
+    def _seed_verified_auth_event_organizer(
+        uow: AbstractUnitOfWork,
+    ) -> auth_mdl.User:
+        user = seed_auth_event_organizer(uow)
+        auth_cmd.verify_phone_number(
+            user_id=user.id,
+            otp=user.otp,
+            uow=uow,
+        )
+        return user
+
+    return _seed_verified_auth_event_organizer
+
+
+@pytest.fixture
 def seed_verified_auth_vendor(seed_auth_vendor):
-    def _seed_auth_vendor(uow: AbstractUnitOfWork) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
+    def _seed_auth_vendor(
+        uow: AbstractUnitOfWork,
+    ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user, wallet = seed_auth_vendor(uow)
         auth_cmd.verify_phone_number(
             user_id=user.id,
@@ -410,7 +458,9 @@ def _create_closed_loop_helper(client):
     return closed_loop_id
 
 
-def _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_identifier):
+def _register_user_in_closed_loop(
+    mocker, client, user_id, closed_loop_id, unique_identifier
+):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
 
     headers = {
@@ -419,13 +469,14 @@ def _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, uniqu
     }
     client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id,
-              "unique_identifier": unique_identifier},
+        json={"closed_loop_id": closed_loop_id, "unique_identifier": unique_identifier},
         headers=headers,
     )
 
 
-def _verify_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_identifier_otp):
+def _verify_user_in_closed_loop(
+    mocker, client, user_id, closed_loop_id, unique_identifier_otp
+):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     headers = {
         "Authorization": "Bearer pytest_auth_token",
@@ -454,8 +505,7 @@ def _marketing_setup(seed_api_admin, client, mocker, weightage_type, weightage_v
     )
     client.post(
         "http://127.0.0.1:5000/api/v1/add-weightage",
-        json={"weightage_type": weightage_type,
-              "weightage_value": weightage_value},
+        json={"weightage_type": weightage_type, "weightage_value": weightage_value},
         headers=headers,
     )
     # No need for this in execute p2p push

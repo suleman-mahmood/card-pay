@@ -6,7 +6,7 @@ create table events (
     status event_status_enum not null,
     cancellation_reason varchar(255),
     name varchar(255) not null,
-    organizer_id uuid not null,
+    organizer_id uuid references users(id) not null,
     venue varchar(255) not null,
     capacity int not null,
     description varchar(255) not null,
@@ -28,3 +28,5 @@ create table registrations (
     created_at timestamp not null default current_timestamp,
     updated_at timestamp not null default current_timestamp
 );
+
+alter type user_type_enum add value 'EVENT_ORGANIZER' after 'CARDPAY';
