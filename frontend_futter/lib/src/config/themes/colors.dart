@@ -72,6 +72,7 @@ class AppColors {
   );
 }
 
+// TODO: make this into a separate file =(((
 class AppTypography {
   static TextStyle introHeading = TextStyle(
     fontFamily: GoogleFonts.poppins().fontFamily,

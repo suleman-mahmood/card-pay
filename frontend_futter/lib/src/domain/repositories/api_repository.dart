@@ -5,6 +5,7 @@ import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_r
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
+import 'package:cardpay/src/domain/models/requests/register_event_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/responses/change_pin_response.dart';
@@ -15,10 +16,12 @@ import 'package:cardpay/src/domain/models/responses/execute_p2p_push_transaction
 import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
+import 'package:cardpay/src/domain/models/responses/register_event_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
@@ -88,6 +91,20 @@ abstract class ApiRepository {
   Future<DataState<GetFullNameResponse>> getFullName({
     required String uniqueIdentifier,
     required String closedLoopId,
+    required String token,
+  });
+
+  // Events
+  Future<DataState<GetEventsResponse>> getLiveEvents({
+    required String token,
+  });
+
+  Future<DataState<GetEventsResponse>> getRegisteredEvents({
+    required String token,
+  });
+
+  Future<DataState<RegisterEventResponse>> registerEvent({
+    required RegisterEventRequest registerEventRequest,
     required String token,
   });
 }

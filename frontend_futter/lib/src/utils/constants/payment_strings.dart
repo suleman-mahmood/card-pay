@@ -42,6 +42,7 @@ class PaymentStrings {
   static const String deposit = 'Deposit ';
   static const String request = 'Request';
   static const String transfer = 'Transfer';
+  static const String events = 'Events';
   static const String qrTitle = 'Pay - QR';
   static const String sendMoney = 'Send Money';
   static const String faq = 'Faqs';

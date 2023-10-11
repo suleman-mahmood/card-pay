@@ -74,7 +74,10 @@ class ReceiptView extends HookWidget {
     }
 
     handleDoneClick() {
-      context.router.push(DashboardLayoutRoute());
+      context.router.pushAndPopUntil(
+        DashboardLayoutRoute(),
+        predicate: (route) => route.data?.name == "LoginRoute",
+      );
     }
 
     return Scaffold(

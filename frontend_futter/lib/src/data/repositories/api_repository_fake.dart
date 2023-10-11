@@ -1,5 +1,6 @@
 import 'package:cardpay/src/domain/models/checkpoints.dart';
 import 'package:cardpay/src/domain/models/closed_loop.dart';
+import 'package:cardpay/src/domain/models/event.dart';
 import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_customer_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
@@ -7,6 +8,7 @@ import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_r
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
+import 'package:cardpay/src/domain/models/requests/register_event_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/responses/change_pin_response.dart';
@@ -17,11 +19,13 @@ import 'package:cardpay/src/domain/models/responses/execute_p2p_push_transaction
 import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
+import 'package:cardpay/src/domain/models/responses/register_event_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
@@ -435,6 +439,70 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     return Future.delayed(
       const Duration(seconds: 1),
       () => DataSuccess(getFullNameRequest),
+    );
+  }
+
+  // Events
+  @override
+  Future<DataState<GetEventsResponse>> getLiveEvents({
+    required String token,
+  }) {
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(GetEventsResponse(
+        message: 'Customer created successfully',
+        events: [
+          Event(
+            name: "Cricket 007",
+            description: "The best cricket screening ever",
+            imageUrl:
+                "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
+            registrationFee: 1500,
+            organizerName: "Student Council",
+            venue: "Sports Complex",
+          ),
+          Event(name: "FIFA", description: "OMG! FIFA screening!"),
+        ],
+      )),
+    );
+  }
+
+  @override
+  Future<DataState<GetEventsResponse>> getRegisteredEvents({
+    required String token,
+  }) {
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(GetEventsResponse(
+        message: 'Customer created successfully',
+        events: [
+          Event(
+            name: "Cricket 007",
+            description: "The best cricket screening ever",
+            imageUrl:
+                "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
+            registrationFee: 1500,
+            organizerName: "Student Council",
+            venue: "Sports Complex",
+          ),
+          Event(name: "FIFA", description: "OMG! FIFA screening!"),
+        ],
+      )),
+    );
+  }
+
+  @override
+  Future<DataState<RegisterEventResponse>> registerEvent({
+    required RegisterEventRequest registerEventRequest,
+    required String token,
+  }) {
+    RegisterEventResponse registerEventRequest = RegisterEventResponse(
+      message: 'Event registered successfully',
+    );
+
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(registerEventRequest),
     );
   }
 }

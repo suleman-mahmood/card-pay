@@ -4,6 +4,7 @@ import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
+import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
 import 'package:flutter/material.dart';
@@ -202,9 +203,9 @@ class PaymentDashboardView extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CustomBox(
-                    imagePath: 'assets/images/request-disabled.png',
-                    text: PaymentStrings.request,
-                    isDisabled: true,
+                    imagePath: 'assets/images/faq.png',
+                    text: PaymentStrings.events,
+                    route: EventSelectorRoute(),
                   ),
                   CustomBox(
                     imagePath: 'assets/images/faq.png',
@@ -213,6 +214,52 @@ class PaymentDashboardView extends HookWidget {
                   ),
                 ],
               ),
+
+              // // // // // //// // // // // // // // // //
+              // The two rows and scroll left right thingy //
+              // // // // // //// // // // // // // // // //
+
+              // const HeightBox(slab: 3),
+              // const SingleChildScrollView(
+              //   scrollDirection: Axis.horizontal,
+              //   child: Row(
+              //     children: [
+              //       CustomBox(
+              //         imagePath: 'assets/images/Upwork-3.png',
+              //         text: PaymentStrings.deposit,
+              //         route: DepositAmountRoute(),
+              //       ),
+              //       WidthBetween(),
+              //       CustomBox(
+              //         imagePath: 'assets/images/Upwork.png',
+              //         text: PaymentStrings.transfer,
+              //         route: TransferRecipientRoute(),
+              //       ),
+              //       WidthBetween(),
+              //       CustomBox(
+              //         imagePath: 'assets/images/faq.png',
+              //         text: PaymentStrings.faq,
+              //         route: FaqsRoute(),
+              //       ),
+              //       WidthBetween(),
+              //       CustomBox(
+              //         imagePath: 'assets/images/request-disabled.png',
+              //         text: PaymentStrings.request,
+              //         isDisabled: true,
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // const HeightBox(slab: 3),
+              // const Row(
+              //   children: [
+              //     CustomBox(
+              //       imagePath: 'assets/images/faq.png',
+              //       text: PaymentStrings.events,
+              //       route: EventSelectorRoute(),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),

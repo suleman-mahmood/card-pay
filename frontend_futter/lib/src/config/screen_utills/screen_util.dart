@@ -8,6 +8,7 @@ class ScreenUtil {
   static double heightSlabFour = 32;
   static double heightSlabFive = 48;
   static double heightSlabSix = 64;
+  static double heightSlabSeven = 96;
 
   static double paddingSlabOne = 8;
   static double paddingSlabTwo = 16;

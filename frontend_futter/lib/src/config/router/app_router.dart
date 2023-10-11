@@ -1,4 +1,10 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cardpay/src/domain/models/event.dart';
+import 'package:cardpay/src/presentation/views/event/event_attendance_qr_view.dart';
+import 'package:cardpay/src/presentation/views/event/event_details_view.dart';
+import 'package:cardpay/src/presentation/views/event/event_selector_view.dart';
+import 'package:cardpay/src/presentation/views/event/live_events_view.dart';
+import 'package:cardpay/src/presentation/views/event/registered_events_view.dart';
 import 'package:cardpay/src/presentation/views/faqs_view.dart';
 import 'package:cardpay/src/presentation/views/dashboard_layout_view.dart';
 import 'package:cardpay/src/presentation/views/intro/intro_view.dart';
@@ -108,6 +114,27 @@ class AppRouter extends _$AppRouter {
         ),
         CustomRoute(
           page: EditProfileRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        // Event views
+        CustomRoute(
+          page: EventSelectorRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: LiveEventsRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: EventDetailsRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: RegisteredEventsRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: EventAttendanceQrRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
       ];

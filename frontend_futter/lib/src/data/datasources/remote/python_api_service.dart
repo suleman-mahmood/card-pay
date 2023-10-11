@@ -5,6 +5,7 @@ import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_r
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
+import 'package:cardpay/src/domain/models/requests/register_event_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/responses/change_pin_response.dart';
@@ -15,11 +16,13 @@ import 'package:cardpay/src/domain/models/responses/execute_p2p_push_transaction
 import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
+import 'package:cardpay/src/domain/models/responses/register_event_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
@@ -119,6 +122,23 @@ abstract class PythonApiService {
   Future<HttpResponse<GetFullNameResponse>> getFullName({
     @Query("unique_identifier") required String uniqueIdentifier,
     @Query("closed_loop_id") required String closedLoopId,
+    @Header("Authorization") required String token,
+  });
+
+  // Events
+  @GET("/get-live-events")
+  Future<HttpResponse<GetEventsResponse>> getLiveEvents({
+    @Header("Authorization") required String token,
+  });
+
+  @GET("/get-registered-events")
+  Future<HttpResponse<GetEventsResponse>> getRegisteredEvents({
+    @Header("Authorization") required String token,
+  });
+
+  @POST('/register-event')
+  Future<HttpResponse<RegisterEventResponse>> registerEvent({
+    @Body() required RegisterEventRequest registerEventRequest,
     @Header("Authorization") required String token,
   });
 }
