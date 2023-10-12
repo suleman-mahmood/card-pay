@@ -68,7 +68,7 @@ class LoginView extends HookWidget {
     }
 
     void onPhoneNumberChanged(String newValue) {
-      dropdownValue.value = newValue;
+      dropdownValue.value = newValue.trim();
     }
 
     void handleLogin() async {
@@ -157,7 +157,7 @@ class LoginView extends HookWidget {
                 label: AppStrings.password,
                 hint: AppStrings.enterPassword,
                 obscureText: true,
-                onChanged: (v) => password.value = v,
+                onChanged: (v) => password.value = v.trim(),
               ),
               const HeightBox(slab: 1),
               // TODO: handle it later

@@ -210,7 +210,7 @@ class SignupView extends HookWidget {
                 label: AppStrings.username,
                 hint: AppStrings.enterUsername,
                 obscureText: false,
-                onChanged: (v) => fullName.value = v,
+                onChanged: (v) => fullName.value = v.trim(),
                 validator: (fullNameValue) {
                   if (fullNameValue == null) {
                     return AppStrings.nullName;
@@ -226,7 +226,7 @@ class SignupView extends HookWidget {
                 label: AppStrings.email,
                 hint: AppStrings.enterEmail,
                 obscureText: false,
-                onChanged: (v) => personalEmail.value = v,
+                onChanged: (v) => personalEmail.value = v.trim(),
                 validator: (emailValue) {
                   if (emailValue == null) {
                     return AppStrings.nullEmail;
@@ -242,7 +242,7 @@ class SignupView extends HookWidget {
                 label: AppStrings.password,
                 hint: AppStrings.enterPassword,
                 obscureText: true,
-                onChanged: (v) => password.value = v,
+                onChanged: (v) => password.value = v.trim(),
                 validator: (passwordValue) {
                   if (passwordValue == null) {
                     return AppStrings.nullPassword;
@@ -258,7 +258,7 @@ class SignupView extends HookWidget {
                 label: AppStrings.confirmPassword,
                 hint: AppStrings.reEnterPassword,
                 obscureText: true,
-                onChanged: (v) => confirmPassword.value = v,
+                onChanged: (v) => confirmPassword.value = v.trim(),
                 validator: (confirmPasswordValue) {
                   if (confirmPasswordValue == null) {
                     return AppStrings.nullConfirmPassword;
@@ -278,7 +278,7 @@ class SignupView extends HookWidget {
                 dropdownItems: AppStrings.phoneCountryCodes,
                 dropdownValue: dropdownValue.value,
                 onChanged: onPhoneNumberChanged,
-                onPhoneNumberChanged: (v) => phoneNumber.value = v,
+                onPhoneNumberChanged: (v) => phoneNumber.value = v.trim(),
                 validator: (fullNameValue) {
                   if (fullNameValue == null) {
                     return AppStrings.nullPhoneNumber;

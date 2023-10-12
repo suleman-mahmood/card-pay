@@ -124,7 +124,7 @@ class ClosedLoopView extends HookWidget {
                   CustomInputField(
                     label: AppStrings.rollNumber,
                     hint: AppStrings.enterRollNumber,
-                    onChanged: (v) => uniqueIdentifier.value = v,
+                    onChanged: (v) => uniqueIdentifier.value = v.trim(),
                     validator: (uniqueIdentifierValue) {
                       if (uniqueIdentifierValue == null) {
                         return AppStrings.nullRollNumber;
@@ -140,7 +140,7 @@ class ClosedLoopView extends HookWidget {
                   CustomInputField(
                     label: AppStrings.referralRollNumber,
                     hint: AppStrings.enterRollNumber,
-                    onChanged: (v) => referralUniqueIdentifier.value = v,
+                    onChanged: (v) => referralUniqueIdentifier.value = v.trim(),
                     validator: (referralUniqueIdentifierValue) {
                       if (referralUniqueIdentifierValue == null ||
                           referralUniqueIdentifierValue == '') {
