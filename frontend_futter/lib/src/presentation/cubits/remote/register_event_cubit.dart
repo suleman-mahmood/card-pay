@@ -13,6 +13,15 @@ class RegisterEventCubit extends BaseCubit<RegisterEventState, void> {
 
   RegisterEventCubit(this._apiRepository) : super(RegisterEventInitial(), Null);
 
+  // TODO: DEPRECATE this
+  Future<void> initialize() async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(RegisterEventInitial());
+    });
+  }
+
   Future<void> registerEvent(String eventId) async {
     if (isBusy) return;
 

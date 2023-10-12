@@ -1098,14 +1098,16 @@ def get_live_events(uid):
     uow = UnitOfWork()
 
     try:
-        event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
+        events = event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
         uow.close_connection()
 
     except Exception as e:
         uow.close_connection()
         raise e
 
-    return utils.Response(message="", status_code=200, data={}).__dict__
+    return utils.Response(
+        message="All live events returned successfully", status_code=200, data=events
+    ).__dict__
 
 
 @cardpay_app.route("/get-registered-events", methods=["GET"])
@@ -1116,14 +1118,18 @@ def get_registered_events(uid):
     uow = UnitOfWork()
 
     try:
-        event_qry.get_registered_events(user_id=uid, uow=uow)
+        events = event_qry.get_registered_events(user_id=uid, uow=uow)
         uow.close_connection()
 
     except Exception as e:
         uow.close_connection()
         raise e
 
-    return utils.Response(message="", status_code=200, data={}).__dict__
+    return utils.Response(
+        message="All user registered events returned successfully",
+        status_code=200,
+        data=events,
+    ).__dict__
 
 
 @cardpay_app.route("/register-event", methods=["POST"])
@@ -1137,6 +1143,7 @@ def register_event(uid):
 
     try:
         user = uow.users.get(user_id=uid)
+        event = uow.events.get(event_id=req["event_id"])
         event_cmd.register_user(
             event_id=req["event_id"],
             qr_id=str(uuid4()),
@@ -1144,6 +1151,16 @@ def register_event(uid):
             uow=uow,
             user_id=uid,
             users_closed_loop_ids=list(user.closed_loops.keys()),
+        )
+        pmt_cmd._execute_transaction(
+            tx_id=str(uuid4()),
+            sender_wallet_id=uid,
+            recipient_wallet_id=event.organizer_id,
+            amount=event.registration_fee,
+            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+            transaction_type=pmt_mdl.TransactionType.EVENT_REGISTRATION_FEE,
+            uow=uow,
+            auth_svc=pmt_acl.AuthenticationService(),
         )
         uow.commit_close_connection()
 
@@ -1153,6 +1170,7 @@ def register_event(uid):
         event_mdl_exc.UserInvalidClosedLoop,
         event_mdl_exc.EventCapacityExceeded,
         event_mdl_exc.RegistrationAlreadyExists,
+        pmt_mdl_ex.TransactionNotAllowedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))

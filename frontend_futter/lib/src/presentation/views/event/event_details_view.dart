@@ -27,12 +27,6 @@ class EventDetailsView extends StatelessWidget {
 
     void handleEventRegistration() {
       registerEventCubit.registerEvent(event.id);
-      context.router.push(
-        ReceiptRoute(
-          amount: event.registrationFee,
-          recipientName: event.organizerName,
-        ),
-      );
     }
 
     void _showDialog() {
@@ -41,7 +35,28 @@ class EventDetailsView extends StatelessWidget {
         builder: (BuildContext context) => AlertDialog(
           backgroundColor: Colors.white,
           title: const Text('Confirm registration'),
-          content: Text('Amount ${event.registrationFee}'),
+          content: BlocBuilder<RegisterEventCubit, RegisterEventState>(
+            builder: (_, state) {
+              switch (state.runtimeType) {
+                case RegisterEventInitial:
+                  return Text('Amount ${event.registrationFee}');
+                case RegisterEventLoading:
+                  return const SizedBox(
+                    width: 10,
+                    height: 30,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                case RegisterEventFailed || RegisterEventUnknownFailure:
+                  return Text(
+                    state.errorMessage,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  );
+                default:
+                  return const SizedBox.shrink();
+              }
+            },
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: handleEventRegistration,
@@ -92,7 +107,7 @@ class EventDetailsView extends StatelessWidget {
                   title: const Text("Date"),
                   titleTextStyle: AppTypography.subHeadingBold,
                   subtitleTextStyle: AppTypography.bodyText,
-                  subtitle: Text(event.eventStartTime.toString()),
+                  subtitle: Text(event.eventStartTimestamp.toString()),
                   trailing: const Icon(
                     Icons.punch_clock_outlined,
                   ),
@@ -106,7 +121,7 @@ class EventDetailsView extends StatelessWidget {
                   title: const Text("Time"),
                   titleTextStyle: AppTypography.subHeadingBold,
                   subtitleTextStyle: AppTypography.bodyText,
-                  subtitle: Text(event.eventStartTime.toString()),
+                  subtitle: Text(event.eventStartTimestamp.toString()),
                   trailing: const Icon(
                     Icons.punch_clock_outlined,
                   ),
@@ -133,7 +148,7 @@ class EventDetailsView extends StatelessWidget {
           style: AppTypography.subHeadingBold,
         ),
         Text(
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Amet luctus venenatis lectus magna fringilla. Arcu cursus vitae congue mauris rhoncus aenean vel.",
+          event.description,
           style: AppTypography.bodyText,
         ),
         const HeightBox(slab: 1),
@@ -142,7 +157,7 @@ class EventDetailsView extends StatelessWidget {
           style: AppTypography.subHeadingBold,
         ),
         Text(
-          "Some organizer",
+          event.organizerName,
           style: AppTypography.bodyText,
         ),
         const HeightBox(slab: 2),
@@ -153,9 +168,26 @@ class EventDetailsView extends StatelessWidget {
             child: PrimaryButton(
               color: AppColors.blackColor,
               text: 'Register Now!',
-              onPressed: () => _showDialog(),
+              onPressed: () {
+                registerEventCubit.initialize();
+                _showDialog();
+              },
             ),
           ),
+        ),
+        BlocListener<RegisterEventCubit, RegisterEventState>(
+          listener: (_, state) {
+            switch (state.runtimeType) {
+              case RegisterEventSuccess:
+                context.router.push(
+                  ReceiptRoute(
+                    amount: event.registrationFee,
+                    recipientName: event.organizerName,
+                  ),
+                );
+            }
+          },
+          child: const SizedBox.shrink(),
         ),
       ],
     );

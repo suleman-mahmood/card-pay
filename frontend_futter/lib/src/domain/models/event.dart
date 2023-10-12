@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class Event {
   String id;
@@ -8,18 +9,18 @@ class Event {
   String venue;
   String description;
   String imageUrl;
-  String attendance_qr;
+  String? attendanceQr;
 
   int capacity;
   int registrationFee;
 
-  DateTime eventStartTime;
+  DateTime eventStartTimestamp;
   DateTime eventEndTimestamp;
   DateTime registrationStartTimestamp;
   DateTime registrationEndTimestamp;
 
   Event({
-    DateTime? eventStartTime,
+    DateTime? eventStartTimestamp,
     DateTime? eventEndTimestamp,
     DateTime? registrationStartTimestamp,
     DateTime? registrationEndTimestamp,
@@ -29,11 +30,11 @@ class Event {
     this.venue = '',
     this.description = '',
     this.imageUrl = '',
-    this.attendance_qr = '',
+    this.attendanceQr,
     this.capacity = 0,
     this.registrationFee = 0,
-  })  : eventStartTime =
-            eventStartTime ?? DateTime(9999, 12, 31, 23, 59, 59, 999, 999),
+  })  : eventStartTimestamp =
+            eventStartTimestamp ?? DateTime(9999, 12, 31, 23, 59, 59, 999, 999),
         eventEndTimestamp =
             eventEndTimestamp ?? DateTime(9999, 12, 31, 23, 59, 59, 999, 999),
         registrationStartTimestamp = registrationStartTimestamp ??
@@ -48,10 +49,10 @@ class Event {
     String? venue,
     String? description,
     String? imageUrl,
-    String? attendance_qr,
+    String? attendanceQr,
     int? capacity,
     int? registrationFee,
-    DateTime? eventStartTime,
+    DateTime? eventStartTimestamp,
     DateTime? eventEndTimestamp,
     DateTime? registrationStartTimestamp,
     DateTime? registrationEndTimestamp,
@@ -63,10 +64,10 @@ class Event {
       venue: venue ?? this.venue,
       description: description ?? this.description,
       imageUrl: imageUrl ?? this.imageUrl,
-      attendance_qr: attendance_qr ?? this.attendance_qr,
+      attendanceQr: attendanceQr ?? this.attendanceQr,
       capacity: capacity ?? this.capacity,
       registrationFee: registrationFee ?? this.registrationFee,
-      eventStartTime: eventStartTime ?? this.eventStartTime,
+      eventStartTimestamp: eventStartTimestamp ?? this.eventStartTimestamp,
       eventEndTimestamp: eventEndTimestamp ?? this.eventEndTimestamp,
       registrationStartTimestamp:
           registrationStartTimestamp ?? this.registrationStartTimestamp,
@@ -83,10 +84,10 @@ class Event {
       'venue': venue,
       'description': description,
       'image_url': imageUrl,
-      'qr_id': attendance_qr,
+      'attendance_qr': attendanceQr,
       'capacity': capacity,
       'registration_fee': registrationFee,
-      'event_start_time': eventStartTime.millisecondsSinceEpoch,
+      'event_start_time': eventStartTimestamp.millisecondsSinceEpoch,
       'event_end_timestamp': eventEndTimestamp.millisecondsSinceEpoch,
       'registration_start_timestamp':
           registrationStartTimestamp.millisecondsSinceEpoch,
@@ -103,17 +104,18 @@ class Event {
       venue: map['venue'] as String,
       description: map['description'] as String,
       imageUrl: map['image_url'] as String,
-      attendance_qr: map['qr_id'] as String,
+      attendanceQr:
+          map['attendance_qr'] != null ? map['attendance_qr'] as String : null,
       capacity: map['capacity'] as int,
       registrationFee: map['registration_fee'] as int,
-      eventStartTime:
-          DateTime.fromMillisecondsSinceEpoch(map['event_start_time'] as int),
-      eventEndTimestamp: DateTime.fromMillisecondsSinceEpoch(
-          map['event_end_timestamp'] as int),
-      registrationStartTimestamp: DateTime.fromMillisecondsSinceEpoch(
-          map['registration_start_timestamp'] as int),
-      registrationEndTimestamp: DateTime.fromMillisecondsSinceEpoch(
-          map['registration_end_timestamp'] as int),
+      eventStartTimestamp: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
+          .parse(map['event_start_timestamp']),
+      eventEndTimestamp: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
+          .parse(map['event_end_timestamp']),
+      registrationStartTimestamp: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
+          .parse(map['registration_start_timestamp']),
+      registrationEndTimestamp: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
+          .parse(map['registration_end_timestamp']),
     );
   }
 
@@ -124,7 +126,7 @@ class Event {
 
   @override
   String toString() {
-    return 'Event(id: $id, name: $name, organizerName: $organizerName, venue: $venue, description: $description, imageUrl: $imageUrl, attendance_qr: $attendance_qr, capacity: $capacity, registrationFee: $registrationFee, eventStartTime: $eventStartTime, eventEndTimestamp: $eventEndTimestamp, registrationStartTimestamp: $registrationStartTimestamp, registrationEndTimestamp: $registrationEndTimestamp)';
+    return 'Event(id: $id, name: $name, organizerName: $organizerName, venue: $venue, description: $description, imageUrl: $imageUrl, attendanceQr: $attendanceQr, capacity: $capacity, registrationFee: $registrationFee, eventStartTimestamp: $eventStartTimestamp, eventEndTimestamp: $eventEndTimestamp, registrationStartTimestamp: $registrationStartTimestamp, registrationEndTimestamp: $registrationEndTimestamp)';
   }
 
   @override
@@ -137,10 +139,10 @@ class Event {
         other.venue == venue &&
         other.description == description &&
         other.imageUrl == imageUrl &&
-        other.attendance_qr == attendance_qr &&
+        other.attendanceQr == attendanceQr &&
         other.capacity == capacity &&
         other.registrationFee == registrationFee &&
-        other.eventStartTime == eventStartTime &&
+        other.eventStartTimestamp == eventStartTimestamp &&
         other.eventEndTimestamp == eventEndTimestamp &&
         other.registrationStartTimestamp == registrationStartTimestamp &&
         other.registrationEndTimestamp == registrationEndTimestamp;
@@ -154,10 +156,10 @@ class Event {
         venue.hashCode ^
         description.hashCode ^
         imageUrl.hashCode ^
-        attendance_qr.hashCode ^
+        attendanceQr.hashCode ^
         capacity.hashCode ^
         registrationFee.hashCode ^
-        eventStartTime.hashCode ^
+        eventStartTimestamp.hashCode ^
         eventEndTimestamp.hashCode ^
         registrationStartTimestamp.hashCode ^
         registrationEndTimestamp.hashCode;

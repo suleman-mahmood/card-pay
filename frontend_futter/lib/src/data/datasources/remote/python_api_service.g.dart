@@ -482,10 +482,12 @@ class _PythonApiService implements PythonApiService {
   }
 
   @override
-  Future<HttpResponse<GetEventsResponse>> getLiveEvents(
-      {required String token}) async {
+  Future<HttpResponse<GetEventsResponse>> getLiveEvents({
+    required String closedLoopId,
+    required String token,
+  }) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'closed_loop_id': closedLoopId};
     final _headers = <String, dynamic>{r'Authorization': token};
     _headers.removeWhere((k, v) => v == null);
     final Map<String, dynamic>? _data = null;

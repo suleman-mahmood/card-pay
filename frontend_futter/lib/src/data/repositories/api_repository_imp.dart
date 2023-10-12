@@ -215,10 +215,12 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   // Events
   @override
   Future<DataState<GetEventsResponse>> getLiveEvents({
+    required String closedLoopId,
     required String token,
   }) {
     return getStateOf<GetEventsResponse>(
       request: () => _pythonApiService.getLiveEvents(
+        closedLoopId: closedLoopId,
         token: 'Bearer $token',
       ),
     );

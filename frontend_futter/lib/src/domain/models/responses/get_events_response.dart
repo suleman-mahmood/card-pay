@@ -34,7 +34,7 @@ class GetEventsResponse {
     return GetEventsResponse(
       message: map['message'] as String,
       events: List<Event>.from(
-        (map['events'] as List<int>).map<Event>(
+        (map['data'] as List<dynamic>).map<Event>(
           (x) => Event.fromMap(x as Map<String, dynamic>),
         ),
       ),

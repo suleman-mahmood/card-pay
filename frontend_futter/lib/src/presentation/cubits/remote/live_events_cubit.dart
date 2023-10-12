@@ -13,7 +13,7 @@ class LiveEventsCubit extends BaseCubit<LiveEventsState, List<Event>> {
 
   LiveEventsCubit(this._apiRepository) : super(LiveEventsInitial(), []);
 
-  Future<void> getLiveEvents() async {
+  Future<void> getLiveEvents(String closedLoopId) async {
     if (isBusy) return;
 
     await run(() async {
@@ -22,7 +22,10 @@ class LiveEventsCubit extends BaseCubit<LiveEventsState, List<Event>> {
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
               '';
-      final response = await _apiRepository.getLiveEvents(token: token);
+      final response = await _apiRepository.getLiveEvents(
+        closedLoopId: closedLoopId,
+        token: token,
+      );
 
       if (response is DataSuccess) {
         data.clear();

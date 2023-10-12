@@ -445,6 +445,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
   // Events
   @override
   Future<DataState<GetEventsResponse>> getLiveEvents({
+    required String closedLoopId,
     required String token,
   }) {
     return Future.delayed(
@@ -496,6 +497,21 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     required RegisterEventRequest registerEventRequest,
     required String token,
   }) {
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
     RegisterEventResponse registerEventRequest = RegisterEventResponse(
       message: 'Event registered successfully',
     );

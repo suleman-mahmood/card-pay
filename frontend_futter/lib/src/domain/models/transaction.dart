@@ -28,6 +28,8 @@ enum TransactionType {
   CARD_PAY,
   CASH_BACK,
   REFERRAL,
+  RECONCILIATION,
+  EVENT_REGISTRATION_FEE,
 }
 
 class Transaction {

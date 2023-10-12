@@ -97,6 +97,7 @@ abstract class ApiRepository {
   // Events
   Future<DataState<GetEventsResponse>> getLiveEvents({
     required String token,
+    required String closedLoopId,
   });
 
   Future<DataState<GetEventsResponse>> getRegisteredEvents({

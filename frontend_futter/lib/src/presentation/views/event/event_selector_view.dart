@@ -3,6 +3,7 @@ import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/live_events_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/registered_events_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/layout/basic_view_layout.dart';
@@ -20,6 +21,7 @@ class EventSelectorView extends HookWidget {
     final registeredEventsCubit = BlocProvider.of<RegisteredEventsCubit>(
       context,
     );
+    final userCubit = BlocProvider.of<UserCubit>(context);
 
     return BasicViewLayout(
       headerTitle: "Events",
@@ -28,7 +30,9 @@ class EventSelectorView extends HookWidget {
         PrimaryButton(
           text: "Live Events",
           onPressed: () {
-            liveEventsCubit.getLiveEvents();
+            liveEventsCubit.getLiveEvents(
+              userCubit.state.user.closedLoops[0].closedLoopId,
+            );
             context.router.push(const LiveEventsRoute());
           },
         ),

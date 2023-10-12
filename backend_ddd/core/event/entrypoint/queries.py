@@ -1,3 +1,5 @@
+from typing import List
+
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.event.entrypoint import exceptions as event_ex
 from core.event.entrypoint import view_models as event_vm
@@ -71,3 +73,37 @@ def get_registered_events(
     events = uow.dict_cursor.fetchall()
 
     return [event_vm.EventDTO.from_db_dict_row(event) for event in events]
+
+
+def get_all_organizers(uow: AbstractUnitOfWork) -> List[event_vm.OrganizerDTO]:
+    sql = """
+        select
+            id,
+            full_name
+        from
+            users
+        where
+            user_type = 'EVENT_ORGANIZER'::user_type_enum
+        """
+
+    uow.dict_cursor.execute(sql)
+    rows = uow.dict_cursor.fetchall()
+
+    return [event_vm.OrganizerDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_draft_events(uow: AbstractUnitOfWork) -> List[event_vm.DraftEventDTO]:
+    sql = """
+        select
+            id,
+            name
+        from
+            events
+        where
+            status = 'DRAFT'::event_status_enum
+        """
+
+    uow.dict_cursor.execute(sql)
+    rows = uow.dict_cursor.fetchall()
+
+    return [event_vm.DraftEventDTO.from_db_dict_row(row) for row in rows]

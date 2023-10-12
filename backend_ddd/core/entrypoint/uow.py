@@ -5,9 +5,9 @@ from abc import ABC, abstractmethod
 import psycopg2
 from core.authentication.adapters import repository as auth_repo
 from core.authentication.domain import model as auth_mdl
+from core.event.adapters import repository as event_repo
 from core.marketing.adapters import repository as mktg_repo
 from core.payment.adapters import repository as pmt_repo
-from core.event.adapters import repository as event_repo
 from psycopg2.extensions import AsIs, adapt, register_adapter
 from psycopg2.extras import DictCursor
 

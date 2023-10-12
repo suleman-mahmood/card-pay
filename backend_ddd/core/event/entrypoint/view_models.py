@@ -1,8 +1,9 @@
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-from dataclasses import dataclass
-from psycopg2.extras import DictRow
+
 from core.event.domain import model as event_mdl
+from psycopg2.extras import DictRow
 
 
 @dataclass(frozen=True)
@@ -47,11 +48,26 @@ class EventDTO:
 
 
 @dataclass(frozen=True)
-class EventAttendanceQR:
-    qr_id: str
+class OrganizerDTO:
+    id: str
+    full_name: str
 
     @classmethod
-    def from_db_dict_row(cls, row: DictRow) -> "EventAttendanceQR":
-        return EventAttendanceQR(
-            qr_id=row["qr_id"],
+    def from_db_dict_row(cls, row: DictRow) -> "OrganizerDTO":
+        return OrganizerDTO(
+            id=row["id"],
+            full_name=row["full_name"],
+        )
+
+
+@dataclass(frozen=True)
+class DraftEventDTO:
+    id: str
+    name: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "DraftEventDTO":
+        return DraftEventDTO(
+            id=row["id"],
+            name=row["name"],
         )

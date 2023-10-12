@@ -1,20 +1,26 @@
-from flask import Blueprint, request
-
 from uuid import uuid4
-from core.api import utils
-from core.entrypoint.uow import UnitOfWork
-from core.authentication.entrypoint import queries as auth_qry
-from core.authentication.domain import model as auth_mdl
-from core.marketing.entrypoint import commands as mktg_cmd
-from core.authentication.entrypoint import commands as auth_cmd
-from core.marketing.domain import exceptions as mktg_mdl_ex
-from core.payment.entrypoint import queries as pmt_qry
-from core.payment.entrypoint import commands as pmt_cmd
-from core.payment.domain import exceptions as pmt_mdl_ex
+
 from core.api import schemas as sch
+from core.api import utils
+from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import anti_corruption as auth_acl
-from core.payment.entrypoint import exceptions as pmt_svc_ex
+from core.authentication.entrypoint import commands as auth_cmd
+from core.authentication.entrypoint import queries as auth_qry
+from core.entrypoint.uow import UnitOfWork
+from core.event.domain import exceptions as event_mdl_exc
+from core.event.domain import model as event_mdl
+from core.event.entrypoint import anti_corruption as event_acl
+from core.event.entrypoint import commands as event_cmd
+from core.event.entrypoint import exceptions as event_svc_exc
+from core.event.entrypoint import queries as event_qry
+from core.marketing.domain import exceptions as mktg_mdl_ex
+from core.marketing.entrypoint import commands as mktg_cmd
+from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.entrypoint import anti_corruption as pmt_acl
+from core.payment.entrypoint import commands as pmt_cmd
+from core.payment.entrypoint import exceptions as pmt_svc_ex
+from core.payment.entrypoint import queries as pmt_qry
+from flask import Blueprint, request
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
@@ -215,9 +221,7 @@ def auth_retools_update_closed_loop():
     ).__dict__
 
 
-@retool.route(
-    "/auth-retools-get-active-inactive-counts-of-a-closed_loop", methods=["POST"]
-)
+@retool.route("/auth-retools-get-active-inactive-counts-of-a-closed_loop", methods=["POST"])
 # @utils.authenticate_token
 # @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.ADMIN])
 @utils.handle_missing_payload
@@ -349,9 +353,11 @@ def payment_retools_get_closed_loops():
 def payment_retools_get_customers_and_vendors_of_selected_closed_loop():
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    customer_vendor_counts_dto = pmt_qry.payment_retools_get_customers_and_vendors_of_selected_closed_loop(
-        closed_loop_id=req["closed_loop_id"],
-        uow=uow,
+    customer_vendor_counts_dto = (
+        pmt_qry.payment_retools_get_customers_and_vendors_of_selected_closed_loop(
+            closed_loop_id=req["closed_loop_id"],
+            uow=uow,
+        )
     )
     uow.close_connection()
 
@@ -565,9 +571,7 @@ def add_and_set_missing_marketing_weightages_to_zero():
     ).__dict__
 
 
-@retool.route(
-    "/qr-retool-get-all-vendor-names-and-qr-ids-of-a-closed-loop", methods=["POST"]
-)
+@retool.route("/qr-retool-get-all-vendor-names-and-qr-ids-of-a-closed-loop", methods=["POST"])
 @utils.handle_missing_payload
 @utils.authenticate_retool_secret
 @utils.validate_and_sanitize_json_payload(required_parameters={"closed_loop_id": sch.UuidSchema})
@@ -601,9 +605,7 @@ def get_daily_successful_deposits():
     return utils.Response(
         message="Daily successful deposits returned successfully",
         status_code=200,
-        data={
-            "deposits": deposits_dtos
-        },
+        data={"deposits": deposits_dtos},
     ).__dict__
 
 
@@ -620,9 +622,7 @@ def get_daily_pending_deposits():
     return utils.Response(
         message="Daily pending deposits returned successfully",
         status_code=200,
-        data={
-            "deposits": deposits_dtos
-        },
+        data={"deposits": deposits_dtos},
     ).__dict__
 
 
@@ -639,9 +639,7 @@ def get_daily_transactions():
     return utils.Response(
         message="Daily transactions returned successfully",
         status_code=200,
-        data={
-            "transactions": transactions_dtos
-        },
+        data={"transactions": transactions_dtos},
     ).__dict__
 
 
@@ -658,9 +656,7 @@ def get_monthly_transactions():
     return utils.Response(
         message="Monthly transactions returned successfully",
         status_code=200,
-        data={
-            "transactions": transactions_dtos
-        },
+        data={"transactions": transactions_dtos},
     ).__dict__
 
 
@@ -677,9 +673,7 @@ def get_total_users():
     return utils.Response(
         message="Total users returned successfully",
         status_code=200,
-        data={
-            "total_users": total_users
-        },
+        data={"total_users": total_users},
     ).__dict__
 
 
@@ -696,9 +690,7 @@ def get_signed_up_daily_users():
     return utils.Response(
         message="Daily users returned successfully",
         status_code=200,
-        data={
-            "daily_users": daily_users
-        },
+        data={"daily_users": daily_users},
     ).__dict__
 
 
@@ -715,9 +707,7 @@ def get_total_phone_number_verified_users():
     return utils.Response(
         message="Total users returned successfully",
         status_code=200,
-        data={
-            "total_users": total_users
-        },
+        data={"total_users": total_users},
     ).__dict__
 
 
@@ -734,9 +724,7 @@ def get_total_verified_closed_loops_users():
     return utils.Response(
         message="Total users returned successfully",
         status_code=200,
-        data={
-            "total_users": total_users
-        },
+        data={"total_users": total_users},
     ).__dict__
 
 
@@ -753,7 +741,137 @@ def get_total_dashboard_reached_users():
     return utils.Response(
         message="Total users returned successfully",
         status_code=200,
-        data={
-            "total_users": total_users
-        },
+        data={"total_users": total_users},
+    ).__dict__
+
+
+""" 
+    --- --- --- --- --- --- --- --- --- --- --- ---
+    Events
+    --- --- --- --- --- --- --- --- --- --- --- ---
+"""
+
+
+@retool.route("/create-event", methods=["POST"])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "event_name": sch.EventNameSchema,
+        "organizer_id": sch.UuidSchema,
+        "venue": sch.EventNameSchema,
+        "capacity": sch.EventCapacitySchema,
+        "description": sch.DescriptionSchema,
+        "image_url": sch.URLSchema,
+        "closed_loop_id": sch.UuidSchema,
+        "event_start_timestamp": sch.EventTimestampSchema,
+        "event_end_timestamp": sch.EventTimestampSchema,
+        "registration_start_timestamp": sch.EventTimestampSchema,
+        "registration_end_timestamp": sch.EventTimestampSchema,
+        "registration_fee": sch.AmountSchema,
+    }
+)
+def create_event():
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+
+    try:
+        event_cmd.create(
+            id=str(uuid4()),
+            status=event_mdl.EventStatus.DRAFT,
+            registrations={},
+            cancellation_reason="",
+            name=req["event_name"],
+            organizer_id=req["organizer_id"],
+            venue=req["venue"],
+            capacity=req["capacity"],
+            description=req["description"],
+            image_url=req["image_url"],
+            closed_loop_id=req["closed_loop_id"],
+            event_start_timestamp=req["event_start_timestamp"],
+            event_end_timestamp=req["event_end_timestamp"],
+            registration_start_timestamp=req["registration_start_timestamp"],
+            registration_end_timestamp=req["registration_end_timestamp"],
+            registration_fee=req["registration_fee"],
+            uow=uow,
+            auth_acl=event_acl.AuthenticationService(),
+        )
+        uow.commit_close_connection()
+
+    except (
+        event_svc_exc.ClosedLoopDoesNotExist,
+        event_svc_exc.EventNotCreatedByOrganizer,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="Event created", status_code=200).__dict__
+
+
+@retool.route("/publish-event", methods=["POST"])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "event_id": sch.UuidSchema,
+    }
+)
+def publish_event():
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+
+    try:
+        event_cmd.publish(event_id=req["event_id"], uow=uow)
+        uow.commit_close_connection()
+
+    except (
+        event_mdl_exc.EventNotDrafted,
+        event_mdl_exc.EventRegistrationEndsAfterStart,
+        event_mdl_exc.EventEndsBeforeStartTime,
+        event_mdl_exc.EventStartsBeforeRegistrationTime,
+        event_mdl_exc.EventEndsBeforeRegistrationStartTime,
+        event_mdl_exc.EventTicketPriceNegative,
+        event_mdl_exc.EventCapacityExceeded,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="Event published", status_code=200).__dict__
+
+
+@retool.route("/get-all-organizers", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_all_organizers():
+    uow = UnitOfWork()
+    organizers = event_qry.get_all_organizers(uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="All organizers returned successfully",
+        status_code=200,
+        data=organizers,
+    ).__dict__
+
+
+@retool.route("/get-draft-events", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_draft_events():
+    uow = UnitOfWork()
+    draft_events = event_qry.get_draft_events(uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="All draft events returned successfully",
+        status_code=200,
+        data=draft_events,
     ).__dict__

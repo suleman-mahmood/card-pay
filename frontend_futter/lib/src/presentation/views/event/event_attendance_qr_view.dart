@@ -32,7 +32,7 @@ class EventAttendanceQrView extends StatelessWidget {
         Align(
           child: QrImageView(
             backgroundColor: AppColors.secondaryColor,
-            data: event.attendance_qr,
+            data: event.attendanceQr ?? '',
             version: QrVersions.auto,
             size: ScreenUtil.screenWidth(context) * (3 / 4),
           ),

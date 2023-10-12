@@ -128,6 +128,7 @@ abstract class PythonApiService {
   // Events
   @GET("/get-live-events")
   Future<HttpResponse<GetEventsResponse>> getLiveEvents({
+    @Query("closed_loop_id") required String closedLoopId,
     @Header("Authorization") required String token,
   });
 
