@@ -1170,7 +1170,7 @@ def register_event(uid):
         event_mdl_exc.UserInvalidClosedLoop,
         event_mdl_exc.EventCapacityExceeded,
         event_mdl_exc.RegistrationAlreadyExists,
-        pmt_mdl_ex.TransactionNotAllowedException,
+        pmt_svc_ex.TransactionFailedException,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
