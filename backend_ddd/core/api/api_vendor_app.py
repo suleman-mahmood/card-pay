@@ -18,7 +18,12 @@ cors = CORS(
 @vendor_app.route("/get-vendor-transactions-to-be-reconciled", methods=["GET"])
 @cross_origin(origin="*", headers=["Authorization"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.authenticate_user_type(
+    allowed_user_types=[
+        auth_mdl.UserType.VENDOR,
+        auth_mdl.UserType.EVENT_ORGANIZER,
+    ]
+)
 @utils.user_verified
 def get_vendor_transactions_to_be_reconciled(uid):
     uow = UnitOfWork()
@@ -38,7 +43,12 @@ def get_vendor_transactions_to_be_reconciled(uid):
 @vendor_app.route("/get-vendor-balance", methods=["GET"])
 @cross_origin(origin="*", headers=["Authorization"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.authenticate_user_type(
+    allowed_user_types=[
+        auth_mdl.UserType.VENDOR,
+        auth_mdl.UserType.EVENT_ORGANIZER,
+    ]
+)
 @utils.user_verified
 def get_vendor_balance(uid):
     uow = UnitOfWork()
@@ -60,7 +70,12 @@ def get_vendor_balance(uid):
 @vendor_app.route("/get-vendor", methods=["GET"])
 @cross_origin(origin="*", headers=["Authorization"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.authenticate_user_type(
+    allowed_user_types=[
+        auth_mdl.UserType.VENDOR,
+        auth_mdl.UserType.EVENT_ORGANIZER,
+    ]
+)
 @utils.user_verified
 def get_vendor(uid):
     uow = UnitOfWork()
@@ -83,7 +98,7 @@ def get_vendor(uid):
 
 @vendor_app.route("/get-live-events", methods=["GET"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.CUSTOMER])
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.EVENT_ORGANIZER])
 @utils.user_verified
 def get_live_events(uid):
     raise utils.CustomException("Not implemented")
@@ -105,7 +120,7 @@ def get_live_events(uid):
 
 @vendor_app.route("/mark-entry-event-attendance", methods=["POST"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.EVENT_ORGANIZER])
 @utils.user_verified
 @utils.validate_and_sanitize_json_payload(
     required_parameters={"event_id": sch.UuidSchema, "qr_id": sch.UuidSchema}
@@ -130,7 +145,7 @@ def mark_entry_event_attendance(uid):
 
 @vendor_app.route("/mark-exit-event-attendance", methods=["POST"])
 @utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.EVENT_ORGANIZER])
 @utils.user_verified
 @utils.validate_and_sanitize_json_payload(
     required_parameters={"event_id": sch.UuidSchema, "qr_id": sch.UuidSchema}

@@ -17,6 +17,10 @@ export interface Transaction {
   sender_name: string;
 }
 
+const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
+const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
+const BASE_URL = BASE_URL_PROD;
+
 export default function page() {
   const router = useRouter();
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -41,7 +45,7 @@ export default function page() {
   const fetchTransactions = async (user: FirebaseUser) => {
     const token = await user?.getIdToken();
     fetch(
-      `https://cardpay-1.el.r.appspot.com/api/v1/vendor-app/get-vendor-transactions-to-be-reconciled`,
+      `${BASE_URL}/api/v1/vendor-app/get-vendor-transactions-to-be-reconciled`,
       {
         method: "GET",
         mode: "cors",
@@ -70,7 +74,7 @@ export default function page() {
   const fetchVendorBalance = async (user: FirebaseUser) => {
     const token = await user?.getIdToken();
     fetch(
-      `https://cardpay-1.el.r.appspot.com/api/v1/vendor-app/get-vendor-balance`,
+      `${BASE_URL}/api/v1/vendor-app/get-vendor-balance`,
       {
         method: "GET",
         mode: "cors",
@@ -97,7 +101,7 @@ export default function page() {
 
   const fetchVendor = async (user: FirebaseUser) => {
     const token = await user?.getIdToken();
-    fetch(`https://cardpay-1.el.r.appspot.com/api/v1/vendor-app/get-vendor`, {
+    fetch(`${BASE_URL}/api/v1/vendor-app/get-vendor`, {
       method: "GET",
       mode: "cors",
       headers: {
