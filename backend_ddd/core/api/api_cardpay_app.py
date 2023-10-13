@@ -1183,3 +1183,89 @@ def register_event(uid):
         message="User successfully registered for the event",
         status_code=200,
     ).__dict__
+
+
+
+@cardpay_app.route('/form-schema', methods=['POST'])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN, UserType.EVENT_ORGANIZER])
+@utils.user_verified
+def form_schema(uid):
+    raise utils.CustomException('Not implemented')
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+
+    try:
+        form_schema = req["schema"]
+        event_id = req["event_id"]
+        uow.close_connection()
+
+    except (Exception) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message='',
+        status_code=200,
+        data={}
+    )._dict_
+
+
+
+@cardpay_app.route('/get-form', methods=[''])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_form_schema(uid):
+    raise utils.CustomException('Not implemented')
+    uow = UnitOfWork()
+    try:
+
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message='',
+        status_code=200,
+        data={}
+    )._dict_
+
+
+@cardpay_app.route('/send-form-details', methods=[''])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def send_form_details(uid):
+    raise utils.CustomException('Not implemented')
+    uow = UnitOfWork()
+
+    try:
+
+        uow.close_connection()
+
+    except () as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message='',
+        status_code=200,
+        data={}
+    )._dict_
+
+
