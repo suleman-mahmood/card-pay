@@ -9,6 +9,7 @@ import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/layout/basic_view_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 @RoutePage()
 class EventDetailsView extends StatelessWidget {
@@ -105,12 +106,12 @@ class EventDetailsView extends StatelessWidget {
               child: Card(
                 child: ListTile(
                   title: const Text("Date"),
-                  titleTextStyle: AppTypography.subHeadingBold,
+                  titleTextStyle: AppTypography.subHeadingBoldBlue,
                   subtitleTextStyle: AppTypography.bodyText,
-                  subtitle: Text(event.eventStartTimestamp.toString()),
-                  trailing: const Icon(
-                    Icons.punch_clock_outlined,
+                  subtitle: Text(
+                    DateFormat('d MMM yy').format(event.eventStartTimestamp),
                   ),
+                  trailing: const Icon(Icons.calendar_month_outlined),
                 ),
               ),
             ),
@@ -119,12 +120,12 @@ class EventDetailsView extends StatelessWidget {
               child: Card(
                 child: ListTile(
                   title: const Text("Time"),
-                  titleTextStyle: AppTypography.subHeadingBold,
+                  titleTextStyle: AppTypography.subHeadingBoldBlue,
                   subtitleTextStyle: AppTypography.bodyText,
-                  subtitle: Text(event.eventStartTimestamp.toString()),
-                  trailing: const Icon(
-                    Icons.punch_clock_outlined,
+                  subtitle: Text(
+                    DateFormat.jm().format(event.eventStartTimestamp),
                   ),
+                  trailing: const Icon(Icons.hourglass_empty_outlined),
                 ),
               ),
             ),
@@ -134,18 +135,16 @@ class EventDetailsView extends StatelessWidget {
         Card(
           child: ListTile(
             title: const Text("Venue"),
-            titleTextStyle: AppTypography.subHeadingBold,
+            titleTextStyle: AppTypography.subHeadingBoldBlue,
             subtitle: Text(event.venue),
             subtitleTextStyle: AppTypography.bodyText,
-            trailing: const Icon(
-              Icons.punch_clock_outlined,
-            ),
+            trailing: const Icon(Icons.location_on_outlined),
           ),
         ),
         const HeightBox(slab: 1),
         Text(
           "Additional information",
-          style: AppTypography.subHeadingBold,
+          style: AppTypography.subHeadingBoldBlue,
         ),
         Text(
           event.description,
@@ -154,7 +153,7 @@ class EventDetailsView extends StatelessWidget {
         const HeightBox(slab: 1),
         Text(
           "Organizer",
-          style: AppTypography.subHeadingBold,
+          style: AppTypography.subHeadingBoldBlue,
         ),
         Text(
           event.organizerName,

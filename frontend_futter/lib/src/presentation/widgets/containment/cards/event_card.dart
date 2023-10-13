@@ -2,7 +2,7 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:flutter/material.dart';
 
 class EventCard extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final String text;
   final String? subText;
   final IconData? iconEnd;
@@ -19,7 +19,7 @@ class EventCard extends StatelessWidget {
 
   const EventCard({
     Key? key,
-    required this.icon,
+    this.icon,
     required this.text,
     this.iconEnd,
     this.secondLastIcon,
@@ -46,14 +46,16 @@ class EventCard extends StatelessWidget {
         ),
         padding: EdgeInsets.all(8.0),
         child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor:
-                selected ? Colors.transparent : AppColors.lightGreyColor,
-            child: Icon(
-              icon,
-              color: selected ? AppColors.secondaryColor : iconColor,
-            ),
-          ),
+          leading: icon != null
+              ? CircleAvatar(
+                  backgroundColor:
+                      selected ? Colors.transparent : AppColors.lightGreyColor,
+                  child: Icon(
+                    icon,
+                    color: selected ? AppColors.secondaryColor : iconColor,
+                  ),
+                )
+              : null,
           title: Text(
             text,
             style: AppTypography.mainHeading.copyWith(

@@ -455,7 +455,8 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
         events: [
           Event(
             name: "Cricket 007",
-            description: "The best cricket screening ever",
+            description:
+                "The best cricket screening ever, The best cricket screening ever The best cricket screening ever The best cricket screening ever The best cricket screening ever",
             imageUrl:
                 "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
             registrationFee: 1500,

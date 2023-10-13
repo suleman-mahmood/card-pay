@@ -25,6 +25,7 @@ class CustomBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final deviceHeight = MediaQuery.of(context).size.height;
+    final deviceWidth = MediaQuery.of(context).size.width;
 
     final userCubit = BlocProvider.of<UserCubit>(context);
 
@@ -33,7 +34,8 @@ class CustomBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         child: Container(
           color: Colors.transparent,
-          height: deviceHeight * 0.15,
+          height: deviceHeight * 0.165,
+          width: deviceWidth * 0.42,
           child: Image.asset(
             imagePath,
             fit: BoxFit.cover,

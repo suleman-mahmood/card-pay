@@ -136,6 +136,13 @@ class AppTypography {
     fontWeight: FontWeight.bold,
   );
 
+  static TextStyle subHeadingBoldBlue = TextStyle(
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+    color: AppColors.blueColor,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  );
+
   static TextStyle inputFont = TextStyle(
     fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     fontSize: 16,

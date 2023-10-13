@@ -42,7 +42,7 @@ class BasicViewLayout extends HookWidget {
                     children: [
                       Visibility(
                         visible: !centered,
-                        child: const HeightBox(slab: 7),
+                        child: const HeightBox(slab: 6),
                       ),
                       ...children,
                     ],

@@ -28,6 +28,7 @@ class EventSelectorView extends HookWidget {
       backgroundColor: AppColors.teal,
       children: [
         PrimaryButton(
+          color: AppColors.blackColor,
           text: "Live Events",
           onPressed: () {
             liveEventsCubit.getLiveEvents(
@@ -38,6 +39,7 @@ class EventSelectorView extends HookWidget {
         ),
         const HeightBox(slab: 1),
         PrimaryButton(
+          color: AppColors.blackColor,
           text: "My Bookings",
           onPressed: () {
             registeredEventsCubit.getRegisteredEvents();
