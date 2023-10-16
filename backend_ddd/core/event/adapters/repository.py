@@ -1,3 +1,4 @@
+import json
 from abc import ABC, abstractmethod
 from typing import Dict
 from psycopg2.extras import DictCursor
@@ -109,7 +110,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_start_timestamp": event.registration_start_timestamp,
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
-                "event_form_schema": event.event_form_schema
+                "event_form_schema": json.dumps(event.event_form_schema),
             },
         )
 
@@ -133,7 +134,7 @@ class EventRepository(EventAbstractRepository):
                 "user_id": user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
-                "event_form_data": registration.event_form_data
+                "event_form_data": json.dumps(registration.event_form_data)
             }
             for user_id, registration in event.registrations.items()
         ]
@@ -268,7 +269,7 @@ class EventRepository(EventAbstractRepository):
                 event_end_timestamp = excluded.event_end_timestamp,
                 registration_start_timestamp = excluded.registration_start_timestamp,
                 registration_end_timestamp = excluded.registration_end_timestamp,
-                registration_fee = excluded.registration_fee
+                registration_fee = excluded.registration_fee,
                 event_form_schema = excluded.event_form_schema
         """
 
@@ -290,7 +291,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_start_timestamp": event.registration_start_timestamp,
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
-                "event_form_schema": event.event_form_schema
+                "event_form_schema": json.dumps(event.event_form_schema)
             },
         )
 
@@ -312,7 +313,7 @@ class EventRepository(EventAbstractRepository):
             on conflict (qr_id) do update set
                 user_id = excluded.user_id,
                 attendance_status = excluded.attendance_status,
-                event_id = excluded.event_id
+                event_id = excluded.event_id,
                 event_form_data = excluded.event_form_data
         """
 
@@ -322,7 +323,7 @@ class EventRepository(EventAbstractRepository):
                 "user_id": user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
-                "event_form_data": registration.event_form_data
+                "event_form_data": json.dumps(registration.event_form_data)
             }
             for user_id, registration in event.registrations.items()
         ]

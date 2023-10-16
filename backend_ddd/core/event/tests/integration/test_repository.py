@@ -27,6 +27,7 @@ def test_events_repository_add_get(seed_event):
             user_id=str(uuid4()),
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
+            event_form_data={}
         )
 
         uow.events.add(event=event)
@@ -61,6 +62,7 @@ def test_events_repository_add_get_save(seed_event):
             user_id=str(uuid4()),
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
+            event_form_data={}
         )
 
         uow.events.save(event=event)

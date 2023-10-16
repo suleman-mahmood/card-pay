@@ -7,9 +7,6 @@ from typing import Dict, List
 
 from core.event.domain import exceptions as ex
 
-def return_list():
-    return {"fields":[]}
-
 class EventAttendanceStatus(str, Enum):
     """Event attendance status enum"""
 
@@ -31,7 +28,7 @@ class Registration:
     qr_id: str
     user_id: str
     attendance_status: EventAttendanceStatus
-    event_form_data: Dict[str,List[EventFormData]] = field(default_factory=return_list)
+    event_form_data: Dict[str,List[EventFormData]]
 
     @property
     def qr_code(self) -> str:
@@ -85,7 +82,7 @@ class Event:
     registration_end_timestamp: datetime
     registration_fee: int
 
-    event_form_schema: Dict[str,List[EventFormSchema]] = field(default_factory=return_list)
+    event_form_schema: Dict[str,List[EventFormSchema]]
 
     def publish(self):
         """organiser publishes draft for approval, once published (in pending state) only admin can approve or decline"""
@@ -204,7 +201,7 @@ class Event:
         user_id: str,
         users_closed_loop_ids: List[str],
         current_time: datetime,
-        # event_form_data: List[EventFormData]
+        event_form_data: Dict[str,List[EventFormData]]
     ):
         """
         need to carry out transaction after registering at command layer.
@@ -233,7 +230,7 @@ class Event:
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=EventAttendanceStatus.UN_ATTENDED,
-            # event_form_data=event_form_data
+            event_form_data=event_form_data
         )
 
     def mark_attendance(self, user_id: str, current_time: datetime):
@@ -273,7 +270,7 @@ class Event:
         self.status = EventStatus.CANCELLED
         self.cancellation_reason = cancellation_reason
 
-    def add_update_form_schema(self, event_form_schema: List[EventFormSchema], current_time: datetime):
+    def add_update_form_schema(self, event_form_schema: Dict[str,List[EventFormSchema]], current_time: datetime):
         if current_time < self.registration_start_timestamp:
             self.event_form_schema = event_form_schema
         else:

@@ -25,7 +25,8 @@ def get_live_events(
             e.event_end_timestamp,
             e.registration_start_timestamp,
             e.registration_end_timestamp,
-            e.registration_fee
+            e.registration_fee,
+            e.event_form_schema
         from
             events e
             inner join users u on u.id = e.organizer_id
@@ -61,6 +62,7 @@ def get_registered_events(
             e.registration_start_timestamp,
             e.registration_end_timestamp,
             e.registration_fee,
+            e.event_form_schema,
             r.qr_id
         from 
             events e
