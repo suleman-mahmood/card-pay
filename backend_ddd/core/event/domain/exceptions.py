@@ -94,3 +94,11 @@ class EventEnded(Exception):
 
 class EventCapacityNonInteger(Exception):
     """exception for when registration capacity is invalid"""
+
+
+class RegistrationStarted(Exception):
+    """exception for when event has already started and organizer tries to attach form"""
+
+
+class DuplicateFormSchema(Exception):
+    """exception for when the event already has a form"""

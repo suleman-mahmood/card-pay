@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import List
 from uuid import uuid4
 
 import pytest
@@ -308,6 +309,7 @@ def test_register(seed_event):
             user_id=user_id,
             users_closed_loop_ids=[],
             current_time=datetime.now(),
+            # event_form_data=[]
         )
 
     event.status = mdl.EventStatus.APPROVED
@@ -321,6 +323,7 @@ def test_register(seed_event):
             user_id=user_id,
             users_closed_loop_ids=[],
             current_time=REGISTRATION_START - timedelta(minutes=1),
+            # event_form_data=[]
         )
 
     with pytest.raises(ex.RegistrationEnded, match="Registration time has passed."):
@@ -329,6 +332,7 @@ def test_register(seed_event):
             user_id=user_id,
             users_closed_loop_ids=[],
             current_time=REGISTRATION_END + timedelta(minutes=1),
+            # event_form_data=[]
         )
 
     with pytest.raises(
@@ -340,6 +344,7 @@ def test_register(seed_event):
             user_id=user_id,
             users_closed_loop_ids=[],
             current_time=REGISTRATION_START,
+            # event_form_data=[]
         )
 
     qr_id = str(uuid4())
@@ -354,6 +359,7 @@ def test_register(seed_event):
         user_id=user_id,
         users_closed_loop_ids=users_closed_loop_ids,
         current_time=REGISTRATION_START + timedelta(minutes=0.5),
+        # event_form_data=[]
     )
 
     assert event.registrations[user_id].qr_id == qr_id
@@ -369,6 +375,7 @@ def test_register(seed_event):
             user_id=str(uuid4()),
             users_closed_loop_ids=users_closed_loop_ids,
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
+            # event_form_data=[]
         )
 
     event.capacity = 2
@@ -382,6 +389,7 @@ def test_register(seed_event):
             user_id=user_id,
             users_closed_loop_ids=users_closed_loop_ids,
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
+            # event_form_data=[]
         )
 
     assert len(event.registrations) == 1
@@ -471,3 +479,60 @@ def test_cancel(seed_event):
 
     assert event.status == mdl.EventStatus.CANCELLED
     assert event.cancellation_reason == "aisay he, dil kr rha tha"
+
+def test_add_update_form_schema(seed_event):
+    event: mdl.Event = seed_event()
+
+    event_form_schema: List[mdl.EventFormSchema] = [
+        mdl.EventFormSchema(
+            question= "What is your name?",
+            type= "input_text",
+            validation= [{ "required":"true", "minLength":"1", "maxLength":"    25"}],
+            options= []
+        ),
+        mdl.EventFormSchema(
+            question= "What is your university name?",
+            type= "dropdown",
+            validation= [{ "required":"true"}],
+            options= ["LUMS","NUST","FAST"]
+        )
+    ]
+
+    event.add_update_form_schema(
+            event_form_schema = event_form_schema,
+            current_time = REGISTRATION_START - timedelta(minutes=0.5)
+        )
+    
+    assert event.event_form_schema is not None
+    assert event.event_form_schema == event_form_schema
+
+    event_form_schema: List[mdl.EventFormSchema] = [
+        mdl.EventFormSchema(
+            question = "What is your name?",
+            type = "input_text",
+            validation = [{ "required":"true", "minLength":"1", "maxLength":"25"}],
+            options = []
+        )
+    ]
+
+    event.add_update_form_schema(
+        event_form_schema = event_form_schema,
+        current_time = REGISTRATION_START - timedelta(minutes=0.5)
+    )
+
+    assert event.event_form_schema is not None
+    assert event.event_form_schema == event_form_schema
+    assert len(event.event_form_schema) == 1
+
+    with pytest.raises(
+        ex.RegistrationStarted
+    ):
+        event.add_update_form_schema(
+        event_form_schema = event_form_schema,
+        current_time = REGISTRATION_START + timedelta(minutes=0.5)
+    )
+    
+
+
+    
+

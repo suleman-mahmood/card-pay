@@ -68,7 +68,8 @@ class EventRepository(EventAbstractRepository):
                 event_end_timestamp, 
                 registration_start_timestamp, 
                 registration_end_timestamp, 
-                registration_fee
+                registration_fee,
+                event_form_schema
             )
             values (
                 %(id)s, 
@@ -85,7 +86,8 @@ class EventRepository(EventAbstractRepository):
                 %(event_end_timestamp)s, 
                 %(registration_start_timestamp)s, 
                 %(registration_end_timestamp)s, 
-                %(registration_fee)s
+                %(registration_fee)s,
+                %(event_form_schema)s
             )
         """
 
@@ -107,6 +109,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_start_timestamp": event.registration_start_timestamp,
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
+                "event_form_schema": event.event_form_schema
             },
         )
 
@@ -118,7 +121,8 @@ class EventRepository(EventAbstractRepository):
                 qr_id, 
                 user_id, 
                 attendance_status, 
-                event_id
+                event_id,
+                event_form_data
             )
             values
         """
@@ -129,13 +133,14 @@ class EventRepository(EventAbstractRepository):
                 "user_id": user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
+                "event_form_data": registration.event_form_data
             }
             for user_id, registration in event.registrations.items()
         ]
 
         args_str = ",".join(
             self.cursor.mogrify(
-                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s)",
+                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s, %(event_form_data)s)",
                 x,
             ).decode("utf-8")
             for x in args
@@ -159,7 +164,8 @@ class EventRepository(EventAbstractRepository):
                 event_end_timestamp, 
                 registration_start_timestamp, 
                 registration_end_timestamp, 
-                registration_fee
+                registration_fee,
+                event_form_schema
             from events
             where id = %(event_id)s
             for update
@@ -171,7 +177,7 @@ class EventRepository(EventAbstractRepository):
             raise ex.EventNotFound(f"Event not found with id {event_id}")
 
         sql = """
-            select qr_id, user_id, attendance_status, event_id
+            select qr_id, user_id, attendance_status, event_id, event_form_data
             from registrations
             where event_id = %s
          """
@@ -187,6 +193,7 @@ class EventRepository(EventAbstractRepository):
                 attendance_status=mdl.EventAttendanceStatus[
                     registration_row["attendance_status"]
                 ],
+                event_form_data=registration_row["event_form_data"]
             )
 
         return mdl.Event(
@@ -206,6 +213,7 @@ class EventRepository(EventAbstractRepository):
             registration_start_timestamp=event_row["registration_start_timestamp"],
             registration_end_timestamp=event_row["registration_end_timestamp"],
             registration_fee=event_row["registration_fee"],
+            event_form_schema=event_row["event_form_schema"]
         )
 
     def save(self, event: mdl.Event) -> None:
@@ -225,7 +233,8 @@ class EventRepository(EventAbstractRepository):
                 event_end_timestamp, 
                 registration_start_timestamp, 
                 registration_end_timestamp, 
-                registration_fee
+                registration_fee,
+                event_form_schema
             )
             values (
                 %(id)s, 
@@ -242,7 +251,8 @@ class EventRepository(EventAbstractRepository):
                 %(event_end_timestamp)s, 
                 %(registration_start_timestamp)s, 
                 %(registration_end_timestamp)s, 
-                %(registration_fee)s
+                %(registration_fee)s,
+                %(event_form_schema)s
             )
             on conflict (id) do update set
                 status = excluded.status,
@@ -259,6 +269,7 @@ class EventRepository(EventAbstractRepository):
                 registration_start_timestamp = excluded.registration_start_timestamp,
                 registration_end_timestamp = excluded.registration_end_timestamp,
                 registration_fee = excluded.registration_fee
+                event_form_schema = excluded.event_form_schema
         """
 
         self.cursor.execute(
@@ -279,6 +290,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_start_timestamp": event.registration_start_timestamp,
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
+                "event_form_schema": event.event_form_schema
             },
         )
 
@@ -290,7 +302,8 @@ class EventRepository(EventAbstractRepository):
                 qr_id, 
                 user_id, 
                 attendance_status, 
-                event_id
+                event_id,
+                event_form_data
             )
             values
         """
@@ -300,6 +313,7 @@ class EventRepository(EventAbstractRepository):
                 user_id = excluded.user_id,
                 attendance_status = excluded.attendance_status,
                 event_id = excluded.event_id
+                event_form_data = excluded.event_form_data
         """
 
         args = [
@@ -308,16 +322,18 @@ class EventRepository(EventAbstractRepository):
                 "user_id": user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
+                "event_form_data": registration.event_form_data
             }
             for user_id, registration in event.registrations.items()
         ]
 
         args_str = ",".join(
             self.cursor.mogrify(
-                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s)",
+                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s, %(event_form_data)s)",
                 x,
             ).decode("utf-8")
             for x in args
         )
 
         self.cursor.execute(sql + args_str + conflict_sql)
+
