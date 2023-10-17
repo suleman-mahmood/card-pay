@@ -23,11 +23,18 @@ def create_user(
     return user_record.uid
 
 
-def update_password(firebase_uid: str, new_password: str, new_full_name: str):
+def update_password_and_name(firebase_uid: str, new_password: str, new_full_name: str):
     firebase_admin.auth.update_user(
         uid=firebase_uid,
         password=new_password,
         display_name=new_full_name,
+    )
+
+
+def update_password(firebase_uid: str, new_password: str):
+    firebase_admin.auth.update_user(
+        uid=firebase_uid,
+        password=new_password,
     )
 
 

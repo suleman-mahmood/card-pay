@@ -14,6 +14,7 @@ from core.payment.entrypoint import commands as pmt_cmd
 from copy import deepcopy
 from typing import Tuple
 from datetime import datetime
+from random import randint
 
 
 @pytest.fixture(autouse=True)
@@ -38,15 +39,22 @@ def initialize_pytest_config(mocker):
     os.environ["SMS_API_SECRET"] = ""
     os.environ["RETOOL_SECRET"] = ""
 
-    mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
-    mocker.patch("core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
-    mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_otp_sms",
+                 return_value=None)
+    mocker.patch(
+        "core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_email",
+                 return_value=None)
     mocker.patch(
         "core.authentication.entrypoint.firebase_service.create_user",
         return_value=None,
     )
     mocker.patch(
         "core.authentication.entrypoint.firebase_service.update_password",
+        return_value=None,
+    )
+    mocker.patch(
+        "core.authentication.entrypoint.firebase_service.update_password_and_name",
         return_value=None,
     )
     mocker.patch(
@@ -71,6 +79,10 @@ def client(app):
     return app.test_client()
 
 
+def _generate_random_raw_phone_number() -> str:
+    return str(randint(3000000000, 3999999999))
+
+
 @pytest.fixture()
 def seed_api_customer():
     def _seed_api_user(mocker, client):
@@ -82,7 +94,7 @@ def seed_api_customer():
             json={
                 "personal_email": "26100279@lums.edu.pk",
                 "password": "cardpay123",
-                "phone_number": "3269507526",
+                "phone_number": _generate_random_raw_phone_number(),
                 "user_type": "CUSTOMER",
                 "full_name": "Shaheer Ahmad",
                 "location": [24.8607, 67.0011],
@@ -142,7 +154,8 @@ def seed_user():
 
         return auth_mdl.User(
             id=uid,
-            personal_email=auth_mdl.PersonalEmail(value="sulemanmahmood99@gmail.com"),
+            personal_email=auth_mdl.PersonalEmail(
+                value="sulemanmahmood99@gmail.com"),
             user_type=auth_mdl.UserType.CUSTOMER,
             phone_number=auth_mdl.PhoneNumber(value="3000000000"),
             pin="0000",
@@ -253,7 +266,8 @@ def seed_auth_vendor():
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
-            personal_email=auth_mdl.PersonalEmail(value="zainalikhokhar40@gmail.com"),
+            personal_email=auth_mdl.PersonalEmail(
+                value="zainalikhokhar40@gmail.com"),
             phone_number=auth_mdl.PhoneNumber(value="+923123456789"),
             user_type=auth_mdl.UserType.VENDOR,
             pin="1234",
@@ -469,7 +483,8 @@ def _register_user_in_closed_loop(
     }
     client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id, "unique_identifier": unique_identifier},
+        json={"closed_loop_id": closed_loop_id,
+              "unique_identifier": unique_identifier},
         headers=headers,
     )
 
@@ -505,7 +520,8 @@ def _marketing_setup(seed_api_admin, client, mocker, weightage_type, weightage_v
     )
     client.post(
         "http://127.0.0.1:5000/api/v1/add-weightage",
-        json={"weightage_type": weightage_type, "weightage_value": weightage_value},
+        json={"weightage_type": weightage_type,
+              "weightage_value": weightage_value},
         headers=headers,
     )
     # No need for this in execute p2p push

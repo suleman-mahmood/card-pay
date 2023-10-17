@@ -7,8 +7,10 @@ from core.api import utils
 from core.authentication.domain import exceptions as auth_mdl_ex
 from core.authentication.domain.model import UserType
 from core.authentication.entrypoint import anti_corruption as auth_acl
+from core.authentication.domain.model import PK_CODE
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import exceptions as auth_svc_ex
+from core.authentication.adapters import exceptions as auth_repo_ex
 from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint import queries as app_queries
 from core.entrypoint.uow import UnitOfWork
@@ -25,6 +27,8 @@ from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import queries as pmt_qry
+from core.comms.entrypoint import commands as comms_cmd
+from firebase_admin import exceptions as fb_ex
 from flask import Blueprint, request
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
@@ -684,7 +688,8 @@ def accept_p2p_pull_transaction(uid):
     uow = UnitOfWork()
 
     try:
-        pmt_cmd.accept_p2p_pull_transaction(transaction_id=req["transaction_id"], uow=uow)
+        pmt_cmd.accept_p2p_pull_transaction(
+            transaction_id=req["transaction_id"], uow=uow)
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
@@ -1098,7 +1103,8 @@ def get_live_events(uid):
     uow = UnitOfWork()
 
     try:
-        events = event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
+        events = event_qry.get_live_events(
+            closed_loop_id=closed_loop_id, uow=uow)
         uow.close_connection()
 
     except Exception as e:
@@ -1181,5 +1187,139 @@ def register_event(uid):
 
     return utils.Response(
         message="User successfully registered for the event",
+        status_code=200,
+    ).__dict__
+
+
+@cardpay_app.route("/send-otp-to-phone-number", methods=["POST"])
+@utils.handle_missing_payload
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "phone_number": sch.PhoneNumberSchema,
+    }
+)
+def send_otp_to_phone_number():
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+    try:
+        user = auth_qry.get_user_from_phone_number(
+            phone_number=req["phone_number"],
+            uow=uow,
+        )
+
+        comms_cmd.send_otp_sms(
+            full_name=user.full_name,
+            to=req["phone_number"],
+            otp_code=user.otp,
+        )
+        uow.close_connection()
+    except (auth_svc_ex.UserPhoneNumberNotFound, auth_repo_ex.UserNotFoundException,) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message=f"OTP sent successfully to +{PK_CODE + req['phone_number']}",
+        status_code=200,
+    ).__dict__
+
+
+@cardpay_app.route("/reset-password", methods=["POST"])
+@utils.handle_missing_payload
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "otp": sch.OtpSchema,
+        "phone_number": sch.PhoneNumberSchema,
+        "new_password": sch.PasswordSchema,
+    })
+def reset_password():
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+    try:
+        user = auth_qry.get_user_from_phone_number(
+            phone_number=req["phone_number"],
+            uow=uow,
+        )
+        auth_cmd.verify_otp(
+            user_id=user.id,
+            otp=req["otp"],
+            uow=uow,
+        )
+        auth_cmd.reset_password(
+            raw_phone_number=req["phone_number"],
+            new_password=req["new_password"],
+            fb_svc=auth_acl.FirebaseService(),
+        )
+        uow.commit_close_connection()
+
+    except (
+        auth_svc_ex.UserPhoneNumberNotFound,
+        auth_repo_ex.UserNotFoundException,
+        ValueError,
+        fb_ex.NotFoundError,
+        fb_ex.FirebaseError,
+        auth_mdl_ex.InvalidOtpException,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message="Password reset successfully",
+        status_code=200,
+    ).__dict__
+
+
+@cardpay_app.route("/reset-pin", methods=["POST"])
+@utils.handle_missing_payload
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "otp": sch.OtpSchema,
+        "phone_number": sch.PhoneNumberSchema,
+        "new_pin": sch.PinSchema,
+    })
+def reset_pin():
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+    try:
+        user = auth_qry.get_user_from_phone_number(
+            phone_number=req["phone_number"],
+            uow=uow,
+        )
+        auth_cmd.verify_otp(
+            user_id=user.id,
+            otp=req["otp"],
+            uow=uow,
+        )
+        auth_cmd.change_pin(
+            user_id=user.id,
+            new_pin=req["new_pin"],
+            uow=uow,
+        )
+        uow.commit_close_connection()
+
+    except (
+        auth_svc_ex.UserPhoneNumberNotFound,
+        auth_repo_ex.UserNotFoundException,
+        auth_mdl_ex.InvalidPinException,
+        auth_mdl_ex.InvalidOtpException,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message="Pin reset successfully",
         status_code=200,
     ).__dict__

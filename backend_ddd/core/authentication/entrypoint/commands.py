@@ -29,7 +29,8 @@ def create_closed_loop(
         logo_url=logo_url,
         description=description,
         regex=regex,
-        verification_type=auth_mdl.ClosedLoopVerificationType.__members__[verification_type],
+        verification_type=auth_mdl.ClosedLoopVerificationType.__members__[
+            verification_type],
     )
     uow.closed_loops.add(closed_loop)
 
@@ -47,7 +48,8 @@ def create_user(
     fb_svc: acl.AbstractFirebaseService,
 ) -> Tuple[EventCode, str, bool]:
     """Create user"""
-    location_object = auth_mdl.Location(latitude=location[0], longitude=location[1])
+    location_object = auth_mdl.Location(
+        latitude=location[0], longitude=location[1])
     phone_number = auth_mdl.PhoneNumber.from_api(phone_number=raw_phone_number)
 
     user_already_exists = False
@@ -93,7 +95,7 @@ def create_user(
         if fetched_user.is_phone_number_verified:
             return EventCode.USER_VERIFIED, user_id, False
         else:
-            fb_svc.update_password(
+            fb_svc.update_password_and_name(
                 firebase_uid=firebase_uid,
                 new_password=password,
                 new_full_name=full_name,
@@ -235,7 +237,8 @@ def verify_closed_loop(
         uow=uow,
     )
 
-    user.verify_closed_loop(closed_loop_id=closed_loop_id, otp=unique_identifier_otp)
+    user.verify_closed_loop(closed_loop_id=closed_loop_id,
+                            otp=unique_identifier_otp)
     uow.users.save(user)
 
     if closed_loop_id != LUMS_CLOSED_LOOP_ID or ignore_migration:
@@ -351,3 +354,20 @@ def auth_retools_update_closed_loop(
     uow.closed_loops.save(closed_loop)
 
     return closed_loop
+
+
+def verify_otp(user_id: str, otp: str, uow: AbstractUnitOfWork):
+    user = uow.users.get(user_id=user_id)
+    user.verify_otp(otp)
+    uow.users.save(user)
+
+
+def reset_password(raw_phone_number: str,  new_password: str, fb_svc: acl.AbstractFirebaseService):
+
+    phone_number = auth_mdl.PhoneNumber.from_api(phone_number=raw_phone_number)
+    firebase_uid = fb_svc.get_user(email=phone_number.email)
+    fb_svc.reset_password(
+        firebase_uid=firebase_uid,
+        new_password=new_password,
+    )
+    # These two fb calls can raise ValueError, UserNotFoundError, FirebaseError

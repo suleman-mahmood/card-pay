@@ -12,3 +12,7 @@ class UniqueIdentifierAlreadyExistsException(Exception):
 
 class UserNotFoundException(Exception):
     """exception raised for when a user is not found in the database"""
+
+
+class UserPhoneNumberNotFound(Exception):
+    """exception raised for when a phone number is not found in the database"""

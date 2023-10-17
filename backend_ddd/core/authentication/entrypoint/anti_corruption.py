@@ -128,7 +128,11 @@ class AbstractFirebaseService(ABC):
         pass
 
     @abstractmethod
-    def update_password(self, firebase_uid: str, new_password: str, new_full_name: str):
+    def reset_password(self, firebase_uid: str, new_password: str):
+        pass
+
+    @abstractmethod
+    def update_password_and_name(self, firebase_uid: str, new_password: str, new_full_name: str):
         pass
 
     @abstractmethod
@@ -150,11 +154,14 @@ class FakeFirebaseService(AbstractFirebaseService):
             raise Exception("User already exists")
         return ""
 
-    def update_password(self, firebase_uid: str, new_password: str, new_full_name: str):
+    def update_password_and_name(self, firebase_uid: str, new_password: str, new_full_name: str):
         pass
 
     def get_user(self, email: str) -> str:
         return ""
+
+    def reset_password(self, firebase_uid: str, new_password: str):
+        pass
 
 
 class FirebaseService(AbstractFirebaseService):
@@ -170,11 +177,19 @@ class FirebaseService(AbstractFirebaseService):
             disabled=False,
         )
 
-    def update_password(self, firebase_uid: str, new_password: str, new_full_name: str):
-        fb_svc.update_password(
+    def update_password_and_name(self, firebase_uid: str, new_password: str, new_full_name: str):
+        fb_svc.update_password_and_name(
             firebase_uid=firebase_uid,
             new_password=new_password,
             new_full_name=new_full_name,
+        )
+
+    def reset_password(self, firebase_uid: str, new_password: str):
+
+        # TODO: Check if the old pwd is the same as the old password
+        fb_svc.update_password(
+            firebase_uid=firebase_uid,
+            new_password=new_password,
         )
 
     def get_user(self, email: str) -> str:

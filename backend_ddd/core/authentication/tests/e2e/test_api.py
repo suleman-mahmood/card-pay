@@ -624,6 +624,98 @@ def test_sanitize_input_fields_register_closed_loop(seed_api_customer, mocker, c
         ).__dict__
     )
 
+
+def test_send_otp_to_phone_number(seed_api_customer, mocker, client):
+    user_id = seed_api_customer(mocker, client)
+
+    uow = UnitOfWork()
+    phone_number = uow.users.get(user_id=user_id).phone_number.raw
+    uow.close_connection()
+    # No need for verification/headers in pre-dashboard functionalities
+
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/send-otp-to-phone-number",
+        json={f"phone_number": f"{phone_number}"},
+    )
+
+    payload = loads(response.data.decode())
+
+    assert payload["message"] == f"OTP sent successfully to +92{phone_number}"
+    assert payload["status_code"] == 200
+
+
+def test_send_otp_to_phone_number_invalid_phone_number(seed_api_customer, mocker, client):
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/send-otp-to-phone-number",
+        json={"phone_number": "3000000000"},  # invalid random phone number
+    )
+
+    payload = loads(response.data.decode())
+    assert payload["message"] == "No user exists against +923000000000"
+    assert response.status_code == 400
+
+
+def test_reset_password(seed_api_customer, mocker, client):
+    user_id = seed_api_customer(mocker, client)
+
+    uow = UnitOfWork()
+    user = uow.users.get(user_id=user_id)
+    uow.close_connection()
+
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/reset-password",
+        json={
+            "otp": user.otp,
+            "new_password": "newpassword$12315",
+            "phone_number": user.phone_number.raw,
+        }
+    )
+
+    payload = loads(response.data.decode())
+
+    assert payload["message"] == "Password reset successfully"
+    assert payload["status_code"] == 200
+
+
+def test_reset_pin(seed_api_customer, mocker, client):
+    user_id = seed_api_customer(mocker, client)
+
+    uow = UnitOfWork()
+    user = uow.users.get(user_id=user_id)
+    uow.close_connection()
+
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/reset-pin",
+        json={
+            "otp": user.otp,
+            "new_pin": "7777",
+            "phone_number": user.phone_number.raw,
+        }
+    )
+
+    payload = loads(response.data.decode())
+
+    assert payload["message"] == "Pin reset successfully"
+    assert payload["status_code"] == 200
+
+    uow = UnitOfWork()
+    user = uow.users.get(user_id=user_id)
+    uow.close_connection()
+
+    response = client.post(
+        "http://127.0.0.1:5000/api/v1/reset-pin",
+        json={
+            "otp": user.otp,
+            "new_pin": "7777",
+            "phone_number": user.phone_number.raw,
+        }
+    )
+
+    payload = loads(response.data.decode())
+
+    assert payload["message"] == "passed pin is same as old pin"
+    assert response.status_code == 400
+
 # TODO: need to write the test for create vendor
 # def test_auth_retools_create_vendor(mocker, client):
 

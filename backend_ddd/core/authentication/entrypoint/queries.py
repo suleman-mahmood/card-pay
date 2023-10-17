@@ -745,3 +745,22 @@ def get_total_dashboard_reached_users(uow: AbstractUnitOfWork):
     uow.cursor.execute(sql)
     row = uow.cursor.fetchone()
     return row[0]
+
+
+def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork) -> auth_mdl.User:
+    sql = """
+    select id 
+    from users
+    where phone_number = %(phone_number)s
+    """
+    phone_number = auth_mdl.PhoneNumber.from_api(phone_number).value
+    uow.cursor.execute(sql, {"phone_number": phone_number})
+    user_id = uow.cursor.fetchone()
+
+    if user_id is None:
+        raise auth_svc_ex.UserPhoneNumberNotFound(
+            f"No user exists against {phone_number}")
+
+    user = uow.users.get(user_id)
+
+    return user

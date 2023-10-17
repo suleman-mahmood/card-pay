@@ -415,3 +415,48 @@ def test_update_closed_loop(seed_auth_closed_loop):
     assert fetched_closed_loop.description == "Updated Description"
 
     uow.close_connection()
+
+
+def test_verify_otp(seed_auth_user):
+    uow = FakeUnitOfWork()
+    user, _ = seed_auth_user(uow)
+    otp = user.otp
+
+    auth_cmd.verify_otp(
+        user_id=user.id,
+        otp=otp,
+        uow=uow,
+    )
+    # assert that the otps are changed
+    with pytest.raises(auth_ex.InvalidOtpException):
+        auth_cmd.verify_otp(
+            user_id=user.id,
+            otp=otp,
+            uow=uow,
+        )
+
+
+def test_verify_otp_invalid_otp(seed_auth_user):
+    uow = FakeUnitOfWork()
+    user, _ = seed_auth_user(uow)
+
+    otp = user.otp
+    with pytest.raises(auth_ex.InvalidOtpException):
+        auth_cmd.verify_otp(
+            user_id=user.id,
+            otp="0000",
+            uow=uow,
+        )
+    fetched_user = uow.users.get(user_id=user.id)
+    assert fetched_user.otp == otp
+
+
+def test_reset_password(seed_verified_auth_user):
+    uow = FakeUnitOfWork()
+    user, _ = seed_verified_auth_user(uow)
+
+    auth_cmd.reset_password(
+        raw_phone_number=user.phone_number.value,
+        new_password="newpass123",
+        fb_svc=acl.FakeFirebaseService(),
+    )

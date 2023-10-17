@@ -94,7 +94,7 @@ class UserType(str, Enum):
     ADMIN = 3  # Admin of the closed loop system
     PAYMENT_GATEWAY = 4  # Payment gateway
     CARDPAY = 5  # Cardpay
-    EVENT_ORGANIZER = 6  #  Society, Student Council, Event organizers etc
+    EVENT_ORGANIZER = 6  # Society, Student Council, Event organizers etc
 
 
 @dataclass(frozen=True)
@@ -113,6 +113,10 @@ class PhoneNumber:
     @property
     def email(self) -> str:
         return self.sms + "@cardpay.com.pk"
+
+    @property
+    def raw(self) -> str:
+        return self.value.replace(f"+{PK_CODE}", "")
 
     @property
     def sms(self) -> str:
