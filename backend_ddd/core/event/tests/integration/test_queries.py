@@ -125,7 +125,6 @@ def test_get_registered_events(
         user_id=user.id,
         users_closed_loop_ids=[closed_loop_id],
         current_time=datetime.now() + timedelta(minutes=1.5),
-        event_form_data={},
         uow=uow,
     )
 

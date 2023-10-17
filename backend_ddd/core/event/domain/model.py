@@ -13,7 +13,7 @@ class EventAttendanceStatus(str, Enum):
     UN_ATTENDED = 1
     ATTENDED = 2
 
-@dataclass(frozen=True)
+@dataclass
 class EventFormDataItem:
     question: str
     answer: str | int | float
@@ -66,10 +66,10 @@ class QuestionType(str, Enum):
 
 @dataclass
 class ValidationRule:
-    type: str
+    type: ValidationEnum
     value: int | bool
 
-@dataclass(frozen=True)
+@dataclass
 class EventFormSchemaItem:
     question: str
     type: QuestionType
