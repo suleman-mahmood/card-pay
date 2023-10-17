@@ -131,6 +131,7 @@ def test_register_user(seed_event):
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
+            event_form_data={}
         )
     }
 
@@ -162,6 +163,7 @@ def test_mark_attendance(seed_event):
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
+            event_form_data={}
         )
     }
     event_cmd.mark_attendance(
@@ -177,6 +179,7 @@ def test_mark_attendance(seed_event):
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.ATTENDED,
+            event_form_data={}
         )
     }
 

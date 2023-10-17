@@ -9,7 +9,7 @@ from core.event.adapters import repository as event_repo
 from core.marketing.adapters import repository as mktg_repo
 from core.payment.adapters import repository as pmt_repo
 from psycopg2.extensions import AsIs, adapt, register_adapter
-from psycopg2.extras import DictCursor
+from psycopg2.extras import DictCursor, Json
 
 
 def adapt_point(point: auth_mdl.Location):
@@ -73,6 +73,7 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 class UnitOfWork(AbstractUnitOfWork):
     def __init__(self):
         register_adapter(auth_mdl.Location, adapt_point)
+        register_adapter(dict, Json)
 
         db_host = os.environ.get("DB_HOST")
         db_name = os.environ.get("DB_NAME")

@@ -43,6 +43,7 @@ def seed_event():
             event_start_timestamp=event_start_timestamp,
             event_end_timestamp=event_end_timestamp,
             registration_fee=registration_fee,
+            event_form_schema={"fields":[]}
         )
 
     return _seed_event
@@ -97,6 +98,7 @@ def seed_registration():
             user_id=str(uuid4()),
             qr_id=str(uuid4()),
             attendance_status=mdl.EventAttendanceStatus.UN_ATTENDED,
+            event_form_data={}
         )
 
     return _seed_registration

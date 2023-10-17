@@ -1,8 +1,10 @@
+import json
 from abc import ABC, abstractmethod
 from typing import Dict
 from psycopg2.extras import DictCursor
 from core.event.domain import model as mdl
 from core.event.adapters import exceptions as ex
+from dataclasses import asdict
 
 
 class EventAbstractRepository(ABC):
@@ -68,7 +70,8 @@ class EventRepository(EventAbstractRepository):
                 event_end_timestamp, 
                 registration_start_timestamp, 
                 registration_end_timestamp, 
-                registration_fee
+                registration_fee,
+                event_form_schema
             )
             values (
                 %(id)s, 
@@ -85,9 +88,16 @@ class EventRepository(EventAbstractRepository):
                 %(event_end_timestamp)s, 
                 %(registration_start_timestamp)s, 
                 %(registration_end_timestamp)s, 
-                %(registration_fee)s
+                %(registration_fee)s,
+                %(event_form_schema)s
             )
         """
+        for each in event.event_form_schema["fields"]:
+            each.type = each.type.name
+            for validation in each.validation:
+                validation.type = validation.type.name
+
+        event_schema = {"fields": [asdict(l) for l in event.event_form_schema["fields"]]}
 
         self.cursor.execute(
             sql,
@@ -107,6 +117,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_start_timestamp": event.registration_start_timestamp,
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
+                "event_form_schema": event_schema
             },
         )
 
@@ -118,10 +129,16 @@ class EventRepository(EventAbstractRepository):
                 qr_id, 
                 user_id, 
                 attendance_status, 
-                event_id
+                event_id,
+                event_form_data
             )
             values
         """
+
+        event_data = {}
+        for each in event.registrations.items():
+            event_data = {"fields": [asdict(l) for l in each[1].event_form_data["fields"]]}
+
 
         args = [
             {
@@ -129,13 +146,14 @@ class EventRepository(EventAbstractRepository):
                 "user_id": user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
+                "event_form_data": event_data
             }
             for user_id, registration in event.registrations.items()
         ]
 
         args_str = ",".join(
             self.cursor.mogrify(
-                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s)",
+                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s, %(event_form_data)s)",
                 x,
             ).decode("utf-8")
             for x in args
@@ -159,7 +177,8 @@ class EventRepository(EventAbstractRepository):
                 event_end_timestamp, 
                 registration_start_timestamp, 
                 registration_end_timestamp, 
-                registration_fee
+                registration_fee,
+                event_form_schema
             from events
             where id = %(event_id)s
             for update
@@ -171,7 +190,7 @@ class EventRepository(EventAbstractRepository):
             raise ex.EventNotFound(f"Event not found with id {event_id}")
 
         sql = """
-            select qr_id, user_id, attendance_status, event_id
+            select qr_id, user_id, attendance_status, event_id, event_form_data
             from registrations
             where event_id = %s
          """
@@ -180,14 +199,45 @@ class EventRepository(EventAbstractRepository):
         registration_rows = self.cursor.fetchall()
 
         registrations = {}
+        event_form_data = []
         for registration_row in registration_rows:
+            for k,v in registration_row["event_form_data"].items():
+                for each in v:
+                    event_form_data.append(
+                        mdl.EventFormDataItem(
+                            question=each["question"],
+                            answer=each["answer"]
+                        )
+                    )
             registrations[registration_row["user_id"]] = mdl.Registration(
                 qr_id=registration_row["qr_id"],
                 user_id=registration_row["user_id"],
                 attendance_status=mdl.EventAttendanceStatus[
                     registration_row["attendance_status"]
                 ],
+                event_form_data={"fields":event_form_data}
             )
+
+        event_form_schema = []
+        for k,v in event_row["event_form_schema"].items():
+            for each in v:
+                validation_rules = []
+                for val in each["validation"]:
+                    val["type"] = mdl.ValidationEnum[val["type"]]
+                    val = mdl.ValidationRule(
+                        type=val["type"],
+                        value=val["value"]
+                    )
+                    validation_rules.append(val)
+                each = mdl.EventFormSchemaItem(
+                    question=each["question"],
+                    type=mdl.QuestionType[each["type"]],
+                    validation=validation_rules,
+                    options=each["options"]
+                )
+                event_form_schema.append(each)
+
+        event_form_schema = {"fields":event_form_schema}
 
         return mdl.Event(
             id=event_row["id"],
@@ -206,6 +256,7 @@ class EventRepository(EventAbstractRepository):
             registration_start_timestamp=event_row["registration_start_timestamp"],
             registration_end_timestamp=event_row["registration_end_timestamp"],
             registration_fee=event_row["registration_fee"],
+            event_form_schema=event_form_schema
         )
 
     def save(self, event: mdl.Event) -> None:
@@ -225,7 +276,8 @@ class EventRepository(EventAbstractRepository):
                 event_end_timestamp, 
                 registration_start_timestamp, 
                 registration_end_timestamp, 
-                registration_fee
+                registration_fee,
+                event_form_schema
             )
             values (
                 %(id)s, 
@@ -242,7 +294,8 @@ class EventRepository(EventAbstractRepository):
                 %(event_end_timestamp)s, 
                 %(registration_start_timestamp)s, 
                 %(registration_end_timestamp)s, 
-                %(registration_fee)s
+                %(registration_fee)s,
+                %(event_form_schema)s
             )
             on conflict (id) do update set
                 status = excluded.status,
@@ -258,8 +311,16 @@ class EventRepository(EventAbstractRepository):
                 event_end_timestamp = excluded.event_end_timestamp,
                 registration_start_timestamp = excluded.registration_start_timestamp,
                 registration_end_timestamp = excluded.registration_end_timestamp,
-                registration_fee = excluded.registration_fee
+                registration_fee = excluded.registration_fee,
+                event_form_schema = excluded.event_form_schema
         """
+
+        for each in event.event_form_schema["fields"]:
+            each.type = each.type.name
+            for validation in each.validation:
+                validation.type = validation.type.name
+
+        event_schema = {"fields": [asdict(l) for l in event.event_form_schema["fields"]]}
 
         self.cursor.execute(
             sql,
@@ -279,6 +340,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_start_timestamp": event.registration_start_timestamp,
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
+                "event_form_schema": event_schema
             },
         )
 
@@ -290,7 +352,8 @@ class EventRepository(EventAbstractRepository):
                 qr_id, 
                 user_id, 
                 attendance_status, 
-                event_id
+                event_id,
+                event_form_data
             )
             values
         """
@@ -299,8 +362,13 @@ class EventRepository(EventAbstractRepository):
             on conflict (qr_id) do update set
                 user_id = excluded.user_id,
                 attendance_status = excluded.attendance_status,
-                event_id = excluded.event_id
+                event_id = excluded.event_id,
+                event_form_data = excluded.event_form_data
         """
+
+        event_data = {}
+        for each in event.registrations.items():
+            event_data = {"fields": [asdict(l) for l in each[1].event_form_data["fields"]]}
 
         args = [
             {
@@ -308,16 +376,18 @@ class EventRepository(EventAbstractRepository):
                 "user_id": user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
+                "event_form_data": event_data
             }
             for user_id, registration in event.registrations.items()
         ]
 
         args_str = ",".join(
             self.cursor.mogrify(
-                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s)",
+                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s, %(event_form_data)s)",
                 x,
             ).decode("utf-8")
             for x in args
         )
 
         self.cursor.execute(sql + args_str + conflict_sql)
+

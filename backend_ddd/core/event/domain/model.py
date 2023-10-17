@@ -1,12 +1,11 @@
 """events microservice domain model"""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List
 
 from core.event.domain import exceptions as ex
-
 
 class EventAttendanceStatus(str, Enum):
     """Event attendance status enum"""
@@ -14,6 +13,10 @@ class EventAttendanceStatus(str, Enum):
     UN_ATTENDED = 1
     ATTENDED = 2
 
+@dataclass
+class EventFormDataItem:
+    question: str
+    answer: str | int | float
 
 @dataclass
 class Registration:
@@ -26,6 +29,7 @@ class Registration:
     qr_id: str
     user_id: str
     attendance_status: EventAttendanceStatus
+    event_form_data: Dict[str,List[EventFormDataItem]]
 
     @property
     def qr_code(self) -> str:
@@ -45,6 +49,32 @@ class EventStatus(str, Enum):
     APPROVED = 2
     CANCELLED = 3
 
+class ValidationEnum(str, Enum):
+    """
+    This is for form schema validation on a single item
+    """
+    REQUIRED = 1
+    MINLENGTH = 2
+    MAXLENGTH = 3
+
+class QuestionType(str, Enum):
+    INPUT_STR = 1
+    INPUT_INT = 2
+    INPUT_FLOAT = 3
+    MULTIPLE_CHOICE = 4
+    DROPDOWN = 5
+
+@dataclass
+class ValidationRule:
+    type: ValidationEnum
+    value: int | bool
+
+@dataclass
+class EventFormSchemaItem:
+    question: str
+    type: QuestionType
+    validation: List[ValidationRule]
+    options: List[str]
 
 @dataclass
 class Event:
@@ -72,6 +102,8 @@ class Event:
     registration_start_timestamp: datetime
     registration_end_timestamp: datetime
     registration_fee: int
+
+    event_form_schema: Dict[str,List[EventFormSchemaItem]]
 
     def publish(self):
         """organiser publishes draft for approval, once published (in pending state) only admin can approve or decline"""
@@ -190,6 +222,7 @@ class Event:
         user_id: str,
         users_closed_loop_ids: List[str],
         current_time: datetime,
+        event_form_data: Dict[str,List[EventFormDataItem]]
     ):
         """
         need to carry out transaction after registering at command layer.
@@ -218,6 +251,7 @@ class Event:
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=EventAttendanceStatus.UN_ATTENDED,
+            event_form_data=event_form_data
         )
 
     def mark_attendance(self, user_id: str, current_time: datetime):
@@ -256,3 +290,11 @@ class Event:
 
         self.status = EventStatus.CANCELLED
         self.cancellation_reason = cancellation_reason
+
+    def upsert_form_schema(self, event_form_schema: Dict[str,List[EventFormSchemaItem]], current_time: datetime):
+        if current_time < self.registration_start_timestamp:
+            self.event_form_schema = event_form_schema
+        else:
+            raise ex.RegistrationStarted
+
+

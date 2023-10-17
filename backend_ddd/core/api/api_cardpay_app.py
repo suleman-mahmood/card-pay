@@ -1191,6 +1191,38 @@ def register_event(uid):
     ).__dict__
 
 
+
+@cardpay_app.route('/form-schema', methods=['POST'])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN, UserType.EVENT_ORGANIZER])
+@utils.user_verified
+def form_schema(uid):
+    raise utils.CustomException('Not implemented')
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+
+    try:
+        form_schema = req["schema"]
+        event_id = req["event_id"]
+        uow.close_connection()
+
+    except (Exception) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message='',
+        status_code=200,
+        data={}
+    )._dict_
+
+
+
+
 @cardpay_app.route("/send-otp-to-phone-number", methods=["POST"])
 @utils.handle_missing_payload
 @utils.validate_and_sanitize_json_payload(
