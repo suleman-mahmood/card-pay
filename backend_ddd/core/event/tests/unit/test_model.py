@@ -155,7 +155,8 @@ def test_update(seed_event):
             capacity=1,
             description="The ultimate fintech hackathon.",
             image_url="https://media.licdn.com/dms/image/D4D16AQGJJTwwC6-6mA/profile-displaybackgroundimage-shrink_200_800/0/1686490135139?e=2147483647&v=beta&t=eJwseRkzlGuk3D8ImC5Ga1EajMf4kdgOkK3C0oHDHT4",
-            registration_start_timestamp=REGISTRATION_START - timedelta(minutes=1),
+            registration_start_timestamp=REGISTRATION_START -
+            timedelta(minutes=1),
             registration_end_timestamp=REGISTRATION_END,
             event_start_timestamp=EVENT_START,
             event_end_timestamp=EVENT_END,
@@ -288,8 +289,10 @@ def test_update(seed_event):
     assert event.venue == "HOCKEY GROUND"
     assert event.capacity == 2
     assert event.description == "The ultimate ahhm."
-    assert event.registration_start_timestamp == REGISTRATION_START - timedelta(minutes=1)
-    assert event.registration_end_timestamp == REGISTRATION_END - timedelta(minutes=2)
+    assert event.registration_start_timestamp == REGISTRATION_START - \
+        timedelta(minutes=1)
+    assert event.registration_end_timestamp == REGISTRATION_END - \
+        timedelta(minutes=2)
     assert event.event_start_timestamp == EVENT_START - timedelta(minutes=3)
     assert event.event_end_timestamp == EVENT_END - timedelta(minutes=4)
     assert event.registration_fee == 10000
@@ -480,46 +483,78 @@ def test_cancel(seed_event):
     assert event.status == mdl.EventStatus.CANCELLED
     assert event.cancellation_reason == "aisay he, dil kr rha tha"
 
+
 def test_add_update_form_schema(seed_event):
     event: mdl.Event = seed_event()
 
-    event_form_schema: Dict[str,List[mdl.EventFormSchema]] = {
+    event_form_schema: Dict[str, List[mdl.EventFormSchemaItem]] = {
         "fields": [
-            mdl.EventFormSchema(
-                question= "What is your name?",
-                type= "input_text",
-                validation= [{ "required":"true", "minLength":"1", "maxLength":"    25"}],
-                options= [],
+            mdl.EventFormSchemaItem(
+                question="What is your name?",
+                type=mdl.QuestionType.INPUT_STR,
+                validation=[
+                    mdl.ValidationRule(
+                        type=mdl.ValidationEnum.REQUIRED,
+                        value=True
+                    ),
+                    mdl.ValidationRule(
+                        type=mdl.ValidationEnum.MINLENGTH,
+                        value=10
+                    ),
+                    mdl.ValidationRule(
+                        type=mdl.ValidationEnum.MAXLENGTH,
+                        value=25
+                    )
+                ],
+                options=[],
             ),
-            mdl.EventFormSchema(
-                question= "What is your university name?",
-                type= "dropdown",
-                validation= [{ "required":"true"}],
-                options= ["LUMS","NUST","FAST"]
+            mdl.EventFormSchemaItem(
+                question="What is your university name?",
+                type=mdl.QuestionType.DROPDOWN,
+                validation=[
+                    mdl.ValidationRule(
+                        type=mdl.ValidationEnum.REQUIRED,
+                        value=True
+                    )
+                ],
+                options=["LUMS", "NUST", "FAST"]
             )
         ]
     }
 
-    event.add_update_form_schema(
-            event_form_schema = event_form_schema,
-            current_time = REGISTRATION_START - timedelta(minutes=0.5)
-        )
-    
+    event.upsert_form_schema(
+        event_form_schema=event_form_schema,
+        current_time=REGISTRATION_START - timedelta(minutes=0.5)
+    )
+
     assert event.event_form_schema is not None
     assert event.event_form_schema == event_form_schema
 
-    event_form_schema = {"fields":[
-        mdl.EventFormSchema(
-            question = "What is your name?",
-            type = "input_text",
-            validation = [{ "required":"true", "minLength":"1", "maxLength":"25"}],
-            options = []
+    event_form_schema = {"fields": [
+        mdl.EventFormSchemaItem(
+            question="What is your name?",
+            type=mdl.QuestionType.INPUT_STR,
+            validation=[
+                mdl.ValidationRule(
+                    type=mdl.ValidationEnum.REQUIRED,
+                    value=True
+                ),
+                mdl.ValidationRule(
+                    type=mdl.ValidationEnum.MINLENGTH,
+                    value=10
+                ),
+                mdl.ValidationRule(
+                    type=mdl.ValidationEnum.MAXLENGTH,
+                    value=25
+                )
+            ],
+            options=[]
         )
     ]}
 
-    event.add_update_form_schema(
-        event_form_schema = event_form_schema,
-        current_time = REGISTRATION_START - timedelta(minutes=0.5)
+    event.upsert_form_schema(
+        event_form_schema=event_form_schema,
+        current_time=REGISTRATION_START - timedelta(minutes=0.5)
     )
 
     assert event.event_form_schema is not None
@@ -529,12 +564,7 @@ def test_add_update_form_schema(seed_event):
     with pytest.raises(
         ex.RegistrationStarted
     ):
-        event.add_update_form_schema(
-        event_form_schema = event_form_schema,
-        current_time = REGISTRATION_START + timedelta(minutes=0.5)
-    )
-    
-
-
-    
-
+        event.upsert_form_schema(
+            event_form_schema=event_form_schema,
+            current_time=REGISTRATION_START + timedelta(minutes=0.5)
+        )

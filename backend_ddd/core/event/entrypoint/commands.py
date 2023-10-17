@@ -52,7 +52,7 @@ def create(
         registration_start_timestamp=registration_start_timestamp,
         registration_end_timestamp=registration_end_timestamp,
         registration_fee=registration_fee,
-        event_form_schema={}
+        event_form_schema={"fields":[]}
     )
     uow.events.add(event)
 
@@ -102,7 +102,7 @@ def register_user(
     user_id,
     users_closed_loop_ids: List[str],
     current_time: datetime,
-    event_form_data: Dict[str,List[mdl.EventFormData]],
+    event_form_data: Dict[str,List[mdl.EventFormDataItem]],
     uow: AbstractUnitOfWork,
 ):
     event = uow.events.get(event_id=event_id)

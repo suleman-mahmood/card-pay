@@ -43,7 +43,7 @@ def seed_event():
             event_start_timestamp=event_start_timestamp,
             event_end_timestamp=event_end_timestamp,
             registration_fee=registration_fee,
-            event_form_schema={}
+            event_form_schema={"fields":[]}
         )
 
     return _seed_event

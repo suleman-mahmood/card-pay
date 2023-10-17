@@ -110,7 +110,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_start_timestamp": event.registration_start_timestamp,
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
-                "event_form_schema": json.dumps(event.event_form_schema),
+                "event_form_schema": event.event_form_schema
             },
         )
 
@@ -134,7 +134,7 @@ class EventRepository(EventAbstractRepository):
                 "user_id": user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
-                "event_form_data": json.dumps(registration.event_form_data)
+                "event_form_data": registration.event_form_data
             }
             for user_id, registration in event.registrations.items()
         ]
@@ -291,7 +291,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_start_timestamp": event.registration_start_timestamp,
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
-                "event_form_schema": json.dumps(event.event_form_schema)
+                "event_form_schema": event.event_form_schema
             },
         )
 
@@ -323,7 +323,7 @@ class EventRepository(EventAbstractRepository):
                 "user_id": user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
-                "event_form_data": json.dumps(registration.event_form_data)
+                "event_form_data": registration.event_form_data
             }
             for user_id, registration in event.registrations.items()
         ]
