@@ -1144,11 +1144,9 @@ def get_registered_events(uid):
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
-@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema})
+@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema,  "event_form_data": sch.EventFormDataSchema})
 def register_event(uid):
     req = request.get_json(force=True)
-    event_form_data = json.loads(req["event_form_data"])
-    print(event_form_data)
     uow = UnitOfWork()
 
     try:
@@ -1194,6 +1192,7 @@ def register_event(uid):
     return utils.Response(
         message="User successfully registered for the event",
         status_code=200,
+        data={}
     ).__dict__
 
 
@@ -1202,6 +1201,7 @@ def register_event(uid):
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN, UserType.EVENT_ORGANIZER])
 @utils.user_verified
+@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema, "event_form_schema": sch.EventFormSchema})
 def form_schema(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -1210,15 +1210,15 @@ def form_schema(uid):
         form_schema = req["event_form_schema"]
         event_id = req["event_id"]
         event_form_schema = event_mdl.Event.from_json_to_event_schema(event_schema_json=form_schema)
-        event = uow.events.get(event_id=event_id)
-        event.upsert_form_schema(
+        event_cmd.add_form_schema(
+            event_id=event_id,
             event_form_schema=event_form_schema,
-            current_time=datetime.now()
+            current_time=datetime.now(),
+            uow=uow
         )
-        uow.events.save(event=event)
-        uow.close_connection()
+        uow.commit_close_connection()
 
-    except (Exception) as e:
+    except Exception as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 

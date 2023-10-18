@@ -608,5 +608,5 @@ def test_convert_json_to_model(seed_event):
             ]
         }
     }
-    model_event_schema = event.from_json_to_event_schema(event_schema_json=json)
+    model_event_schema = event.from_json_to_event_schema(event_schema_json=json["event_form_schema"])
     assert type(model_event_schema) == dict

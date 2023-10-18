@@ -38,7 +38,6 @@ class Registration:
 
     @classmethod
     def convert_json_to_data(cls, event_data_json: dict) -> Dict[str,List[EventFormDataItem]]:
-        event_data_json = event_data_json["event_form_data"]
         event_data_items = []
         for each in event_data_json["fields"]:
             event_data_items.append(
@@ -314,7 +313,6 @@ class Event:
 
     @classmethod
     def from_json_to_event_schema(cls, event_schema_json: dict) -> Dict[str,List[EventFormSchemaItem]]:
-        event_schema_json = event_schema_json["event_form_schema"]
         event_form_schema_items = []
         for each in event_schema_json["fields"]:
             validation_items = []

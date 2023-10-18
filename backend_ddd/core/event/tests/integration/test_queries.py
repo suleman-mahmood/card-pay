@@ -74,6 +74,7 @@ def test_get_live_events(seed_verified_auth_event_organizer, seed_event_cmd):
         registration_start_timestamp=event.registration_start_timestamp,
         registration_end_timestamp=event.registration_end_timestamp,
         registration_fee=event.registration_fee,
+        event_form_schema={"fields":[]},
         qr_id=None,
     )
 
@@ -165,5 +166,6 @@ def test_get_registered_events(
         registration_start_timestamp=event.registration_start_timestamp,
         registration_end_timestamp=event.registration_end_timestamp,
         registration_fee=event.registration_fee,
+        event_form_schema={"fields":[]},
         qr_id=event.registrations[user.id].qr_id,
     )
