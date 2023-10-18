@@ -21,6 +21,7 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import queries as pmt_qry
 from flask import Blueprint, request
+from datetime import datetime
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
@@ -875,3 +876,33 @@ def get_draft_events():
         status_code=200,
         data=draft_events,
     ).__dict__
+
+@retool.route('/form-schema', methods=['POST'])
+@utils.authenticate_retool_secret
+@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema, "event_form_schema": sch.EventFormSchema})
+def form_schema():
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+
+    try:
+        form_schema = req["event_form_schema"]
+        event_id = req["event_id"]
+        event_form_schema = event_mdl.Event.from_json_to_event_schema(event_schema_json=form_schema)
+        event_cmd.add_form_schema(
+            event_id=event_id,
+            event_form_schema=event_form_schema,
+            current_time=datetime.now(),
+            uow=uow
+        )
+        uow.commit_close_connection()
+
+    except Exception as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    return utils.Response(
+        message='Schema attached successfully',
+        status_code=200,
+        data={}
+    ).__dict__
+
