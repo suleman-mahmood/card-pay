@@ -174,6 +174,8 @@ def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
     uow.events.add(event=event)
     uow.commit_close_connection()
 
+    SECRET_KEY = os.environ["RETOOL_SECRET"]
+
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
     headers = {
         "Authorization": "Bearer pytest_auth_token",
@@ -182,6 +184,7 @@ def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
     response = client.post(
         "http://127.0.0.1:5000/api/v1/form-schema",
         json={
+            "RETOOL_SECRET": SECRET_KEY,
             "event_id":event_id,
             "event_form_schema": { 
                 "fields":[
