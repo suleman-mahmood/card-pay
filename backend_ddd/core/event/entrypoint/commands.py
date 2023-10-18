@@ -102,6 +102,7 @@ def register_user(
     user_id,
     users_closed_loop_ids: List[str],
     current_time: datetime,
+    event_form_data: Dict[str,List[mdl.EventFormDataItem]],
     uow: AbstractUnitOfWork,
 ):
     event = uow.events.get(event_id=event_id)
@@ -110,7 +111,7 @@ def register_user(
         user_id=user_id,
         users_closed_loop_ids=users_closed_loop_ids,
         current_time=current_time,
-        event_form_data={"fields":[]}
+        event_form_data=event_form_data
 
     )
     uow.events.save(event=event)
@@ -142,3 +143,17 @@ def cancel(
         current_time=current_time,
     )
     uow.events.save(event=event)
+
+def add_form_schema(
+    event_id: str,
+    event_form_schema: Dict[str,List[mdl.EventFormSchemaItem]],
+    current_time: datetime,
+    uow: AbstractUnitOfWork
+):
+    event = uow.events.get(event_id=event_id)
+    event.upsert_form_schema(
+        event_form_schema=event_form_schema,
+        current_time=current_time
+    )
+    uow.events.save(event=event)
+

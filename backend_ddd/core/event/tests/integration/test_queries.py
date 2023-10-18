@@ -119,12 +119,25 @@ def test_get_registered_events(
     )
     assert len(events) == 0
 
+    event_form_data = [
+            mdl.EventFormDataItem(
+                question="What is your name?",
+                answer="Khuzaima"
+            ),
+            mdl.EventFormDataItem(
+                question="What is your age?",
+                answer=21
+            )
+        ]
+
+
     cmd.register_user(
         event_id=event.id,
         qr_id=str(uuid4()),
         user_id=user.id,
         users_closed_loop_ids=[closed_loop_id],
         current_time=datetime.now() + timedelta(minutes=1.5),
+        event_form_data={"fields":event_form_data},
         uow=uow,
     )
 

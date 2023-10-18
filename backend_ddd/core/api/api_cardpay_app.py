@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 from uuid import uuid4
@@ -30,6 +31,7 @@ from core.payment.entrypoint import queries as pmt_qry
 from core.comms.entrypoint import commands as comms_cmd
 from firebase_admin import exceptions as fb_ex
 from flask import Blueprint, request
+from core.event.domain import model as event_mdl
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
@@ -1145,15 +1147,19 @@ def get_registered_events(uid):
 @utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema})
 def register_event(uid):
     req = request.get_json(force=True)
+    event_form_data = json.loads(req["event_form_data"])
+    print(event_form_data)
     uow = UnitOfWork()
 
     try:
         user = uow.users.get(user_id=uid)
         event = uow.events.get(event_id=req["event_id"])
+
         event_cmd.register_user(
             event_id=req["event_id"],
             qr_id=str(uuid4()),
             current_time=datetime.now(),
+            event_form_data=event_mdl.Registration.convert_json_to_data(req["event_form_data"]),
             uow=uow,
             user_id=uid,
             users_closed_loop_ids=list(user.closed_loops.keys()),
@@ -1197,28 +1203,30 @@ def register_event(uid):
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN, UserType.EVENT_ORGANIZER])
 @utils.user_verified
 def form_schema(uid):
-    raise utils.CustomException('Not implemented')
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
     try:
-        form_schema = req["schema"]
+        form_schema = req["event_form_schema"]
         event_id = req["event_id"]
+        event_form_schema = event_mdl.Event.from_json_to_event_schema(event_schema_json=form_schema)
+        event = uow.events.get(event_id=event_id)
+        event.upsert_form_schema(
+            event_form_schema=event_form_schema,
+            current_time=datetime.now()
+        )
+        uow.events.save(event=event)
         uow.close_connection()
 
     except (Exception) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
-    except Exception as e:
-        uow.close_connection()
-        raise e
-
     return utils.Response(
-        message='',
+        message='Schema attached successfully',
         status_code=200,
         data={}
-    )._dict_
+    ).__dict__
 
 
 

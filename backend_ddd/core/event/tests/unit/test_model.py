@@ -568,3 +568,45 @@ def test_add_update_form_schema(seed_event):
             event_form_schema=event_form_schema,
             current_time=REGISTRATION_START + timedelta(minutes=0.5)
         )
+
+def test_convert_json_to_model(seed_event):
+    event: mdl.Event = seed_event()
+    json={
+        "event_id":"1234",
+        "event_form_schema": { 
+            "fields":[
+                {
+                    "question": "What is your name?",
+                    "type": "INPUT_STR",
+                    "validation": [
+                        {
+                            "type": "MINLENGTH",
+                            "value": 1
+                        },
+                        {
+                            "type": "MAXLENGTH",
+                            "value": 25
+                        },
+                        {
+                            "type": "REQUIRED",
+                            "value": True
+                        }
+                    ],
+                    "options": [""]
+                },
+                {
+                    "question": "What is your batch?",
+                    "type": "MULTIPLE_CHOICE",
+                    "validation": [
+                        {
+                            "type": "REQUIRED",
+                            "value": True
+                        }
+                    ],
+                    "options": ["2021","2022","2023","2024"]
+                }
+            ]
+        }
+    }
+    model_event_schema = event.from_json_to_event_schema(event_schema_json=json)
+    assert type(model_event_schema) == dict

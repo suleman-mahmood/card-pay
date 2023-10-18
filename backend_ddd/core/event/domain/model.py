@@ -36,6 +36,20 @@ class Registration:
         """QR code"""
         return self.qr_id
 
+    @classmethod
+    def convert_json_to_data(cls, event_data_json: dict) -> Dict[str,List[EventFormDataItem]]:
+        event_data_json = event_data_json["event_form_data"]
+        event_data_items = []
+        for each in event_data_json["fields"]:
+            event_data_items.append(
+                EventFormDataItem(
+                    question=each["question"],
+                    answer=each["answer"]
+                )
+            )
+        return {"fields":event_data_items}
+
+
 
 class EventStatus(str, Enum):
     """
@@ -89,6 +103,7 @@ class Event:
     status: EventStatus
     registrations: Dict[str, Registration]
     cancellation_reason: str
+    
 
     name: str
     organizer_id: str
@@ -296,5 +311,28 @@ class Event:
             self.event_form_schema = event_form_schema
         else:
             raise ex.RegistrationStarted
+
+    @classmethod
+    def from_json_to_event_schema(cls, event_schema_json: dict) -> Dict[str,List[EventFormSchemaItem]]:
+        event_schema_json = event_schema_json["event_form_schema"]
+        event_form_schema_items = []
+        for each in event_schema_json["fields"]:
+            validation_items = []
+            for val in each["validation"]:
+                validation_items.append(
+                    ValidationRule(
+                        type=ValidationEnum[val["type"]],
+                        value=val["value"]
+                    )
+                )
+            event_form_schema_items.append(
+                EventFormSchemaItem(
+                    question=each["question"],
+                    type= QuestionType[each["type"]],
+                    validation=validation_items,
+                    options=each["options"]
+                )
+            )
+        return {"fields":event_form_schema_items}
 
 
