@@ -90,3 +90,15 @@
 ### Dev deployment
 - Run `gcloud init` and initialize the development project
 - Replace the connections in db with dev ones from env
+
+#### Getting started, DEV onboarding
+- Install python
+- Create python venv
+- Install requirements from `requirement.txt`
+- Install and setup Github SSH keys if not already done
+- Install PostgreSQL
+- Setup db
+- Run migrations
+- Setup ADC, Application default credentials
+- Add `.env`, `credentials-dev.json`, `credentials-prod.json` 
+- Install Datagrip
