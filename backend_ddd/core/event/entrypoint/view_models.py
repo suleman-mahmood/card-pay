@@ -23,6 +23,7 @@ class EventDTO:
     registration_start_timestamp: datetime
     registration_end_timestamp: datetime
     registration_fee: int
+    event_form_schema: dict
     qr_id: Optional[str]
 
     @classmethod
@@ -43,6 +44,7 @@ class EventDTO:
             registration_start_timestamp=row["registration_start_timestamp"],
             registration_end_timestamp=row["registration_end_timestamp"],
             registration_fee=row["registration_fee"],
+            event_form_schema=row["event_form_schema"],
             qr_id=row["qr_id"] if "qr_id" in row else None,
         )
 

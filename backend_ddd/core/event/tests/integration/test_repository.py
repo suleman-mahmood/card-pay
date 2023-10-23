@@ -63,11 +63,11 @@ def test_events_repository_add_get_save(seed_event):
                         value=True
                     ),
                     mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MINLENGTH,
+                        type=mdl.ValidationEnum.MIN_LENGTH,
                         value=10
                     ),
                     mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MAXLENGTH,
+                        type=mdl.ValidationEnum.MAX_LENGTH,
                         value=25
                     )
                 ],
@@ -82,11 +82,11 @@ def test_events_repository_add_get_save(seed_event):
                         value=True
                     ),
                     mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MINLENGTH,
+                        type=mdl.ValidationEnum.MIN_LENGTH,
                         value=10
                     ),
                     mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MAXLENGTH,
+                        type=mdl.ValidationEnum.MAX_LENGTH,
                         value=25
                     )
                 ],

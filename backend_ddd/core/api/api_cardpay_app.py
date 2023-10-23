@@ -31,6 +31,7 @@ from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
 from firebase_admin import exceptions as fb_ex
 from flask import Blueprint, request
+from core.event.domain import model as event_mdl
 from core.api.event_codes import EventCode
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
@@ -1172,7 +1173,7 @@ def get_registered_events(uid):
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
-@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema})
+@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema,  "event_form_data": sch.EventFormDataSchema})
 def register_event(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -1180,10 +1181,12 @@ def register_event(uid):
     try:
         user = uow.users.get(user_id=uid)
         event = uow.events.get(event_id=req["event_id"])
+
         event_cmd.register_user(
             event_id=req["event_id"],
             qr_id=str(uuid4()),
             current_time=datetime.now(),
+            event_form_data=event_mdl.Registration.from_json_to_form_data(req["event_form_data"]),
             uow=uow,
             user_id=uid,
             users_closed_loop_ids=list(user.closed_loops.keys()),
@@ -1218,6 +1221,7 @@ def register_event(uid):
     return utils.Response(
         message="User successfully registered for the event",
         status_code=200,
+        data={}
     ).__dict__
 
 

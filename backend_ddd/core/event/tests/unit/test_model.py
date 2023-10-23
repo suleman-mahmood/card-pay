@@ -498,11 +498,11 @@ def test_add_update_form_schema(seed_event):
                         value=True
                     ),
                     mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MINLENGTH,
+                        type=mdl.ValidationEnum.MIN_LENGTH,
                         value=10
                     ),
                     mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MAXLENGTH,
+                        type=mdl.ValidationEnum.MAX_LENGTH,
                         value=25
                     )
                 ],
@@ -540,11 +540,11 @@ def test_add_update_form_schema(seed_event):
                     value=True
                 ),
                 mdl.ValidationRule(
-                    type=mdl.ValidationEnum.MINLENGTH,
+                    type=mdl.ValidationEnum.MIN_LENGTH,
                     value=10
                 ),
                 mdl.ValidationRule(
-                    type=mdl.ValidationEnum.MAXLENGTH,
+                    type=mdl.ValidationEnum.MAX_LENGTH,
                     value=25
                 )
             ],
@@ -568,3 +568,42 @@ def test_add_update_form_schema(seed_event):
             event_form_schema=event_form_schema,
             current_time=REGISTRATION_START + timedelta(minutes=0.5)
         )
+
+def test_convert_json_to_model(seed_event):
+    event: mdl.Event = seed_event()
+    json= { 
+            "fields":[
+                {
+                    "question": "What is your name?",
+                    "type": "INPUT_STR",
+                    "validation": [
+                        {
+                            "type": "MIN_LENGTH",
+                            "value": 1
+                        },
+                        {
+                            "type": "MAX_LENGTH",
+                            "value": 25
+                        },
+                        {
+                            "type": "REQUIRED",
+                            "value": True
+                        }
+                    ],
+                    "options": [""]
+                },
+                {
+                    "question": "What is your batch?",
+                    "type": "MULTIPLE_CHOICE",
+                    "validation": [
+                        {
+                            "type": "REQUIRED",
+                            "value": True
+                        }
+                    ],
+                    "options": ["2021","2022","2023","2024"]
+                }
+            ]
+        }
+    model_event_schema = event.from_json_to_event_schema(event_schema_json=json)
+    assert type(model_event_schema) == dict

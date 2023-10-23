@@ -386,3 +386,33 @@ class EventTimestampSchema(AbstractSchema):
             raise utils.CustomException("Timestamp passed is not a string")
 
         # TODO: Fix this later
+
+@dataclass()
+class EventFormSchema(AbstractSchema):
+    value: dict
+
+    def validate(self):
+
+        if not isinstance(self.value, dict):
+            raise utils.CustomException("EventFormSchema is not an object/dictionary")
+
+        if not isinstance(self.value["fields"], list):
+            raise utils.CustomException("EventFormSchema is not an object/dictionary")
+
+@dataclass()
+class EventFormDataSchema(AbstractSchema):
+    value: dict
+
+    def validate(self):
+        try:
+            [["question", "answer"] for x in self.value["fields"]] 
+        except KeyError:
+            raise utils.CustomException("EventFormDataSchema is not an object/dictionary")
+
+        if any([not isinstance(v["question"], str) or not isinstance(v["answer"], (str, int, bool, float)) for v in self.value["fields"]]):
+            raise utils.CustomException("EventFormDataSchema is not an object/dictionary")
+
+        if not isinstance(self.value, dict):
+            raise utils.CustomException("EventFormDataSchema is not an object/dictionary")
+
+

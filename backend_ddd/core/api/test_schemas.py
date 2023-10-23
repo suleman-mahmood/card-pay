@@ -244,3 +244,39 @@ def test_invalid_lums_rollnumber_or_faculty_schema(input):
     schema = sch.LUMSRollNumberOrFacultySchema
     with pytest.raises(utils.CustomException):
         schema(input).validate()
+
+def test_event_form_schema_validation():
+
+    valid_schema = sch.EventFormSchema(value={"fields": []})
+    assert valid_schema.validate() is None
+
+    invalid_schema = sch.EventFormSchema(value="not a dictionary")
+    with pytest.raises(utils.CustomException) as exc_info:
+        invalid_schema.validate()
+    assert str(exc_info.value) == "EventFormSchema is not an object/dictionary"
+
+    invalid_schema = sch.EventFormSchema(value={"fields": "not a list"})
+    with pytest.raises(utils.CustomException) as exc_info:
+        invalid_schema.validate()
+    assert str(exc_info.value) == "EventFormSchema is not an object/dictionary"
+
+def test_valid_event_form_data_schema():
+
+    data = {
+        "fields": [
+            {"question": "What is your name?", "answer": "John Doe"},
+            {"question": "Age", "answer": 25}
+        ]
+    }
+    event_data = sch.EventFormDataSchema(value=data)
+
+    assert event_data.validate() is None
+
+def test_invalid_event_form_data_schema():
+
+    data = {"invalid_key": "This should raise an exception"}
+    event_data = sch.EventFormDataSchema(value=data)
+
+    with pytest.raises(utils.CustomException):
+        event_data.validate()
+
