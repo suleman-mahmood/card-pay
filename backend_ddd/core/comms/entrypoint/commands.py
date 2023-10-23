@@ -6,6 +6,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from json import dumps
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.comms.entrypoint import anti_corruption as acl
+import firebase_admin
+from typing import Dict
 
 load_dotenv()
 
@@ -75,3 +79,51 @@ def send_promotional_sms(content: str):
 
 def send_promotional_email(content: str):
     pass
+
+
+def set_fcm_token(
+    user_id: str,
+    fcm_token: str,
+    uow: AbstractUnitOfWork,
+):
+    """Set fcm token"""
+    sql = """
+        insert into fcm_tokens (user_id, fcm_token)
+            values (%(user_id)s, %(fcm_token)s)
+        on conflict (user_id) do update
+            set fcm_token = %(fcm_token)s
+    """
+    uow.dict_cursor.execute(sql, {"user_id": user_id, "fcm_token": fcm_token})
+
+
+def _send_notification_firebase(
+    notification_data: Dict[str, str],
+    fcm_token: str,
+):
+    message = firebase_admin.messaging.Message(
+        data=notification_data,
+        token=fcm_token,
+    )
+
+    firebase_admin.messaging.send(message)
+
+
+def send_notification(
+    user_id: str,
+    title: str,
+    body: str,
+    uow: AbstractUnitOfWork,
+    comms_svc: acl.AbstractCommunicationService,
+):
+    """Send notification"""
+    fcm_token = comms_svc.get_fcm_token(user_id=user_id, uow=uow)
+
+    notification_data = {
+        "title": title,
+        "body": body,
+    }
+
+    _send_notification_firebase(
+        notification_data=notification_data,
+        fcm_token=fcm_token,
+    )

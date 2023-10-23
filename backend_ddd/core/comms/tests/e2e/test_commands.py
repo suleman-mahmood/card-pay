@@ -1,8 +1,66 @@
 import requests
 import json
 import os
+from uuid import uuid4
+
 from dotenv import load_dotenv
 from json import dumps
+
+import pytest
+from core.comms.entrypoint import commands as comms_cmd
+from core.comms.entrypoint import anti_corruption as acl
+from core.entrypoint.uow import FakeUnitOfWork, UnitOfWork
+from core.comms.entrypoint import exceptions as comms_svc_ex
+
+def test_send_notification(mocker):
+    uow = FakeUnitOfWork()
+    auth_svc = acl.FakeCommunicationService()
+    mocker.patch(
+        "core.comms.entrypoint.commands._send_notification_firebase", return_value=None
+    )
+    comms_cmd.send_notification(
+        user_id="1",
+        title="Test",
+        body="Test body",
+        uow=uow,
+        comms_svc=auth_svc,
+    )
+
+def test_set_fcm_token(seed_verified_auth_user):
+    uow = UnitOfWork()
+    sender, _ = seed_verified_auth_user(uow)
+    fcm_token = "some_fcm_token"
+    comms_cmd.set_fcm_token(user_id=sender.id, fcm_token=fcm_token, uow=uow)
+
+    sql = """
+        select
+            fcm_token
+        from
+            fcm_tokens
+        where 
+            user_id = %(user_id)s
+    """
+    uow.dict_cursor.execute(sql, {"user_id": sender.id})
+    fetched_fcm_token = uow.dict_cursor.fetchone()["fcm_token"]
+
+    assert fetched_fcm_token == fcm_token
+    
+def test_send_notification_missing_fcm_token(mocker):
+    
+    user_id = str(uuid4())
+    uow = UnitOfWork()
+    mocker.patch(
+        "core.comms.entrypoint.commands._send_notification_firebase", return_value=None
+    )
+    
+    with pytest.raises(comms_svc_ex.FcmTokenNotFound):
+        comms_cmd.send_notification(
+            user_id=user_id,
+            title="Test",
+            body="Test body",
+            uow=uow,
+            comms_svc=acl.CommunicationService(),
+        )
 
 # load_dotenv()
 # from core.comms.entrypoint import commands

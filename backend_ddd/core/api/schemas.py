@@ -349,6 +349,16 @@ class VersionSchema(AbstractSchema):
         if self.value < 0:
             raise utils.CustomException("Version passed is negative")
 
+@dataclass()
+class FcmTokenSchema(AbstractSchema):
+    value: str
+
+    def validate(self):
+        if not isinstance(self.value, str):
+            raise utils.CustomException("Fcm Token passed is not a string")
+
+        if len(self.value) <= 0:
+            raise utils.CustomException("Fcm Token passed is empty")
 
 @dataclass()
 class EventNameSchema(AbstractSchema):
@@ -414,5 +424,3 @@ class EventFormDataSchema(AbstractSchema):
 
         if not isinstance(self.value, dict):
             raise utils.CustomException("EventFormDataSchema is not an object/dictionary")
-
-

@@ -29,6 +29,7 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
+from core.comms.entrypoint import commands as comms_cmd
 from firebase_admin import exceptions as fb_ex
 from flask import Blueprint, request
 from core.event.domain import model as event_mdl
@@ -1557,3 +1558,33 @@ def execute_qr_transaction_v2(uid):
         event_code=EventCode.WAITER_QR_TRANSACTION_SUCCESSFUL,
     ).__dict__
 
+@cardpay_app.route("/set-fcm-token", methods=["POST"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+@utils.handle_missing_payload
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "fcm_token": sch.FcmTokenSchema,
+    }
+)
+def set_fcm_token(uid):
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    fcm_token = req["fcm_token"]
+
+    try:
+        comms_cmd.set_fcm_token(
+            user_id=uid,
+            fcm_token=fcm_token,
+            uow=uow,
+        )
+        uow.commit_close_connection()
+    except Exception as e:
+        uow.close_connection()
+        raise e
+    
+    return utils.Response(
+        message="fcm token set successfully",
+        status_code=201,
+    ).__dict__

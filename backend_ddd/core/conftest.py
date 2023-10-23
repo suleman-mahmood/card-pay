@@ -51,11 +51,12 @@ def initialize_pytest_config(mocker):
         return_value=None,
     )
     mocker.patch(
+        "core.comms.entrypoint.commands._send_notification_firebase", return_value=None)
+    mocker.patch(
         "core.authentication.entrypoint.firebase_service.update_password_and_name",
         return_value=None,
     )
     mocker.patch("core.authentication.entrypoint.firebase_service.get_user", return_value="")
-
 
 @pytest.fixture()
 def app():
