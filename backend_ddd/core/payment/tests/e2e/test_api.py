@@ -801,13 +801,18 @@ def test_get_user_recent_transcations_api(
     sender_unique_identifier = "26100274"
     recipient_unique_identifier = "26100290"
 
+    headers = {
+        "Authorization": "Bearer pytest_auth_token",
+        "Content-Type": "application/json",
+    }
+
     client.post(
         "http://127.0.0.1:5000/api/v1/add-and-set-missing-marketing-weightages-to-zero",
         json={
             "RETOOL_SECRET": "",
-        }
+        },
         headers=headers
-    }
+    )
 
     _verify_phone_number(recipient_id, mocker, client)
     _verify_phone_number(sender_id, mocker, client)
@@ -844,7 +849,7 @@ def test_get_user_recent_transcations_api(
             "recipient_unique_identifier": recipient_unique_identifier,
             "amount": 100,
             "closed_loop_id": closed_loop_id,
-        }
+        },
         headers=headers
     )
 
@@ -856,7 +861,7 @@ def test_get_user_recent_transcations_api(
             "recipient_unique_identifier": sender_unique_identifier,
             "amount": 100,
             "closed_loop_id": closed_loop_id,
-        }
+        },
         headers=headers
     )
         
