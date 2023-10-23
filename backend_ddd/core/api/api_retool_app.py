@@ -901,6 +901,10 @@ def form_schema():
         uow.close_connection()
         raise utils.CustomException(str(e))
 
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
     return utils.Response(
         message='Schema attached successfully',
         status_code=200,
