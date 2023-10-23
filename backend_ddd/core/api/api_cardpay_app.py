@@ -31,6 +31,7 @@ from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
 from firebase_admin import exceptions as fb_ex
 from flask import Blueprint, request
+from core.api.event_codes import EventCode
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
@@ -1382,3 +1383,173 @@ def reset_pin():
         message="Pin reset successfully",
         status_code=200,
     ).__dict__
+
+
+@cardpay_app.route("/execute-qr-transaction-v2", methods=["POST"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+@utils.handle_missing_payload
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "vendor_qr_id": sch.UuidSchema,
+        "waiter_qr_id": sch.UuidSchema,
+        "bill_amount": sch.AmountSchema,
+        "tip_amount": sch.AmountSchema,
+        "v": sch.VersionSchema,
+    }
+)
+def execute_qr_transaction_v2(uid):
+    
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+
+    try:
+        pmt_cmd.execute_qr_transaction(
+            tx_id=str(uuid4()),
+            sender_wallet_id=uid,
+            recipient_qr_id=req["vendor_qr_id"],
+            amount=req["bill_amount"],
+            version=req["v"],
+            uow=uow,
+            auth_svc=pmt_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
+        )
+        uow.commit_close_connection()
+    except pmt_svc_ex.TransactionFailedException as e:
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "execute-qr-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        uow.commit_close_connection()
+        raise utils.CustomException(str(e))
+    
+    except (
+        pmt_svc_ex.InvalidQRCodeException,
+        pmt_svc_ex.InvalidQRVersionException,
+        pmt_svc_ex.InvalidUserTypeException,
+        pmt_mdl_ex.TransactionNotAllowedException,
+        mktg_mdl_ex.InvalidReferenceException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
+    ) as e:
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "execute-qr-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        logging.info(
+            {
+                "message": "Unhandled exception raised",
+                "endpoint": "/execute-qr-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        uow.close_connection()
+        raise e
+
+
+    uow = UnitOfWork()
+
+    try:
+        pmt_cmd.execute_qr_transaction(
+            tx_id=str(uuid4()),
+            sender_wallet_id=uid,
+            recipient_qr_id=req["waiter_qr_id"],
+            amount=req["tip_amount"],
+            version=req["v"],
+            uow=uow,
+            auth_svc=pmt_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
+        )
+        uow.commit_close_connection()
+
+    except pmt_svc_ex.TransactionFailedException as e:
+
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "execute-qr-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        uow.commit_close_connection()
+        return utils.Response(
+            message=f"Vendor QR transaction executed successfully, Waiter transaction failed ({str(e)})",
+            status_code=201,
+            event_code=EventCode.WAITER_QR_TRANSACTION_FAILED,
+        ).__dict__
+
+    except (
+        pmt_svc_ex.InvalidQRCodeException,
+        pmt_svc_ex.InvalidQRVersionException,
+        pmt_svc_ex.InvalidUserTypeException,
+        pmt_mdl_ex.TransactionNotAllowedException,
+        mktg_mdl_ex.InvalidReferenceException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
+    ) as e:
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "execute-qr-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        uow.close_connection()
+        return utils.Response(
+            message=f"Vendor QR transaction executed successfully, Waiter transaction failed ({str(e)})",
+            status_code=201,
+            event_code=EventCode.WAITER_QR_KNOWN_FAILURE,
+        ).__dict__
+
+    except Exception as e:
+        logging.info(
+            {
+                "message": "Unhandled exception raised",
+                "endpoint": "/execute-qr-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        uow.close_connection()
+        return utils.Response(
+            message=f"Vendor QR transaction executed successfully, Waiter transaction failed ({str(e)})",
+            status_code=201,
+            event_code=EventCode.WAITER_QR_UNKNOWN_FAILURE,
+        ).__dict__
+    
+    return utils.Response(
+        message="Vendor and waiter QR transaction executed successfully",
+        status_code=201,
+        event_code=EventCode.WAITER_QR_TRANSACTION_SUCCESSFUL,
+    ).__dict__
+

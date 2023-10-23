@@ -412,3 +412,53 @@ def test_create_deposit_request(seed_verified_auth_user, seed_wallet, add_1000_w
     assert fetched_tx.status == pmt_mdl.TransactionStatus.PENDING
     assert fetched_tx.recipient_wallet.balance == 0
     assert fetched_tx.sender_wallet.balance == 1000
+
+
+def test_execute_qr_transaction_invalid_qr_ids(seed_verified_auth_vendor, seed_verified_auth_user, add_1000_wallet_fake):
+    uow = FakeUnitOfWork()
+    auth_svc = acl.FakeAuthenticationService()
+    pmt_svc = acl.FakePaymentService()
+    customer, _ = seed_verified_auth_user(uow)
+    vendor, vendor_wallet = seed_verified_auth_vendor(uow)
+    waiter, waiter_wallet = seed_verified_auth_vendor(uow)
+    add_1000_wallet_fake(uow=uow,wallet_id=customer.wallet_id)
+
+    with pytest.raises(pmt_svc_ex.InvalidQRCodeException, match="Invalid QR code"):
+        pmt_cmd.execute_qr_transaction(
+            tx_id=str(uuid4()),
+            sender_wallet_id=customer.wallet_id,
+            recipient_qr_id=str(uuid4()),
+            amount=400,
+            version=1,
+            uow=uow,
+            auth_svc=auth_svc,
+            pmt_svc=pmt_svc,
+        )
+    
+
+def test_execute_qr_transaction_insufficient_balance(seed_verified_auth_vendor, seed_verified_auth_user, add_1000_wallet_fake):
+    uow = FakeUnitOfWork()
+    auth_svc = acl.FakeAuthenticationService()
+    pmt_svc = acl.FakePaymentService()
+    customer, _ = seed_verified_auth_user(uow)
+    vendor, vendor_wallet = seed_verified_auth_vendor(uow)
+    waiter, waiter_wallet = seed_verified_auth_vendor(uow)
+    add_1000_wallet_fake(uow=uow,wallet_id=customer.wallet_id)
+
+    pmt_svc.set_user_wallet_id_and_type(
+        wallet_id=vendor.wallet_id, user_type=auth_mdl.UserType.VENDOR
+    )
+    with pytest.raises(
+        pmt_svc_ex.TransactionFailedException,
+        match="Insufficient balance in sender's wallet",
+    ):
+        pmt_cmd.execute_qr_transaction(
+            tx_id=str(uuid4()),
+            sender_wallet_id=customer.wallet_id,
+            recipient_qr_id=vendor_wallet.qr_id,
+            amount=1001,
+            version=1,
+            uow=uow,
+            auth_svc=auth_svc,
+            pmt_svc=pmt_svc,
+        )

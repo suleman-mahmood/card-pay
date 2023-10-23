@@ -100,6 +100,33 @@ def seed_api_customer():
 
     return _seed_api_user
 
+@pytest.fixture()
+def seed_api_vendor():
+    def _seed_api_vendor(mocker, client, closed_loop_id):
+        SECRET_KEY = os.environ["RETOOL_SECRET"]
+        phone_number = "3763045384"
+        user_id = str(uuid4())
+        mocker.patch("core.api.utils.firebaseUidToUUID", return_value=user_id)
+        mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
+
+        client.post(
+            "http://127.0.0.1:5000/api/v1/auth-retools-create-vendor",
+            json={
+                "personal_email": "zak@zak.com",
+                "password": "cardpay123",
+                "phone_number": phone_number,
+                "full_name": "Zain Ali",
+                "longitude": 24.8607,
+                "latitude": 67.0011,
+                "closed_loop_id": closed_loop_id,
+                "RETOOL_SECRET": SECRET_KEY,
+            }
+        )
+
+        return user_id
+
+    return _seed_api_vendor
+
 
 @pytest.fixture()
 def seed_api_cardpay(seed_api_customer):

@@ -9,6 +9,7 @@ from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
+from core.api.event_codes import EventCode
 
 MIN_DEPOSIT_AMOUNT = 1000
 
@@ -247,23 +248,23 @@ def execute_qr_transaction(
     auth_svc: acl.AbstractAuthenticationService,
     pmt_svc: acl.AbstractPaymentService,
 ):
-    if version != 1:
+    if version != 1 and version != 2:
         raise svc_ex.InvalidQRVersionException("Invalid QR version")
 
-    user_info = pmt_svc.get_user_wallet_id_and_type_from_qr_id(
+    recipient = pmt_svc.get_user_wallet_id_and_type_from_qr_id(
         qr_id=recipient_qr_id,
         uow=uow,
     )
 
     transaction_type = pmt_mdl.TransactionType.VIRTUAL_POS
 
-    if user_info is None:
+    if recipient is None:
         raise svc_ex.InvalidQRCodeException("Invalid QR code")
 
-    elif user_info.user_type == auth_mdl.UserType.VENDOR:
+    elif recipient.user_type == auth_mdl.UserType.VENDOR:
         transaction_type = pmt_mdl.TransactionType.VIRTUAL_POS
 
-    elif user_info.user_type == auth_mdl.UserType.CUSTOMER:
+    elif recipient.user_type == auth_mdl.UserType.CUSTOMER:
         transaction_type = pmt_mdl.TransactionType.P2P_PUSH
 
     else:
@@ -273,7 +274,7 @@ def execute_qr_transaction(
         tx_id=tx_id,
         amount=amount,
         sender_wallet_id=sender_wallet_id,
-        recipient_wallet_id=user_info.user_wallet_id,
+        recipient_wallet_id=recipient.user_wallet_id,
         transaction_mode=pmt_mdl.TransactionMode.QR,
         transaction_type=transaction_type,
         uow=uow,
