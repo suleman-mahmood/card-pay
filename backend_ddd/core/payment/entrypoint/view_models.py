@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from core.payment.domain import model as payment_mdl
-from core.authentication.domain import model as auth_mdl
 from datetime import datetime
-from psycopg2.extras import DictRow
 from typing import List
+
+from core.authentication.domain import model as auth_mdl
+from core.payment.domain import model as payment_mdl
+from psycopg2.extras import DictRow
 
 
 @dataclass(frozen=True)
@@ -67,7 +68,6 @@ class UserWalletIDAndTypeDTO:
 
 @dataclass(frozen=True)
 class ClosedLoopIdNameDTO:
-
     id: str
     name: str
 
@@ -165,7 +165,6 @@ class VendorIdNameAndWalletIdDTO:
 
 @dataclass(frozen=True)
 class TransactionWithDates:
-
     id: str
     amount: int
     created_at: datetime
@@ -250,4 +249,29 @@ class MonthlyTransactionsDTO:
             transaction_count=row["transaction_count"],
             total_amount=row["total_amount"],
             avg_amount=row["avg_amount"],
+        )
+
+
+@dataclass(frozen=True)
+class DepositTransactionDTO:
+    id: str
+    paypro_id: str
+    amount: float
+    mode: payment_mdl.TransactionMode
+    transaction_type: payment_mdl.TransactionType
+    status: payment_mdl.TransactionStatus
+    created_at: datetime
+    last_updated: datetime
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "DepositTransactionDTO":
+        return DepositTransactionDTO(
+            id=row["id"],
+            paypro_id=row["paypro_id"],
+            amount=row["amount"],
+            mode=row["mode"],
+            transaction_type=row["transaction_type"],
+            status=row["status"],
+            created_at=row["created_at"],
+            last_updated=row["last_updated"],
         )

@@ -52,3 +52,7 @@ class WalletNotExists(Exception):
 
 class CardPayWalletNotExists(Exception):
     """The CardPay wallet does not exist in starred wallets table"""
+
+
+class NoUserDepositRequest(Exception):
+    """User has no deposit requests"""

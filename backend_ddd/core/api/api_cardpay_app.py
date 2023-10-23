@@ -1,17 +1,18 @@
 import logging
+import os
 from datetime import datetime
 from uuid import uuid4
 
 from core.api import schemas as sch
 from core.api import utils
+from core.authentication.adapters import exceptions as auth_repo_ex
 from core.authentication.domain import exceptions as auth_mdl_ex
-from core.authentication.domain.model import UserType
+from core.authentication.domain.model import PK_CODE, UserType
 from core.authentication.entrypoint import anti_corruption as auth_acl
-from core.authentication.domain.model import PK_CODE
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import exceptions as auth_svc_ex
-from core.authentication.adapters import exceptions as auth_repo_ex
 from core.authentication.entrypoint import queries as auth_qry
+from core.comms.entrypoint import commands as comms_cmd
 from core.entrypoint import queries as app_queries
 from core.entrypoint.uow import UnitOfWork
 from core.event.domain import exceptions as event_mdl_exc
@@ -26,8 +27,8 @@ from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
+from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
-from core.comms.entrypoint import commands as comms_cmd
 from firebase_admin import exceptions as fb_ex
 from flask import Blueprint, request
 
@@ -688,8 +689,7 @@ def accept_p2p_pull_transaction(uid):
     uow = UnitOfWork()
 
     try:
-        pmt_cmd.accept_p2p_pull_transaction(
-            transaction_id=req["transaction_id"], uow=uow)
+        pmt_cmd.accept_p2p_pull_transaction(transaction_id=req["transaction_id"], uow=uow)
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
@@ -977,8 +977,38 @@ def get_user_recent_transactions(uid):
         page_size=50,
         uow=uow,
     )
-    uow.close_connection()
+    try:
+        deposit_tx = pmt_qry.get_last_deposit_transaction(user_id=uid, uow=uow)
+        if deposit_tx.status == pmt_mdl.TransactionStatus.PENDING:
+            if pp_svc.invoice_paid(paypro_id=deposit_tx.paypro_id, uow=uow):
+                user_name = os.environ.get("PAYPRO_USERNAME")
+                user_name = user_name if user_name is not None else ""
 
+                password = os.environ.get("PAYPRO_PASSWORD")
+                password = password if password is not None else ""
+
+                pp_svc.pay_pro_callback(
+                    user_name=user_name,
+                    password=password,
+                    csv_invoice_ids=deposit_tx.id,
+                    uow=uow,
+                )
+    except pmt_svc_ex.NoUserDepositRequest:
+        pass
+    except Exception as e:
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "/get-user-recent-transactions",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+            },
+        )
+        uow.close_connection()
+        raise e
+
+    uow.close_connection()
     return utils.Response(
         message="User recent transactions returned successfully",
         status_code=200,
@@ -1103,8 +1133,7 @@ def get_live_events(uid):
     uow = UnitOfWork()
 
     try:
-        events = event_qry.get_live_events(
-            closed_loop_id=closed_loop_id, uow=uow)
+        events = event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
         uow.close_connection()
 
     except Exception as e:
@@ -1191,13 +1220,12 @@ def register_event(uid):
     ).__dict__
 
 
-
-@cardpay_app.route('/form-schema', methods=['POST'])
+@cardpay_app.route("/form-schema", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN, UserType.EVENT_ORGANIZER])
 @utils.user_verified
 def form_schema(uid):
-    raise utils.CustomException('Not implemented')
+    raise utils.CustomException("Not implemented")
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
@@ -1206,7 +1234,7 @@ def form_schema(uid):
         event_id = req["event_id"]
         uow.close_connection()
 
-    except (Exception) as e:
+    except Exception as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -1214,13 +1242,7 @@ def form_schema(uid):
         uow.close_connection()
         raise e
 
-    return utils.Response(
-        message='',
-        status_code=200,
-        data={}
-    )._dict_
-
-
+    return utils.Response(message="", status_code=200, data={})._dict_
 
 
 @cardpay_app.route("/send-otp-to-phone-number", methods=["POST"])
@@ -1246,7 +1268,10 @@ def send_otp_to_phone_number():
             otp_code=user.otp,
         )
         uow.close_connection()
-    except (auth_svc_ex.UserPhoneNumberNotFound, auth_repo_ex.UserNotFoundException,) as e:
+    except (
+        auth_svc_ex.UserPhoneNumberNotFound,
+        auth_repo_ex.UserNotFoundException,
+    ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
     except Exception as e:
@@ -1266,7 +1291,8 @@ def send_otp_to_phone_number():
         "otp": sch.OtpSchema,
         "phone_number": sch.PhoneNumberSchema,
         "new_password": sch.PasswordSchema,
-    })
+    }
+)
 def reset_password():
     req = request.get_json(force=True)
 
@@ -1316,7 +1342,8 @@ def reset_password():
         "otp": sch.OtpSchema,
         "phone_number": sch.PhoneNumberSchema,
         "new_pin": sch.PinSchema,
-    })
+    }
+)
 def reset_pin():
     req = request.get_json(force=True)
 

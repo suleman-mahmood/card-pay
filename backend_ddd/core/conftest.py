@@ -1,20 +1,20 @@
 import os
+from copy import deepcopy
+from datetime import datetime
+from random import randint
+from typing import Tuple
 from uuid import uuid4
 
 import pytest
 import sentry_sdk
 from core.api.api import app as flask_app
 from core.authentication.domain import model as auth_mdl
+from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import queries as auth_qry
-from core.entrypoint.uow import AbstractUnitOfWork, UnitOfWork, FakeUnitOfWork
+from core.entrypoint.uow import AbstractUnitOfWork, FakeUnitOfWork, UnitOfWork
 from core.payment.domain import model as pmt_mdl
-from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.payment.entrypoint import commands as pmt_cmd
-from copy import deepcopy
-from typing import Tuple
-from datetime import datetime
-from random import randint
 
 
 @pytest.fixture(autouse=True)
@@ -39,12 +39,9 @@ def initialize_pytest_config(mocker):
     os.environ["SMS_API_SECRET"] = ""
     os.environ["RETOOL_SECRET"] = ""
 
-    mocker.patch("core.comms.entrypoint.commands.send_otp_sms",
-                 return_value=None)
-    mocker.patch(
-        "core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
-    mocker.patch("core.comms.entrypoint.commands.send_email",
-                 return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
     mocker.patch(
         "core.authentication.entrypoint.firebase_service.create_user",
         return_value=None,
@@ -57,9 +54,7 @@ def initialize_pytest_config(mocker):
         "core.authentication.entrypoint.firebase_service.update_password_and_name",
         return_value=None,
     )
-    mocker.patch(
-        "core.authentication.entrypoint.firebase_service.get_user", return_value=""
-    )
+    mocker.patch("core.authentication.entrypoint.firebase_service.get_user", return_value="")
 
 
 @pytest.fixture()
@@ -154,8 +149,7 @@ def seed_user():
 
         return auth_mdl.User(
             id=uid,
-            personal_email=auth_mdl.PersonalEmail(
-                value="sulemanmahmood99@gmail.com"),
+            personal_email=auth_mdl.PersonalEmail(value="sulemanmahmood99@gmail.com"),
             user_type=auth_mdl.UserType.CUSTOMER,
             phone_number=auth_mdl.PhoneNumber(value="3000000000"),
             pin="0000",
@@ -213,9 +207,7 @@ def seed_auth_user():
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=user_id,
         )
-        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(
-            id=user_id, qr_id=str(uuid4()), balance=0
-        )
+        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
             wallet=wallet,
         )
@@ -266,8 +258,7 @@ def seed_auth_vendor():
         user_id = str(uuid4())
         user = auth_mdl.User(
             id=user_id,
-            personal_email=auth_mdl.PersonalEmail(
-                value="zainalikhokhar40@gmail.com"),
+            personal_email=auth_mdl.PersonalEmail(value="zainalikhokhar40@gmail.com"),
             phone_number=auth_mdl.PhoneNumber(value="+923123456789"),
             user_type=auth_mdl.UserType.VENDOR,
             pin="1234",
@@ -472,9 +463,7 @@ def _create_closed_loop_helper(client):
     return closed_loop_id
 
 
-def _register_user_in_closed_loop(
-    mocker, client, user_id, closed_loop_id, unique_identifier
-):
+def _register_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_identifier):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
 
     headers = {
@@ -483,15 +472,12 @@ def _register_user_in_closed_loop(
     }
     client.post(
         "http://127.0.0.1:5000/api/v1/register-closed-loop",
-        json={"closed_loop_id": closed_loop_id,
-              "unique_identifier": unique_identifier},
+        json={"closed_loop_id": closed_loop_id, "unique_identifier": unique_identifier},
         headers=headers,
     )
 
 
-def _verify_user_in_closed_loop(
-    mocker, client, user_id, closed_loop_id, unique_identifier_otp
-):
+def _verify_user_in_closed_loop(mocker, client, user_id, closed_loop_id, unique_identifier_otp):
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=user_id)
     headers = {
         "Authorization": "Bearer pytest_auth_token",
@@ -520,8 +506,7 @@ def _marketing_setup(seed_api_admin, client, mocker, weightage_type, weightage_v
     )
     client.post(
         "http://127.0.0.1:5000/api/v1/add-weightage",
-        json={"weightage_type": weightage_type,
-              "weightage_value": weightage_value},
+        json={"weightage_type": weightage_type, "weightage_value": weightage_value},
         headers=headers,
     )
     # No need for this in execute p2p push

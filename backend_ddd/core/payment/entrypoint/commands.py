@@ -193,7 +193,7 @@ def create_deposit_request(
         auth_svc=auth_svc,
     )
 
-    checkout_url = pp_svc.get_deposit_checkout_url(
+    checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
         amount=amount,
         transaction_id=tx_id,
         full_name=user.full_name,
@@ -201,6 +201,11 @@ def create_deposit_request(
         email=user.personal_email.value,
         uow=uow,
     )
+
+    # Add PayPro id to the transaction
+    tx = uow.transactions.get(transaction_id=tx_id)
+    tx.add_paypro_id(paypro_id=paypro_id)
+    uow.transactions.save(transaction=tx)
 
     return checkout_url
 

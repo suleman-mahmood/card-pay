@@ -64,6 +64,7 @@ class Transaction:
     """
 
     id: str
+    paypro_id: str
     amount: int
     created_at: datetime
     last_updated: datetime
@@ -138,3 +139,6 @@ class Transaction:
             )
 
         self.execute_transaction()
+
+    def add_paypro_id(self, paypro_id: str):
+        self.paypro_id = paypro_id
