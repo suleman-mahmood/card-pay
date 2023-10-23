@@ -1,8 +1,9 @@
 from datetime import datetime
 from uuid import uuid4
+
 import pytest
-from core.payment.domain import model as mdl
 from core.payment.domain import exceptions as ex
+from core.payment.domain import model as mdl
 
 
 def behaviour():
@@ -37,6 +38,7 @@ def test_p2p_push_transaction(seed_wallet):
     wallet1.balance = 1000
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -69,6 +71,7 @@ def test_initiate_deposit(seed_wallet):
 
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -97,6 +100,7 @@ def test_pos_transaction(seed_wallet):
     customer_wallet.balance = 1000
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -127,6 +131,7 @@ def test_accept_p2p_pull_transaction(seed_wallet):
     wallet2.balance = 1000
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -162,6 +167,7 @@ def test_decline_p2p_pull_transaction(seed_wallet):
     wallet2.balance = 1000
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -195,6 +201,7 @@ def test_p2p_push_transaction_insufficient_balance(seed_wallet):
     wallet1.balance = 1000
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=2000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -222,6 +229,7 @@ def test_p2p_push_transaction_self_wallet(seed_wallet):
     wallet1.balance = 1000
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -235,10 +243,7 @@ def test_p2p_push_transaction_self_wallet(seed_wallet):
     with pytest.raises(ex.TransactionNotAllowedException) as e_info:
         tx.execute_transaction()
 
-    assert (
-        str(e_info.value)
-        == "Constraint violated, sender and recipient wallets are the same"
-    )
+    assert str(e_info.value) == "Constraint violated, sender and recipient wallets are the same"
     assert tx.sender_wallet.balance == 1000
     assert tx.recipient_wallet.balance == 1000
     assert tx.status == mdl.TransactionStatus.FAILED
@@ -254,6 +259,7 @@ def test_redeem_voucher(seed_wallet):
 
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -279,6 +285,7 @@ def test_redeemed_voucher(seed_wallet):
 
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -306,6 +313,7 @@ def test_amount_negative(seed_wallet):
 
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=-1000,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -315,9 +323,7 @@ def test_amount_negative(seed_wallet):
         recipient_wallet=vendor_wallet,
         sender_wallet=customer_wallet,
     )
-    with pytest.raises(
-        mdl.ex.TransactionNotAllowedException, match="Amount is zero or negative"
-    ):
+    with pytest.raises(mdl.ex.TransactionNotAllowedException, match="Amount is zero or negative"):
         tx.execute_transaction()
 
     assert tx.sender_wallet.balance == 0
@@ -335,6 +341,7 @@ def test_amount_fractional(seed_wallet):
 
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=500.5,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -365,6 +372,7 @@ def test_amount_breach_upper_limit(seed_wallet):
 
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=mdl.TX_UPPER_LIMIT,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -388,6 +396,7 @@ def test_reconciliation_upper_limit_tx(seed_wallet):
 
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=mdl.TX_UPPER_LIMIT,
         created_at=datetime.now(),
         last_updated=datetime.now(),
@@ -404,6 +413,7 @@ def test_reconciliation_upper_limit_tx(seed_wallet):
 
     tx = mdl.Transaction(
         id=str(uuid4()),
+        paypro_id="",
         amount=mdl.TX_UPPER_LIMIT,
         created_at=datetime.now(),
         last_updated=datetime.now(),

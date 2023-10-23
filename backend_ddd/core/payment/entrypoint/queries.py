@@ -690,3 +690,34 @@ def get_monthly_transactions(uow: AbstractUnitOfWork):
 
 #     benefactors = [{"id": row[0], "name": row[1]} for row in rows]
 #     return benefactors
+
+
+def get_last_deposit_transaction(
+    user_id: str, uow: AbstractUnitOfWork
+) -> pmt_vm.DepositTransactionDTO:
+    sql = """
+        select
+            id,
+            paypro_id,
+            amount,
+            mode,
+            transaction_type,
+            status,
+            created_at,
+            last_updated
+        from
+            transactions
+        where
+            recipient_wallet_id = %(user_id)s
+            and transaction_type = 'PAYMENT_GATEWAY'::transaction_type_enum
+        order by
+            created_at desc
+        limit 1
+    """
+    uow.dict_cursor.execute(sql, {"user_id": user_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise pmt_svc_ex.NoUserDepositRequest(f"User has no deposit request for id {user_id}")
+
+    return pmt_vm.DepositTransactionDTO.from_db_dict_row(row)

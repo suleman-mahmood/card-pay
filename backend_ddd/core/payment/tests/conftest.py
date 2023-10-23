@@ -1,12 +1,13 @@
-import pytest
-from uuid import uuid4
-from core.payment.domain import model as pmt_mdl
-from core.payment.entrypoint import commands as pmt_cmd
-from core.payment.entrypoint import anti_corruption as pmt_acl
-from core.authentication.domain import model as auth_mdl
-from core.authentication.entrypoint import commands as auth_cmd
-from core.authentication.entrypoint import anti_corruption as auth_acl
 from datetime import datetime
+from uuid import uuid4
+
+import pytest
+from core.authentication.domain import model as auth_mdl
+from core.authentication.entrypoint import anti_corruption as auth_acl
+from core.authentication.entrypoint import commands as auth_cmd
+from core.payment.domain import model as pmt_mdl
+from core.payment.entrypoint import anti_corruption as pmt_acl
+from core.payment.entrypoint import commands as pmt_cmd
 
 
 @pytest.fixture
@@ -32,6 +33,7 @@ def seed_txn(seed_wallet):
     ) -> pmt_mdl.Transaction:
         return pmt_mdl.Transaction(
             id=tx_id,
+            paypro_id="",
             amount=amount,
             created_at=created_at,
             last_updated=last_updated,
@@ -43,6 +45,7 @@ def seed_txn(seed_wallet):
         )
 
     return _seed_txn
+
 
 # Fixtures for query tests
 
@@ -62,8 +65,7 @@ def seed_5_100_transactions_against_user_ids(add_1000_wallet):
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=sender_id,
         )
-        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(
-            id=sender_id, qr_id=str(uuid4()), balance=0)
+        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=sender_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
             wallet=wallet,
         )
@@ -79,8 +81,7 @@ def seed_5_100_transactions_against_user_ids(add_1000_wallet):
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=recipient_id,
         )
-        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(
-            id=recipient_id, qr_id=str(uuid4()), balance=0)
+        wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=recipient_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
             wallet=wallet,
         )
@@ -106,7 +107,6 @@ def seed_5_100_transactions_against_user_ids(add_1000_wallet):
 @pytest.fixture
 def seed_two_verified_vendors_in_closed_loop(seed_verified_auth_vendor, seed_auth_closed_loop):
     def fixture_factory(uow):
-
         vendor_1, _ = seed_verified_auth_vendor(uow)
         vendor_2, _ = seed_verified_auth_vendor(uow)
 
@@ -124,8 +124,9 @@ def seed_two_verified_vendors_in_closed_loop(seed_verified_auth_vendor, seed_aut
             auth_cmd.verify_closed_loop(
                 user_id=user_id,
                 closed_loop_id=closed_loop_id,
-                unique_identifier_otp=uow.users.get(
-                    user_id).closed_loops[closed_loop_id].unique_identifier_otp,
+                unique_identifier_otp=uow.users.get(user_id)
+                .closed_loops[closed_loop_id]
+                .unique_identifier_otp,
                 ignore_migration=True,
                 uow=uow,
                 auth_svc=auth_acl.FakeAuthenticationService(),
@@ -139,11 +140,11 @@ def seed_two_verified_vendors_in_closed_loop(seed_verified_auth_vendor, seed_aut
 @pytest.fixture
 def get_qr_id_from_user_id():
     def fixture_factory(user_id, uow):
-        sql = '''
+        sql = """
             SELECT qr_id
             FROM wallets
             WHERE id = %(user_id)s
-        '''
+        """
         uow.dict_cursor.execute(sql, {"user_id": user_id})
         qr_id = uow.dict_cursor.fetchone()["qr_id"]
         return qr_id

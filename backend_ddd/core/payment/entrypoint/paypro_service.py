@@ -100,14 +100,14 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
     return auth_token
 
 
-def get_deposit_checkout_url(
+def get_deposit_checkout_url_and_paypro_id(
     amount: int,
     transaction_id: str,
     full_name: str,
     phone_number: str,
     email: str,
     uow: AbstractUnitOfWork,
-) -> str:
+) -> Tuple[str, str]:
     auth_token = _get_paypro_auth_token(uow=uow)
 
     now = datetime.now(tz=None)
@@ -171,12 +171,13 @@ def get_deposit_checkout_url(
 
     try:
         payment_url = response_data["Click2Pay"]
+        paypro_id = response_data["PayProId"]
     except:
         raise PaymentUrlNotFoundException(
             "PayPro response does not contain payment url, please try again"
         )
 
-    return payment_url
+    return payment_url, paypro_id
 
 
 def pay_pro_callback(
@@ -216,3 +217,52 @@ def pay_pro_callback(
             pass
 
     return success_invoice_ids, not_found_invoice_ids
+
+
+def invoice_paid(paypro_id: str, uow: AbstractUnitOfWork) -> bool:
+    auth_token = _get_paypro_auth_token(uow=uow)
+    config = {
+        "method": "get",
+        "url": f"{os.environ.get('PAYPRO_BASE_URL')}/v2/ppro/ggos",
+        "data": json.dumps(
+            {
+                "Username": os.environ.get("USERNAME"),
+                "Cpayid": paypro_id,
+            }
+        ),
+        "headers": {
+            "token": auth_token,
+        },
+    }
+
+    logging.info(
+        {
+            "message": "Trying to get invoice status from PayPro",
+            "config": config,
+        },
+    )
+
+    try:
+        pp_res = requests.request(**config, timeout=REQUEST_TIMEOUT)
+    except requests.exceptions.Timeout:
+        raise PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
+
+    pp_res.raise_for_status()
+
+    logging.info(
+        {
+            "message": "PayPro invoice generated",
+            "pp_order_res": pp_res.json(),
+        },
+    )
+
+    response_data = pp_res.json()[1]
+
+    try:
+        order_status = response_data["OrderStatus"]
+    except:
+        raise PaymentUrlNotFoundException(
+            "PayPro response does not contain payment url, please try again"
+        )
+
+    return order_status == "PAID"

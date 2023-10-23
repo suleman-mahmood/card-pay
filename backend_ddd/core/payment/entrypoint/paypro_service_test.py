@@ -3,8 +3,8 @@
 # from time import sleep
 # from uuid import uuid4
 
-# from core.entrypoint.uow import UnitOfWork
-# from core.payment.entrypoint import paypro_service as pp_svc
+from core.entrypoint.uow import UnitOfWork
+from core.payment.entrypoint import paypro_service as pp_svc
 
 # # Keep these commented, only for testing at certain times
 
@@ -48,3 +48,19 @@
 # #     rows = uow.cursor.fetchone()
 
 # #     return uow.transactions.get(transaction_id=rows[0])
+
+
+# def test_invoice_paid_true():
+#     uow = UnitOfWork()
+#     invoice_paid = pp_svc.invoice_paid(paypro_id="12352329100042", uow=uow)
+#     uow.close_connection()
+
+#     assert invoice_paid == True
+
+
+# def test_invoice_paid_false():
+#     uow = UnitOfWork()
+#     invoice_paid = pp_svc.invoice_paid(paypro_id="12352329200012", uow=uow)
+#     uow.close_connection()
+
+#     assert invoice_paid == False

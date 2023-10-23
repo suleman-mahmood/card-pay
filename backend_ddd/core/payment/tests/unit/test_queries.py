@@ -420,3 +420,38 @@ def test_get_tx_balance_and_get_tx_recipient(seed_verified_auth_user, add_1000_w
         tx_id=tx_id,
         uow=uow,
     ) == recipient.id
+
+
+def test_get_last_deposit_transaction(seed_verified_auth_user, add_1000_wallet):
+    uow = UnitOfWork()
+
+    pg, _ = seed_verified_auth_user(uow)
+    recipient, _ = seed_verified_auth_user(uow)
+    add_1000_wallet(wallet_id=pg.id, uow=uow)
+
+    tx_id = str(uuid4())
+    pmt_cmd._execute_transaction(
+        tx_id=tx_id,
+        amount=100,
+        transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=pmt_mdl.TransactionType.PAYMENT_GATEWAY,
+        sender_wallet_id=pg.id,
+        recipient_wallet_id=recipient.id,
+        uow=uow,
+        auth_svc=pmt_acl.AuthenticationService(),
+    )
+
+    pp_tx_id = str(uuid4())
+    tx = uow.transactions.get(transaction_id=tx_id)
+    tx.add_paypro_id(paypro_id=pp_tx_id)
+    uow.transactions.save(transaction=tx)
+
+    tx = pmt_qry.get_last_deposit_transaction(user_id=recipient.id, uow=uow)
+
+    assert tx.amount == 100
+    assert tx.paypro_id == pp_tx_id
+    assert tx.id == tx_id
+    assert tx.status == pmt_mdl.TransactionStatus.PENDING.name
+    assert tx.transaction_type == pmt_mdl.TransactionType.PAYMENT_GATEWAY.name
+
+    uow.close_connection()

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Tuple
 
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import queries as auth_qry
@@ -168,7 +169,7 @@ class FakePaymentService(AbstractPaymentService):
 @dataclass
 class AbstractPayproService(ABC):
     @abstractmethod
-    def get_deposit_checkout_url(
+    def get_deposit_checkout_url_and_paypro_id(
         self,
         amount: int,
         transaction_id: str,
@@ -176,7 +177,7 @@ class AbstractPayproService(ABC):
         phone_number: str,
         email: str,
         uow: AbstractUnitOfWork,
-    ) -> str:
+    ) -> Tuple[str, str]:
         pass
 
     @abstractmethod
@@ -188,7 +189,7 @@ class AbstractPayproService(ABC):
 class FakePayproService(AbstractPayproService):
     pp_wallet_id: str = ""
 
-    def get_deposit_checkout_url(
+    def get_deposit_checkout_url_and_paypro_id(
         self,
         amount: int,
         transaction_id: str,
@@ -196,8 +197,8 @@ class FakePayproService(AbstractPayproService):
         phone_number: str,
         email: str,
         uow: AbstractUnitOfWork,
-    ) -> str:
-        return ""
+    ) -> Tuple[str, str]:
+        return "", ""
 
     def set_paypro_wallet(self, wallet_id):
         self.pp_wallet_id = wallet_id
@@ -208,7 +209,7 @@ class FakePayproService(AbstractPayproService):
 
 @dataclass
 class PayproService(AbstractPayproService):
-    def get_deposit_checkout_url(
+    def get_deposit_checkout_url_and_paypro_id(
         self,
         amount: int,
         transaction_id: str,
@@ -216,8 +217,8 @@ class PayproService(AbstractPayproService):
         phone_number: str,
         email: str,
         uow: AbstractUnitOfWork,
-    ) -> str:
-        return pp_svc.get_deposit_checkout_url(
+    ) -> Tuple[str, str]:
+        return pp_svc.get_deposit_checkout_url_and_paypro_id(
             amount=amount,
             transaction_id=transaction_id,
             full_name=full_name,
