@@ -326,6 +326,7 @@ class TransactionRepository(TransactionAbstractRepository):
             insert into transactions (id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated)
             values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             on conflict (id) do update set
+                paypro_id = excluded.paypro_id,
                 amount = excluded.amount,
                 mode = excluded.mode,
                 transaction_type = excluded.transaction_type,
