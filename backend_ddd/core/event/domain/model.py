@@ -7,16 +7,19 @@ from typing import Dict, List
 
 from core.event.domain import exceptions as ex
 
+
 class EventAttendanceStatus(str, Enum):
     """Event attendance status enum"""
 
     UN_ATTENDED = 1
     ATTENDED = 2
 
+
 @dataclass
 class EventFormDataItem:
     question: str
     answer: str | int | float
+
 
 @dataclass
 class Registration:
@@ -29,7 +32,7 @@ class Registration:
     qr_id: str
     user_id: str
     attendance_status: EventAttendanceStatus
-    event_form_data: Dict[str,List[EventFormDataItem]]
+    event_form_data: Dict[str, List[EventFormDataItem]]
 
     @property
     def qr_code(self) -> str:
@@ -37,17 +40,8 @@ class Registration:
         return self.qr_id
 
     @classmethod
-    def convert_json_to_data(cls, event_data_json: dict) -> Dict[str,List[EventFormDataItem]]:
-        event_data_items = []
-        for each in event_data_json["fields"]:
-            event_data_items.append(
-                EventFormDataItem(
-                    question=each["question"],
-                    answer=each["answer"]
-                )
-            )
-        return {"fields":event_data_items}
-
+    def from_json_to_form_data(cls, event_data_json: dict) -> Dict[str, List[EventFormDataItem]]:
+        return {"fields": [EventFormDataItem(question=each["question"], answer=each["answer"]) for each in event_data_json["fields"]]}
 
 
 class EventStatus(str, Enum):
@@ -62,13 +56,15 @@ class EventStatus(str, Enum):
     APPROVED = 2
     CANCELLED = 3
 
+
 class ValidationEnum(str, Enum):
     """
     This is for form schema validation on a single item
     """
     REQUIRED = 1
-    MINLENGTH = 2
-    MAXLENGTH = 3
+    MIN_LENGTH = 2
+    MAX_LENGTH = 3
+
 
 class QuestionType(str, Enum):
     INPUT_STR = 1
@@ -77,10 +73,12 @@ class QuestionType(str, Enum):
     MULTIPLE_CHOICE = 4
     DROPDOWN = 5
 
+
 @dataclass
 class ValidationRule:
     type: ValidationEnum
     value: int | bool
+
 
 @dataclass
 class EventFormSchemaItem:
@@ -88,6 +86,7 @@ class EventFormSchemaItem:
     type: QuestionType
     validation: List[ValidationRule]
     options: List[str]
+
 
 @dataclass
 class Event:
@@ -102,7 +101,6 @@ class Event:
     status: EventStatus
     registrations: Dict[str, Registration]
     cancellation_reason: str
-    
 
     name: str
     organizer_id: str
@@ -117,7 +115,7 @@ class Event:
     registration_end_timestamp: datetime
     registration_fee: int
 
-    event_form_schema: Dict[str,List[EventFormSchemaItem]]
+    event_form_schema: Dict[str, List[EventFormSchemaItem]]
 
     def publish(self):
         """organiser publishes draft for approval, once published (in pending state) only admin can approve or decline"""
@@ -146,10 +144,12 @@ class Event:
             )
 
         if self.registration_fee <= 0:
-            raise ex.EventTicketPriceNegative("Event registration charges cannot be negative.")
+            raise ex.EventTicketPriceNegative(
+                "Event registration charges cannot be negative.")
 
         if self.capacity < 1:
-            raise ex.EventCapacityExceeded("Event capacity cannot be less than 1.")
+            raise ex.EventCapacityExceeded(
+                "Event capacity cannot be less than 1.")
 
         self.status = EventStatus.APPROVED
 
@@ -170,7 +170,8 @@ class Event:
         """ """
 
         if current_time >= self.event_end_timestamp:
-            raise ex.EventUpdatePastEventEnd("Cannot update event after it has ended.")
+            raise ex.EventUpdatePastEventEnd(
+                "Cannot update event after it has ended.")
 
         if (
             registration_fee != self.registration_fee
@@ -181,7 +182,8 @@ class Event:
             )
 
         if registration_fee <= 0:
-            raise ex.EventTicketPriceNegative("Event registration charges cannot be negative.")
+            raise ex.EventTicketPriceNegative(
+                "Event registration charges cannot be negative.")
 
         if (
             registration_start_timestamp < self.registration_start_timestamp
@@ -212,7 +214,8 @@ class Event:
             )
 
         if not isinstance(capacity, int):
-            raise ex.EventCapacityNonInteger("Event capacity must be an integer.")
+            raise ex.EventCapacityNonInteger(
+                "Event capacity must be an integer.")
 
         if capacity < self.capacity:
             raise ex.EventCapacityExceeded(
@@ -236,7 +239,7 @@ class Event:
         user_id: str,
         users_closed_loop_ids: List[str],
         current_time: datetime,
-        event_form_data: Dict[str,List[EventFormDataItem]]
+        event_form_data: Dict[str, List[EventFormDataItem]]
     ):
         """
         need to carry out transaction after registering at command layer.
@@ -244,7 +247,8 @@ class Event:
         """
 
         if self.status != EventStatus.APPROVED:
-            raise ex.EventNotApproved("Cannot register to an event that is not approved.")
+            raise ex.EventNotApproved(
+                "Cannot register to an event that is not approved.")
 
         if current_time < self.registration_start_timestamp:
             raise ex.EventNotApproved("Registration has not started yet.")
@@ -253,13 +257,16 @@ class Event:
             raise ex.RegistrationEnded("Registration time has passed.")
 
         if self.closed_loop_id not in users_closed_loop_ids:
-            raise ex.UserInvalidClosedLoop("User is not allowed to register for this event.")
+            raise ex.UserInvalidClosedLoop(
+                "User is not allowed to register for this event.")
 
         if len(self.registrations) >= self.capacity:
-            raise ex.EventCapacityExceeded("This event is already at capacity.")
+            raise ex.EventCapacityExceeded(
+                "This event is already at capacity.")
 
         if user_id in self.registrations:
-            raise ex.RegistrationAlreadyExists("User has already registered with the event.")
+            raise ex.RegistrationAlreadyExists(
+                "User has already registered with the event.")
 
         self.registrations[user_id] = Registration(
             qr_id=qr_id,
@@ -270,18 +277,21 @@ class Event:
 
     def mark_attendance(self, user_id: str, current_time: datetime):
         if self.status != EventStatus.APPROVED:
-            raise ex.EventNotApproved("Cannot mark attendance for an event that is not approved.")
+            raise ex.EventNotApproved(
+                "Cannot mark attendance for an event that is not approved.")
 
         if current_time >= self.event_end_timestamp:
             raise ex.AttendancePostEventException("Event has ended.")
 
         if current_time < self.registration_start_timestamp:
-            raise ex.EventRegistrationNotStarted("Attendance has not started yet.")
+            raise ex.EventRegistrationNotStarted(
+                "Attendance has not started yet.")
 
         registration = self.registrations.get(user_id)
 
         if registration is None:
-            raise ex.RegistrationDoesNotExist("User has not registered for this event.")
+            raise ex.RegistrationDoesNotExist(
+                "User has not registered for this event.")
 
         if registration.attendance_status == EventAttendanceStatus.ATTENDED:
             raise ex.UserIsAlreadyMarkedPresent(
@@ -300,37 +310,33 @@ class Event:
             raise ex.EventNotApproved("Only approved events may be cancelled.")
 
         if current_time >= self.event_end_timestamp:
-            raise ex.EventEnded("Event has already ended. Cannot cancel event after it has ended.")
+            raise ex.EventEnded(
+                "Event has already ended. Cannot cancel event after it has ended.")
 
         self.status = EventStatus.CANCELLED
         self.cancellation_reason = cancellation_reason
 
-    def upsert_form_schema(self, event_form_schema: Dict[str,List[EventFormSchemaItem]], current_time: datetime):
+    def upsert_form_schema(self, event_form_schema: Dict[str, List[EventFormSchemaItem]], current_time: datetime):
         if current_time < self.registration_start_timestamp:
             self.event_form_schema = event_form_schema
         else:
             raise ex.RegistrationStarted
 
     @classmethod
-    def from_json_to_event_schema(cls, event_schema_json: dict) -> Dict[str,List[EventFormSchemaItem]]:
-        event_form_schema_items = []
-        for each in event_schema_json["fields"]:
-            validation_items = []
-            for val in each["validation"]:
-                validation_items.append(
+    def from_json_to_event_schema(cls, event_schema_json: dict) -> Dict[str, List[EventFormSchemaItem]]:
+
+        return {"fields": [
+            EventFormSchemaItem(
+                question=each["question"],
+                type=QuestionType[each["type"]],
+                validation=[
                     ValidationRule(
                         type=ValidationEnum[val["type"]],
                         value=val["value"]
                     )
-                )
-            event_form_schema_items.append(
-                EventFormSchemaItem(
-                    question=each["question"],
-                    type= QuestionType[each["type"]],
-                    validation=validation_items,
-                    options=each["options"]
-                )
+                    for val in each["validation"]
+                ],
+                options=each["options"]
             )
-        return {"fields":event_form_schema_items}
-
-
+            for each in event_schema_json["fields"]
+        ]}

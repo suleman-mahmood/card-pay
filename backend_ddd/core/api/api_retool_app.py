@@ -896,7 +896,8 @@ def form_schema():
         )
         uow.commit_close_connection()
 
-    except Exception as e:
+    except (event_mdl_exc.DuplicateFormSchema,
+            event_mdl_exc.RegistrationStarted) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 

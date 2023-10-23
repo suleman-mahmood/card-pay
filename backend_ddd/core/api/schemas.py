@@ -395,8 +395,6 @@ class EventFormSchema(AbstractSchema):
         if not isinstance(self.value, dict):
             raise utils.CustomException("EventFormSchema is not an object/dictionary")
 
-        # TODO: Fix this later
-
 @dataclass()
 class EventFormDataSchema(AbstractSchema):
     value: str
@@ -405,5 +403,4 @@ class EventFormDataSchema(AbstractSchema):
         if not isinstance(self.value, dict):
             raise utils.CustomException("EventFormDataSchema is not an object/dictionary")
 
-        # TODO: Fix this later
 

@@ -81,11 +81,11 @@ def test_add_event_form(seed_api_customer, add_1000_wallet, mocker, client):
                         "type": "INPUT_STR",
                         "validation": [
                             {
-                                "type": "MINLENGTH",
+                                "type": "MIN_LENGTH",
                                 "value": 1
                             },
                             {
-                                "type": "MAXLENGTH",
+                                "type": "MAX_LENGTH",
                                 "value": 25
                             },
                             {
@@ -193,11 +193,11 @@ def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
                         "type": "INPUT_STR",
                         "validation": [
                             {
-                                "type": "MINLENGTH",
+                                "type": "MIN_LENGTH",
                                 "value": 1
                             },
                             {
-                                "type": "MAXLENGTH",
+                                "type": "MAX_LENGTH",
                                 "value": 25
                             },
                             {

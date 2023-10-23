@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime
 from uuid import uuid4
@@ -1157,7 +1156,7 @@ def register_event(uid):
             event_id=req["event_id"],
             qr_id=str(uuid4()),
             current_time=datetime.now(),
-            event_form_data=event_mdl.Registration.convert_json_to_data(req["event_form_data"]),
+            event_form_data=event_mdl.Registration.from_json_to_form_data(req["event_form_data"]),
             uow=uow,
             user_id=uid,
             users_closed_loop_ids=list(user.closed_loops.keys()),
@@ -1194,7 +1193,7 @@ def register_event(uid):
         status_code=200,
         data={}
     ).__dict__
-    
+
 
 @cardpay_app.route("/send-otp-to-phone-number", methods=["POST"])
 @utils.handle_missing_payload

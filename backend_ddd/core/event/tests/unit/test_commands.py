@@ -161,17 +161,13 @@ def test_mark_attendance(seed_event):
         seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow
     )
 
-    event_form_data = [
-            
-        ] 
-
     event_cmd.publish(event_id=event.id, uow=uow)
     event_cmd.register_user(
         event_id=event.id,
         qr_id=qr_id,
         user_id=user_id,
         users_closed_loop_ids=[closed_loop_id],
-        event_form_data={"fields":event_form_data},
+        event_form_data={"fields":[]},
         current_time=REGISTRATION_START,
         uow=uow,
     )
@@ -182,7 +178,7 @@ def test_mark_attendance(seed_event):
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
-            event_form_data={"fields":event_form_data}
+            event_form_data={"fields":[]}
         )
     }
     event_cmd.mark_attendance(
@@ -198,7 +194,7 @@ def test_mark_attendance(seed_event):
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.ATTENDED,
-            event_form_data={"fields":event_form_data}
+            event_form_data={"fields":[]}
         )
     }
 
@@ -256,11 +252,11 @@ def test_add_form_schema(seed_event):
                         value=True
                     ),
                     event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.MINLENGTH,
+                        type=event_mdl.ValidationEnum.MIN_LENGTH,
                         value=10
                     ),
                     event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.MAXLENGTH,
+                        type=event_mdl.ValidationEnum.MAX_LENGTH,
                         value=25
                     )
                 ],
@@ -275,11 +271,11 @@ def test_add_form_schema(seed_event):
                         value=True
                     ),
                     event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.MINLENGTH,
+                        type=event_mdl.ValidationEnum.MIN_LENGTH,
                         value=10
                     ),
                     event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.MAXLENGTH,
+                        type=event_mdl.ValidationEnum.MAX_LENGTH,
                         value=25
                     )
                 ],

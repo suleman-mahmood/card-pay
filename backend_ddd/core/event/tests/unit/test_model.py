@@ -498,11 +498,11 @@ def test_add_update_form_schema(seed_event):
                         value=True
                     ),
                     mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MINLENGTH,
+                        type=mdl.ValidationEnum.MIN_LENGTH,
                         value=10
                     ),
                     mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MAXLENGTH,
+                        type=mdl.ValidationEnum.MAX_LENGTH,
                         value=25
                     )
                 ],
@@ -540,11 +540,11 @@ def test_add_update_form_schema(seed_event):
                     value=True
                 ),
                 mdl.ValidationRule(
-                    type=mdl.ValidationEnum.MINLENGTH,
+                    type=mdl.ValidationEnum.MIN_LENGTH,
                     value=10
                 ),
                 mdl.ValidationRule(
-                    type=mdl.ValidationEnum.MAXLENGTH,
+                    type=mdl.ValidationEnum.MAX_LENGTH,
                     value=25
                 )
             ],
@@ -571,20 +571,18 @@ def test_add_update_form_schema(seed_event):
 
 def test_convert_json_to_model(seed_event):
     event: mdl.Event = seed_event()
-    json={
-        "event_id":"1234",
-        "event_form_schema": { 
+    json= { 
             "fields":[
                 {
                     "question": "What is your name?",
                     "type": "INPUT_STR",
                     "validation": [
                         {
-                            "type": "MINLENGTH",
+                            "type": "MIN_LENGTH",
                             "value": 1
                         },
                         {
-                            "type": "MAXLENGTH",
+                            "type": "MAX_LENGTH",
                             "value": 25
                         },
                         {
@@ -607,6 +605,5 @@ def test_convert_json_to_model(seed_event):
                 }
             ]
         }
-    }
-    model_event_schema = event.from_json_to_event_schema(event_schema_json=json["event_form_schema"])
+    model_event_schema = event.from_json_to_event_schema(event_schema_json=json)
     assert type(model_event_schema) == dict
