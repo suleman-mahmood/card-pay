@@ -1,3 +1,4 @@
+import logging
 import os
 from abc import ABCMeta
 from copy import deepcopy
@@ -44,6 +45,13 @@ def authenticate_token(f):
         auth_header = request.headers.get("Authorization")
 
         if auth_header is None:
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "NoAuthHeader",
+                },
+            )
             raise CustomException(
                 message="No authorization header provided",
                 status_code=401,
@@ -52,6 +60,13 @@ def authenticate_token(f):
         bearer, _, token = auth_header.partition(" ")
 
         if bearer != "Bearer" or token == "":
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "Invalidheader",
+                },
+            )
             raise CustomException(
                 message="Unauthorized, invalid header",
                 status_code=401,
@@ -65,6 +80,13 @@ def authenticate_token(f):
 
         except auth.InvalidIdTokenError:
             # Token is invalid or expired
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "InvalidToken",
+                },
+            )
             raise CustomException(
                 message="Unauthorized, invalid token",
                 status_code=401,
@@ -78,11 +100,17 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
         @wraps(func)
         def wrapper(*args, **kwargs):
             uow = UnitOfWork()
-            user_type = auth_qry.get_user_type_from_user_id(
-                user_id=kwargs["uid"], uow=uow)
+            user_type = auth_qry.get_user_type_from_user_id(user_id=kwargs["uid"], uow=uow)
             uow.close_connection()
 
             if user_type not in allowed_user_types:
+                logging.info(
+                    {
+                        "message": "Custom exception raised",
+                        "endpoint": "api-decorator",
+                        "exception_type": "UserNotEligible",
+                    },
+                )
                 raise CustomException(message="User not eligible")
 
             return func(*args, **kwargs)
@@ -96,6 +124,13 @@ def handle_missing_payload(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if request.json is None:
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "PayloadMissingInRequest",
+                },
+            )
             raise CustomException(message="payload missing in request")
         return func(*args, **kwargs)
 
@@ -120,8 +155,17 @@ def validate_and_sanitize_json_payload(
                     req.pop(k, None)
 
             if set(required_parameters) != set(req.keys()):
-                raise CustomException(
-                    "invalid json payload, missing or extra parameters")
+                logging.info(
+                    {
+                        "message": "Custom exception raised",
+                        "endpoint": "api-decorator",
+                        "exception_type": "InvalidJsonPayload",
+                        "json_request": req,
+                        "optional_parameters": optional_parameters,
+                        "required_parameters": required_parameters,
+                    },
+                )
+                raise CustomException("invalid json payload, missing or extra parameters")
 
             for param, schema in required_parameters.items():
                 # Assuming that all input strings should not contain leading or trailing whitespaces
@@ -143,11 +187,25 @@ def authenticate_retool_secret(func):
         req = request.get_json(force=True)
 
         if "RETOOL_SECRET" not in req.keys():
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "NoRetoolSecret",
+                },
+            )
             raise CustomException(
                 message="retool secret missing in request",
             )
 
         if req["RETOOL_SECRET"] != os.environ.get("RETOOL_SECRET"):
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "InvalidRetoolSecret",
+                },
+            )
             raise CustomException(message="invalid retool secret")
 
         return func(*args, **kwargs)
@@ -174,6 +232,13 @@ def user_verified(func):
         uow.close_connection()
 
         if not phone_number_verified:
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "UserNotVerified",
+                },
+            )
             raise CustomException(message="User is not verified")
 
         return func(*args, **kwargs)

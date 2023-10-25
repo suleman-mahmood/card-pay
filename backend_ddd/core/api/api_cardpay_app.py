@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from core.api import schemas as sch
 from core.api import utils
+from core.api.event_codes import EventCode
 from core.authentication.adapters import exceptions as auth_repo_ex
 from core.authentication.domain import exceptions as auth_mdl_ex
 from core.authentication.domain.model import PK_CODE, UserType
@@ -16,6 +17,7 @@ from core.comms.entrypoint import commands as comms_cmd
 from core.entrypoint import queries as app_queries
 from core.entrypoint.uow import UnitOfWork
 from core.event.domain import exceptions as event_mdl_exc
+from core.event.domain import model as event_mdl
 from core.event.entrypoint import commands as event_cmd
 from core.event.entrypoint import exceptions as event_svc_ex
 from core.event.entrypoint import queries as event_qry
@@ -29,15 +31,13 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
-from core.comms.entrypoint import commands as comms_cmd
 from firebase_admin import exceptions as fb_ex
 from flask import Blueprint, request
-from core.event.domain import model as event_mdl
-from core.api.event_codes import EventCode
 
 cardpay_app = Blueprint("cardpay_app", __name__, url_prefix="/api/v1")
 
 
+# TODO: Check and deprecate this
 @cardpay_app.route("/create-user", methods=["POST"])
 @utils.handle_missing_payload
 @utils.validate_and_sanitize_json_payload(
@@ -110,22 +110,19 @@ def create_customer():
             uow=uow,
             fb_svc=auth_acl.FirebaseService(),
         )
-        # if should_create_wallet:
-        #     pmt_cmd.create_wallet(user_id=user_id, uow=uow)
-
         uow.commit_close_connection()
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
-                "endpoint": "/create-customer",
+                "endpoint": "create-customer",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
 
     return utils.Response(
@@ -138,6 +135,7 @@ def create_customer():
     ).__dict__
 
 
+# TODO: check and deprecate this
 @cardpay_app.route("/change-name", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
@@ -188,31 +186,31 @@ def change_pin(uid):
         uow.commit_close_connection()
 
     except auth_mdl_ex.InvalidPinException as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
-                "endpoint": "/change-pin",
+                "endpoint": "change-pin",
                 "invoked_by": "cardpay_app",
                 "exception_type": e.__class__.__name__,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise utils.CustomException(str(e))
 
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
-                "endpoint": "/change-pin",
+                "endpoint": "change-pin",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
 
     return utils.Response(
@@ -221,6 +219,7 @@ def change_pin(uid):
     ).__dict__
 
 
+# TODO: Check and deprecate this
 @cardpay_app.route("/user-toggle-active", methods=["POST"])
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER, UserType.ADMIN])
@@ -267,31 +266,31 @@ def verify_phone_number(uid):
         auth_mdl_ex.VerificationException,
         auth_mdl_ex.InvalidOtpException,
     ) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
-                "endpoint": "/verify-phone-number",
+                "endpoint": "verify-phone-number",
                 "invoked_by": "cardpay_app",
                 "exception_type": e.__class__.__name__,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise utils.CustomException(str(e))
 
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
-                "endpoint": "/verify-phone-number",
+                "endpoint": "verify-phone-number",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
 
     return utils.Response(
@@ -327,31 +326,31 @@ def register_closed_loop(uid):
         uow.commit_close_connection()
 
     except auth_svc_ex.UniqueIdentifierAlreadyExistsException as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
-                "endpoint": "/register-closed-loop",
+                "endpoint": "register-closed-loop",
                 "invoked_by": "cardpay_app",
                 "exception_type": e.__class__.__name__,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise utils.CustomException(str(e))
 
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
-                "endpoint": "/register-closed-loop",
+                "endpoint": "register-closed-loop",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
 
     return utils.Response(
@@ -437,6 +436,7 @@ def verify_closed_loop(uid):
         mktg_mdl_ex.NotVerifiedException,
         mktg_mdl_ex.InvalidReferenceException,
     ) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
@@ -447,10 +447,10 @@ def verify_closed_loop(uid):
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise utils.CustomException(str(e))
 
     except (Exception, AssertionError) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
@@ -461,7 +461,6 @@ def verify_closed_loop(uid):
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
 
     return utils.Response(
@@ -497,31 +496,31 @@ def create_deposit_request(uid):
         pmt_svc_ex.PayProsCreateOrderTimedOut,
         pmt_svc_ex.PayProsGetAuthTokenTimedOut,
     ) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
-                "endpoint": "/create-deposit-request",
+                "endpoint": "create-deposit-request",
                 "invoked_by": "cardpay_app",
                 "exception_type": e.__class__.__name__,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise utils.CustomException(str(e))
 
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
-                "endpoint": "/create-deposit-request",
+                "endpoint": "create-deposit-request",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
 
     return utils.Response(
@@ -570,6 +569,7 @@ def execute_p2p_push_transaction(uid):
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
+        uow.commit_close_connection()  # save the failed transactions
         logging.info(
             {
                 "message": "Custom exception raised",
@@ -580,7 +580,6 @@ def execute_p2p_push_transaction(uid):
                 "json_request": req,
             },
         )
-        uow.commit_close_connection()  # save the failed transactions
         raise utils.CustomException(str(e))
 
     except (
@@ -590,6 +589,7 @@ def execute_p2p_push_transaction(uid):
         mktg_mdl_ex.NotVerifiedException,
         pmt_svc_ex.UserDoesNotExistException,
     ) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
@@ -600,13 +600,13 @@ def execute_p2p_push_transaction(uid):
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise utils.CustomException(str(e))
 
     except (
         Exception,
         AssertionError,
     ) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
@@ -617,7 +617,6 @@ def execute_p2p_push_transaction(uid):
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
 
     return utils.Response(
@@ -697,6 +696,16 @@ def accept_p2p_pull_transaction(uid):
 
     except pmt_svc_ex.TransactionFailedException as e:
         uow.commit_close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "accept-p2p-pull-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except (
@@ -706,10 +715,30 @@ def accept_p2p_pull_transaction(uid):
         mktg_mdl_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "accept-p2p-pull-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "accept-p2p-pull-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
@@ -737,10 +766,30 @@ def decline_p2p_pull_transaction(uid):
 
     except pmt_mdl_ex.TransactionNotAllowedException as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "decline-p2p-pull-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "decline-p2p-pull-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
@@ -774,6 +823,16 @@ def generate_voucher(uid):
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "generate-voucher",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
@@ -811,10 +870,30 @@ def redeem_voucher(uid):
         mktg_mdl_ex.NotVerifiedException,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "redeem-voucher",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "redeem-voucher",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
@@ -853,6 +932,7 @@ def execute_qr_transaction(uid):
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
+        uow.commit_close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
@@ -863,7 +943,6 @@ def execute_qr_transaction(uid):
                 "json_request": req,
             },
         )
-        uow.commit_close_connection()
         raise utils.CustomException(str(e))
 
     except (
@@ -876,6 +955,7 @@ def execute_qr_transaction(uid):
         mktg_mdl_ex.InvalidTransactionTypeException,
         mktg_mdl_ex.NotVerifiedException,
     ) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
@@ -886,10 +966,10 @@ def execute_qr_transaction(uid):
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise utils.CustomException(str(e))
 
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
@@ -900,7 +980,6 @@ def execute_qr_transaction(uid):
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
 
     return utils.Response(
@@ -938,10 +1017,30 @@ def use_reference(uid):
         mktg_mdl_ex.InvalidWeightageException,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "use-reference",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "use-reference",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
@@ -999,6 +1098,7 @@ def get_user_recent_transactions(uid):
     except pmt_svc_ex.NoUserDepositRequest:
         pass
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": f"Unhandled exception raised",
@@ -1008,7 +1108,6 @@ def get_user_recent_transactions(uid):
                 "exception_message": str(e),
             },
         )
-        uow.close_connection()
         raise e
 
     uow.close_connection()
@@ -1107,10 +1206,28 @@ def get_name_from_unique_identifier_and_closed_loop(uid):
 
     except auth_svc_ex.UserNotFoundException as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "get-name-from-unique-identifier-and-closed-loop",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "get-name-from-unique-identifier-and-closed-loop",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+            },
+        )
         raise e
 
     return utils.Response(
@@ -1141,6 +1258,15 @@ def get_live_events(uid):
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "get-live-events",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+            },
+        )
         raise e
 
     return utils.Response(
@@ -1161,6 +1287,15 @@ def get_registered_events(uid):
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "get-registered-events",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+            },
+        )
         raise e
 
     return utils.Response(
@@ -1174,7 +1309,10 @@ def get_registered_events(uid):
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
 @utils.user_verified
-@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema,  "event_form_data": sch.EventFormDataSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"event_id": sch.UuidSchema},
+    optional_parameters={"event_form_data": sch.EventFormDataSchema},
+)
 def register_event(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -1213,16 +1351,34 @@ def register_event(uid):
         pmt_svc_ex.TransactionFailedException,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "register-event",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "register-event",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
-        message="User successfully registered for the event",
-        status_code=200,
-        data={}
+        message="User successfully registered for the event", status_code=200, data={}
     ).__dict__
 
 
@@ -1279,9 +1435,29 @@ def send_otp_to_phone_number():
         auth_repo_ex.UserNotFoundException,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "send-otp-to-phone-number",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "send-otp-to-phone-number",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
@@ -1329,10 +1505,30 @@ def reset_password():
         auth_mdl_ex.InvalidOtpException,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "reset-password",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "reset-password",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
@@ -1378,10 +1574,30 @@ def reset_pin():
         auth_mdl_ex.InvalidOtpException,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "reset-pin",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "reset-pin",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
@@ -1405,7 +1621,6 @@ def reset_pin():
     }
 )
 def execute_qr_transaction_v2(uid):
-    
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
@@ -1422,19 +1637,19 @@ def execute_qr_transaction_v2(uid):
         )
         uow.commit_close_connection()
     except pmt_svc_ex.TransactionFailedException as e:
+        uow.commit_close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
-                "endpoint": "execute-qr-transaction",
+                "endpoint": "execute-qr-transaction-v2",
                 "invoked_by": "cardpay_app",
                 "exception_type": e.__class__.__name__,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.commit_close_connection()
         raise utils.CustomException(str(e))
-    
+
     except (
         pmt_svc_ex.InvalidQRCodeException,
         pmt_svc_ex.InvalidQRVersionException,
@@ -1445,33 +1660,32 @@ def execute_qr_transaction_v2(uid):
         mktg_mdl_ex.InvalidTransactionTypeException,
         mktg_mdl_ex.NotVerifiedException,
     ) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
-                "endpoint": "execute-qr-transaction",
+                "endpoint": "execute-qr-transaction-v2",
                 "invoked_by": "cardpay_app",
                 "exception_type": e.__class__.__name__,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise utils.CustomException(str(e))
 
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Unhandled exception raised",
-                "endpoint": "/execute-qr-transaction",
+                "endpoint": "/execute-qr-transaction-v2",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         raise e
-
 
     uow = UnitOfWork()
 
@@ -1489,18 +1703,17 @@ def execute_qr_transaction_v2(uid):
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
-
+        uow.commit_close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
-                "endpoint": "execute-qr-transaction",
+                "endpoint": "execute-qr-transaction-v2",
                 "invoked_by": "cardpay_app",
                 "exception_type": e.__class__.__name__,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.commit_close_connection()
         return utils.Response(
             message=f"Vendor QR transaction executed successfully, Waiter transaction failed ({str(e)})",
             status_code=201,
@@ -1517,17 +1730,17 @@ def execute_qr_transaction_v2(uid):
         mktg_mdl_ex.InvalidTransactionTypeException,
         mktg_mdl_ex.NotVerifiedException,
     ) as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Custom exception raised",
-                "endpoint": "execute-qr-transaction",
+                "endpoint": "execute-qr-transaction-v2",
                 "invoked_by": "cardpay_app",
                 "exception_type": e.__class__.__name__,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         return utils.Response(
             message=f"Vendor QR transaction executed successfully, Waiter transaction failed ({str(e)})",
             status_code=201,
@@ -1535,28 +1748,29 @@ def execute_qr_transaction_v2(uid):
         ).__dict__
 
     except Exception as e:
+        uow.close_connection()
         logging.info(
             {
                 "message": "Unhandled exception raised",
-                "endpoint": "/execute-qr-transaction",
+                "endpoint": "/execute-qr-transaction-v2",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
                 "exception_message": str(e),
                 "json_request": req,
             },
         )
-        uow.close_connection()
         return utils.Response(
             message=f"Vendor QR transaction executed successfully, Waiter transaction failed ({str(e)})",
             status_code=201,
             event_code=EventCode.WAITER_QR_UNKNOWN_FAILURE,
         ).__dict__
-    
+
     return utils.Response(
         message="Vendor and waiter QR transaction executed successfully",
         status_code=201,
         event_code=EventCode.WAITER_QR_TRANSACTION_SUCCESSFUL,
     ).__dict__
+
 
 @cardpay_app.route("/set-fcm-token", methods=["POST"])
 @utils.authenticate_token
@@ -1582,8 +1796,18 @@ def set_fcm_token(uid):
         uow.commit_close_connection()
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "set-fcm-token",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
-    
+
     return utils.Response(
         message="fcm token set successfully",
         status_code=201,
