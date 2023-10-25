@@ -132,8 +132,8 @@ export default function page() {
         }
     ]);
     const [selectedEvent, setSelectedEvent] = useState<Event>();
-    const [formResponses, setFormResponses] = useState([]);
-    const [checkedOptions, setCheckedOptions] = useState([]);
+    const [formResponses, setFormResponses] = useState<any[]>([]);
+    const [checkedOptions, setCheckedOptions] = useState<string[]>([]);
 
     const submitForm = () => {
         // let formattedResponses = formResponses.filter((response) => response !== undefined);
@@ -142,22 +142,23 @@ export default function page() {
         window.location.href = "https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d";
     };
 
-    const buildInput = (schemaItem: EventFormSchemaItem, index: any) => {
-        const handleInputChange = (e, option = null) => {
+    const buildInput = (schemaItem: EventFormSchemaItem, index: number) => {
+        const handleInputChange = (e: any, option?: string) => {
             let value;
 
             if (schemaItem.type === QuestionType.MULTIPLE_CHOICE) {
+                if (option == null) return;
                 const clickedOption = checkedOptions.indexOf(option);
                 let all = [...checkedOptions];
                 if (clickedOption === -1) {
-                    all.push(option);
+                    all.push(option as never);
                 } else {
                     all.splice(clickedOption, 1);
                 }
                 setCheckedOptions(all);
-                all = all.join(",")
+                const all_strings = all.join(",")
                 const updatedResponses = [...formResponses];
-                updatedResponses[index] = { question: schemaItem.question, answer: all };
+                updatedResponses[index] = { question: schemaItem.question, answer: all_strings };
                 setFormResponses(updatedResponses);
             } else {
                 value = e.target.value;
