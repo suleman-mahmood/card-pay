@@ -50,13 +50,17 @@ def initialize_pytest_config(mocker):
         "core.authentication.entrypoint.firebase_service.update_password",
         return_value=None,
     )
-    mocker.patch(
-        "core.comms.entrypoint.commands._send_notification_firebase", return_value=None)
+    mocker.patch("core.comms.entrypoint.commands._send_notification_firebase", return_value=None)
     mocker.patch(
         "core.authentication.entrypoint.firebase_service.update_password_and_name",
         return_value=None,
     )
     mocker.patch("core.authentication.entrypoint.firebase_service.get_user", return_value="")
+    mocker.patch(
+        "core.payment.entrypoint.paypro_service.get_deposit_checkout_url_and_paypro_id",
+        return_value=("", ""),
+    )
+
 
 @pytest.fixture()
 def app():
@@ -101,6 +105,7 @@ def seed_api_customer():
 
     return _seed_api_user
 
+
 @pytest.fixture()
 def seed_api_vendor():
     def _seed_api_vendor(mocker, client, closed_loop_id):
@@ -121,7 +126,7 @@ def seed_api_vendor():
                 "latitude": 67.0011,
                 "closed_loop_id": closed_loop_id,
                 "RETOOL_SECRET": SECRET_KEY,
-            }
+            },
         )
 
         return user_id

@@ -910,9 +910,10 @@ def form_schema():
     uow = UnitOfWork()
 
     try:
-        form_schema = req["event_form_schema"]
         event_id = req["event_id"]
-        event_form_schema = event_mdl.Event.from_json_to_event_schema(event_schema_json=form_schema)
+        event_form_schema = event_mdl.Event.from_json_to_event_schema(
+            event_schema_json=req["event_form_schema"]
+        )
         event_cmd.add_form_schema(
             event_id=event_id,
             event_form_schema=event_form_schema,
