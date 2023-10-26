@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 
 from core.api import schemas as sch
@@ -1321,10 +1321,10 @@ def register_event(uid):
         user = uow.users.get(user_id=uid)
         event = uow.events.get(event_id=req["event_id"])
 
-        event_cmd.register_user(
+        event_cmd.register_user_closed_loop(
             event_id=req["event_id"],
             qr_id=str(uuid4()),
-            current_time=datetime.now(),
+            current_time=datetime.now() + timedelta(hours=5),
             event_form_data=event_mdl.Registration.from_json_to_form_data(req["event_form_data"]),
             uow=uow,
             user_id=uid,
@@ -1380,31 +1380,6 @@ def register_event(uid):
     return utils.Response(
         message="User successfully registered for the event", status_code=200, data={}
     ).__dict__
-
-
-@cardpay_app.route("/form-schema", methods=["POST"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.ADMIN, UserType.EVENT_ORGANIZER])
-@utils.user_verified
-def form_schema(uid):
-    raise utils.CustomException("Not implemented")
-    req = request.get_json(force=True)
-    uow = UnitOfWork()
-
-    try:
-        form_schema = req["schema"]
-        event_id = req["event_id"]
-        uow.close_connection()
-
-    except Exception as e:
-        uow.close_connection()
-        raise utils.CustomException(str(e))
-
-    except Exception as e:
-        uow.close_connection()
-        raise e
-
-    return utils.Response(message="", status_code=200, data={})._dict_
 
 
 @cardpay_app.route("/send-otp-to-phone-number", methods=["POST"])

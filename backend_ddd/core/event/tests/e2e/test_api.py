@@ -19,7 +19,6 @@ from core.conftest import (
 
 
 def test_add_event_form(seed_api_customer, add_1000_wallet, mocker, client):
-
     sender_id = seed_api_customer(mocker, client)
     closed_loop_id = _create_closed_loop_helper(client)
 
@@ -57,7 +56,7 @@ def test_add_event_form(seed_api_customer, add_1000_wallet, mocker, client):
         registration_start_timestamp=datetime.now() + timedelta(minutes=1),
         registration_end_timestamp=datetime.now() + timedelta(minutes=2),
         registration_fee=500,
-        event_form_schema={"fields":[]}
+        event_form_schema={"fields": []},
     )
     uow.events.add(event=event)
     uow.commit_close_connection()
@@ -73,54 +72,39 @@ def test_add_event_form(seed_api_customer, add_1000_wallet, mocker, client):
         "http://127.0.0.1:5000/api/v1/form-schema",
         json={
             "RETOOL_SECRET": SECRET_KEY,
-            "event_id":event_id,
-            "event_form_schema": { 
-                "fields":[
+            "event_id": event_id,
+            "event_form_schema": {
+                "fields": [
                     {
                         "question": "What is your name?",
                         "type": "INPUT_STR",
                         "validation": [
-                            {
-                                "type": "MIN_LENGTH",
-                                "value": 1
-                            },
-                            {
-                                "type": "MAX_LENGTH",
-                                "value": 25
-                            },
-                            {
-                                "type": "REQUIRED",
-                                "value": True
-                            }
+                            {"type": "MIN_LENGTH", "value": 1},
+                            {"type": "MAX_LENGTH", "value": 25},
+                            {"type": "REQUIRED", "value": True},
                         ],
-                        "options": []
+                        "options": [],
                     },
                     {
                         "question": "What is your batch?",
                         "type": "MULTIPLE_CHOICE",
-                        "validation": [
-                            {
-                                "type": "REQUIRED",
-                                "value": True
-                            }
-                        ],
-                        "options": ["2021","2022","2023","2024"]
-                    }
+                        "validation": [{"type": "REQUIRED", "value": True}],
+                        "options": ["2021", "2022", "2023", "2024"],
+                    },
                 ]
-            }
+            },
         },
-        headers=headers
+        headers=headers,
     )
 
-    payload = loads(response.data.decode())    
+    payload = loads(response.data.decode())
     assert (
         payload
         == utils.Response(
-            message="Schema attached successfully",
-            status_code=200,
-            data={}
+            message="Schema attached successfully", status_code=200, data={}
         ).__dict__
     )
+
 
 def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
     sender_id = seed_api_customer(mocker, client)
@@ -134,7 +118,9 @@ def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
     _register_user_in_closed_loop(mocker, client, sender_id, closed_loop_id, "26100279")
 
     _verify_phone_number(recipient_id, mocker, client)
-    _register_user_in_closed_loop(mocker, client, recipient_id, closed_loop_id, "23100128")
+    _register_user_in_closed_loop(
+        mocker, client, recipient_id, closed_loop_id, "23100128"
+    )
 
     uow = UnitOfWork()
     sender = uow.users.get(user_id=sender_id)
@@ -169,7 +155,7 @@ def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
         registration_start_timestamp=datetime.now() + timedelta(minutes=1),
         registration_end_timestamp=datetime.now() + timedelta(minutes=2),
         registration_fee=500,
-        event_form_schema={"fields":[]}
+        event_form_schema={"fields": []},
     )
     uow.events.add(event=event)
     uow.commit_close_connection()
@@ -185,52 +171,36 @@ def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
         "http://127.0.0.1:5000/api/v1/form-schema",
         json={
             "RETOOL_SECRET": SECRET_KEY,
-            "event_id":event_id,
-            "event_form_schema": { 
-                "fields":[
+            "event_id": event_id,
+            "event_form_schema": {
+                "fields": [
                     {
                         "question": "What is your name?",
                         "type": "INPUT_STR",
                         "validation": [
-                            {
-                                "type": "MIN_LENGTH",
-                                "value": 1
-                            },
-                            {
-                                "type": "MAX_LENGTH",
-                                "value": 25
-                            },
-                            {
-                                "type": "REQUIRED",
-                                "value": True
-                            }
+                            {"type": "MIN_LENGTH", "value": 1},
+                            {"type": "MAX_LENGTH", "value": 25},
+                            {"type": "REQUIRED", "value": True},
                         ],
-                        "options": []
+                        "options": [],
                     },
                     {
                         "question": "What is your batch?",
                         "type": "MULTIPLE_CHOICE",
-                        "validation": [
-                            {
-                                "type": "REQUIRED",
-                                "value": True
-                            }
-                        ],
-                        "options": ["2021","2022","2023","2024"]
-                    }
+                        "validation": [{"type": "REQUIRED", "value": True}],
+                        "options": ["2021", "2022", "2023", "2024"],
+                    },
                 ]
-            }
+            },
         },
-        headers=headers
+        headers=headers,
     )
 
-    payload = loads(response.data.decode())    
+    payload = loads(response.data.decode())
     assert (
         payload
         == utils.Response(
-            message="Schema attached successfully",
-            status_code=200,
-            data={}
+            message="Schema attached successfully", status_code=200, data={}
         ).__dict__
     )
 
@@ -242,32 +212,23 @@ def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
     response = client.post(
         "http://127.0.0.1:5000/api/v1/register-event",
         json={
-            "event_id":event_id,
-            "event_form_data": { 
-                "fields":[
-                    {
-                        "question": "What is your name?",
-                        "answer": "khuzaima"
-                    },
-                    {
-                        "question": "What is your batch?",
-                        "answer": 2023
-                    }
+            "event_id": event_id,
+            "event_form_data": {
+                "fields": [
+                    {"question": "What is your name?", "answer": "khuzaima"},
+                    {"question": "What is your batch?", "answer": 2023},
                 ]
-            }
+            },
         },
-        headers=headers
+        headers=headers,
     )
 
-    payload = loads(response.data.decode())    
+    payload = loads(response.data.decode())
     assert (
         payload
         == utils.Response(
             message="User successfully registered for the event",
             status_code=200,
-            data={}
+            data={},
         ).__dict__
     )
-
-
-

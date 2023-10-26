@@ -155,8 +155,7 @@ def test_update(seed_event):
             capacity=1,
             description="The ultimate fintech hackathon.",
             image_url="https://media.licdn.com/dms/image/D4D16AQGJJTwwC6-6mA/profile-displaybackgroundimage-shrink_200_800/0/1686490135139?e=2147483647&v=beta&t=eJwseRkzlGuk3D8ImC5Ga1EajMf4kdgOkK3C0oHDHT4",
-            registration_start_timestamp=REGISTRATION_START -
-            timedelta(minutes=1),
+            registration_start_timestamp=REGISTRATION_START - timedelta(minutes=1),
             registration_end_timestamp=REGISTRATION_END,
             event_start_timestamp=EVENT_START,
             event_end_timestamp=EVENT_END,
@@ -289,16 +288,14 @@ def test_update(seed_event):
     assert event.venue == "HOCKEY GROUND"
     assert event.capacity == 2
     assert event.description == "The ultimate ahhm."
-    assert event.registration_start_timestamp == REGISTRATION_START - \
-        timedelta(minutes=1)
-    assert event.registration_end_timestamp == REGISTRATION_END - \
-        timedelta(minutes=2)
+    assert event.registration_start_timestamp == REGISTRATION_START - timedelta(minutes=1)
+    assert event.registration_end_timestamp == REGISTRATION_END - timedelta(minutes=2)
     assert event.event_start_timestamp == EVENT_START - timedelta(minutes=3)
     assert event.event_end_timestamp == EVENT_END - timedelta(minutes=4)
     assert event.registration_fee == 10000
 
 
-def test_register(seed_event):
+def test_register_closed_loop(seed_event):
     event: mdl.Event = seed_event()
 
     user_id = str(uuid4())
@@ -307,12 +304,12 @@ def test_register(seed_event):
         ex.EventNotApproved,
         match="Cannot register to an event that is not approved.",
     ):
-        event.register_user(
+        event.register_user_closed_loop(
             qr_id=str(uuid4()),
             user_id=user_id,
-            users_closed_loop_ids=[],
+            users_closed_loop_ids=[event.closed_loop_id],
             current_time=datetime.now(),
-            event_form_data={}
+            event_form_data={},
         )
 
     event.status = mdl.EventStatus.APPROVED
@@ -321,33 +318,33 @@ def test_register(seed_event):
         ex.EventNotApproved,
         match="Registration has not started yet.",
     ):
-        event.register_user(
+        event.register_user_closed_loop(
             qr_id=str(uuid4()),
             user_id=user_id,
-            users_closed_loop_ids=[],
+            users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START - timedelta(minutes=1),
-            event_form_data={}
+            event_form_data={},
         )
 
     with pytest.raises(ex.RegistrationEnded, match="Registration time has passed."):
-        event.register_user(
+        event.register_user_closed_loop(
             qr_id=str(uuid4()),
             user_id=user_id,
-            users_closed_loop_ids=[],
+            users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_END + timedelta(minutes=1),
-            event_form_data={}
+            event_form_data={},
         )
 
     with pytest.raises(
         ex.UserInvalidClosedLoop,
         match="User is not allowed to register for this event.",
     ):
-        event.register_user(
+        event.register_user_closed_loop(
             qr_id=str(uuid4()),
             user_id=user_id,
             users_closed_loop_ids=[],
             current_time=REGISTRATION_START,
-            event_form_data={}
+            event_form_data={},
         )
 
     qr_id = str(uuid4())
@@ -357,12 +354,12 @@ def test_register(seed_event):
 
     event.closed_loop_id = closed_loop_id
 
-    event.register_user(
+    event.register_user_closed_loop(
         qr_id=qr_id,
         user_id=user_id,
         users_closed_loop_ids=users_closed_loop_ids,
         current_time=REGISTRATION_START + timedelta(minutes=0.5),
-        event_form_data={}
+        event_form_data={},
     )
 
     assert event.registrations[user_id].qr_id == qr_id
@@ -373,12 +370,12 @@ def test_register(seed_event):
         ex.EventCapacityExceeded,
         match="This event is already at capacity.",
     ):
-        event.register_user(
+        event.register_user_closed_loop(
             qr_id=str(uuid4()),
             user_id=str(uuid4()),
             users_closed_loop_ids=users_closed_loop_ids,
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
-            event_form_data={}
+            event_form_data={},
         )
 
     event.capacity = 2
@@ -387,12 +384,12 @@ def test_register(seed_event):
         ex.RegistrationAlreadyExists,
         match="User has already registered with the event.",
     ):
-        event.register_user(
+        event.register_user_closed_loop(
             qr_id=str(uuid4()),
             user_id=user_id,
             users_closed_loop_ids=users_closed_loop_ids,
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
-            event_form_data={}
+            event_form_data={},
         )
 
     assert len(event.registrations) == 1
@@ -493,117 +490,99 @@ def test_add_update_form_schema(seed_event):
                 question="What is your name?",
                 type=mdl.QuestionType.INPUT_STR,
                 validation=[
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.REQUIRED,
-                        value=True
-                    ),
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MIN_LENGTH,
-                        value=10
-                    ),
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MAX_LENGTH,
-                        value=25
-                    )
+                    mdl.ValidationRule(type=mdl.ValidationEnum.REQUIRED, value=True),
+                    mdl.ValidationRule(type=mdl.ValidationEnum.MIN_LENGTH, value=10),
+                    mdl.ValidationRule(type=mdl.ValidationEnum.MAX_LENGTH, value=25),
                 ],
                 options=[],
             ),
             mdl.EventFormSchemaItem(
                 question="What is your university name?",
                 type=mdl.QuestionType.DROPDOWN,
+                validation=[mdl.ValidationRule(type=mdl.ValidationEnum.REQUIRED, value=True)],
+                options=["LUMS", "NUST", "FAST"],
+            ),
+        ]
+    }
+
+    event.upsert_form_schema(
+        event_form_schema=event_form_schema,
+        current_time=REGISTRATION_START - timedelta(minutes=0.5),
+    )
+
+    assert event.event_form_schema is not None
+    assert event.event_form_schema == event_form_schema
+
+    event_form_schema = {
+        "fields": [
+            mdl.EventFormSchemaItem(
+                question="What is your name?",
+                type=mdl.QuestionType.INPUT_STR,
                 validation=[
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.REQUIRED,
-                        value=True
-                    )
+                    mdl.ValidationRule(type=mdl.ValidationEnum.REQUIRED, value=True),
+                    mdl.ValidationRule(type=mdl.ValidationEnum.MIN_LENGTH, value=10),
+                    mdl.ValidationRule(type=mdl.ValidationEnum.MAX_LENGTH, value=25),
                 ],
-                options=["LUMS", "NUST", "FAST"]
+                options=[],
             )
         ]
     }
 
     event.upsert_form_schema(
         event_form_schema=event_form_schema,
-        current_time=REGISTRATION_START - timedelta(minutes=0.5)
-    )
-
-    assert event.event_form_schema is not None
-    assert event.event_form_schema == event_form_schema
-
-    event_form_schema = {"fields": [
-        mdl.EventFormSchemaItem(
-            question="What is your name?",
-            type=mdl.QuestionType.INPUT_STR,
-            validation=[
-                mdl.ValidationRule(
-                    type=mdl.ValidationEnum.REQUIRED,
-                    value=True
-                ),
-                mdl.ValidationRule(
-                    type=mdl.ValidationEnum.MIN_LENGTH,
-                    value=10
-                ),
-                mdl.ValidationRule(
-                    type=mdl.ValidationEnum.MAX_LENGTH,
-                    value=25
-                )
-            ],
-            options=[]
-        )
-    ]}
-
-    event.upsert_form_schema(
-        event_form_schema=event_form_schema,
-        current_time=REGISTRATION_START - timedelta(minutes=0.5)
+        current_time=REGISTRATION_START - timedelta(minutes=0.5),
     )
 
     assert event.event_form_schema is not None
     assert event.event_form_schema == event_form_schema
     assert len(event.event_form_schema) == 1
 
-    with pytest.raises(
-        ex.RegistrationStarted
-    ):
+    with pytest.raises(ex.RegistrationStarted):
         event.upsert_form_schema(
             event_form_schema=event_form_schema,
-            current_time=REGISTRATION_START + timedelta(minutes=0.5)
+            current_time=REGISTRATION_START + timedelta(minutes=0.5),
         )
+
 
 def test_convert_json_to_model(seed_event):
     event: mdl.Event = seed_event()
-    json= { 
-            "fields":[
-                {
-                    "question": "What is your name?",
-                    "type": "INPUT_STR",
-                    "validation": [
-                        {
-                            "type": "MIN_LENGTH",
-                            "value": 1
-                        },
-                        {
-                            "type": "MAX_LENGTH",
-                            "value": 25
-                        },
-                        {
-                            "type": "REQUIRED",
-                            "value": True
-                        }
-                    ],
-                    "options": [""]
-                },
-                {
-                    "question": "What is your batch?",
-                    "type": "MULTIPLE_CHOICE",
-                    "validation": [
-                        {
-                            "type": "REQUIRED",
-                            "value": True
-                        }
-                    ],
-                    "options": ["2021","2022","2023","2024"]
-                }
-            ]
-        }
+    json = {
+        "fields": [
+            {
+                "question": "What is your name?",
+                "type": "INPUT_STR",
+                "validation": [
+                    {"type": "MIN_LENGTH", "value": 1},
+                    {"type": "MAX_LENGTH", "value": 25},
+                    {"type": "REQUIRED", "value": True},
+                ],
+                "options": [""],
+            },
+            {
+                "question": "What is your batch?",
+                "type": "MULTIPLE_CHOICE",
+                "validation": [{"type": "REQUIRED", "value": True}],
+                "options": ["2021", "2022", "2023", "2024"],
+            },
+        ]
+    }
     model_event_schema = event.from_json_to_event_schema(event_schema_json=json)
     assert type(model_event_schema) == dict
+
+
+def test_register_open_loop(seed_event):
+    event: mdl.Event = seed_event()
+    qr_id = str(uuid4())
+
+    event.status = mdl.EventStatus.APPROVED
+
+    event.register_user_open_loop(
+        qr_id=qr_id,
+        current_time=REGISTRATION_START + timedelta(minutes=0.5),
+        event_form_data={},
+        paypro_id="",
+    )
+
+    assert event.registrations[qr_id].qr_id == qr_id
+    assert event.registrations[qr_id].user_id == qr_id
+    assert event.registrations[qr_id].attendance_status == mdl.EventAttendanceStatus.UN_ATTENDED

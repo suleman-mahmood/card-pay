@@ -23,7 +23,9 @@ class EmailSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Email passed is not a string")
 
-        if not re.match(r"^[a-zA-Z0-9.a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$", self.value):
+        if not re.match(
+            r"^[a-zA-Z0-9.a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$", self.value
+        ):
             raise utils.CustomException("Invalid Email Passed")
 
 
@@ -62,7 +64,9 @@ class UserTypeSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("User Type passed is not a string")
 
-        if not re.match(r"^(CUSTOMER|VENDOR|ADMIN|PAYMENT_GATEWAY|CARDPAY)$", self.value):
+        if not re.match(
+            r"^(CUSTOMER|VENDOR|ADMIN|PAYMENT_GATEWAY|CARDPAY)$", self.value
+        ):
             raise utils.CustomException("Invalid User Type Passed")
 
 
@@ -165,7 +169,9 @@ class AmountSchema(AbstractSchema):
             raise utils.CustomException("Amount is zero or negative")
 
         if self.value >= TX_UPPER_LIMIT:
-            raise utils.CustomException(f"Amount is greater than or equal to {TX_UPPER_LIMIT}")
+            raise utils.CustomException(
+                f"Amount is greater than or equal to {TX_UPPER_LIMIT}"
+            )
 
 
 @dataclass()
@@ -188,7 +194,9 @@ class LUMSRollNumberOrFacultySchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Roll number passed is not a string")
 
-        if not re.match(r"^[2|1][0-9]{3}[M|m|0-9][0-9]{3}|[A-Za-z\.\_]{4,}$", self.value):
+        if not re.match(
+            r"^[2|1][0-9]{3}[M|m|0-9][0-9]{3}|[A-Za-z\.\_]{4,}$", self.value
+        ):
             raise utils.CustomException("Invalid Roll Number Passed")
 
 
@@ -234,7 +242,9 @@ class WeightageValueSchema(AbstractSchema):
 
     def validate(self):
         if not isinstance(self.value, (float, int)):
-            raise utils.CustomException("Weightage Value passed is not a float or integer")
+            raise utils.CustomException(
+                "Weightage Value passed is not a float or integer"
+            )
 
         if self.value < 0:
             raise utils.CustomException(
@@ -349,6 +359,7 @@ class VersionSchema(AbstractSchema):
         if self.value < 0:
             raise utils.CustomException("Version passed is negative")
 
+
 @dataclass()
 class FcmTokenSchema(AbstractSchema):
     value: str
@@ -359,6 +370,7 @@ class FcmTokenSchema(AbstractSchema):
 
         if len(self.value) <= 0:
             raise utils.CustomException("Fcm Token passed is empty")
+
 
 @dataclass()
 class EventNameSchema(AbstractSchema):
@@ -397,17 +409,18 @@ class EventTimestampSchema(AbstractSchema):
 
         # TODO: Fix this later
 
+
 @dataclass()
 class EventFormSchema(AbstractSchema):
     value: dict
 
     def validate(self):
-
         if not isinstance(self.value, dict):
             raise utils.CustomException("EventFormSchema is not an object/dictionary")
 
         if not isinstance(self.value["fields"], list):
             raise utils.CustomException("EventFormSchema is not an object/dictionary")
+
 
 @dataclass()
 class EventFormDataSchema(AbstractSchema):
@@ -415,12 +428,33 @@ class EventFormDataSchema(AbstractSchema):
 
     def validate(self):
         try:
-            [["question", "answer"] for x in self.value["fields"]] 
+            [["question", "answer"] for x in self.value["fields"]]
         except KeyError:
-            raise utils.CustomException("EventFormDataSchema is not an object/dictionary")
+            raise utils.CustomException(
+                "EventFormDataSchema is not an object/dictionary"
+            )
 
-        if any([not isinstance(v["question"], str) or not isinstance(v["answer"], (str, int, bool, float)) for v in self.value["fields"]]):
-            raise utils.CustomException("EventFormDataSchema is not an object/dictionary")
+        if any(
+            [
+                not isinstance(v["question"], str)
+                or not isinstance(v["answer"], (str, int, bool, float))
+                for v in self.value["fields"]
+            ]
+        ):
+            raise utils.CustomException(
+                "EventFormDataSchema is not an object/dictionary"
+            )
 
         if not isinstance(self.value, dict):
-            raise utils.CustomException("EventFormDataSchema is not an object/dictionary")
+            raise utils.CustomException(
+                "EventFormDataSchema is not an object/dictionary"
+            )
+
+
+@dataclass()
+class StringSchema(AbstractSchema):
+    value: dict
+
+    def validate(self):
+        if not isinstance(self.value, str):
+            raise utils.CustomException("StringSchema is not a string")

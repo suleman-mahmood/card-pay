@@ -23,12 +23,12 @@ def test_events_repository_add_get(seed_event):
             event_end_timestamp=EVENT_END,
         )
         event.status = mdl.EventStatus.APPROVED
-        event.register_user(
+        event.register_user_closed_loop(
             qr_id=str(uuid4()),
             user_id=str(uuid4()),
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
-            event_form_data={"fields": []}
+            event_form_data={"fields": []},
         )
 
         uow.events.add(event=event)
@@ -53,46 +53,42 @@ def test_events_repository_add_get_save(seed_event):
             event_end_timestamp=EVENT_END,
         )
 
-        event.event_form_schema = {"fields": [
-            mdl.EventFormSchemaItem(
-                question="What is your name?",
-                type=mdl.QuestionType.INPUT_STR,
-                validation=[
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.REQUIRED,
-                        value=True
-                    ),
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MIN_LENGTH,
-                        value=10
-                    ),
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MAX_LENGTH,
-                        value=25
-                    )
-                ],
-                options=[]
-            ),
-            mdl.EventFormSchemaItem(
-                question="What is your name?",
-                type=mdl.QuestionType.INPUT_STR,
-                validation=[
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.REQUIRED,
-                        value=True
-                    ),
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MIN_LENGTH,
-                        value=10
-                    ),
-                    mdl.ValidationRule(
-                        type=mdl.ValidationEnum.MAX_LENGTH,
-                        value=25
-                    )
-                ],
-                options=[]
-            )
-        ]}
+        event.event_form_schema = {
+            "fields": [
+                mdl.EventFormSchemaItem(
+                    question="What is your name?",
+                    type=mdl.QuestionType.INPUT_STR,
+                    validation=[
+                        mdl.ValidationRule(
+                            type=mdl.ValidationEnum.REQUIRED, value=True
+                        ),
+                        mdl.ValidationRule(
+                            type=mdl.ValidationEnum.MIN_LENGTH, value=10
+                        ),
+                        mdl.ValidationRule(
+                            type=mdl.ValidationEnum.MAX_LENGTH, value=25
+                        ),
+                    ],
+                    options=[],
+                ),
+                mdl.EventFormSchemaItem(
+                    question="What is your name?",
+                    type=mdl.QuestionType.INPUT_STR,
+                    validation=[
+                        mdl.ValidationRule(
+                            type=mdl.ValidationEnum.REQUIRED, value=True
+                        ),
+                        mdl.ValidationRule(
+                            type=mdl.ValidationEnum.MIN_LENGTH, value=10
+                        ),
+                        mdl.ValidationRule(
+                            type=mdl.ValidationEnum.MAX_LENGTH, value=25
+                        ),
+                    ],
+                    options=[],
+                ),
+            ]
+        }
 
         event_copy = copy.deepcopy(event)
 
@@ -102,23 +98,17 @@ def test_events_repository_add_get_save(seed_event):
         assert event == repo_event
 
         event_form_data = [
-            mdl.EventFormDataItem(
-                question="What is your name?",
-                answer="Khuzaima"
-            ),
-            mdl.EventFormDataItem(
-                question="What is your age?",
-                answer=21
-            )
+            mdl.EventFormDataItem(question="What is your name?", answer="Khuzaima"),
+            mdl.EventFormDataItem(question="What is your age?", answer=21),
         ]
 
         event.status = mdl.EventStatus.APPROVED
-        event.register_user(
+        event.register_user_closed_loop(
             qr_id=str(uuid4()),
             user_id=str(uuid4()),
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
-            event_form_data={"fields": event_form_data}
+            event_form_data={"fields": event_form_data},
         )
 
         event_copy_v2 = copy.deepcopy(event)

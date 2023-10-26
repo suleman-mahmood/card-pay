@@ -1,9 +1,9 @@
 """events microservice domain model"""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from core.event.domain import exceptions as ex
 
@@ -33,6 +33,7 @@ class Registration:
     user_id: str
     attendance_status: EventAttendanceStatus
     event_form_data: Dict[str, List[EventFormDataItem]]
+    paypro_id: Optional[str]
 
     @property
     def qr_code(self) -> str:
@@ -41,7 +42,12 @@ class Registration:
 
     @classmethod
     def from_json_to_form_data(cls, event_data_json: dict) -> Dict[str, List[EventFormDataItem]]:
-        return {"fields": [EventFormDataItem(question=each["question"], answer=each["answer"]) for each in event_data_json["fields"]]}
+        return {
+            "fields": [
+                EventFormDataItem(question=each["question"], answer=each["answer"])
+                for each in event_data_json["fields"]
+            ]
+        }
 
 
 class EventStatus(str, Enum):
@@ -61,6 +67,7 @@ class ValidationEnum(str, Enum):
     """
     This is for form schema validation on a single item
     """
+
     REQUIRED = 1
     MIN_LENGTH = 2
     MAX_LENGTH = 3
@@ -144,12 +151,10 @@ class Event:
             )
 
         if self.registration_fee <= 0:
-            raise ex.EventTicketPriceNegative(
-                "Event registration charges cannot be negative.")
+            raise ex.EventTicketPriceNegative("Event registration charges cannot be negative.")
 
         if self.capacity < 1:
-            raise ex.EventCapacityExceeded(
-                "Event capacity cannot be less than 1.")
+            raise ex.EventCapacityExceeded("Event capacity cannot be less than 1.")
 
         self.status = EventStatus.APPROVED
 
@@ -170,8 +175,7 @@ class Event:
         """ """
 
         if current_time >= self.event_end_timestamp:
-            raise ex.EventUpdatePastEventEnd(
-                "Cannot update event after it has ended.")
+            raise ex.EventUpdatePastEventEnd("Cannot update event after it has ended.")
 
         if (
             registration_fee != self.registration_fee
@@ -182,8 +186,7 @@ class Event:
             )
 
         if registration_fee <= 0:
-            raise ex.EventTicketPriceNegative(
-                "Event registration charges cannot be negative.")
+            raise ex.EventTicketPriceNegative("Event registration charges cannot be negative.")
 
         if (
             registration_start_timestamp < self.registration_start_timestamp
@@ -214,8 +217,7 @@ class Event:
             )
 
         if not isinstance(capacity, int):
-            raise ex.EventCapacityNonInteger(
-                "Event capacity must be an integer.")
+            raise ex.EventCapacityNonInteger("Event capacity must be an integer.")
 
         if capacity < self.capacity:
             raise ex.EventCapacityExceeded(
@@ -233,13 +235,11 @@ class Event:
         self.registration_end_timestamp = registration_end_timestamp
         self.registration_fee = registration_fee
 
-    def register_user(
+    def _register_user(
         self,
-        qr_id: str,
-        user_id: str,
-        users_closed_loop_ids: List[str],
         current_time: datetime,
-        event_form_data: Dict[str, List[EventFormDataItem]]
+        registration: Registration,
+        registration_key: str,
     ):
         """
         need to carry out transaction after registering at command layer.
@@ -247,8 +247,7 @@ class Event:
         """
 
         if self.status != EventStatus.APPROVED:
-            raise ex.EventNotApproved(
-                "Cannot register to an event that is not approved.")
+            raise ex.EventNotApproved("Cannot register to an event that is not approved.")
 
         if current_time < self.registration_start_timestamp:
             raise ex.EventNotApproved("Registration has not started yet.")
@@ -256,42 +255,70 @@ class Event:
         if current_time >= self.registration_end_timestamp:
             raise ex.RegistrationEnded("Registration time has passed.")
 
-        if self.closed_loop_id not in users_closed_loop_ids:
-            raise ex.UserInvalidClosedLoop(
-                "User is not allowed to register for this event.")
-
         if len(self.registrations) >= self.capacity:
-            raise ex.EventCapacityExceeded(
-                "This event is already at capacity.")
+            raise ex.EventCapacityExceeded("This event is already at capacity.")
+
+        self.registrations[registration_key] = registration
+
+    def register_user_closed_loop(
+        self,
+        qr_id: str,
+        user_id: str,
+        users_closed_loop_ids: List[str],
+        current_time: datetime,
+        event_form_data: Dict[str, List[EventFormDataItem]],
+    ):
+        if self.closed_loop_id not in users_closed_loop_ids:
+            raise ex.UserInvalidClosedLoop("User is not allowed to register for this event.")
 
         if user_id in self.registrations:
-            raise ex.RegistrationAlreadyExists(
-                "User has already registered with the event.")
+            raise ex.RegistrationAlreadyExists("User has already registered with the event.")
 
-        self.registrations[user_id] = Registration(
-            qr_id=qr_id,
-            user_id=user_id,
-            attendance_status=EventAttendanceStatus.UN_ATTENDED,
-            event_form_data=event_form_data
+        self._register_user(
+            current_time=current_time,
+            registration_key=user_id,
+            registration=Registration(
+                qr_id=qr_id,
+                user_id=user_id,
+                attendance_status=EventAttendanceStatus.UN_ATTENDED,
+                event_form_data=event_form_data,
+                paypro_id=None,
+            ),
+        )
+
+    def register_user_open_loop(
+        self,
+        qr_id: str,
+        current_time: datetime,
+        event_form_data: Dict[str, List[EventFormDataItem]],
+        paypro_id: str,
+    ):
+        self._register_user(
+            current_time=current_time,
+            registration_key=qr_id,
+            registration=Registration(
+                qr_id=qr_id,
+                user_id=qr_id,
+                attendance_status=EventAttendanceStatus.UN_ATTENDED,
+                event_form_data=event_form_data,
+                paypro_id=paypro_id,
+            ),
         )
 
     def mark_attendance(self, user_id: str, current_time: datetime):
         if self.status != EventStatus.APPROVED:
-            raise ex.EventNotApproved(
-                "Cannot mark attendance for an event that is not approved.")
+            raise ex.EventNotApproved("Cannot mark attendance for an event that is not approved.")
 
         if current_time >= self.event_end_timestamp:
             raise ex.AttendancePostEventException("Event has ended.")
 
         if current_time < self.registration_start_timestamp:
-            raise ex.EventRegistrationNotStarted(
-                "Attendance has not started yet.")
+            raise ex.EventRegistrationNotStarted("Attendance has not started yet.")
 
         registration = self.registrations.get(user_id)
 
         if registration is None:
-            raise ex.RegistrationDoesNotExist(
-                "User has not registered for this event.")
+            raise ex.RegistrationDoesNotExist("User has not registered for this event.")
 
         if registration.attendance_status == EventAttendanceStatus.ATTENDED:
             raise ex.UserIsAlreadyMarkedPresent(
@@ -310,33 +337,36 @@ class Event:
             raise ex.EventNotApproved("Only approved events may be cancelled.")
 
         if current_time >= self.event_end_timestamp:
-            raise ex.EventEnded(
-                "Event has already ended. Cannot cancel event after it has ended.")
+            raise ex.EventEnded("Event has already ended. Cannot cancel event after it has ended.")
 
         self.status = EventStatus.CANCELLED
         self.cancellation_reason = cancellation_reason
 
-    def upsert_form_schema(self, event_form_schema: Dict[str, List[EventFormSchemaItem]], current_time: datetime):
+    def upsert_form_schema(
+        self,
+        event_form_schema: Dict[str, List[EventFormSchemaItem]],
+        current_time: datetime,
+    ):
         if current_time < self.registration_start_timestamp:
             self.event_form_schema = event_form_schema
         else:
             raise ex.RegistrationStarted
 
     @classmethod
-    def from_json_to_event_schema(cls, event_schema_json: dict) -> Dict[str, List[EventFormSchemaItem]]:
-
-        return {"fields": [
-            EventFormSchemaItem(
-                question=each["question"],
-                type=QuestionType[each["type"]],
-                validation=[
-                    ValidationRule(
-                        type=ValidationEnum[val["type"]],
-                        value=val["value"]
-                    )
-                    for val in each["validation"]
-                ],
-                options=each["options"]
-            )
-            for each in event_schema_json["fields"]
-        ]}
+    def from_json_to_event_schema(
+        cls, event_schema_json: dict
+    ) -> Dict[str, List[EventFormSchemaItem]]:
+        return {
+            "fields": [
+                EventFormSchemaItem(
+                    question=each["question"],
+                    type=QuestionType[each["type"]],
+                    validation=[
+                        ValidationRule(type=ValidationEnum[val["type"]], value=val["value"])
+                        for val in each["validation"]
+                    ],
+                    options=each["options"],
+                )
+                for each in event_schema_json["fields"]
+            ]
+        }

@@ -1,7 +1,9 @@
 """Payments micro-service commands"""
 from datetime import datetime
+from typing import Tuple
 from uuid import uuid4
 
+from core.api.event_codes import EventCode
 from core.authentication.domain import model as auth_mdl
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.domain import exceptions as mdl_ex
@@ -9,7 +11,6 @@ from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
-from core.api.event_codes import EventCode
 
 MIN_DEPOSIT_AMOUNT = 1000
 
@@ -209,6 +210,45 @@ def create_deposit_request(
     uow.transactions.save(transaction=tx)
 
     return checkout_url
+
+
+def create_any_deposit_request(
+    tx_id: str,
+    user_id: str,
+    amount: int,
+    full_name: str,
+    phone_number: str,
+    email: str,
+    uow: AbstractUnitOfWork,
+    auth_svc: acl.AbstractAuthenticationService,
+    pp_svc: acl.AbstractPayproService,
+) -> Tuple[str, str]:
+    _execute_transaction(
+        tx_id=tx_id,
+        sender_wallet_id=pp_svc.get_paypro_wallet(),
+        recipient_wallet_id=user_id,
+        amount=amount,
+        transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=pmt_mdl.TransactionType.PAYMENT_GATEWAY,
+        uow=uow,
+        auth_svc=auth_svc,
+    )
+
+    checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
+        amount=amount,
+        transaction_id=tx_id,
+        full_name=full_name,
+        phone_number=phone_number,
+        email=email,
+        uow=uow,
+    )
+
+    # Add PayPro id to the transaction
+    tx = uow.transactions.get(transaction_id=tx_id)
+    tx.add_paypro_id(paypro_id=paypro_id)
+    uow.transactions.save(transaction=tx)
+
+    return checkout_url, paypro_id
 
 
 def payment_retools_reconcile_vendor(

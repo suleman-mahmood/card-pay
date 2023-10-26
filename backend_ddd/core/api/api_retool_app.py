@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from uuid import uuid4
 
 from core.api import schemas as sch
@@ -21,7 +22,6 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import queries as pmt_qry
 from flask import Blueprint, request
-from datetime import datetime
 
 retool = Blueprint("retool", __name__, url_prefix="/api/v1")
 
@@ -864,6 +864,25 @@ def get_all_organizers():
     ).__dict__
 
 
+@retool.route("/get-live-events", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_live_events():
+    closed_loop_id = request.args.get("closed_loop_id")
+    uow = UnitOfWork()
+
+    try:
+        events = event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
+        uow.close_connection()
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message="All live events returned successfully", status_code=200, data=events
+    ).__dict__
+
+
 @retool.route("/get-draft-events", methods=["POST"])
 @utils.authenticate_retool_secret
 def get_draft_events():
@@ -877,9 +896,15 @@ def get_draft_events():
         data=draft_events,
     ).__dict__
 
-@retool.route('/form-schema', methods=['POST'])
+
+@retool.route("/form-schema", methods=["POST"])
 @utils.authenticate_retool_secret
-@utils.validate_and_sanitize_json_payload(required_parameters={"event_id": sch.UuidSchema, "event_form_schema": sch.EventFormSchema})
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "event_id": sch.UuidSchema,
+        "event_form_schema": sch.EventFormSchema,
+    }
+)
 def form_schema():
     req = request.get_json(force=True)
     uow = UnitOfWork()
@@ -891,13 +916,12 @@ def form_schema():
         event_cmd.add_form_schema(
             event_id=event_id,
             event_form_schema=event_form_schema,
-            current_time=datetime.now(),
-            uow=uow
+            current_time=datetime.now() + timedelta(hours=5),
+            uow=uow,
         )
         uow.commit_close_connection()
 
-    except (event_mdl_exc.DuplicateFormSchema,
-            event_mdl_exc.RegistrationStarted) as e:
+    except (event_mdl_exc.DuplicateFormSchema, event_mdl_exc.RegistrationStarted) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -905,9 +929,4 @@ def form_schema():
         uow.close_connection()
         raise e
 
-    return utils.Response(
-        message='Schema attached successfully',
-        status_code=200,
-        data={}
-    ).__dict__
-
+    return utils.Response(message="Schema attached successfully", status_code=200, data={}).__dict__

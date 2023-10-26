@@ -1,10 +1,11 @@
-import pytest
-from core.event.domain import model as mdl
-from core.event.entrypoint import commands as cmd
-from core.event.entrypoint import anti_corruption as acl
-from core.entrypoint.uow import AbstractUnitOfWork
 from datetime import datetime, timedelta
 from uuid import uuid4
+
+import pytest
+from core.entrypoint.uow import AbstractUnitOfWork
+from core.event.domain import model as mdl
+from core.event.entrypoint import anti_corruption as acl
+from core.event.entrypoint import commands as cmd
 
 # valid event timestamps
 REGISTRATION_START = datetime.now() + timedelta(minutes=1)
@@ -43,7 +44,7 @@ def seed_event():
             event_start_timestamp=event_start_timestamp,
             event_end_timestamp=event_end_timestamp,
             registration_fee=registration_fee,
-            event_form_schema={"fields":[]}
+            event_form_schema={"fields": []},
         )
 
     return _seed_event
@@ -98,7 +99,8 @@ def seed_registration():
             user_id=str(uuid4()),
             qr_id=str(uuid4()),
             attendance_status=mdl.EventAttendanceStatus.UN_ATTENDED,
-            event_form_data={}
+            event_form_data={},
+            paypro_id="",
         )
 
     return _seed_registration

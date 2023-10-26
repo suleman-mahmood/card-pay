@@ -1,8 +1,20 @@
+from datetime import datetime, timedelta
+from uuid import uuid4
+
 from core.api import schemas as sch
 from core.api import utils
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint.uow import UnitOfWork
+from core.event.adapters import exceptions as event_repo_exc
+from core.event.domain import exceptions as event_mdl_exc
+from core.event.domain import model as event_mdl
+from core.event.entrypoint import commands as event_cmd
+from core.event.entrypoint import queries as event_qry
+from core.payment.domain import model as pmt_mdl
+from core.payment.entrypoint import anti_corruption as pmt_acl
+from core.payment.entrypoint import commands as pmt_cmd
+from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import queries as pmt_qry
 from flask import Blueprint, request
 from flask_cors import CORS, cross_origin
@@ -97,17 +109,72 @@ def get_vendor(uid):
 
 
 @vendor_app.route("/get-live-events", methods=["GET"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.EVENT_ORGANIZER])
-@utils.user_verified
-def get_live_events(uid):
-    raise utils.CustomException("Not implemented")
+def get_live_events():
+    closed_loop_id = request.args.get("closed_loop_id")
     uow = UnitOfWork()
 
     try:
+        events = event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
         uow.close_connection()
 
-    except () as e:
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message="All live events returned successfully", status_code=200, data=events
+    ).__dict__
+
+
+@vendor_app.route("/register-event", methods=["POST"])
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "event_id": sch.UuidSchema,
+        "event_form_data": sch.EventFormDataSchema,
+        "full_name": sch.StringSchema,
+        "phone_number": sch.StringSchema,  # +923333462677
+        "email": sch.EmailSchema,
+    }
+)
+def register_event():
+    req = request.get_json(force=True)
+    qr_id = str(uuid4())
+    uow = UnitOfWork()
+
+    try:
+        event = uow.events.get(event_id=req["event_id"])
+
+        checkout_url, paypro_id = pmt_cmd.create_any_deposit_request(
+            tx_id=str(uuid4()),
+            user_id=event.organizer_id,
+            amount=event.registration_fee,
+            full_name=req["full_name"],
+            phone_number=req["phone_number"],
+            email=req["email"],
+            uow=uow,
+            auth_svc=pmt_acl.AuthenticationService(),
+            pp_svc=pmt_acl.PayproService(),
+        )
+        event_cmd.register_user_open_loop(
+            event_id=req["event_id"],
+            qr_id=qr_id,
+            current_time=datetime.now() + timedelta(hours=5),
+            event_form_data=event_mdl.Registration.from_json_to_form_data(req["event_form_data"]),
+            paypro_id=paypro_id,
+            uow=uow,
+        )
+        uow.commit_close_connection()
+
+    except (
+        event_mdl_exc.EventNotApproved,
+        event_mdl_exc.RegistrationEnded,
+        event_mdl_exc.UserInvalidClosedLoop,
+        event_mdl_exc.EventCapacityExceeded,
+        event_mdl_exc.RegistrationAlreadyExists,
+        pmt_svc_ex.PaymentUrlNotFoundException,
+        pmt_svc_ex.PayProsCreateOrderTimedOut,
+        pmt_svc_ex.PayProsGetAuthTokenTimedOut,
+    ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 
@@ -115,7 +182,11 @@ def get_live_events(uid):
         uow.close_connection()
         raise e
 
-    return utils.Response(message="", status_code=200, data={}).__dict__
+    return utils.Response(
+        message="User successfully registered for the event",
+        status_code=200,
+        data={"checkout_url": checkout_url},
+    ).__dict__
 
 
 @vendor_app.route("/mark-entry-event-attendance", methods=["POST"])
@@ -126,13 +197,26 @@ def get_live_events(uid):
     required_parameters={"event_id": sch.UuidSchema, "qr_id": sch.UuidSchema}
 )
 def mark_entry_event_attendance(uid):
-    raise utils.CustomException("Not implemented")
+    req = request.get_json(force=True)
     uow = UnitOfWork()
 
     try:
-        uow.close_connection()
+        event_cmd.mark_attendance(
+            event_id=req["event_id"],
+            user_id=uid,
+            current_time=datetime.now() + timedelta(hours=5),
+            uow=uow,
+        )
+        uow.commit_close_connection()
 
-    except () as e:
+    except (
+        event_repo_exc.EventNotFound,
+        event_mdl_exc.EventNotApproved,
+        event_mdl_exc.AttendancePostEventException,
+        event_mdl_exc.EventRegistrationNotStarted,
+        event_mdl_exc.RegistrationDoesNotExist,
+        event_mdl_exc.UserIsAlreadyMarkedPresent,
+    ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
 

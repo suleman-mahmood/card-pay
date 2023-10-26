@@ -74,7 +74,7 @@ def test_get_live_events(seed_verified_auth_event_organizer, seed_event_cmd):
         registration_start_timestamp=event.registration_start_timestamp,
         registration_end_timestamp=event.registration_end_timestamp,
         registration_fee=event.registration_fee,
-        event_form_schema={"fields":[]},
+        event_form_schema={"fields": []},
         qr_id=None,
     )
 
@@ -121,24 +121,17 @@ def test_get_registered_events(
     assert len(events) == 0
 
     event_form_data = [
-            mdl.EventFormDataItem(
-                question="What is your name?",
-                answer="Khuzaima"
-            ),
-            mdl.EventFormDataItem(
-                question="What is your age?",
-                answer=21
-            )
-        ]
+        mdl.EventFormDataItem(question="What is your name?", answer="Khuzaima"),
+        mdl.EventFormDataItem(question="What is your age?", answer=21),
+    ]
 
-
-    cmd.register_user(
+    cmd.register_user_closed_loop(
         event_id=event.id,
         qr_id=str(uuid4()),
         user_id=user.id,
         users_closed_loop_ids=[closed_loop_id],
         current_time=datetime.now() + timedelta(minutes=1.5),
-        event_form_data={"fields":event_form_data},
+        event_form_data={"fields": event_form_data},
         uow=uow,
     )
 
@@ -166,6 +159,6 @@ def test_get_registered_events(
         registration_start_timestamp=event.registration_start_timestamp,
         registration_end_timestamp=event.registration_end_timestamp,
         registration_fee=event.registration_fee,
-        event_form_schema={"fields":[]},
+        event_form_schema={"fields": []},
         qr_id=event.registrations[user.id].qr_id,
     )

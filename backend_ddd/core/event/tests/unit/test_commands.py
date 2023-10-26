@@ -95,46 +95,38 @@ def test_update(seed_event):
     assert fetched_event == event
 
 
-def test_register_user(seed_event):
+def test_register_user_closed_loop(seed_event):
     uow = FakeUnitOfWork()
 
     user_id = str(uuid4())
     qr_id = str(uuid4())
     closed_loop_id = str(uuid4())
 
-    event = seed_event_cmd(
-        seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow
-    )
+    event = seed_event_cmd(seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow)
 
     event_form_data = [
-            event_mdl.EventFormDataItem(
-                question="What is your name?",
-                answer="Khuzaima"
-            ),
-            event_mdl.EventFormDataItem(
-                question="What is your age?",
-                answer=21
-            )
-        ]    
+        event_mdl.EventFormDataItem(question="What is your name?", answer="Khuzaima"),
+        event_mdl.EventFormDataItem(question="What is your age?", answer=21),
+    ]
 
     with pytest.raises(event_mdl_ex.EventNotApproved):
-        event_cmd.register_user(
+        event_cmd.register_user_closed_loop(
             event_id=event.id,
             qr_id=qr_id,
             user_id=user_id,
             users_closed_loop_ids=[closed_loop_id],
-            event_form_data={"fields":event_form_data},
+            event_form_data={"fields": event_form_data},
             current_time=datetime.now(),
             uow=uow,
         )
 
     event_cmd.publish(event_id=event.id, uow=uow)
-    event_cmd.register_user(
+    event_cmd.register_user_closed_loop(
         event_id=event.id,
         qr_id=qr_id,
         user_id=user_id,
         users_closed_loop_ids=[closed_loop_id],
-        event_form_data={"fields":event_form_data},
+        event_form_data={"fields": event_form_data},
         current_time=REGISTRATION_START,
         uow=uow,
     )
@@ -145,7 +137,42 @@ def test_register_user(seed_event):
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
-            event_form_data={"fields":event_form_data}
+            event_form_data={"fields": event_form_data},
+            paypro_id=None,
+        )
+    }
+
+
+def test_register_user_open_loop(seed_event):
+    uow = FakeUnitOfWork()
+
+    qr_id = str(uuid4())
+
+    event = seed_event_cmd(seed_event=seed_event, closed_loop_id="", uow=uow)
+
+    event_form_data = [
+        event_mdl.EventFormDataItem(question="What is your name?", answer="Khuzaima"),
+        event_mdl.EventFormDataItem(question="What is your age?", answer=21),
+    ]
+
+    event_cmd.publish(event_id=event.id, uow=uow)
+    event_cmd.register_user_open_loop(
+        event_id=event.id,
+        qr_id=qr_id,
+        event_form_data={"fields": event_form_data},
+        current_time=REGISTRATION_START,
+        uow=uow,
+        paypro_id="",
+    )
+    fetched_event = uow.events.get(event_id=event.id)
+
+    assert fetched_event.registrations == {
+        qr_id: event_mdl.Registration(
+            qr_id=qr_id,
+            user_id=qr_id,
+            attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
+            event_form_data={"fields": event_form_data},
+            paypro_id="",
         )
     }
 
@@ -157,17 +184,15 @@ def test_mark_attendance(seed_event):
     qr_id = str(uuid4())
     closed_loop_id = str(uuid4())
 
-    event = seed_event_cmd(
-        seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow
-    )
+    event = seed_event_cmd(seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow)
 
     event_cmd.publish(event_id=event.id, uow=uow)
-    event_cmd.register_user(
+    event_cmd.register_user_closed_loop(
         event_id=event.id,
         qr_id=qr_id,
         user_id=user_id,
         users_closed_loop_ids=[closed_loop_id],
-        event_form_data={"fields":[]},
+        event_form_data={"fields": []},
         current_time=REGISTRATION_START,
         uow=uow,
     )
@@ -178,7 +203,8 @@ def test_mark_attendance(seed_event):
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
-            event_form_data={"fields":[]}
+            event_form_data={"fields": []},
+            paypro_id=None,
         )
     }
     event_cmd.mark_attendance(
@@ -194,7 +220,8 @@ def test_mark_attendance(seed_event):
             qr_id=qr_id,
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.ATTENDED,
-            event_form_data={"fields":[]}
+            event_form_data={"fields": []},
+            paypro_id=None,
         )
     }
 
@@ -204,9 +231,7 @@ def test_cancel(seed_event):
 
     closed_loop_id = str(uuid4())
 
-    event = seed_event_cmd(
-        seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow
-    )
+    event = seed_event_cmd(seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow)
 
     with pytest.raises(event_mdl_ex.EventNotApproved):
         event_cmd.cancel(
@@ -227,14 +252,13 @@ def test_cancel(seed_event):
     fetched_event = uow.events.get(event_id=event.id)
     assert fetched_event.status == event_mdl.EventStatus.CANCELLED
 
+
 def test_add_form_schema(seed_event):
     uow = FakeUnitOfWork()
 
     closed_loop_id = str(uuid4())
 
-    event = seed_event_cmd(
-        seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow
-    )
+    event = seed_event_cmd(seed_event=seed_event, closed_loop_id=closed_loop_id, uow=uow)
 
     event_cmd.publish(event_id=event.id, uow=uow)
 
@@ -242,52 +266,36 @@ def test_add_form_schema(seed_event):
     fetched_event = copy.deepcopy(uow.events.get(event_id=event.id))
     assert fetched_event == event
 
-    event.event_form_schema = {"fields": [
+    event.event_form_schema = {
+        "fields": [
             event_mdl.EventFormSchemaItem(
                 question="What is your name?",
                 type=event_mdl.QuestionType.INPUT_STR,
                 validation=[
-                    event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.REQUIRED,
-                        value=True
-                    ),
-                    event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.MIN_LENGTH,
-                        value=10
-                    ),
-                    event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.MAX_LENGTH,
-                        value=25
-                    )
+                    event_mdl.ValidationRule(type=event_mdl.ValidationEnum.REQUIRED, value=True),
+                    event_mdl.ValidationRule(type=event_mdl.ValidationEnum.MIN_LENGTH, value=10),
+                    event_mdl.ValidationRule(type=event_mdl.ValidationEnum.MAX_LENGTH, value=25),
                 ],
-                options=[]
+                options=[],
             ),
             event_mdl.EventFormSchemaItem(
                 question="What is your name?",
                 type=event_mdl.QuestionType.INPUT_STR,
                 validation=[
-                    event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.REQUIRED,
-                        value=True
-                    ),
-                    event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.MIN_LENGTH,
-                        value=10
-                    ),
-                    event_mdl.ValidationRule(
-                        type=event_mdl.ValidationEnum.MAX_LENGTH,
-                        value=25
-                    )
+                    event_mdl.ValidationRule(type=event_mdl.ValidationEnum.REQUIRED, value=True),
+                    event_mdl.ValidationRule(type=event_mdl.ValidationEnum.MIN_LENGTH, value=10),
+                    event_mdl.ValidationRule(type=event_mdl.ValidationEnum.MAX_LENGTH, value=25),
                 ],
-                options=[]
-            )
-        ]}
+                options=[],
+            ),
+        ]
+    }
 
     event_cmd.add_form_schema(
         event_id=event.id,
         event_form_schema=event.event_form_schema,
         current_time=REGISTRATION_START - timedelta(minutes=1),
-        uow=uow
+        uow=uow,
     )
 
     fetched_event = uow.events.get(event_id=event.id)
@@ -295,12 +303,8 @@ def test_add_form_schema(seed_event):
 
     with pytest.raises(event_mdl.ex.RegistrationStarted):
         event_cmd.add_form_schema(
-        event_id=event.id,
-        event_form_schema=event.event_form_schema,
-        current_time=REGISTRATION_START + timedelta(minutes=1),
-        uow=uow
-    )
-
-
-
-
+            event_id=event.id,
+            event_form_schema=event.event_form_schema,
+            current_time=REGISTRATION_START + timedelta(minutes=1),
+            uow=uow,
+        )

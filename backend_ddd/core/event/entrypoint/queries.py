@@ -8,7 +8,7 @@ from core.event.entrypoint import view_models as event_vm
 def get_live_events(
     closed_loop_id: str,
     uow: AbstractUnitOfWork,
-):
+) -> List[event_vm.EventDTO]:
     sql = """
         select
             e.id,
@@ -44,7 +44,7 @@ def get_live_events(
 def get_registered_events(
     user_id: str,
     uow: AbstractUnitOfWork,
-):
+) -> List[event_vm.EventDTO]:
     sql = """
         select
             e.id,

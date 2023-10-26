@@ -52,7 +52,7 @@ def create(
         registration_start_timestamp=registration_start_timestamp,
         registration_end_timestamp=registration_end_timestamp,
         registration_fee=registration_fee,
-        event_form_schema={"fields":[]}
+        event_form_schema={"fields": []},
     )
     uow.events.add(event)
 
@@ -96,23 +96,40 @@ def update(
     uow.events.save(event=event)
 
 
-def register_user(
+def register_user_closed_loop(
     event_id: str,
     qr_id: str,
     user_id,
     users_closed_loop_ids: List[str],
     current_time: datetime,
-    event_form_data: Dict[str,List[mdl.EventFormDataItem]],
+    event_form_data: Dict[str, List[mdl.EventFormDataItem]],
     uow: AbstractUnitOfWork,
 ):
     event = uow.events.get(event_id=event_id)
-    event.register_user(
+    event.register_user_closed_loop(
         qr_id=qr_id,
         user_id=user_id,
         users_closed_loop_ids=users_closed_loop_ids,
         current_time=current_time,
-        event_form_data=event_form_data
+        event_form_data=event_form_data,
+    )
+    uow.events.save(event=event)
 
+
+def register_user_open_loop(
+    event_id: str,
+    qr_id: str,
+    current_time: datetime,
+    event_form_data: Dict[str, List[mdl.EventFormDataItem]],
+    paypro_id: str,
+    uow: AbstractUnitOfWork,
+):
+    event = uow.events.get(event_id=event_id)
+    event.register_user_open_loop(
+        qr_id=qr_id,
+        current_time=current_time,
+        event_form_data=event_form_data,
+        paypro_id=paypro_id,
     )
     uow.events.save(event=event)
 
@@ -144,16 +161,13 @@ def cancel(
     )
     uow.events.save(event=event)
 
+
 def add_form_schema(
     event_id: str,
-    event_form_schema: Dict[str,List[mdl.EventFormSchemaItem]],
+    event_form_schema: Dict[str, List[mdl.EventFormSchemaItem]],
     current_time: datetime,
-    uow: AbstractUnitOfWork
+    uow: AbstractUnitOfWork,
 ):
     event = uow.events.get(event_id=event_id)
-    event.upsert_form_schema(
-        event_form_schema=event_form_schema,
-        current_time=current_time
-    )
+    event.upsert_form_schema(event_form_schema=event_form_schema, current_time=current_time)
     uow.events.save(event=event)
-
