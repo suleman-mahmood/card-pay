@@ -1320,12 +1320,13 @@ def register_event(uid):
     try:
         user = uow.users.get(user_id=uid)
         event = uow.events.get(event_id=req["event_id"])
+        event_form_data = req["event_form_data"] if "event_form_data" in req else {"fields": []}
 
         event_cmd.register_user_closed_loop(
             event_id=req["event_id"],
             qr_id=str(uuid4()),
             current_time=datetime.now() + timedelta(hours=5),
-            event_form_data=event_mdl.Registration.from_json_to_form_data(req["event_form_data"]),
+            event_form_data=event_mdl.Registration.from_json_to_form_data(event_form_data),
             uow=uow,
             user_id=uid,
             users_closed_loop_ids=list(user.closed_loops.keys()),
