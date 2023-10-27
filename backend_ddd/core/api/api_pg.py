@@ -135,12 +135,30 @@ def pay_pro_callback():
             comms_cmd.send_notification(
                 user_id=tx.recipient_wallet.id,
                 title="Deposit success!",
-                body=f"${tx.amount} was deposited in your CardPay account",
+                body=f"{tx.amount} was deposited in your CardPay account",
                 uow=uow,
                 comms_svc=comms_acl.CommunicationService(),
             )
-        except comms_svc_ex.FcmTokenNotFound:
-            pass
+        except comms_svc_ex.FcmTokenNotFound as e:
+            logging.info(
+                {
+                    "message": "Pay Pro | Can't send notification | Custom exception raised",
+                    "exception_type": e.__class__.__name__,
+                    "exception_message": str(e),
+                    "json_request": req,
+                    "silent": True,
+                },
+            )
+        except Exception as e:
+            logging.info(
+                {
+                    "message": "Pay Pro | Can't send notification | Unhandled exception raised",
+                    "exception_type": 500,
+                    "exception_message": str(e),
+                    "json_request": req,
+                    "silent": True,
+                },
+            )
 
     res = []
     for invoice_id in success_invoice_ids:

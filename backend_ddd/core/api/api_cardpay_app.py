@@ -568,21 +568,6 @@ def execute_p2p_push_transaction(uid):
             auth_svc=pmt_acl.AuthenticationService(),
             pmt_svc=pmt_acl.PaymentService(),
         )
-
-        # Send notification
-        recipient_wallet_id = pmt_qry.get_wallet_id_from_unique_identifier_and_closed_loop_id(
-            unique_identifier=req["recipient_unique_identifier"],
-            closed_loop_id=req["closed_loop_id"],
-            uow=uow,
-        )
-        sender = uow.users.get(user_id=uid)
-        comms_cmd.send_notification(
-            user_id=recipient_wallet_id,
-            title="Recieved transfer",
-            body=f"${req['amount']} received from ${sender.full_name}",
-            uow=uow,
-            comms_svc=comms_acl.CommunicationService(),
-        )
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
@@ -619,20 +604,6 @@ def execute_p2p_push_transaction(uid):
         )
         raise utils.CustomException(str(e))
 
-    except comms_svc_ex.FcmTokenNotFound as e:
-        uow.commit_close_connection()
-        logging.info(
-            {
-                "message": "Custom exception raised",
-                "endpoint": "/execute-p2p-push-transaction",
-                "invoked_by": "cardpay_app",
-                "exception_type": e.__class__.__name__,
-                "exception_message": str(e),
-                "json_request": req,
-                "silent": True,
-            },
-        )
-
     except (
         Exception,
         AssertionError,
@@ -649,6 +620,50 @@ def execute_p2p_push_transaction(uid):
             },
         )
         raise e
+
+    # Send notification
+    uow = UnitOfWork()
+    try:
+        recipient_wallet_id = pmt_qry.get_wallet_id_from_unique_identifier_and_closed_loop_id(
+            unique_identifier=req["recipient_unique_identifier"],
+            closed_loop_id=req["closed_loop_id"],
+            uow=uow,
+        )
+        sender = uow.users.get(user_id=uid)
+        comms_cmd.send_notification(
+            user_id=recipient_wallet_id,
+            title="Recieved transfer",
+            body=f"{req['amount']} received from {sender.full_name}",
+            uow=uow,
+            comms_svc=comms_acl.CommunicationService(),
+        )
+        uow.close_connection()
+    except comms_svc_ex.FcmTokenNotFound as e:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "/execute-p2p-push-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+                "silent": True,
+            },
+        )
+    except Exception as e:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "Unhandled exception raised",
+                "endpoint": "/execute-p2p-push-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+                "silent": True,
+            },
+        )
 
     return utils.Response(
         message="p2p push transaction executed successfully",

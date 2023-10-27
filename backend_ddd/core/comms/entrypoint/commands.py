@@ -1,15 +1,16 @@
-import smtplib
 import os
-import requests
-
+import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from dotenv import load_dotenv
 from json import dumps
-from core.entrypoint.uow import AbstractUnitOfWork
-from core.comms.entrypoint import anti_corruption as acl
-import firebase_admin
 from typing import Dict
+
+import firebase_admin
+import requests
+from core.comms.entrypoint import anti_corruption as acl
+from core.entrypoint.uow import AbstractUnitOfWork
+from dotenv import load_dotenv
+from firebase_admin import messaging
 
 load_dotenv()
 
@@ -97,15 +98,16 @@ def set_fcm_token(
 
 
 def _send_notification_firebase(
-    notification_data: Dict[str, str],
     fcm_token: str,
+    title: str,
+    body: str,
 ):
-    message = firebase_admin.messaging.Message(
-        data=notification_data,
+    msg = messaging.Message(
+        notification=messaging.Notification(title=title, body=body),
         token=fcm_token,
     )
 
-    firebase_admin.messaging.send(message)
+    messaging.send(msg)
 
 
 def send_notification(
@@ -118,12 +120,8 @@ def send_notification(
     """Send notification"""
     fcm_token = comms_svc.get_fcm_token(user_id=user_id, uow=uow)
 
-    notification_data = {
-        "title": title,
-        "body": body,
-    }
-
     _send_notification_firebase(
-        notification_data=notification_data,
+        title=title,
+        body=body,
         fcm_token=fcm_token,
     )

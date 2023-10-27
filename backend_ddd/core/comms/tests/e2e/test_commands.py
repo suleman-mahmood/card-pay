@@ -1,23 +1,22 @@
-import requests
 import json
 import os
+from json import dumps
 from uuid import uuid4
 
-from dotenv import load_dotenv
-from json import dumps
-
 import pytest
-from core.comms.entrypoint import commands as comms_cmd
+import requests
 from core.comms.entrypoint import anti_corruption as acl
-from core.entrypoint.uow import FakeUnitOfWork, UnitOfWork
+from core.comms.entrypoint import commands as comms_cmd
 from core.comms.entrypoint import exceptions as comms_svc_ex
+from core.entrypoint.uow import FakeUnitOfWork, UnitOfWork
+from dotenv import load_dotenv
+from firebase_admin import messaging
+
 
 def test_send_notification(mocker):
     uow = FakeUnitOfWork()
     auth_svc = acl.FakeCommunicationService()
-    mocker.patch(
-        "core.comms.entrypoint.commands._send_notification_firebase", return_value=None
-    )
+    mocker.patch("core.comms.entrypoint.commands._send_notification_firebase", return_value=None)
     comms_cmd.send_notification(
         user_id="1",
         title="Test",
@@ -25,6 +24,7 @@ def test_send_notification(mocker):
         uow=uow,
         comms_svc=auth_svc,
     )
+
 
 def test_set_fcm_token(seed_verified_auth_user):
     uow = UnitOfWork()
@@ -44,15 +44,13 @@ def test_set_fcm_token(seed_verified_auth_user):
     fetched_fcm_token = uow.dict_cursor.fetchone()["fcm_token"]
 
     assert fetched_fcm_token == fcm_token
-    
+
+
 def test_send_notification_missing_fcm_token(mocker):
-    
     user_id = str(uuid4())
     uow = UnitOfWork()
-    mocker.patch(
-        "core.comms.entrypoint.commands._send_notification_firebase", return_value=None
-    )
-    
+    mocker.patch("core.comms.entrypoint.commands._send_notification_firebase", return_value=None)
+
     with pytest.raises(comms_svc_ex.FcmTokenNotFound):
         comms_cmd.send_notification(
             user_id=user_id,
@@ -61,6 +59,16 @@ def test_send_notification_missing_fcm_token(mocker):
             uow=uow,
             comms_svc=acl.CommunicationService(),
         )
+
+
+# def test_send_notification_real():
+#     msg = messaging.Message(
+#         notification=messaging.Notification(title="Notif title", body="Notif body"),
+#         token="dPNxmPAdRVajGDbZH7x2om:APA91bG1bGo4DFbz2vaucekhtjzEpgaFMyCwt0Q-xGIbXFapjn5Uwd9HeVHNBhytnY0a6MQl-Gje4ntOnbyrNljsfFnQYBdAx9PqgNu0hSiXl0f7E2_gzWonnMbWKTjCTz7oL6KDlcJ0",
+#     )
+
+#     messaging.send(msg)
+
 
 # load_dotenv()
 # from core.comms.entrypoint import commands
