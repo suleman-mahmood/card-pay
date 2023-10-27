@@ -6,6 +6,7 @@ import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_event_request.dart';
+import 'package:cardpay/src/domain/models/requests/set_fcm_token_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/responses/change_pin_response.dart';
@@ -23,6 +24,7 @@ import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_event_response.dart';
+import 'package:cardpay/src/domain/models/responses/set_fcm_token_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
@@ -111,10 +113,12 @@ abstract class PythonApiService {
     @Body() CreateP2PPullTransactionRequest? createP2PPullTransactionRequest,
     @Header("Authorization") String? token,
   });
+
   @GET('/get-user-checkpoints')
   Future<HttpResponse<GetCheckpointsResponse>> getCheckpoints({
     @Header("Authorization") String? token,
   });
+
   @GET('/get-latest-force-update-version')
   Future<HttpResponse<GetVersionsResponse>> getVersions();
 
@@ -123,6 +127,12 @@ abstract class PythonApiService {
     @Query("unique_identifier") required String uniqueIdentifier,
     @Query("closed_loop_id") required String closedLoopId,
     @Header("Authorization") required String token,
+  });
+
+  @POST('/set-fcm-token')
+  Future<HttpResponse<SetFcmTokenResponse>> setFcmToken({
+    @Body() SetFcmTokenRequest? request,
+    @Header("Authorization") String? token,
   });
 
   // Events

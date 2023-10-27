@@ -7,6 +7,7 @@ import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_event_request.dart';
+import 'package:cardpay/src/domain/models/requests/set_fcm_token_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/responses/change_pin_response.dart';
@@ -24,6 +25,7 @@ import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/register_event_response.dart';
+import 'package:cardpay/src/domain/models/responses/set_fcm_token_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.dart';
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
@@ -210,6 +212,19 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
               closedLoopId: closedLoopId,
               token: 'Bearer $token',
             ));
+  }
+
+  @override
+  Future<DataState<SetFcmTokenResponse>> setFcmToken({
+    required SetFcmTokenRequest request,
+    required String token,
+  }) {
+    return getStateOf<SetFcmTokenResponse>(
+      request: () => _pythonApiService.setFcmToken(
+        request: request,
+        token: 'Bearer $token',
+      ),
+    );
   }
 
   // Events

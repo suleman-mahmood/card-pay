@@ -37,6 +37,7 @@ dependencies:
   package_info_plus: ^4.1.0
   dio_smart_retry: ^5.0.0
   qr_flutter: ^4.1.0
+  firebase_messaging: ^14.7.2
 
 dev_dependencies:
   flutter_test:
