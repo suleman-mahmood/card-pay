@@ -1,6 +1,9 @@
 import logging
 import os
 
+from core.comms.entrypoint import anti_corruption as comms_acl
+from core.comms.entrypoint import commands as comms_cmd
+from core.comms.entrypoint import exceptions as comms_svc_ex
 from core.entrypoint.uow import UnitOfWork
 from core.marketing.entrypoint import queries as mktg_qry
 from core.marketing.entrypoint import services as mktg_svc
@@ -123,6 +126,20 @@ def pay_pro_callback():
                 uow=uow,
             )
         except pmt_svc_ex.TransactionFailedException:
+            pass
+
+    # Send notifications
+    for tx_id in success_invoice_ids:
+        tx = uow.transactions.get(transaction_id=tx_id)
+        try:
+            comms_cmd.send_notification(
+                user_id=tx.recipient_wallet.id,
+                title="Deposit success!",
+                body=f"${tx.amount} was deposited in your CardPay account",
+                uow=uow,
+                comms_svc=comms_acl.CommunicationService(),
+            )
+        except comms_svc_ex.FcmTokenNotFound:
             pass
 
     res = []
