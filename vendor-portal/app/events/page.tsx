@@ -1,11 +1,17 @@
 "use client";
 /* eslint-disable */
-
 import React from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createWatchCompilerHost, isConstructorDeclaration } from "@/node_modules/typescript/lib/typescript";
-import { isMapIterator } from "util/types";
+import { User as FirebaseUser } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../services/initialize-firebase";
+import LoadingOverlay from "./spinner";
+import { useSearchParams } from 'next/navigation'
+
+const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
+const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
+const BASE_URL = BASE_URL_PROD;
 
 enum EventStatus {
     DRAFT,
@@ -64,105 +70,169 @@ interface Event {
 }
 
 export default function page() {
-    const [events, setEvents] = useState<Event[]>([
-        {
-            id: "",
-            status: EventStatus.APPROVED,
-            cancellation_reason: "",
-            name: "some event",
-            organizer_name: "",
-            venue: "",
-            capacity: 50,
-            description: "",
-            image_url: "",
-            closed_loop_id: "",
-            event_start_timestamp: "",
-            event_end_timestamp: "",
-            registration_start_timestamp: "",
-            registration_end_timestamp: "",
-            registration_fee: 50,
-            qr_id: "",
-            event_form_schema: {
-                "fields": [
-                    {
-                        question: "Enter your name?",
-                        options: [],
-                        type: QuestionType.INPUT_STR,
-                        validation: [
-                            {
-                                type: ValidationEnum.MIN_LENGTH,
-                                value: 5
-                            },
-                            {
-                                type: ValidationEnum.REQUIRED,
-                                value: true
-                            },
-                            {
-                                type: ValidationEnum.MAX_LENGTH,
-                                value: 25
-                            }
-                        ],
-                    },
-                    {
-                        question: "Choose batch",
-                        options: ["23", "24", "25"],
-                        type: QuestionType.DROPDOWN,
-                        validation: [],
-                    },
-                    {
-                        question: "Age?",
-                        options: [],
-                        type: QuestionType.INPUT_INT,
-                        validation: [],
-                    },
-                    {
-                        question: "Average car milage??",
-                        options: [],
-                        type: QuestionType.INPUT_FLOAT,
-                        validation: [],
-                    },
-                    {
-                        question: "Hobbies?",
-                        options: ["Cricket", "Football", "E-gaming"],
-                        type: QuestionType.MULTIPLE_CHOICE,
-                        validation: [],
-                    }
-                ]
-            }
-        }
-    ]);
+    const router = useRouter();
+    const searchParams = useSearchParams()
+    const [events, setEvents] = useState<Event[]>([]);
+    const [user, setUser] = useState<FirebaseUser | null>(null);
     const [selectedEvent, setSelectedEvent] = useState<Event>();
-    const [formResponses, setFormResponses] = useState<any[]>([]);
-    const [checkedOptions, setCheckedOptions] = useState<string[]>([]);
+    const [formResponses, setFormResponses] = useState([]);
+    const [checkedOptions, setCheckedOptions]: any = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [isLoadingSpinner, setIsLoadingSpinner] = useState(true);
+    const [showPopup, setShowPopup] = useState(false);
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
+    const [email, setEmail] = useState('');
+    const [isValidEmail, setIsValidEmail] = useState(false);
 
-    const submitForm = () => {
-        // let formattedResponses = formResponses.filter((response) => response !== undefined);
-        // formattedResponses = { fields: [formattedResponses] }
-        // console.log(formattedResponses);
-        window.location.href = "https://marketplace.paypro.com.pk/pyb?bid=MTIzNTIzMjA3MDAwMDE%3d";
+    useEffect(() => {
+        fetchEvents();
+    }, []);
+
+    const SearchBar = () => {
+        const search = searchParams.get('event_id')
+        return search;
+    }
+
+    const toggleDropdown = () => {
+        setIsOpen(!isOpen);
     };
 
-    const buildInput = (schemaItem: EventFormSchemaItem, index: number) => {
-        const handleInputChange = (e: any, option?: string) => {
+    const fetchEvents = async () => {
+        fetch(
+            `${BASE_URL}/api/v1/vendor-app/get-live-events?closed_loop_id=${'2456ce60-7b0a-4369-a392-2400653dbdaf'}`,
+            {
+                method: "GET",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        )
+            .then(async (response) => {
+                if (!response.ok) {
+                    const res = await response.json()
+                    setPopupMessage(res.message);
+                    throw new Error(`HTTP Error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                data.data.map((item: any) => {
+                    if (item.id === SearchBar()) {
+                        item.event_form_schema["fields"].map((item: any) => {
+                            if (item.type === 'INPUT_STR') {
+                                item.type = QuestionType.INPUT_STR
+                            }
+                            else if (item.type === 'INPUT_INT') {
+                                item.type = QuestionType.INPUT_INT
+                            }
+                            else if (item.type === 'INPUT_FLOAT') {
+                                item.type = QuestionType.INPUT_FLOAT
+                            }
+                            else if (item.type === 'MULTIPLE_CHOICE') {
+                                item.type = QuestionType.MULTIPLE_CHOICE
+                            }
+                            else {
+                                item.type = QuestionType.DROPDOWN
+                            }
+                        })
+                        setSelectedEvent(item)
+                    }
+                })
+                setIsLoadingSpinner(false);
+            })
+            .catch((error) => {
+                setIsLoadingSpinner(false);
+                (document.getElementById('my_modal_1') as any).showModal()
+            });
+    };
+
+    const sendFormData = async (user: any, formData: any, eventId: any) => {
+        try {
+            const response = await fetch(`${BASE_URL}/api/v1/vendor-app/register-event`, {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    event_id: eventId,
+                    event_form_data: formData,
+                    full_name: formData.fields[0].answer,
+                    phone_number: formData.fields[1].answer,
+                    email: formData.fields[2].answer,
+                }),
+            });
+
+            if (!response.ok) {
+                const res = await response.json();
+                setPopupMessage(res.message);
+                setIsLoadingSpinner(false);
+                throw new Error(`HTTP Error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setPopupMessage(data.message + '.' + '\n' + 'Redirecting to payment invoice.');
+            setIsLoadingSpinner(false);
+            (document.getElementById('my_modal_2') as any).showModal()
+            window.location.href = data.data.checkout_url;
+        } catch (error) {
+            (document.getElementById('my_modal_1') as any).showModal()
+            setIsLoadingSpinner(false);
+        }
+    };
+
+    const submitForm = () => {
+        setIsLoadingSpinner(true);
+        let formattedResponses: any = formResponses.filter((response) => response !== undefined);
+        formattedResponses = { fields: formattedResponses }
+
+        sendFormData(user, formattedResponses, selectedEvent?.id)
+    };
+
+    const buildInput = (schemaItem: EventFormSchemaItem, index: any) => {
+
+        const handleInputChange: any = (e: any, option = null) => {
             let value;
 
             if (schemaItem.type === QuestionType.MULTIPLE_CHOICE) {
-                if (option == null) return;
-                const clickedOption = checkedOptions.indexOf(option);
-                let all = [...checkedOptions];
+                const clickedOption: any = checkedOptions.indexOf(option);
+                let all: any = [...checkedOptions];
                 if (clickedOption === -1) {
-                    all.push(option as never);
+                    all.push(option);
                 } else {
                     all.splice(clickedOption, 1);
                 }
                 setCheckedOptions(all);
-                const all_strings = all.join(",")
-                const updatedResponses = [...formResponses];
-                updatedResponses[index] = { question: schemaItem.question, answer: all_strings };
+                all = all.join(",")
+                const updatedResponses: any = [...formResponses];
+                updatedResponses[index] = { question: schemaItem.question, answer: all };
                 setFormResponses(updatedResponses);
-            } else {
+            }
+            else if (schemaItem.type === QuestionType.INPUT_STR && index === 1) {
                 value = e.target.value;
-                const updatedResponses = [...formResponses];
+                setPhoneNumber(value);
+                const phoneNumberPattern = /^\+92\d{10}$/;
+                setIsValidPhoneNumber(phoneNumberPattern.test(value));
+                const updatedResponses: any = [...formResponses];
+                updatedResponses[index] = { question: schemaItem.question, answer: value };
+                setFormResponses(updatedResponses);
+            }
+            else if (schemaItem.type === QuestionType.INPUT_STR && index === 2) {
+                value = e.target.value;
+                setEmail(value);
+                const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+                setIsValidEmail(emailPattern.test(value));
+                const updatedResponses: any = [...formResponses];
+                updatedResponses[index] = { question: schemaItem.question, answer: value };
+                setFormResponses(updatedResponses);
+            }
+            else {
+                value = e.target.value;
+                const updatedResponses: any = [...formResponses];
                 updatedResponses[index] = { question: schemaItem.question, answer: value };
                 setFormResponses(updatedResponses);
             }
@@ -170,43 +240,59 @@ export default function page() {
         };
 
         if (schemaItem.type === QuestionType.INPUT_STR) {
-            if (schemaItem.validation.length !== 0) {
-                let minLength = undefined;
-                let maxLength = undefined;
-                let required = undefined;
-                schemaItem.validation.map((item) => {
-                    if (item.type === ValidationEnum.REQUIRED && typeof (item.value) === "boolean") {
-                        required = item.value
-                    }
-                    if (item.type === ValidationEnum.MIN_LENGTH) {
-                        minLength = item.value
-                    }
-                    if (item.type === ValidationEnum.MAX_LENGTH) {
-                        maxLength = item.value
-                    }
-                })
+            let minLength = undefined;
+            let maxLength = undefined;
+            let required = undefined;
+            schemaItem.validation.map((item) => {
+                if (item.type === ValidationEnum.REQUIRED && typeof (item.value) === "boolean") {
+                    required = item.value
+                }
+                if (item.type === ValidationEnum.MIN_LENGTH) {
+                    minLength = item.value
+                }
+                if (item.type === ValidationEnum.MAX_LENGTH) {
+                    maxLength = item.value
+                }
+            })
+            if (index === 1) {
                 return (
                     <form>
                         <input
                             type="text"
-                            className="input input-bordered w-full max-w-xs"
+                            className={`input input-bordered w-full max-w-xs`}
                             onChange={handleInputChange}
-                            required={required}
-                            minLength={minLength}
-                            maxLength={maxLength}
+                            placeholder={"+92XXXXXXXXXX"}
                         />
+                        {!isValidPhoneNumber && (
+                            <div className="error-message">Please enter a valid phone number</div>
+                        )}
                     </form>
                 )
             }
-            else {
+            if (index === 2) {
                 return (
+                    <form>
+                        <input
+                            type="text"
+                            className={`input input-bordered w-full max-w-xs`}
+                            onChange={handleInputChange}
+                            placeholder={"coolemail@gmail.com"}
+                        />
+                        {!isValidEmail && (
+                            <div className="error-message">Please enter a valid email.</div>
+                        )}
+                    </form>
+                )
+            }
+            return (
+                <form>
                     <input
                         type="text"
                         className="input input-bordered w-full max-w-xs"
                         onChange={handleInputChange}
                     />
-                )
-            }
+                </form>
+            )
         }
         if (schemaItem.type === QuestionType.INPUT_INT || schemaItem.type === QuestionType.INPUT_FLOAT) {
             return (
@@ -240,18 +326,11 @@ export default function page() {
     }
 
     return <div className="flex min-h-screen flex-col items-center p-2">
-        <h1 className="" >Register event</h1>
-        <details className="dropdown mb-4">
-            <summary className="m-1 btn">Select event</summary>
-            <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-                {
-                    events.map((event, i) => (
-                        <li key={i} onClick={() => setSelectedEvent(event)}><a>Item {event.name}</a></li>
-                    ))
-                }
-            </ul>
-        </details>
-        <h1>Selected event: {selectedEvent?.name}</h1>
+        <h3 className="" >REGISTER EVENT</h3>
+
+        {selectedEvent && (
+            <p><b>EVENT:</b> {selectedEvent.name}</p>
+        )}
 
         {
             selectedEvent?.event_form_schema.fields.map((field, i) => (
@@ -266,8 +345,41 @@ export default function page() {
             ))
         }
 
-        <button className="btn btn-primary" onClick={submitForm}>Submit</button>
+        <button className="m-4 btn bg-white" onClick={submitForm} disabled={!isValidPhoneNumber || !isValidEmail}>Submit</button>
 
+        {isLoadingSpinner && <LoadingOverlay />}
+
+        <dialog id="my_modal_1" className="modal">
+            <div className="modal-box">
+                <h3 className="font-bold text-lg">
+                    <span className="error">
+                        Error
+                    </span>
+                </h3>
+                <p className="py-4 error">{popupMessage}</p>
+                <div className="modal-action">
+                    <form method="dialog">
+                        <button className="btn">Close</button>
+                    </form>
+                </div>
+            </div>
+        </dialog>
+
+        <dialog id="my_modal_2" className="modal">
+            <div className="modal-box">
+                <h3 className="font-bold text-lg">
+                    <span className="success">
+                        Success
+                    </span>
+                </h3>
+                <p className="py-4 success">{popupMessage}</p>
+                <div className="modal-action">
+                    <form method="dialog">
+                        <button className="btn">Close</button>
+                    </form>
+                </div>
+            </div>
+        </dialog>
 
     </div>
 }
