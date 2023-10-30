@@ -213,8 +213,13 @@ def pay_pro_callback(
             success_invoice_ids.append(id)
         except pmt_mdl_ex.TransactionNotFoundException:
             not_found_invoice_ids.append(id)
-        except pmt_mdl_ex.TransactionNotAllowedException:
-            pass
+        except pmt_mdl_ex.TransactionNotAllowedException as e:
+            logging.info(
+                {
+                    "message": "Pay Pro | Callback",
+                    "exception_msg": str(e),
+                },
+            )
 
     return success_invoice_ids, not_found_invoice_ids
 
