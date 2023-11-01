@@ -33,6 +33,7 @@ class TransactionWithIdsDTO:
     last_updated: datetime
     sender_id: str
     recipient_id: str
+    paypro_id: str
     sender_name: str
     recipient_name: str
 
@@ -48,6 +49,7 @@ class TransactionWithIdsDTO:
             last_updated=row["last_updated"],
             sender_id=row["sender_id"],
             recipient_id=row["recipient_id"],
+            paypro_id=row["paypro_id"],
             sender_name=row["sender_name"],
             recipient_name=row["recipient_name"],
         )

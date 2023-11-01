@@ -301,7 +301,10 @@ def execute_qr_transaction(
     if recipient is None:
         raise svc_ex.InvalidQRCodeException("Invalid QR code")
 
-    elif recipient.user_type == auth_mdl.UserType.VENDOR:
+    elif (
+        recipient.user_type == auth_mdl.UserType.VENDOR
+        or recipient.user_type == auth_mdl.UserType.EVENT_ORGANIZER
+    ):
         transaction_type = pmt_mdl.TransactionType.VIRTUAL_POS
 
     elif recipient.user_type == auth_mdl.UserType.CUSTOMER:

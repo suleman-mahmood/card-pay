@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from core.event.domain import model as event_mdl
+from core.payment.domain import model as pmt_mdl
 from psycopg2.extras import DictRow
 
 
@@ -72,4 +73,42 @@ class DraftEventDTO:
         return DraftEventDTO(
             id=row["id"],
             name=row["name"],
+        )
+
+
+@dataclass(frozen=True)
+class RegistrationsDTO:
+    form_data: str
+    attendance_status: str
+    event_name: str
+    created_at: str
+    amount: int
+    status: pmt_mdl.TransactionStatus
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "RegistrationsDTO":
+        return RegistrationsDTO(
+            form_data=row["form_data"],
+            attendance_status=row["attendance_status"],
+            event_name=row["event_name"],
+            amount=row["amount"],
+            status=row["status"],
+            created_at=row["created_at"],
+        )
+
+
+@dataclass(frozen=True)
+class AttendanceDTO:
+    form_data: str
+    attendance_status: str
+    event_name: str
+    registration_fee: int
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "AttendanceDTO":
+        return AttendanceDTO(
+            form_data=row["form_data"],
+            attendance_status=row["attendance_status"],
+            event_name=row["event_name"],
+            registration_fee=row["registration_fee"],
         )

@@ -21,6 +21,7 @@
     "moment": "^2.29.4",
     "next": "13.4.19",
     "postcss": "8.4.29",
+    "qr-scanner": "^1.4.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-type-animation": "^3.1.0",

@@ -109,3 +109,51 @@ def get_draft_events(uow: AbstractUnitOfWork) -> List[event_vm.DraftEventDTO]:
     rows = uow.dict_cursor.fetchall()
 
     return [event_vm.DraftEventDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_registrations(
+    paypro_ids: List[str], uow: AbstractUnitOfWork
+) -> List[event_vm.RegistrationsDTO]:
+    sql = """
+        select
+            r.event_form_data::json->'fields' as form_data,
+            r.attendance_status,
+            e.name as event_name,
+            tx.amount,
+            tx.status,
+            r.created_at
+        from
+            registrations r
+            join events e on e.id = r.event_id
+            join transactions tx on tx.paypro_id = r.paypro_id
+        where
+            r.paypro_id in (select unnest(%(paypro_ids)s::text[]))
+    """
+
+    uow.dict_cursor.execute(sql, {"paypro_ids": paypro_ids})
+    rows = uow.dict_cursor.fetchall()
+
+    return [event_vm.RegistrationsDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_attendance_data(qr_id: str, uow: AbstractUnitOfWork) -> event_vm.AttendanceDTO:
+    sql = """
+        select
+            r.event_form_data::json->'fields' as form_data,
+            r.attendance_status,
+            e.name as event_name,
+            e.registration_fee
+        from
+            registrations r
+            join events e on e.id = r.event_id
+        where
+            r.qr_id = %(qr_id)s
+    """
+
+    uow.dict_cursor.execute(sql, {"qr_id": qr_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise event_ex.InvalidAttendanceQrId("The qr_id passed does not exist")
+
+    return event_vm.AttendanceDTO.from_db_dict_row(row)

@@ -10,6 +10,7 @@ from core.event.adapters import exceptions as event_repo_exc
 from core.event.domain import exceptions as event_mdl_exc
 from core.event.domain import model as event_mdl
 from core.event.entrypoint import commands as event_cmd
+from core.event.entrypoint import exceptions as event_svc_ex
 from core.event.entrypoint import queries as event_qry
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
@@ -203,10 +204,11 @@ def mark_entry_event_attendance(uid):
     try:
         event_cmd.mark_attendance(
             event_id=req["event_id"],
-            user_id=uid,
+            qr_id=req["qr_id"],
             current_time=datetime.now() + timedelta(hours=5),
             uow=uow,
         )
+        attendance_data = event_qry.get_attendance_data(qr_id=req["qr_id"], uow=uow)
         uow.commit_close_connection()
 
     except (
@@ -215,16 +217,30 @@ def mark_entry_event_attendance(uid):
         event_mdl_exc.AttendancePostEventException,
         event_mdl_exc.EventRegistrationNotStarted,
         event_mdl_exc.RegistrationDoesNotExist,
-        event_mdl_exc.UserIsAlreadyMarkedPresent,
+        event_svc_ex.InvalidAttendanceQrId,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))
+
+    except event_mdl_exc.UserIsAlreadyMarkedPresent:
+        attendance_data = event_qry.get_attendance_data(qr_id=req["qr_id"], uow=uow)
+        uow.close_connection()
+
+        return utils.Response(
+            message="Event attendance already marked",
+            status_code=200,
+            data={"attendance_data": attendance_data, "already_marked": True},
+        ).__dict__
 
     except Exception as e:
         uow.close_connection()
         raise e
 
-    return utils.Response(message="", status_code=200, data={}).__dict__
+    return utils.Response(
+        message="Event attendance marked successfully",
+        status_code=200,
+        data={"attendance_data": attendance_data, "already_marked": False},
+    ).__dict__
 
 
 @vendor_app.route("/mark-exit-event-attendance", methods=["POST"])
@@ -250,3 +266,27 @@ def mark_exit_event_attendance(uid):
         raise e
 
     return utils.Response(message="", status_code=200, data={}).__dict__
+
+
+@vendor_app.route("/get-society-registrations", methods=["GET"])
+@cross_origin(origin="*", headers=["Authorization"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.EVENT_ORGANIZER])
+@utils.user_verified
+def get_society_registrations(uid):
+    uow = UnitOfWork()
+    transactions = pmt_qry.payment_retools_get_transactions_to_be_reconciled(
+        vendor_id=uid,
+        uow=uow,
+    )
+    registrations = event_qry.get_registrations(
+        paypro_ids=[tx.paypro_id for tx in transactions],
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="All transactions returned successfully",
+        status_code=200,
+        data=registrations,
+    ).__dict__

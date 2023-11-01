@@ -125,6 +125,7 @@ def get_all_successful_transactions_of_a_user(
             txn.last_updated,
             txn.sender_wallet_id as sender_id,
             txn.recipient_wallet_id as recipient_id,
+            txn.paypro_id,
             sender.full_name as sender_name,
             recipient.full_name as recipient_name
         from 
@@ -236,6 +237,7 @@ def payment_retools_get_all_transactions_of_selected_user(
             txn.last_updated,
             txn.sender_wallet_id as sender_id,
             txn.recipient_wallet_id as recipient_id,
+            txn.paypro_id,
             sender.full_name as sender_name,
             recipient.full_name as recipient_name
         from 
@@ -311,6 +313,7 @@ def payment_retools_get_transactions_to_be_reconciled(
             txn.last_updated,
             txn.sender_wallet_id as sender_id,
             txn.recipient_wallet_id as recipient_id,
+            txn.paypro_id,
             sender.full_name as sender_name,
             recipient.full_name as recipient_name
         from 
@@ -446,6 +449,7 @@ def payment_retools_get_reconciled_transactions(
             txn.last_updated,
             txn.sender_wallet_id as sender_id,
             txn.recipient_wallet_id as recipient_id,
+            txn.paypro_id,
             sender.full_name as sender_name,
             recipient.full_name as recipient_name
         from transactions txn
