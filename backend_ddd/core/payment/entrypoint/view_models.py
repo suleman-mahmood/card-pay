@@ -269,9 +269,9 @@ class DepositTransactionDTO:
             id=row["id"],
             paypro_id=row["paypro_id"],
             amount=row["amount"],
-            mode=row["mode"],
-            transaction_type=row["transaction_type"],
-            status=row["status"],
+            mode=payment_mdl.TransactionMode[row["mode"]],
+            transaction_type=payment_mdl.TransactionType[row["transaction_type"]],
+            status=payment_mdl.TransactionStatus[row["status"]],
             created_at=row["created_at"],
             last_updated=row["last_updated"],
         )

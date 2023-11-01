@@ -1127,22 +1127,53 @@ def get_user_recent_transactions(uid):
     )
     try:
         deposit_tx = pmt_qry.get_last_deposit_transaction(user_id=uid, uow=uow)
+        logging.info(
+            {
+                "message": "last deposit transaction was called",
+                "endpoint": "/get-user-recent-transactions",
+                "deposit_tx": deposit_tx.status.name,
+            },
+        )
         if deposit_tx.status == pmt_mdl.TransactionStatus.PENDING:
+            logging.info(
+                {
+                    "message": "last deposit transaction was pending",
+                    "endpoint": "/get-user-recent-transactions",
+                    "invoked_by": "cardpay_app",
+                },
+            )
             if pp_svc.invoice_paid(paypro_id=deposit_tx.paypro_id, uow=uow):
+                logging.info(
+                    {
+                        "message": "last invoice was paid",
+                        "endpoint": "/get-user-recent-transactions",
+                        "invoked_by": "cardpay_app",
+                    },
+                )
                 user_name = os.environ.get("PAYPRO_USERNAME")
                 user_name = user_name if user_name is not None else ""
 
                 password = os.environ.get("PAYPRO_PASSWORD")
                 password = password if password is not None else ""
 
-                pp_svc.pay_pro_callback(
+                success_invoice_ids, not_found_invoice_ids = pp_svc.pay_pro_callback(
                     user_name=user_name,
                     password=password,
                     csv_invoice_ids=deposit_tx.id,
                     uow=uow,
                 )
+                logging.info(
+                    {
+                        "message": "manual callback finished",
+                        "endpoint": "/get-user-recent-transactions",
+                        "invoked_by": "cardpay_app",
+                        "success_invoice_ids": success_invoice_ids,
+                        "not_found_invoice_ids": not_found_invoice_ids,
+                    },
+                )
+        uow.commit_close_connection()
     except pmt_svc_ex.NoUserDepositRequest:
-        pass
+        uow.close_connection()
     except Exception as e:
         uow.close_connection()
         logging.info(
@@ -1156,7 +1187,6 @@ def get_user_recent_transactions(uid):
         )
         raise e
 
-    uow.close_connection()
     return utils.Response(
         message="User recent transactions returned successfully",
         status_code=200,
