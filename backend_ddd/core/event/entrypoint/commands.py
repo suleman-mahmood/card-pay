@@ -136,13 +136,13 @@ def register_user_open_loop(
 
 def mark_attendance(
     event_id: str,
-    qr_id: str,
+    registration_id: str,
     current_time: datetime,
     uow: AbstractUnitOfWork,
 ):
     event = uow.events.get(event_id=event_id)
     event.mark_attendance(
-        qr_id=qr_id,
+        registration_id=registration_id,
         current_time=current_time,
     )
     uow.events.save(event=event)

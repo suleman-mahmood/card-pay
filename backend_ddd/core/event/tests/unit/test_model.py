@@ -404,7 +404,7 @@ def test_mark_attenance(seed_event, seed_registration):
         match="Cannot mark attendance for an event that is not approved.",
     ):
         event.mark_attendance(
-            user_id=registration.user_id,
+            registration_id=registration.user_id,
             current_time=datetime.now(),
         )
 
@@ -412,13 +412,13 @@ def test_mark_attenance(seed_event, seed_registration):
 
     with pytest.raises(ex.AttendancePostEventException, match="Event has ended."):
         event.mark_attendance(
-            user_id=registration.user_id,
+            registration_id=registration.user_id,
             current_time=EVENT_END + timedelta(minutes=1),
         )
 
     with pytest.raises(ex.EventRegistrationNotStarted, match="Attendance has not started yet."):
         event.mark_attendance(
-            user_id=registration.user_id,
+            registration_id=registration.user_id,
             current_time=REGISTRATION_START - timedelta(minutes=1),
         )
 
@@ -427,13 +427,13 @@ def test_mark_attenance(seed_event, seed_registration):
         match="User has not registered for this event.",
     ):
         event.mark_attendance(
-            user_id=registration.user_id,
+            registration_id=registration.user_id,
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
         )
 
     event.registrations[registration.user_id] = registration
     event.mark_attendance(
-        user_id=registration.user_id,
+        registration_id=registration.user_id,
         current_time=REGISTRATION_START + timedelta(minutes=0.5),
     )
 
@@ -442,7 +442,7 @@ def test_mark_attenance(seed_event, seed_registration):
         match="User has already marked attendance for this event.",
     ):
         event.mark_attendance(
-            user_id=registration.user_id,
+            registration_id=registration.user_id,
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
         )
 

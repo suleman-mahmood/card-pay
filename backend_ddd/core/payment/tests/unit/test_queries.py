@@ -1,35 +1,35 @@
+from uuid import uuid4
+
 import pytest
-from core.entrypoint.uow import UnitOfWork
-from core.payment.entrypoint import queries as pmt_qry
-from core.payment.entrypoint import commands as pmt_cmd
+from core.authentication.domain import model as auth_mdl
+from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.authentication.entrypoint import commands as auth_cmd
+from core.entrypoint.uow import UnitOfWork
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
-from core.authentication.entrypoint import anti_corruption as auth_acl
+from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
-from core.authentication.domain import model as auth_mdl
-from uuid import uuid4
+from core.payment.entrypoint import queries as pmt_qry
 
 
 def test_get_wallet_balance(seed_verified_auth_user, add_1000_wallet):
     uow = UnitOfWork()
     user, _ = seed_verified_auth_user(uow)
 
-    fetched_balance = pmt_qry.get_wallet_balance(
-        uow=uow, wallet_id=user.wallet_id)
+    fetched_balance = pmt_qry.get_wallet_balance(uow=uow, wallet_id=user.wallet_id)
     assert fetched_balance == 0
 
     add_1000_wallet(wallet_id=user.wallet_id, uow=uow)
-    fetched_balance = pmt_qry.get_wallet_balance(
-        uow=uow, wallet_id=user.wallet_id)
+    fetched_balance = pmt_qry.get_wallet_balance(uow=uow, wallet_id=user.wallet_id)
     assert fetched_balance == 1000
 
 
-def test_get_wallet_id_from_unique_identifier_and_closed_loop_id(seed_verified_user_in_closed_loop):
+def test_get_wallet_id_from_unique_identifier_and_closed_loop_id(
+    seed_verified_user_in_closed_loop,
+):
     uow = UnitOfWork()
     user_id, closed_loop_id = seed_verified_user_in_closed_loop(uow)
-    unique_identifier = uow.users.get(
-        user_id).closed_loops[closed_loop_id].unique_identifier
+    unique_identifier = uow.users.get(user_id).closed_loops[closed_loop_id].unique_identifier
 
     wallet_id = pmt_qry.get_wallet_id_from_unique_identifier_and_closed_loop_id(
         unique_identifier=unique_identifier,
@@ -60,6 +60,7 @@ def test_get_wallet_id_from_unique_identifier_and_closed_loop_id(seed_verified_u
             uow=uow,
         )
 
+
 def test_get_all_closed_loops_id_and_names(seed_auth_closed_loop):
     uow = UnitOfWork()
     closed_loop_id_1 = str(uuid4())
@@ -76,8 +77,9 @@ def test_get_all_closed_loops_id_and_names(seed_auth_closed_loop):
     assert str(uuid4()) not in cl_ids
 
 
-def test_get_all_successful_transactions_of_a_user(seed_5_100_transactions_against_user_ids):
-
+def test_get_all_successful_transactions_of_a_user(
+    seed_5_100_transactions_against_user_ids,
+):
     uow = UnitOfWork()
     user_id = str(uuid4())
     recipient_id = str(uuid4())
@@ -103,7 +105,6 @@ def test_get_all_successful_transactions_of_a_user(seed_5_100_transactions_again
         assert pmt_mdl.TransactionType[tx_dto.transaction_type] == pmt_mdl.TransactionType.P2P_PUSH
         assert pmt_mdl.TransactionMode[tx_dto.mode] == pmt_mdl.TransactionMode.APP_TRANSFER
         assert pmt_mdl.TransactionStatus[tx_dto.status] == pmt_mdl.TransactionStatus.SUCCESSFUL
-    
 
     # Do a transaction that fails
     failed_tx_id = str(uuid4())
@@ -118,7 +119,6 @@ def test_get_all_successful_transactions_of_a_user(seed_5_100_transactions_again
             uow=uow,
             auth_svc=pmt_acl.FakeAuthenticationService(),
         )
-   
 
     tx_dtos = pmt_qry.get_all_successful_transactions_of_a_user(
         user_id=user_id,
@@ -126,13 +126,17 @@ def test_get_all_successful_transactions_of_a_user(seed_5_100_transactions_again
         page_size=15,
         offset=0,
     )
-        
+
     assert len(tx_dtos) == 5
-    assert pmt_mdl.TransactionStatus.FAILED not in [pmt_mdl.TransactionStatus[tx_dto.status] for tx_dto in tx_dtos]
+    assert pmt_mdl.TransactionStatus.FAILED not in [
+        pmt_mdl.TransactionStatus[tx_dto.status] for tx_dto in tx_dtos
+    ]
     assert failed_tx_id not in [tx_dto.id for tx_dto in tx_dtos]
 
 
-def test_payment_retools_get_customers_and_vendors_of_selected_closed_loop(seed_verified_auth_user, seed_two_verified_vendors_in_closed_loop):
+def test_payment_retools_get_customers_and_vendors_of_selected_closed_loop(
+    seed_verified_auth_user, seed_two_verified_vendors_in_closed_loop
+):
     uow = UnitOfWork()
 
     vendor_1, vendor_2, closed_loop_id = seed_two_verified_vendors_in_closed_loop(uow)
@@ -148,15 +152,17 @@ def test_payment_retools_get_customers_and_vendors_of_selected_closed_loop(seed_
             auth_svc=auth_acl.FakeAuthenticationService(),
         )
 
-    customer_vendor_counts_dto = pmt_qry.payment_retools_get_customers_and_vendors_of_selected_closed_loop(
-        closed_loop_id=closed_loop_id,
-        uow=uow,
+    customer_vendor_counts_dto = (
+        pmt_qry.payment_retools_get_customers_and_vendors_of_selected_closed_loop(
+            closed_loop_id=closed_loop_id,
+            uow=uow,
+        )
     )
 
     fetched_customer_ids = [
-        customer_dto.id for customer_dto in customer_vendor_counts_dto.customers]
-    fetched_vendor_ids = [
-        vendor_dto.id for vendor_dto in customer_vendor_counts_dto.vendors]
+        customer_dto.id for customer_dto in customer_vendor_counts_dto.customers
+    ]
+    fetched_vendor_ids = [vendor_dto.id for vendor_dto in customer_vendor_counts_dto.vendors]
 
     assert customer_1.id in fetched_customer_ids
     assert customer_2.id in fetched_customer_ids
@@ -167,9 +173,9 @@ def test_payment_retools_get_customers_and_vendors_of_selected_closed_loop(seed_
     assert customer_vendor_counts_dto.counts.count == 4
 
 
-
-def test_payment_retools_get_all_transactions_of_selected_user(seed_5_100_transactions_against_user_ids):
-
+def test_payment_retools_get_all_transactions_of_selected_user(
+    seed_5_100_transactions_against_user_ids,
+):
     uow = UnitOfWork()
     user_id = str(uuid4())
     recipient_id = str(uuid4())
@@ -198,7 +204,8 @@ def test_payment_retools_get_all_transactions_of_selected_user(seed_5_100_transa
 
     assert len(tx_dtos) == 6
     assert pmt_mdl.TransactionStatus.FAILED in [
-        pmt_mdl.TransactionStatus[tx_dto.status] for tx_dto in tx_dtos]
+        pmt_mdl.TransactionStatus[tx_dto.status] for tx_dto in tx_dtos
+    ]
 
     for tx_dto in tx_dtos:
         assert tx_dto.sender_id == user_id
@@ -207,7 +214,9 @@ def test_payment_retools_get_all_transactions_of_selected_user(seed_5_100_transa
         assert pmt_mdl.TransactionMode[tx_dto.mode] == pmt_mdl.TransactionMode.APP_TRANSFER
 
 
-def test_payment_retools_get_vendors_and_balance(seed_two_verified_vendors_in_closed_loop, add_1000_wallet):
+def test_payment_retools_get_vendors_and_balance(
+    seed_two_verified_vendors_in_closed_loop, add_1000_wallet
+):
     uow = UnitOfWork()
     vendor_1, vendor_2, closed_loop_id = seed_two_verified_vendors_in_closed_loop(uow)
 
@@ -217,7 +226,7 @@ def test_payment_retools_get_vendors_and_balance(seed_two_verified_vendors_in_cl
     )
 
     assert len(vendor_balance_dtos) == 0
-    
+
     add_1000_wallet(wallet_id=vendor_1.wallet_id, uow=uow)
     add_1000_wallet(wallet_id=vendor_2.wallet_id, uow=uow)
 
@@ -233,7 +242,9 @@ def test_payment_retools_get_vendors_and_balance(seed_two_verified_vendors_in_cl
         assert vendor_balance_dto.balance == 1000
 
 
-def test_payment_retools_get_transactions_to_be_reconciled(seed_5_100_transactions_against_user_ids):
+def test_payment_retools_get_transactions_to_be_reconciled(
+    seed_5_100_transactions_against_user_ids,
+):
     uow = UnitOfWork()
 
     customer_id = str(uuid4())
@@ -271,7 +282,9 @@ def test_payment_retools_get_transactions_to_be_reconciled(seed_5_100_transactio
         assert pmt_mdl.TransactionStatus[tx_dto.status] == pmt_mdl.TransactionStatus.SUCCESSFUL
 
 
-def test_payment_retools_get_vendors(seed_two_verified_vendors_in_closed_loop, seed_verified_auth_user):
+def test_payment_retools_get_vendors(
+    seed_two_verified_vendors_in_closed_loop, seed_verified_auth_user
+):
     uow = UnitOfWork()
     vendor_1, vendor_2, closed_loop_id = seed_two_verified_vendors_in_closed_loop(uow)
 
@@ -290,7 +303,7 @@ def test_payment_retools_get_vendors(seed_two_verified_vendors_in_closed_loop, s
     )
 
     fetched_vendor_ids = [vendor_dto.id for vendor_dto in vendor_dtos]
-    fetched_vendor_names=  [vendor_dto.full_name for vendor_dto in vendor_dtos]
+    fetched_vendor_names = [vendor_dto.full_name for vendor_dto in vendor_dtos]
 
     assert user.id not in fetched_vendor_ids
     assert len(vendor_dtos) == 2
@@ -305,7 +318,10 @@ def test_payment_retools_get_vendors(seed_two_verified_vendors_in_closed_loop, s
     )
     assert len(vendor_dtos) == 2
 
-def test_payment_retools_get_reconciliation_history(seed_starred_wallet, seed_5_100_transactions_against_user_ids):
+
+def test_payment_retools_get_reconciliation_history(
+    seed_starred_wallet, seed_5_100_transactions_against_user_ids
+):
     uow = UnitOfWork()
 
     customer_id = str(uuid4())
@@ -360,7 +376,6 @@ def test_payment_retools_get_reconciliation_history(seed_starred_wallet, seed_5_
 
 
 def test_get_user_wallet_id_and_type_from_qr_id(seed_verified_auth_user):
-
     uow = UnitOfWork()
     user, wallet = seed_verified_auth_user(uow)
 
@@ -373,9 +388,12 @@ def test_get_user_wallet_id_and_type_from_qr_id(seed_verified_auth_user):
 
     assert user_id_and_type_dto.user_wallet_id == user.id
     assert user_id_and_type_dto.user_type == auth_mdl.UserType.CUSTOMER
-    assert pmt_qry.get_user_wallet_id_and_type_from_qr_id(qr_id=str(uuid4()),uow=uow) is None
+    assert pmt_qry.get_user_wallet_id_and_type_from_qr_id(qr_id=str(uuid4()), uow=uow) is None
 
-def test_get_all_vendor_id_name_and_qr_id_of_a_closed_loop(seed_two_verified_vendors_in_closed_loop, get_qr_id_from_user_id):
+
+def test_get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
+    seed_two_verified_vendors_in_closed_loop, get_qr_id_from_user_id
+):
     uow = UnitOfWork()
     vendor_1, vendor_2, closed_loop_id = seed_two_verified_vendors_in_closed_loop(uow)
 
@@ -388,12 +406,17 @@ def test_get_all_vendor_id_name_and_qr_id_of_a_closed_loop(seed_two_verified_ven
 
     for i in range(2):
         assert vendor_id_name_qr_id_dtos[i].id in [vendor_1.id, vendor_2.id]
-        assert vendor_id_name_qr_id_dtos[i].full_name in [vendor_1.full_name, vendor_2.full_name]
-        assert vendor_id_name_qr_id_dtos[i].qr_id in [get_qr_id_from_user_id(vendor_1.id, uow), get_qr_id_from_user_id(vendor_2.id, uow)]
+        assert vendor_id_name_qr_id_dtos[i].full_name in [
+            vendor_1.full_name,
+            vendor_2.full_name,
+        ]
+        assert vendor_id_name_qr_id_dtos[i].qr_id in [
+            get_qr_id_from_user_id(vendor_1.id, uow),
+            get_qr_id_from_user_id(vendor_2.id, uow),
+        ]
 
 
 def test_get_tx_balance_and_get_tx_recipient(seed_verified_auth_user, add_1000_wallet):
-
     uow = UnitOfWork()
     sender, _ = seed_verified_auth_user(uow)
     recipient, _ = seed_verified_auth_user(uow)
@@ -411,15 +434,21 @@ def test_get_tx_balance_and_get_tx_recipient(seed_verified_auth_user, add_1000_w
         auth_svc=pmt_acl.FakeAuthenticationService(),
     )
 
-    assert pmt_qry.get_tx_balance(
-        tx_id=tx_id,
-        uow=uow,
-    ) == 100
+    assert (
+        pmt_qry.get_tx_balance(
+            tx_id=tx_id,
+            uow=uow,
+        )
+        == 100
+    )
 
-    assert pmt_qry.get_tx_recipient(
-        tx_id=tx_id,
-        uow=uow,
-    ) == recipient.id
+    assert (
+        pmt_qry.get_tx_recipient(
+            tx_id=tx_id,
+            uow=uow,
+        )
+        == recipient.id
+    )
 
 
 def test_get_last_deposit_transaction(seed_verified_auth_user, add_1000_wallet):
@@ -451,7 +480,7 @@ def test_get_last_deposit_transaction(seed_verified_auth_user, add_1000_wallet):
     assert tx.amount == 100
     assert tx.paypro_id == pp_tx_id
     assert tx.id == tx_id
-    assert tx.status == pmt_mdl.TransactionStatus.PENDING.name
-    assert tx.transaction_type == pmt_mdl.TransactionType.PAYMENT_GATEWAY.name
+    assert tx.status == pmt_mdl.TransactionStatus.PENDING
+    assert tx.transaction_type == pmt_mdl.TransactionType.PAYMENT_GATEWAY
 
     uow.close_connection()

@@ -276,7 +276,7 @@ class Event:
 
         self._register_user(
             current_time=current_time,
-            registration_key=qr_id,
+            registration_key=user_id,
             registration=Registration(
                 qr_id=qr_id,
                 user_id=user_id,
@@ -305,7 +305,7 @@ class Event:
             ),
         )
 
-    def mark_attendance(self, qr_id: str, current_time: datetime):
+    def mark_attendance(self, registration_id: str, current_time: datetime):
         if self.status != EventStatus.APPROVED:
             raise ex.EventNotApproved("Cannot mark attendance for an event that is not approved.")
 
@@ -317,7 +317,7 @@ class Event:
         if current_time < self.registration_start_timestamp:
             raise ex.EventRegistrationNotStarted("Attendance has not started yet.")
 
-        registration = self.registrations.get(qr_id)
+        registration = self.registrations.get(registration_id)
 
         if registration is None:
             raise ex.RegistrationDoesNotExist("User has not registered for this event.")

@@ -209,7 +209,7 @@ def test_mark_attendance(seed_event):
     }
     event_cmd.mark_attendance(
         event_id=event.id,
-        user_id=user_id,
+        registration_id=user_id,
         current_time=REGISTRATION_START,
         uow=uow,
     )

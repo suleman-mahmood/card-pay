@@ -204,7 +204,9 @@ def mark_entry_event_attendance(uid):
     try:
         event_cmd.mark_attendance(
             event_id=req["event_id"],
-            qr_id=req["qr_id"],
+            registration_id=req[
+                "qr_id"
+            ],  # It can be both user_id or qr_id, user_id for closed loop and qr_id for open loop
             current_time=datetime.now() + timedelta(hours=5),
             uow=uow,
         )
