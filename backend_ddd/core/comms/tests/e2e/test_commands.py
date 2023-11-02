@@ -1,5 +1,6 @@
 import json
 import os
+from io import BytesIO
 from json import dumps
 from uuid import uuid4
 
@@ -96,15 +97,17 @@ def test_send_notification_missing_fcm_token(mocker):
 #     qr.add_data(data_str)
 #     qr.make(fit=True)
 
+#     buffer = BytesIO()
 #     img = qr.make_image(fill_color="black", back_color="white")
-#     img.save("my_qr_code.png")
+#     img.save(buffer)
+#     qr_code_bytes = buffer.getvalue()
+#     buffer.close()
 
-#     image_path = "my_qr_code.png"
 #     comms_cmd.send_image_email(
 #         subject="Test image email",
 #         text="Woho, sending an email with some images O.o!",
 #         to="23100011@lums.edu.pk",
-#         image_path=image_path,
+#         image_bytes=qr_code_bytes,
 #     )
 
 

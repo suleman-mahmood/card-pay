@@ -75,7 +75,7 @@ def send_email(subject: str, text: str, to: str):
     server.quit()
 
 
-def send_image_email(subject: str, text: str, to: str, image_path: str):
+def send_image_email(subject: str, text: str, to: str, image_bytes: bytes):
     msg = MIMEMultipart("related")
 
     msg["Subject"] = subject
@@ -97,10 +97,9 @@ def send_image_email(subject: str, text: str, to: str, image_path: str):
     """
     msgAlternative.attach(MIMEText(html, "html"))
 
-    with open(image_path, "rb") as image_file:
-        image = MIMEImage(image_file.read())
-        image.add_header("Content-ID", "<qr_code_image>")
-        msg.attach(image)
+    image = MIMEImage(image_bytes)
+    image.add_header("Content-ID", "<qr_code_image>")
+    msg.attach(image)
 
     server = smtplib.SMTP_SSL("email-smtp.ap-south-1.amazonaws.com", 465)
 

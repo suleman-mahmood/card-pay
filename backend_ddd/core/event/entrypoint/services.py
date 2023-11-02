@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import qrcode
 from core.comms.entrypoint import commands as comms_cmd
 from core.entrypoint.uow import AbstractUnitOfWork
@@ -19,14 +21,15 @@ def send_registration_email(paypro_id: str, uow: AbstractUnitOfWork):
     qr.add_data(data_str)
     qr.make(fit=True)
 
+    buffer = BytesIO()
     img = qr.make_image(fill_color="black", back_color="white")
-    image_path = "my_qr_code.png"
-
-    img.save(image_path)
+    img.save(buffer)
+    qr_code_bytes = buffer.getvalue()
+    buffer.close()
 
     comms_cmd.send_image_email(
         subject="Successful Registration Completed",
         text="Here is your attendance QR Code",
         to=attendance_details.email,
-        image_path=image_path,
+        image_bytes=qr_code_bytes,
     )

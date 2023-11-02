@@ -14,7 +14,7 @@ import LoadingOverlay from "../spinner";
 const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
 const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
 const BASE_URL_LOCAL = 'http://127.0.0.1:5000';
-const BASE_URL = BASE_URL_PROD;
+const BASE_URL = BASE_URL_DEV;
 
 interface MarkAttendanceResponse {
   attendance_data: {
@@ -59,7 +59,12 @@ export default function page() {
     const qrScanner = new QrScanner(
       videoElem,
       (result) => {
-        const json_data: { "event_id": string, "qr_id": string } = JSON.parse(result.data)
+        let x = result.data;
+        x = x.replace(/['"]+/g, '"')
+        console.log(JSON.parse(x))
+
+        const json_data: { "event_id": string, "qr_id": string } = JSON.parse(x)
+
         markAttendance(json_data.event_id, json_data.qr_id, qrScanner)
 
         // markAttendance("65e2263f-2953-497d-be63-05c31f88274c", "f76c6f08-d28b-4de3-ba65-0ae7a3c2cef6", qrScanner)
