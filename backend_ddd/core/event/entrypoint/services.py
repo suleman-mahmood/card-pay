@@ -8,6 +8,7 @@ from core.event.entrypoint import queries as event_qry
 
 def send_registration_email(paypro_id: str, uow: AbstractUnitOfWork):
     attendance_details = event_qry.get_attendance_details(paypro_id=paypro_id, uow=uow)
+    event = uow.events.get(event_id=attendance_details.event_id)
 
     data = {"qr_id": attendance_details.qr_id, "event_id": attendance_details.event_id}
     data_str = str(data)
@@ -27,9 +28,40 @@ def send_registration_email(paypro_id: str, uow: AbstractUnitOfWork):
     qr_code_bytes = buffer.getvalue()
     buffer.close()
 
+    html = f"""
+        <html>
+            <head>
+                <title>{event.name} Confirmation Email</title>
+            </head>
+            <body>
+                <h1>Hi {attendance_details.full_name}!</h1>
+
+                <p>We're excited to confirm your registration for {event.name}</p>
+
+                <p>Please show this QR code at the venue to mark your attendance:</p>
+                <img src="cid:qr_code_image">
+
+                <h2>Event Details</h2>
+
+                <ul>
+                    <li>Date: {event.event_start_timestamp.strftime('%d%S %B, %Y')}</li>
+                    <li>Time: {event.event_start_timestamp.strftime('%I:%M %p')}</li>
+                    <li>Location: {event.venue}</li>
+                </ul>
+
+                <p>Please review the event details carefully and make any necessary arrangements.</p>
+
+                <p>We look forward to seeing you at the event!</p>
+
+                <p>Sincerely,</p>
+                <p>CardPay Team</p>
+            </body>
+        </html>
+    """
+
     comms_cmd.send_image_email(
-        subject="Successful Registration Completed",
-        text="Here is your attendance QR Code",
+        subject=f"Registration successful for {event.name}",
+        html=html,
         to=attendance_details.email,
         image_bytes=qr_code_bytes,
     )

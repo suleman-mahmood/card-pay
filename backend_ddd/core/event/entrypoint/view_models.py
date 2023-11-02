@@ -81,19 +81,25 @@ class AttendanceQrDTO:
     qr_id: str
     event_id: str
     email: str
+    full_name: str
 
     @classmethod
     def from_db_dict_row(cls, row: DictRow) -> "AttendanceQrDTO":
         email_field = row["event_form_data"].get("fields", [])[2]
         email = email_field.get("answer")
 
+        name_field = row["event_form_data"].get("fields", [])[0]
+        full_name = name_field.get("answer")
+
         return AttendanceQrDTO(
             qr_id=row["qr_id"],
             event_id=row["event_id"],
             email=email,
+            full_name=full_name,
         )
 
 
+@dataclass(frozen=True)
 class RegistrationsDTO:
     form_data: str
     attendance_status: str

@@ -111,6 +111,64 @@ def test_send_notification_missing_fcm_token(mocker):
 #     )
 
 
+# def test_send_image_email_tedx():
+#     data = {"qr_id": str(uuid4()), "event_id": str(uuid4())}
+#     data_str = str(data)
+
+#     qr = qrcode.QRCode(
+#         version=1,
+#         box_size=10,
+#         border=4,
+#     )
+
+#     qr.add_data(data_str)
+#     qr.make(fit=True)
+
+#     buffer = BytesIO()
+#     img = qr.make_image(fill_color="black", back_color="white")
+#     img.save(buffer)
+#     qr_code_bytes = buffer.getvalue()
+#     buffer.close()
+
+#     html = f"""
+#     <html>
+#         <head>
+#             <title>TedX Confirmation Email</title>
+#         </head>
+#         <body>
+#             <h1>Hi Abdur Rehman Shamsi!</h1>
+
+#             <p>We're excited to confirm your registration for TedX</p>
+
+#             <p>Please show this QR code at the venue to mark your attendance:</p>
+#             <img src="cid:qr_code_image">
+
+#             <h2>Event Details</h2>
+
+#             <ul>
+#                 <li>Date: 18th November, 2023</li>
+#                 <li>Time: 9:00 AM</li>
+#                 <li>Location: LUMS SDSB B3</li>
+#             </ul>
+
+#             <p>Please review the event details carefully and make any necessary arrangements.</p>
+
+#             <p>We look forward to seeing you at the event!</p>
+
+#             <p>Sincerely,</p>
+#             <p>CardPay Team</p>
+#         </body>
+#     </html>
+#     """
+
+#     comms_cmd.send_image_email(
+#         subject="Successful Registration Completed",
+#         html=html,
+#         to="huzaifa@cardpay.com.pk",
+#         image_bytes=qr_code_bytes,
+#     )
+
+
 """
 https://lifetimesms.com/otp?
 api_token=xxxx&

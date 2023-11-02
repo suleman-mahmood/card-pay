@@ -151,19 +151,19 @@ export default function page() {
       />
     </div>
   ) : (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
+    <div className="min-h-screen flex flex-col justify-between p-4">
+      <Link href={"/events/mark-attendance"} className="btn">Mark attendance</Link>
+      <h1 className="mb-2 text-4xl font-bold text-center text-violet-600">
+        {vendor_name}
+      </h1>
+      <h1 className="mb-2 text-2xl font-bold text-center text-black">
+        Transactions
+      </h1>
+      <h3 className="mb-2 text-md text-center text-violet-600">
+        Balance: {balance}
+      </h3>
       <div className="overflow-x-auto">
-        <Link href={"/events/mark-attendance"} className="btn">Mark attendance</Link>
-        <h1 className="mb-2 text-4xl font-bold text-center text-violet-600">
-          {vendor_name}
-        </h1>
-        <h1 className="mb-2 text-2xl font-bold text-center text-black">
-          Transactions
-        </h1>
-        <h3 className="mb-2 text-md text-center text-violet-600">
-          Balance: {balance}
-        </h3>
-        <table className="table lg:table-lg md:table-md sm:table-sm">
+        <table className="table">
           <thead>
             <tr className="bg-white">
               {registrations.length !== 0 ? registrations[0].form_data.map((form_data, index) => (

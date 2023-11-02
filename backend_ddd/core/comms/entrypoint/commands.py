@@ -75,7 +75,7 @@ def send_email(subject: str, text: str, to: str):
     server.quit()
 
 
-def send_image_email(subject: str, text: str, to: str, image_bytes: bytes):
+def send_image_email(subject: str, html: str, to: str, image_bytes: bytes):
     msg = MIMEMultipart("related")
 
     msg["Subject"] = subject
@@ -85,16 +85,6 @@ def send_image_email(subject: str, text: str, to: str, image_bytes: bytes):
     msgAlternative = MIMEMultipart("alternative")
     msg.attach(msgAlternative)
 
-    msgAlternative.attach(MIMEText(text))
-
-    html = """
-        <html>
-            <body>
-                <p>Show this QR code at the event venue</p>
-                <img src="cid:qr_code_image">
-            </body>
-        </html>
-    """
     msgAlternative.attach(MIMEText(html, "html"))
 
     image = MIMEImage(image_bytes)
