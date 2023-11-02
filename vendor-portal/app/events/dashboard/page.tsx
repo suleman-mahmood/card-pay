@@ -166,11 +166,11 @@ export default function page() {
         <table className="table lg:table-lg md:table-md sm:table-sm">
           <thead>
             <tr className="bg-white">
-              {registrations[0].form_data.map((form_data, index) => (
+              {registrations.length !== 0 ? registrations[0].form_data.map((form_data, index) => (
                 <th key={index}>
                   {form_data.question}
                 </th>
-              ))}
+              )) : null}
               {/* <th>Event name</th>
               <th>Status</th>
               <th>Attendance status</th>
