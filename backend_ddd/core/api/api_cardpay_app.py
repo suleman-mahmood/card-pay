@@ -1171,6 +1171,12 @@ def get_user_recent_transactions(uid):
                         "not_found_invoice_ids": not_found_invoice_ids,
                     },
                 )
+                txs = pmt_qry.get_all_successful_transactions_of_a_user(
+                    user_id=uid,
+                    offset=0,
+                    page_size=50,
+                    uow=uow,
+                )
         uow.commit_close_connection()
     except pmt_svc_ex.NoUserDepositRequest:
         uow.close_connection()

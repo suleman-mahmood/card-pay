@@ -19,10 +19,10 @@
 13. update closed loop
 14. get information of all users of a closed loop
 """
-from core.authentication.entrypoint import exceptions as auth_svc_ex
-from core.authentication.domain import model as auth_mdl
-from core.authentication.adapters import exceptions as auth_rep_ex
 from core.api import view_models as vm
+from core.authentication.adapters import exceptions as auth_rep_ex
+from core.authentication.domain import model as auth_mdl
+from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.entrypoint import view_models as auth_vm
 from core.entrypoint.uow import AbstractUnitOfWork
 
@@ -315,43 +315,43 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
 
 #     return closed_loops
 
-    # sql = """
-    #     select closed_loop_id
-    #     from user_closed_loops
-    #     where user_id = %s
-    # """
-    # uow.cursor.execute(
-    #     sql,
-    #     [
-    #         user_id
-    #     ]
-    # )
-    # rows = uow.cursor.fetchall()
+# sql = """
+#     select closed_loop_id
+#     from user_closed_loops
+#     where user_id = %s
+# """
+# uow.cursor.execute(
+#     sql,
+#     [
+#         user_id
+#     ]
+# )
+# rows = uow.cursor.fetchall()
 
-    # sql = """
-    #     select id, name, logo_url, description, regex, verification_type, created_at
-    #     from closed_loops
-    #     where id IN (
-    # """
-    # ids_str = ",".join([f"'{row[0]}'" for row in rows])
-    # sql += ids_str + ")"
-    # uow.cursor.execute(sql)
+# sql = """
+#     select id, name, logo_url, description, regex, verification_type, created_at
+#     from closed_loops
+#     where id IN (
+# """
+# ids_str = ",".join([f"'{row[0]}'" for row in rows])
+# sql += ids_str + ")"
+# uow.cursor.execute(sql)
 
-    # rows = uow.cursor.fetchall()
-    # closed_loops = [
-    #     auth_mdl.ClosedLoop(
-    #         id=row[0],
-    #         name=row[1],
-    #         logo_url=row[2],
-    #         description=row[3],
-    #         regex=row[4],
-    #         verification_type=row[5],
-    #         created_at=row[6],
-    #     )
-    #     for row in rows
-    # ]
+# rows = uow.cursor.fetchall()
+# closed_loops = [
+#     auth_mdl.ClosedLoop(
+#         id=row[0],
+#         name=row[1],
+#         logo_url=row[2],
+#         description=row[3],
+#         regex=row[4],
+#         verification_type=row[5],
+#         created_at=row[6],
+#     )
+#     for row in rows
+# ]
 
-    # return closed_loops
+# return closed_loops
 
 
 # def get_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork):
@@ -438,9 +438,7 @@ def get_user_balance(user_id: str, uow: AbstractUnitOfWork):
 #     return closed_loops_user_count
 
 
-def get_information_of_all_users_of_a_closed_loop(
-    closed_loop_id: str, uow: AbstractUnitOfWork
-):
+def get_information_of_all_users_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork):
     """Get information of all users of a closed loop"""
     sql = """
         select
@@ -476,9 +474,7 @@ def get_information_of_all_users_of_a_closed_loop(
     return users
 
 
-def get_active_inactive_counts_of_a_closed_loop(
-    closed_loop_id: str, uow: AbstractUnitOfWork
-):
+def get_active_inactive_counts_of_a_closed_loop(closed_loop_id: str, uow: AbstractUnitOfWork):
     """Get active inactive counts of a closed loop"""
 
     active_sql = """
@@ -578,9 +574,7 @@ def _get_latest_closed_loop_id(uow: AbstractUnitOfWork) -> str:
     return row[0]
 
 
-def user_verification_status_from_user_id(
-    user_id: str, uow: AbstractUnitOfWork
-) -> bool:
+def user_verification_status_from_user_id(user_id: str, uow: AbstractUnitOfWork) -> bool:
     sql = """
         select
             is_phone_number_verified
@@ -692,9 +686,11 @@ def get_total_users(uow: AbstractUnitOfWork):
 def get_signed_up_daily_users(uow: AbstractUnitOfWork):
     sql = """
         select
-            date(created_at) as day,
+            date(w.created_at) as day,
             count(*) as user_count
-        from users
+        from
+            users u
+            join wallets w on w.id = u.wallet_id
         group by day
         order by day desc;
         """
@@ -758,8 +754,7 @@ def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork) -> au
     user_id = uow.cursor.fetchone()
 
     if user_id is None:
-        raise auth_svc_ex.UserPhoneNumberNotFound(
-            f"No user exists against {phone_number}")
+        raise auth_svc_ex.UserPhoneNumberNotFound(f"No user exists against {phone_number}")
 
     user = uow.users.get(user_id)
 
