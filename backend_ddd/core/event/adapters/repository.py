@@ -137,20 +137,18 @@ class EventRepository(EventAbstractRepository):
             values
         """
 
-        event_data = {}
-        for each in event.registrations.items():
-            event_data = {"fields": [asdict(l) for l in each[1].event_form_data["fields"]]}
-
         args = [
             {
                 "qr_id": registration.qr_id,
-                "user_id": user_id,
+                "user_id": registration.user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
-                "event_form_data": event_data,
+                "event_form_data": {
+                    "fields": [asdict(l) for l in registration.event_form_data["fields"]]
+                },
                 "paypro_id": registration.paypro_id,
             }
-            for user_id, registration in event.registrations.items()
+            for _, registration in event.registrations.items()
         ]
 
         args_str = ",".join(
@@ -181,34 +179,48 @@ class EventRepository(EventAbstractRepository):
                 registration_end_timestamp, 
                 registration_fee,
                 event_form_schema
-            from events
-            where id = %(event_id)s
+            from 
+                events
+            where 
+                id = %(event_id)s
             for update
         """
         self.cursor.execute(sql, {"event_id": event_id})
         event_row = self.cursor.fetchone()
 
-        if event_row == None:
+        if event_row is None:
             raise ex.EventNotFound(f"Event not found with id {event_id}")
 
         sql = """
-            select qr_id, user_id, attendance_status, event_id, event_form_data, paypro_id
-            from registrations
-            where event_id = %s
+            select 
+                qr_id,
+                user_id,
+                attendance_status,
+                event_id,
+                event_form_data,
+                paypro_id
+            from 
+                registrations
+            where 
+                event_id = %s
          """
 
         self.cursor.execute(sql, [event_id])
         registration_rows = self.cursor.fetchall()
 
         registrations = {}
-        event_form_data = []
         for registration_row in registration_rows:
-            for k, v in registration_row["event_form_data"].items():
-                for each in v:
-                    event_form_data.append(
-                        mdl.EventFormDataItem(question=each["question"], answer=each["answer"])
-                    )
-            registrations[registration_row["user_id"]] = mdl.Registration(
+            event_form_data = []
+            for v in registration_row["event_form_data"]["fields"]:
+                event_form_data.append(
+                    mdl.EventFormDataItem(question=v["question"], answer=v["answer"])
+                )
+            registration_key = (
+                registration_row["user_id"]
+                if registration_row["paypro_id"] is None
+                else registration_row["qr_id"]
+            )
+            registrations[registration_key] = mdl.Registration(
                 qr_id=registration_row["qr_id"],
                 user_id=registration_row["user_id"],
                 attendance_status=mdl.EventAttendanceStatus[registration_row["attendance_status"]],
@@ -217,20 +229,19 @@ class EventRepository(EventAbstractRepository):
             )
 
         event_form_schema = []
-        for k, v in event_row["event_form_schema"].items():
-            for each in v:
-                validation_rules = []
-                for val in each["validation"]:
-                    val["type"] = mdl.ValidationEnum[val["type"]]
-                    val = mdl.ValidationRule(type=val["type"], value=val["value"])
-                    validation_rules.append(val)
-                each = mdl.EventFormSchemaItem(
-                    question=each["question"],
-                    type=mdl.QuestionType[each["type"]],
-                    validation=validation_rules,
-                    options=each["options"],
-                )
-                event_form_schema.append(each)
+        for each in event_row["event_form_schema"].get("fields", []):
+            validation_rules = []
+            for val in each["validation"]:
+                val["type"] = mdl.ValidationEnum[val["type"]]
+                val = mdl.ValidationRule(type=val["type"], value=val["value"])
+                validation_rules.append(val)
+            each = mdl.EventFormSchemaItem(
+                question=each["question"],
+                type=mdl.QuestionType[each["type"]],
+                validation=validation_rules,
+                options=each["options"],
+            )
+            event_form_schema.append(each)
 
         event_form_schema = {"fields": event_form_schema}
 
@@ -363,20 +374,18 @@ class EventRepository(EventAbstractRepository):
                 paypro_id = excluded.paypro_id
         """
 
-        event_data = {}
-        for each in event.registrations.items():
-            event_data = {"fields": [asdict(l) for l in each[1].event_form_data["fields"]]}
-
         args = [
             {
                 "qr_id": registration.qr_id,
-                "user_id": user_id,
+                "user_id": registration.user_id,
                 "attendance_status": registration.attendance_status.name,
                 "event_id": event.id,
-                "event_form_data": event_data,
+                "event_form_data": {
+                    "fields": [asdict(l) for l in registration.event_form_data["fields"]]
+                },
                 "paypro_id": registration.paypro_id,
             }
-            for user_id, registration in event.registrations.items()
+            for _, registration in event.registrations.items()
         ]
 
         args_str = ",".join(
