@@ -5,6 +5,8 @@ class EventNotCreatedByOrganizer(Exception):
 class ClosedLoopDoesNotExist(Exception):
     """The closed loop doesn't exist"""
 
+class PayproIdDoesNotExist(Exception):
+    """The PayproId doesn't exist"""
 
 class InvalidAttendanceQrId(Exception):
     """The qr_id passed does not exist"""

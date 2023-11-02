@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 from core.entrypoint.uow import AbstractUnitOfWork
@@ -109,6 +110,27 @@ def get_draft_events(uow: AbstractUnitOfWork) -> List[event_vm.DraftEventDTO]:
     rows = uow.dict_cursor.fetchall()
 
     return [event_vm.DraftEventDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_attendance_details(paypro_id: str, uow: AbstractUnitOfWork) -> event_vm.AttendanceQrDTO:
+    sql = """
+        select
+            qr_id,
+            event_id,
+            event_form_data
+        from
+            registrations
+        where
+            paypro_id = %(paypro_id)s
+        """
+
+    uow.dict_cursor.execute(sql, {"paypro_id": paypro_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise event_ex.PayproIdDoesNotExist
+
+    return event_vm.AttendanceQrDTO.from_db_dict_row(row=row)
 
 
 def get_registrations(

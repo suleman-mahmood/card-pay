@@ -162,3 +162,68 @@ def test_get_registered_events(
         event_form_schema={"fields": []},
         qr_id=event.registrations[user.id].qr_id,
     )
+
+
+def test_get_attendance_details(
+    seed_verified_auth_event_organizer, seed_verified_auth_user, seed_event_cmd
+):
+    uow = UnitOfWork()
+
+    closed_loop_id = str(uuid4())
+    auth_cmd.create_closed_loop(
+        id=closed_loop_id,
+        name="Test Closed Loop",
+        logo_url="https://www.google.com",
+        description="Test Closed Loop",
+        verification_type="NONE",
+        regex="",
+        uow=uow,
+    )
+
+    event_organizer: auth_mdl.User = seed_verified_auth_event_organizer(uow)
+    auth_cmd.register_closed_loop(
+        user_id=event_organizer.id,
+        closed_loop_id=closed_loop_id,
+        unique_identifier="1234",
+        uow=uow,
+        auth_svc=auth_acl.AuthenticationService(),
+    )
+
+    event: mdl.Event = seed_event_cmd(
+        uow=uow,
+        closed_loop_id=closed_loop_id,
+        organizer_id=event_organizer.id,
+    )
+    cmd.publish(event_id=event.id, uow=uow)
+
+    user: auth_mdl.User
+    user, _ = seed_verified_auth_user(uow)
+
+    events = qry.get_registered_events(
+        user_id=user.id,
+        uow=uow,
+    )
+    assert len(events) == 0
+
+    email = "23100011@lums.edu.pk"
+    event_form_data = [
+        mdl.EventFormDataItem(question="What is your name?", answer="Khuzaima"),
+        mdl.EventFormDataItem(question="What is your phone number?", answer="03333837363"),
+        mdl.EventFormDataItem(question="What is your email?", answer=email),
+        mdl.EventFormDataItem(question="What is your age?", answer=21),
+    ]
+
+    paypro_id = str(uuid4())
+    qr_id = str(uuid4())
+    cmd.register_user_open_loop(
+        event_id=event.id,
+        qr_id=qr_id,
+        current_time=datetime.now() + timedelta(minutes=1.5),
+        event_form_data={"fields": event_form_data},
+        paypro_id=paypro_id,
+        uow=uow,
+    )
+
+    attendance_details = qry.get_attendance_details(paypro_id=paypro_id, uow=uow)
+
+    assert attendance_details == vm.AttendanceQrDTO(qr_id=qr_id, event_id=event.id, email=email)

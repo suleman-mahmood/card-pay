@@ -1,5 +1,6 @@
 import os
 import smtplib
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from json import dumps
@@ -69,6 +70,43 @@ def send_email(subject: str, text: str, to: str):
     msg.attach(part)
 
     server = smtplib.SMTP_SSL("email-smtp.ap-south-1.amazonaws.com", 465)
+    server.login(os.environ.get("EMAIL_USER"), os.environ.get("EMAIL_PASSWORD"))
+    server.sendmail(EMAIL_FROM, to, msg.as_string())
+    server.quit()
+
+
+def send_image_email(subject: str, text: str, to: str, image_path: str):
+    msg = MIMEMultipart("related")
+
+    msg["Subject"] = subject
+    msg["From"] = EMAIL_FROM
+    msg["To"] = to
+
+    msgAlternative = MIMEMultipart("alternative")
+    msg.attach(msgAlternative)
+
+    msgAlternative.attach(MIMEText(text))
+
+    html = """
+        <html>
+            <body>
+                <p>Show this QR code at the event venue</p>
+                <img src="cid:qr_code_image">
+            </body>
+        </html>
+    """
+    msgAlternative.attach(MIMEText(html, "html"))
+
+    with open(image_path, "rb") as image_file:
+        image = MIMEImage(image_file.read())
+        image.add_header("Content-ID", "<qr_code_image>")
+        msg.attach(image)
+
+    server = smtplib.SMTP_SSL("email-smtp.ap-south-1.amazonaws.com", 465)
+
+    if os.environ.get("EMAIL_USER") is None or os.environ.get("EMAIL_PASSWORD") is None:
+        return
+
     server.login(os.environ.get("EMAIL_USER"), os.environ.get("EMAIL_PASSWORD"))
     server.sendmail(EMAIL_FROM, to, msg.as_string())
     server.quit()

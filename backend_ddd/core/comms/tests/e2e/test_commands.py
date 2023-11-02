@@ -4,6 +4,7 @@ from json import dumps
 from uuid import uuid4
 
 import pytest
+import qrcode
 import requests
 from core.comms.entrypoint import anti_corruption as acl
 from core.comms.entrypoint import commands as comms_cmd
@@ -80,6 +81,32 @@ def test_send_notification_missing_fcm_token(mocker):
 #         text="Woah noice content, someone ran pytest and the email got into your inbox successfully!",
 #         to="23100011@lums.edu.pk",
 #     )
+
+
+# def test_send_image_email():
+#     data = {"qr_id": str(uuid4()), "event_id": str(uuid4())}
+#     data_str = str(data)
+
+#     qr = qrcode.QRCode(
+#         version=1,
+#         box_size=10,
+#         border=4,
+#     )
+
+#     qr.add_data(data_str)
+#     qr.make(fit=True)
+
+#     img = qr.make_image(fill_color="black", back_color="white")
+#     img.save("my_qr_code.png")
+
+#     image_path = "my_qr_code.png"
+#     comms_cmd.send_image_email(
+#         subject="Test image email",
+#         text="Woho, sending an email with some images O.o!",
+#         to="23100011@lums.edu.pk",
+#         image_path=image_path,
+#     )
+
 
 """
 https://lifetimesms.com/otp?

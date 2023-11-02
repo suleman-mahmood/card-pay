@@ -5,6 +5,8 @@ from core.comms.entrypoint import anti_corruption as comms_acl
 from core.comms.entrypoint import commands as comms_cmd
 from core.comms.entrypoint import exceptions as comms_svc_ex
 from core.entrypoint.uow import UnitOfWork
+from core.event.entrypoint import exceptions as event_ex
+from core.event.entrypoint import services as event_svc
 from core.marketing.entrypoint import queries as mktg_qry
 from core.marketing.entrypoint import services as mktg_svc
 from core.payment.domain import exceptions as pmt_mdl_ex
@@ -153,6 +155,33 @@ def pay_pro_callback():
             logging.info(
                 {
                     "message": "Pay Pro | Can't send notification | Unhandled exception raised",
+                    "exception_type": 500,
+                    "exception_message": str(e),
+                    "json_request": req,
+                    "silent": True,
+                },
+            )
+
+    for tx_id in success_invoice_ids:
+        tx = uow.transactions.get(transaction_id=tx_id)
+        try:
+            event_svc.send_registration_email(paypro_id=tx.paypro_id, uow=uow)
+        except event_ex.PayproIdDoesNotExist as e:
+            logging.info(
+                {
+                    "message": "Pay Pro | Can't send email | Paypro ID does not exist",
+                    "exception_type": e.__class__.__name__,
+                    "paypro_id": tx.paypro_id,
+                    "exception_message": str(e),
+                    "json_request": req,
+                    "silent": True,
+                },
+            )
+        except Exception as e:
+            logging.info(
+                {
+                    "message": "Pay Pro | Can't send email | Unhandled exception raised",
+                    "paypro_id": tx.paypro_id,
                     "exception_type": 500,
                     "exception_message": str(e),
                     "json_request": req,
