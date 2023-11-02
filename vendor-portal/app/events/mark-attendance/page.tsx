@@ -138,7 +138,7 @@ export default function page() {
       />
     </div>
   ) : (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
+    <div className="flex min-h-screen flex-col items-center justify-between p-4">
       <div className="overflow-x-auto">
         <h1 className="" >Mark attendance</h1>
 
