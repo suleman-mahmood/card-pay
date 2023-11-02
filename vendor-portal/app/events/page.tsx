@@ -120,28 +120,31 @@ export default function page() {
                 return response.json();
             })
             .then((data) => {
-                data.data.map((item: any) => {
+                const localEvents = data.data.map((item: any) => {
+                    item.event_form_schema["fields"].map((item: any) => {
+                        if (item.type === 'INPUT_STR') {
+                            item.type = QuestionType.INPUT_STR
+                        }
+                        else if (item.type === 'INPUT_INT') {
+                            item.type = QuestionType.INPUT_INT
+                        }
+                        else if (item.type === 'INPUT_FLOAT') {
+                            item.type = QuestionType.INPUT_FLOAT
+                        }
+                        else if (item.type === 'MULTIPLE_CHOICE') {
+                            item.type = QuestionType.MULTIPLE_CHOICE
+                        }
+                        else {
+                            item.type = QuestionType.DROPDOWN
+                        }
+                    })
                     if (item.id === SearchBar()) {
-                        item.event_form_schema["fields"].map((item: any) => {
-                            if (item.type === 'INPUT_STR') {
-                                item.type = QuestionType.INPUT_STR
-                            }
-                            else if (item.type === 'INPUT_INT') {
-                                item.type = QuestionType.INPUT_INT
-                            }
-                            else if (item.type === 'INPUT_FLOAT') {
-                                item.type = QuestionType.INPUT_FLOAT
-                            }
-                            else if (item.type === 'MULTIPLE_CHOICE') {
-                                item.type = QuestionType.MULTIPLE_CHOICE
-                            }
-                            else {
-                                item.type = QuestionType.DROPDOWN
-                            }
-                        })
                         setSelectedEvent(item)
+                
                     }
+                    return item;
                 })
+                setEvents(localEvents);
                 setIsLoadingSpinner(false);
             })
             .catch((error) => {
@@ -327,6 +330,17 @@ export default function page() {
 
     return <div className="flex min-h-screen flex-col items-center p-2">
         <h3 className="" >REGISTER EVENT</h3>
+
+        <details className="dropdown mb-4">
+             <summary className="m-1 btn">Select event</summary>
+             <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+                 {
+                     events.map((event, i) => (
+                         <li key={i} onClick={() => setSelectedEvent(event)}><a>{event.name}</a></li>
+                     ))
+                 }
+             </ul>
+         </details>
 
         {selectedEvent && (
             <p><b>EVENT:</b> {selectedEvent.name}</p>

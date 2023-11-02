@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { auth } from "../../services/initialize-firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { User as FirebaseUser } from "firebase/auth";
 
 function Login() {
   const router = useRouter();
@@ -15,11 +16,16 @@ function Login() {
   const [password, setPassword] = useState<string>("");
   const [errorPhone, setErrorPhone] = useState<string>("");
   const [errorPassword, setErrorPassword] = useState<string>("");
+  const [vendor_type, setVendorType] = useState<string>("");
+
+  const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
+  const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
+  const BASE_URL = BASE_URL_PROD;
 
   useEffect(() => {
-    return auth.onAuthStateChanged((user) => {
+    return auth.onAuthStateChanged(async (user: any) => {
       if (user) {
-        router.push("/dashboard");
+        await fetchVendor(user)
       }
     });
   }, []);
@@ -32,6 +38,36 @@ function Login() {
       setErrorPhone("");
       return true;
     }
+  };
+
+  const fetchVendor = async (user: FirebaseUser) => {
+    const token = await user?.getIdToken();
+    fetch(`${BASE_URL}/api/v1/vendor-app/get-vendor`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP Error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setVendorType(data.data.user_type)
+        if(data.data.user_type === '6'){
+          router.push("/events/dashboard")
+        }
+        else{
+          router.push("/dashboard")
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
