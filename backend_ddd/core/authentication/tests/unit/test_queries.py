@@ -1,11 +1,12 @@
-import pytest
-from core.entrypoint.uow import UnitOfWork
-from core.authentication.entrypoint import queries as auth_qry
-from core.authentication.entrypoint import commands as auth_cmd
-from core.authentication.entrypoint import anti_corruption as acl
-from core.authentication.entrypoint import exceptions as auth_svc_ex
-from core.api import view_models as vm
 from uuid import uuid4
+
+import pytest
+from core.api import view_models as vm
+from core.authentication.entrypoint import anti_corruption as acl
+from core.authentication.entrypoint import commands as auth_cmd
+from core.authentication.entrypoint import exceptions as auth_svc_ex
+from core.authentication.entrypoint import queries as auth_qry
+from core.entrypoint.uow import UnitOfWork
 
 
 def test_get_user_checkpoint(seed_verified_auth_user, seed_auth_closed_loop):
@@ -43,11 +44,12 @@ def test_get_user_checkpoint(seed_verified_auth_user, seed_auth_closed_loop):
         auth_svc=acl.FakeAuthenticationService(),
     )
     checkpoint = auth_qry.user_checkpoints(user_id=user.id, uow=uow)
-    uow.close_connection()
 
     assert checkpoint == vm.CheckpointsDTO(
         verified_phone_otp=True, verified_closed_loop=True, pin_setup=True
     )
+
+    uow.close_connection()
 
 
 def test_get_full_name_from_unique_identifier_and_closed_loop(
@@ -77,3 +79,5 @@ def test_get_full_name_from_unique_identifier_and_closed_loop(
         auth_qry.get_full_name_from_unique_identifier_and_closed_loop(
             unique_identifier="1235", closed_loop_id=closed_loop_id, uow=uow
         )
+
+    uow.close_connection()

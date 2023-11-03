@@ -47,6 +47,8 @@ def test_set_fcm_token(seed_verified_auth_user):
 
     assert fetched_fcm_token == fcm_token
 
+    uow.close_connection()
+
 
 def test_send_notification_missing_fcm_token(mocker):
     user_id = str(uuid4())
@@ -61,6 +63,8 @@ def test_send_notification_missing_fcm_token(mocker):
             uow=uow,
             comms_svc=acl.CommunicationService(),
         )
+
+    uow.close_connection()
 
 
 # def test_send_notification_real():

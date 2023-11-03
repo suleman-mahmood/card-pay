@@ -23,6 +23,8 @@ def test_get_wallet_balance(seed_verified_auth_user, add_1000_wallet):
     fetched_balance = pmt_qry.get_wallet_balance(uow=uow, wallet_id=user.wallet_id)
     assert fetched_balance == 1000
 
+    uow.close_connection()
+
 
 def test_get_wallet_id_from_unique_identifier_and_closed_loop_id(
     seed_verified_user_in_closed_loop,
@@ -60,6 +62,8 @@ def test_get_wallet_id_from_unique_identifier_and_closed_loop_id(
             uow=uow,
         )
 
+    uow.close_connection()
+
 
 def test_get_all_closed_loops_id_and_names(seed_auth_closed_loop):
     uow = UnitOfWork()
@@ -76,6 +80,7 @@ def test_get_all_closed_loops_id_and_names(seed_auth_closed_loop):
     assert closed_loop_id_1 in cl_ids
     assert str(uuid4()) not in cl_ids
 
+    uow.close_connection()
 
 def test_get_all_successful_transactions_of_a_user(
     seed_5_100_transactions_against_user_ids,
@@ -133,6 +138,8 @@ def test_get_all_successful_transactions_of_a_user(
     ]
     assert failed_tx_id not in [tx_dto.id for tx_dto in tx_dtos]
 
+    uow.close_connection()
+
 
 def test_payment_retools_get_customers_and_vendors_of_selected_closed_loop(
     seed_verified_auth_user, seed_two_verified_vendors_in_closed_loop
@@ -172,6 +179,8 @@ def test_payment_retools_get_customers_and_vendors_of_selected_closed_loop(
     assert customer_vendor_counts_dto.counts.vendors == 2
     assert customer_vendor_counts_dto.counts.count == 4
 
+    uow.close_connection()
+    
 
 def test_payment_retools_get_all_transactions_of_selected_user(
     seed_5_100_transactions_against_user_ids,
@@ -213,6 +222,8 @@ def test_payment_retools_get_all_transactions_of_selected_user(
         assert pmt_mdl.TransactionType[tx_dto.transaction_type] == pmt_mdl.TransactionType.P2P_PUSH
         assert pmt_mdl.TransactionMode[tx_dto.mode] == pmt_mdl.TransactionMode.APP_TRANSFER
 
+    uow.close_connection()
+
 
 def test_payment_retools_get_vendors_and_balance(
     seed_two_verified_vendors_in_closed_loop, add_1000_wallet
@@ -240,6 +251,8 @@ def test_payment_retools_get_vendors_and_balance(
     for vendor_balance_dto in vendor_balance_dtos:
         assert vendor_balance_dto.id in [vendor_1.id, vendor_2.id]
         assert vendor_balance_dto.balance == 1000
+
+    uow.close_connection()
 
 
 def test_payment_retools_get_transactions_to_be_reconciled(
@@ -281,6 +294,8 @@ def test_payment_retools_get_transactions_to_be_reconciled(
         assert pmt_mdl.TransactionMode[tx_dto.mode] == pmt_mdl.TransactionMode.APP_TRANSFER
         assert pmt_mdl.TransactionStatus[tx_dto.status] == pmt_mdl.TransactionStatus.SUCCESSFUL
 
+    uow.close_connection()
+
 
 def test_payment_retools_get_vendors(
     seed_two_verified_vendors_in_closed_loop, seed_verified_auth_user
@@ -318,6 +333,7 @@ def test_payment_retools_get_vendors(
     )
     assert len(vendor_dtos) == 2
 
+    uow.close_connection()
 
 def test_payment_retools_get_reconciliation_history(
     seed_starred_wallet, seed_5_100_transactions_against_user_ids
@@ -374,6 +390,8 @@ def test_payment_retools_get_reconciliation_history(
     assert tx_dtos[0].amount == 500
     assert tx_dtos[1].amount == 500
 
+    uow.close_connection()
+
 
 def test_get_user_wallet_id_and_type_from_qr_id(seed_verified_auth_user):
     uow = UnitOfWork()
@@ -389,6 +407,8 @@ def test_get_user_wallet_id_and_type_from_qr_id(seed_verified_auth_user):
     assert user_id_and_type_dto.user_wallet_id == user.id
     assert user_id_and_type_dto.user_type == auth_mdl.UserType.CUSTOMER
     assert pmt_qry.get_user_wallet_id_and_type_from_qr_id(qr_id=str(uuid4()), uow=uow) is None
+
+    uow.close_connection()
 
 
 def test_get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
@@ -415,6 +435,7 @@ def test_get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
             get_qr_id_from_user_id(vendor_2.id, uow),
         ]
 
+    uow.close_connection()
 
 def test_get_tx_balance_and_get_tx_recipient(seed_verified_auth_user, add_1000_wallet):
     uow = UnitOfWork()
@@ -449,6 +470,8 @@ def test_get_tx_balance_and_get_tx_recipient(seed_verified_auth_user, add_1000_w
         )
         == recipient.id
     )
+    uow.close_connection()
+
 
 
 def test_get_last_deposit_transaction(seed_verified_auth_user, add_1000_wallet):

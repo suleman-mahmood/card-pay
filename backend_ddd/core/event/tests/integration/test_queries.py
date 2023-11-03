@@ -78,6 +78,8 @@ def test_get_live_events(seed_verified_auth_event_organizer, seed_event_cmd):
         qr_id=None,
     )
 
+    uow.close_connection()
+
 
 def test_get_registered_events(
     seed_verified_auth_event_organizer, seed_verified_auth_user, seed_event_cmd
@@ -163,6 +165,8 @@ def test_get_registered_events(
         qr_id=event.registrations[user.id].qr_id,
     )
 
+    uow.close_connection()
+
 
 def test_get_attendance_details(
     seed_verified_auth_event_organizer, seed_verified_auth_user, seed_event_cmd
@@ -226,4 +230,8 @@ def test_get_attendance_details(
 
     attendance_details = qry.get_attendance_details(paypro_id=paypro_id, uow=uow)
 
-    assert attendance_details == vm.AttendanceQrDTO(qr_id=qr_id, event_id=event.id, email=email)
+    assert attendance_details == vm.AttendanceQrDTO(
+        qr_id=qr_id, event_id=event.id, email=email, full_name="Khuzaima"
+    )
+
+    uow.close_connection()

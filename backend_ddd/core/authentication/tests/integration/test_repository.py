@@ -28,6 +28,8 @@ def test_closed_loop_repository(seed_closed_loop):
 
         assert fetched_closed_loop == closed_loop
 
+        uow.close_connection()
+
 
 def test_user_repository(seed_user, seed_closed_loop_user):
     user = seed_user()
@@ -69,3 +71,5 @@ def test_user_repository(seed_user, seed_closed_loop_user):
         fetched_user = uow.users.get(user_id=user.id)
 
         assert fetched_user == user
+
+        uow.close_connection()

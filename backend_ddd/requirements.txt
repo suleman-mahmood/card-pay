@@ -11,4 +11,5 @@ pytest-mock
 flask-cors
 pre-commit
 google-cloud-logging
+retry
 qrcode
