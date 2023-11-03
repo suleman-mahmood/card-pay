@@ -96,8 +96,12 @@ export default function page() {
         return search;
     }
 
-    const toggleDropdown = () => {
-        setIsOpen(!isOpen);
+    const handleSelectChange = (event: any) => {
+        events.map((item) => {
+            if (event.target.value === item.id) {
+                setSelectedEvent(item);
+            }
+        })
     };
 
     const fetchEvents = async () => {
@@ -140,7 +144,7 @@ export default function page() {
                     })
                     if (item.id === SearchBar()) {
                         setSelectedEvent(item)
-                
+
                     }
                     return item;
                 })
@@ -331,32 +335,35 @@ export default function page() {
     return <div className="flex min-h-screen flex-col items-center p-2">
         <h3 className="" >REGISTER EVENT</h3>
 
-        <details className="dropdown mb-4">
-             <summary className="m-1 btn">Select event</summary>
-             <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-                 {
-                     events.map((event, i) => (
-                         <li key={i} onClick={() => setSelectedEvent(event)}><a>{event.name}</a></li>
-                     ))
-                 }
-             </ul>
-         </details>
+        <select className="select select-bordered mt-4 mb-4"
+            value={selectedEvent?.name}
+            onChange={handleSelectChange}
+        >
+            <option value="">Select an event</option>
+            {events.map((event, i) => (
+                <option key={i} value={event.id}>
+                    {event.name}
+                </option>
+            ))}
+        </select>
 
         {selectedEvent && (
             <p><b>EVENT:</b> {selectedEvent.name}</p>
         )}
 
-        {
-            selectedEvent?.event_form_schema.fields.map((field, i) => (
-                <div key={i}>
-                    <div className="form-control w-full max-w-xs">
-                        <label className="label">
-                            <span className="label-text">{field.question}</span>
-                        </label>
-                        {buildInput(field, i)}
+        {   
+            selectedEvent?.event_form_schema && (
+                selectedEvent?.event_form_schema.fields.map((field, i) => (
+                    <div key={i}>
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text">{field.question}</span>
+                            </label>
+                            {buildInput(field, i)}
+                        </div>
                     </div>
-                </div>
-            ))
+                ))
+            )
         }
 
         <button className="m-4 btn bg-white" onClick={submitForm} disabled={!isValidPhoneNumber || !isValidEmail}>Submit</button>
