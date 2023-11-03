@@ -281,14 +281,20 @@ def get_society_registrations(uid):
         vendor_id=uid,
         uow=uow,
     )
-    registrations = event_qry.get_registrations(
+    external_registrations = event_qry.get_registrations(
         paypro_ids=[tx.paypro_id for tx in transactions],
         uow=uow,
     )
+    internal_registrations = event_qry.get_internal_registrations(organizer_id=uid, uow=uow)
+    unpaid_registrations = event_qry.get_unpaid_registrations(organizer_id=uid, uow=uow)
     uow.close_connection()
 
     return utils.Response(
         message="All transactions returned successfully",
         status_code=200,
-        data=registrations,
+        data={
+            "external_registrations": external_registrations,
+            "internal_registrations": internal_registrations,
+            "unpaid_registrations": unpaid_registrations,
+        },
     ).__dict__

@@ -158,6 +158,30 @@ def get_registrations(
     return [event_vm.RegistrationsDTO.from_db_dict_row(row) for row in rows]
 
 
+def get_internal_registrations(
+    organizer_id: str, uow: AbstractUnitOfWork
+) -> List[event_vm.InternalRegistrationDTO]:
+    sql = """
+        select 
+            u.id, 
+            u.full_name, 
+            u.personal_email, 
+            e.name as event_name,
+            u.phone_number
+        from 
+            users u
+        inner join 
+            registrations r on u.id = r.user_id
+        inner join 
+            events e on r.event_id = e.id
+        where e.organizer_id = %(organizer_id)s and r.paypro_id is null;
+    """
+    uow.dict_cursor.execute(sql, {"organizer_id": organizer_id})
+    rows = uow.dict_cursor.fetchall()
+
+    return [event_vm.InternalRegistrationDTO.from_db_dict_row(row) for row in rows]
+
+
 def get_attendance_data(qr_id: str, uow: AbstractUnitOfWork) -> event_vm.AttendanceDTO:
     sql = """
         select
@@ -179,3 +203,28 @@ def get_attendance_data(qr_id: str, uow: AbstractUnitOfWork) -> event_vm.Attenda
         raise event_ex.InvalidAttendanceQrId("The qr_id passed does not exist")
 
     return event_vm.AttendanceDTO.from_db_dict_row(row)
+
+
+def get_unpaid_registrations(
+    organizer_id: str, uow: AbstractUnitOfWork
+) -> List[event_vm.UnpaidRegistrationsDTO]:
+    sql = """
+        select
+            r.event_form_data::json->'fields' as form_data,
+            r.attendance_status,
+            e.name as event_name,
+            tx.amount,
+            r.created_at
+        from
+            registrations r
+            join events e on e.id = r.event_id
+            join transactions tx on tx.paypro_id = r.paypro_id
+        where
+            tx.status = 'PENDING'
+            and organizer_id = '147df93b-e2ee-50d3-bc36-258c28edcae7'
+    """
+
+    uow.dict_cursor.execute(sql, {"organizer_id": organizer_id})
+    rows = uow.dict_cursor.fetchall()
+
+    return [event_vm.UnpaidRegistrationsDTO.from_db_dict_row(row) for row in rows]

@@ -135,3 +135,39 @@ class AttendanceDTO:
             event_name=row["event_name"],
             registration_fee=row["registration_fee"],
         )
+
+
+@dataclass(frozen=True)
+class InternalRegistrationDTO:
+    full_name: str
+    phone_number: str
+    personal_email: str
+    event_name: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "InternalRegistrationDTO":
+        return InternalRegistrationDTO(
+            full_name=row["full_name"],
+            phone_number=row["phone_number"],
+            personal_email=row["personal_email"],
+            event_name=row["event_name"],
+        )
+
+
+@dataclass(frozen=True)
+class UnpaidRegistrationsDTO:
+    form_data: str
+    attendance_status: str
+    event_name: str
+    amount: int
+    created_at: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "UnpaidRegistrationsDTO":
+        return UnpaidRegistrationsDTO(
+            form_data=row["form_data"],
+            attendance_status=row["attendance_status"],
+            event_name=row["event_name"],
+            amount=row["amount"],
+            created_at=row["created_at"],
+        )
