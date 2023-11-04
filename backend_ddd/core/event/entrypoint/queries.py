@@ -221,7 +221,7 @@ def get_unpaid_registrations(
             join transactions tx on tx.paypro_id = r.paypro_id
         where
             tx.status = 'PENDING'
-            and organizer_id = '147df93b-e2ee-50d3-bc36-258c28edcae7'
+            and organizer_id = %(organizer_id)s
     """
 
     uow.dict_cursor.execute(sql, {"organizer_id": organizer_id})
