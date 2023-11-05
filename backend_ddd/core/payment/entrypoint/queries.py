@@ -28,6 +28,8 @@ from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import view_models as pmt_vm
 
+RECENT_TXS_COUNT = 25
+
 
 def get_wallet_balance(
     wallet_id: str,
@@ -725,3 +727,24 @@ def get_last_deposit_transaction(
         raise pmt_svc_ex.NoUserDepositRequest(f"User has no deposit request for id {user_id}")
 
     return pmt_vm.DepositTransactionDTO.from_db_dict_row(row)
+
+
+def get_last_n_pending_deposit_transactions(
+    uow: AbstractUnitOfWork,
+) -> List[pmt_vm.PayProAndTxIDsDTO]:
+    sql = """
+        select
+            paypro_id,
+            id
+        from
+            transactions tx
+        where
+            transaction_type='PAYMENT_GATEWAY'
+            and status = 'PENDING'
+        order by tx.created_at desc
+        limit %(recent_txs_count)s
+    """
+    uow.dict_cursor.execute(sql, {"recent_txs_count": RECENT_TXS_COUNT})
+    rows = uow.dict_cursor.fetchall()
+
+    return [pmt_vm.PayProAndTxIDsDTO.from_db_dict_row(row=r) for r in rows]

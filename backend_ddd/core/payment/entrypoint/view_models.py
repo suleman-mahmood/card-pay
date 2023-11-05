@@ -277,3 +277,16 @@ class DepositTransactionDTO:
             created_at=row["created_at"],
             last_updated=row["last_updated"],
         )
+
+
+@dataclass(frozen=True)
+class PayProAndTxIDsDTO:
+    tx_id: str
+    paypro_id: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "PayProAndTxIDsDTO":
+        return PayProAndTxIDsDTO(
+            tx_id=row["id"],
+            paypro_id=row["paypro_id"],
+        )

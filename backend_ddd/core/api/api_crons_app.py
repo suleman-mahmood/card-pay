@@ -9,108 +9,76 @@ from core.event.entrypoint import exceptions as event_ex
 from core.event.entrypoint import services as event_svc
 from core.marketing.entrypoint import queries as mktg_qry
 from core.marketing.entrypoint import services as mktg_svc
-from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
-from flask import Blueprint, request
+from flask import Blueprint
 
-pg = Blueprint("pg", __name__, url_prefix="/api/v1")
+crons_app = Blueprint("crons_app", __name__, url_prefix="/api/v1/crons-app")
 
 
-@pg.route("/pay-pro-callback", methods=["POST"])
-def pay_pro_callback():
-    """This api will only be called by PayPro"""
-
-    logging.info(
-        {
-            "message": "Pay Pro | Callback triggered",
-            "json_body": request.get_json(),
-        },
-    )
-
-    req = request.get_json()
-
-    if request.get_json() is None:
-        logging.info({"message": "Pay Pro | No json body"})
-        return [
-            {
-                "StatusCode": "01",
-                "InvoiceID": None,
-                "Description": "Invalid Data. Username or password is invalid",
-            }
-        ], 200
-
-    try:
-        user_name = req["username"]
-        password = req["password"]
-        csv_invoice_ids = req["csvinvoiceids"]
-    except KeyError as e:
-        logging.info({"message": "Pay Pro | Wrong json body"})
-        return [
-            {
-                "StatusCode": "01",
-                "InvoiceID": None,
-                "Description": "Invalid Data. Username or password is invalid",
-            }
-        ], 200
+@crons_app.route("paypro-inquiry-cron", methods=["GET"])
+def paypro_manual_inquiry():
+    logging.info({"message": "PayPro inquiry cron | starting"})
 
     uow = UnitOfWork()
-    try:
-        success_invoice_ids, not_found_invoice_ids = pp_svc.pay_pro_callback(
+
+    # Get last x pending deposit requests
+    pp_tx_ids = pmt_qry.get_last_n_pending_deposit_transactions(uow=uow)
+    logging.info(
+        {
+            "message": "PayPro inquiry cron | Fetched pending txns",
+            "txs": [res.__dict__ for res in pp_tx_ids],
+        }
+    )
+
+    # Check these requests from PayPro
+    paid_txs = [
+        pp_tx_id.tx_id
+        for pp_tx_id in pp_tx_ids
+        if pp_svc.invoice_paid(paypro_id=pp_tx_id.paypro_id, uow=uow)
+    ]
+    logging.info(
+        {
+            "message": "PayPro inquiry cron | Filtered paid txns",
+            "txs": paid_txs,
+        }
+    )
+
+    # For all of them that are now paid, run the callback function
+    user_name = os.environ.get("PAYPRO_USERNAME")
+    user_name = user_name if user_name is not None else ""
+
+    password = os.environ.get("PAYPRO_PASSWORD")
+    password = password if password is not None else ""
+
+    success_invoice_ids = []
+    for tx_id in paid_txs:
+        success_ids, _ = pp_svc.pay_pro_callback(
             user_name=user_name,
             password=password,
-            csv_invoice_ids=csv_invoice_ids,
+            csv_invoice_ids=tx_id,
             uow=uow,
         )
-
-    except pmt_svc_ex.InvalidPayProCredentialsException:
-        logging.info(
-            {
-                "message": "Pay Pro | Invalid credentials",
-                "passed_credentials": {
-                    "user_name": user_name,
-                    "password": password,
-                },
-                "my_credentials": {
-                    "user_name": os.environ.get("PAYPRO_USERNAME"),
-                    "password": os.environ.get("PAYPRO_PASSWORD"),
-                },
-            },
-        )
-        uow.close_connection()
-        return [
-            {
-                "StatusCode": "02",
-                "InvoiceID": None,
-                "Description": "Service Failure",
-            }
-        ], 200
-
-    except Exception:
-        logging.info({"message": "Pay Pro | An exception triggered"})
-        uow.close_connection()
-        return [
-            {
-                "StatusCode": "02",
-                "InvoiceID": None,
-                "Description": "Service Failure",
-            }
-        ], 200
+        success_invoice_ids += success_ids
 
     logging.info(
         {
-            "message": "Pay Pro | Going to give cashbacks",
-            "success_invoice_ids": success_invoice_ids,
-            "failed_invoice_ids": not_found_invoice_ids,
-        },
+            "message": "PayPro inquiry cron | Marked pending txns as paid in our database",
+            "txs": success_invoice_ids,
+        }
     )
+
+    ### ### ###
+    ### Do the rest of important stuff
+    ### ### ###
 
     # Give cashbacks for all the accepted transactions
     all_cashbacks = mktg_qry.get_all_cashbacks(uow=uow)
+    cb = []
     for tx_id in success_invoice_ids:
         tx_amount = pmt_qry.get_tx_balance(tx_id=tx_id, uow=uow)
         recipient_wallet_id = pmt_qry.get_tx_recipient(tx_id=tx_id, uow=uow)
@@ -127,10 +95,19 @@ def pay_pro_callback():
                 auth_svc=pmt_acl.AuthenticationService(),
                 uow=uow,
             )
+            cb.append(
+                {
+                    "cashback_amount": cashback_amount,
+                    "recipient_wallet_id": recipient_wallet_id,
+                }
+            )
         except pmt_svc_ex.TransactionFailedException:
             pass
 
+    logging.info({"message": "PayPro inquiry cron | Cashbacks given", "cashbacks": cb})
+
     # Send notifications
+    notifs = []
     for tx_id in success_invoice_ids:
         tx = uow.transactions.get(transaction_id=tx_id)
         try:
@@ -141,15 +118,28 @@ def pay_pro_callback():
                 uow=uow,
                 comms_svc=comms_acl.CommunicationService(),
             )
+            notifs.append(
+                {
+                    "user_id": tx.recipient_wallet.id,
+                    "amount": tx.amount,
+                    "status": "sent",
+                }
+            )
         except comms_svc_ex.FcmTokenNotFound as e:
             logging.info(
                 {
                     "message": "Pay Pro | Can't send notification | Custom exception raised",
                     "exception_type": e.__class__.__name__,
                     "exception_message": str(e),
-                    "json_request": req,
                     "silent": True,
                 },
+            )
+            notifs.append(
+                {
+                    "user_id": tx.recipient_wallet.id,
+                    "amount": tx.amount,
+                    "status": "token_not_found",
+                }
             )
         except Exception as e:
             logging.info(
@@ -157,16 +147,26 @@ def pay_pro_callback():
                     "message": "Pay Pro | Can't send notification | Unhandled exception raised",
                     "exception_type": 500,
                     "exception_message": str(e),
-                    "json_request": req,
                     "silent": True,
                 },
             )
+            notifs.append(
+                {
+                    "user_id": tx.recipient_wallet.id,
+                    "amount": tx.amount,
+                    "status": "error_500",
+                }
+            )
 
-    # Send registation emails
+    logging.info({"message": "PayPro inquiry cron | Notifications sent", "notifs": notifs})
+
+    # Send registation emails to successfull people
+    reg_emails = []
     for tx_id in success_invoice_ids:
         tx = uow.transactions.get(transaction_id=tx_id)
         try:
             event_svc.send_registration_email(paypro_id=tx.paypro_id, uow=uow)
+            reg_emails.append({"paypro_id": tx.paypro_id, "status": "sent"})
         except event_ex.PayproIdDoesNotExist as e:
             logging.info(
                 {
@@ -174,10 +174,10 @@ def pay_pro_callback():
                     "exception_type": e.__class__.__name__,
                     "paypro_id": tx.paypro_id,
                     "exception_message": str(e),
-                    "json_request": req,
                     "silent": True,
                 },
             )
+            reg_emails.append({"paypro_id": tx.paypro_id, "status": "no_regis_for_pp_id"})
         except Exception as e:
             logging.info(
                 {
@@ -185,35 +185,19 @@ def pay_pro_callback():
                     "paypro_id": tx.paypro_id,
                     "exception_type": 500,
                     "exception_message": str(e),
-                    "json_request": req,
                     "silent": True,
                 },
             )
-
-    res = []
-    for invoice_id in success_invoice_ids:
-        res.append(
-            {
-                "StatusCode": "00",
-                "InvoiceID": invoice_id,
-                "Description": "Invoice successfully marked as paid",
-            }
-        )
-    for invoice_id in not_found_invoice_ids:
-        res.append(
-            {
-                "StatusCode": "03",
-                "InvoiceID": invoice_id,
-                "Description": "No records found.",
-            }
-        )
+            reg_emails.append({"paypro_id": tx.paypro_id, "status": "error_500"})
 
     logging.info(
         {
-            "message": "Pay Pro | Callback finished successfully",
-            "response": res,
-        },
+            "message": "PayPro inquiry cron | Event registration confirmation emails sent",
+            "reg_emails": reg_emails,
+        }
     )
 
-    uow.commit_close_connection()
-    return res, 200
+    uow.close_connection()
+    logging.info({"message": "PayPro inquiry cron | finished successfully!"})
+
+    return "PayPro Inquiry Cron finished successfully!", 200

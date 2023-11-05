@@ -1,0 +1,5 @@
+cron:
+- description: "Paypro inquiry cron"
+  url: /api/v1/crons-app/paypro-inquiry-cron
+  schedule: every 5 mins
+  target: default
