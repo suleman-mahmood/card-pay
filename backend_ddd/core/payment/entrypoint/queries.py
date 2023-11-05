@@ -28,7 +28,7 @@ from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import view_models as pmt_vm
 
-RECENT_TXS_COUNT = 25
+RECENT_TXS_COUNT = 10
 
 
 def get_wallet_balance(
