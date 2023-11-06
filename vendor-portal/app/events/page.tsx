@@ -4,8 +4,6 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User as FirebaseUser } from "firebase/auth";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../services/initialize-firebase";
 import LoadingOverlay from "./spinner";
 import { useSearchParams } from 'next/navigation'
 
@@ -25,6 +23,7 @@ enum QuestionType {
     INPUT_FLOAT,
     MULTIPLE_CHOICE,
     DROPDOWN,
+    DYNAMIC_INPUT_STR,
 }
 
 enum ValidationEnum {
@@ -75,7 +74,7 @@ export default function page() {
     const [events, setEvents] = useState<Event[]>([]);
     const [user, setUser] = useState<FirebaseUser | null>(null);
     const [selectedEvent, setSelectedEvent] = useState<Event>();
-    const [formResponses, setFormResponses] = useState([]);
+    const [formResponses, setFormResponses] = useState({});
     const [checkedOptions, setCheckedOptions]: any = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [isLoadingSpinner, setIsLoadingSpinner] = useState(true);
@@ -86,6 +85,7 @@ export default function page() {
     const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
     const [email, setEmail] = useState('');
     const [isValidEmail, setIsValidEmail] = useState(false);
+    const [dynamicInputStrs, setDynamicInputStrs] = useState<{ [name: string]: string }>({});
 
     useEffect(() => {
         fetchEvents();
@@ -99,6 +99,8 @@ export default function page() {
     const handleSelectChange = (event: any) => {
         events.map((item) => {
             if (event.target.value === item.id) {
+                console.log(item);
+
                 setSelectedEvent(item);
             }
         })
@@ -138,8 +140,11 @@ export default function page() {
                         else if (item.type === 'MULTIPLE_CHOICE') {
                             item.type = QuestionType.MULTIPLE_CHOICE
                         }
-                        else {
+                        else if (item.type === 'DROPDOWN') {
                             item.type = QuestionType.DROPDOWN
+                        }
+                        else if (item.type === 'DYNAMIC_INPUT_STR') {
+                            item.type = QuestionType.DYNAMIC_INPUT_STR
                         }
                     })
                     if (item.id === SearchBar()) {
@@ -194,17 +199,22 @@ export default function page() {
 
     const submitForm = () => {
         setIsLoadingSpinner(true);
-        let formattedResponses: any = formResponses.filter((response) => response !== undefined);
+
+        const outputList = Object.entries(formResponses).map(([question, answer]) => ({ question, answer }));
+
+        let formattedResponses: any = outputList.filter((response) => response !== undefined);
         formattedResponses = { fields: formattedResponses }
+
+        console.log(formattedResponses);
+        return;
 
         sendFormData(user, formattedResponses, selectedEvent?.id)
     };
 
     const buildInput = (schemaItem: EventFormSchemaItem, index: any) => {
 
-        const handleInputChange: any = (e: any, option = null) => {
+        const handleInputChange: any = (e: any, question = null, option = null) => {
             let value;
-
             if (schemaItem.type === QuestionType.MULTIPLE_CHOICE) {
                 const clickedOption: any = checkedOptions.indexOf(option);
                 let all: any = [...checkedOptions];
@@ -215,8 +225,7 @@ export default function page() {
                 }
                 setCheckedOptions(all);
                 all = all.join(",")
-                const updatedResponses: any = [...formResponses];
-                updatedResponses[index] = { question: schemaItem.question, answer: all };
+                const updatedResponses: any = { ...formResponses, [schemaItem.question]: all };
                 setFormResponses(updatedResponses);
             }
             else if (schemaItem.type === QuestionType.INPUT_STR && index === 1) {
@@ -224,8 +233,7 @@ export default function page() {
                 setPhoneNumber(value);
                 const phoneNumberPattern = /^\+92\d{10}$/;
                 setIsValidPhoneNumber(phoneNumberPattern.test(value));
-                const updatedResponses: any = [...formResponses];
-                updatedResponses[index] = { question: schemaItem.question, answer: value };
+                const updatedResponses: any = { ...formResponses, [schemaItem.question]: value };
                 setFormResponses(updatedResponses);
             }
             else if (schemaItem.type === QuestionType.INPUT_STR && index === 2) {
@@ -233,14 +241,24 @@ export default function page() {
                 setEmail(value);
                 const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
                 setIsValidEmail(emailPattern.test(value));
-                const updatedResponses: any = [...formResponses];
-                updatedResponses[index] = { question: schemaItem.question, answer: value };
+                const updatedResponses: any = { ...formResponses, [schemaItem.question]: value };
+                setFormResponses(updatedResponses);
+            }
+            else if (schemaItem.type === QuestionType.DYNAMIC_INPUT_STR && question === null) {
+                value = e.target.value;
+                const updatedResponses: any = { ...formResponses, [schemaItem.question]: value };
+                const dis = { ...dynamicInputStrs, [index]: Number(value) }
+                setDynamicInputStrs(dis)
+                setFormResponses(updatedResponses);
+            }
+            else if (schemaItem.type === QuestionType.DYNAMIC_INPUT_STR) {
+                value = e.target.value;
+                const updatedResponses: any = { ...formResponses, [question!]: value };
                 setFormResponses(updatedResponses);
             }
             else {
                 value = e.target.value;
-                const updatedResponses: any = [...formResponses];
-                updatedResponses[index] = { question: schemaItem.question, answer: value };
+                const updatedResponses: any = { ...formResponses, [schemaItem.question]: value };
                 setFormResponses(updatedResponses);
             }
 
@@ -329,6 +347,28 @@ export default function page() {
                 </div>
             )
         }
+        if (schemaItem.type === QuestionType.DYNAMIC_INPUT_STR) {
+            return (
+                <div className="form-control">
+                    <input type="number" className="input input-bordered w-full max-w-xs" onChange={handleInputChange} />
+
+                    {Array.from({ length: dynamicInputStrs[index] }, (_, i) => i + 1).map((option, j) => (
+                        schemaItem.options.map((elem, k) => (
+                            <div key={k}>
+                                <label className="label">
+                                    <span className="label-text">{elem + ' ' + (j + 1).toString()}</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="input input-bordered w-full max-w-xs"
+                                    onChange={(e) => handleInputChange(e, elem + ' ' + (j + 1))}
+                                />
+                            </div>
+                        ))
+                    ))}
+                </div>
+            )
+        }
 
     }
 
@@ -351,7 +391,7 @@ export default function page() {
             <p><b>EVENT:</b> {selectedEvent.name}</p>
         )}
 
-        {   
+        {
             selectedEvent?.event_form_schema && (
                 selectedEvent?.event_form_schema.fields.map((field, i) => (
                     <div key={i}>
