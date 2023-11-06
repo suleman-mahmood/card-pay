@@ -1,5 +1,6 @@
 import logging
 import os
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from uuid import uuid4
 
@@ -17,7 +18,7 @@ from core.comms.entrypoint import anti_corruption as comms_acl
 from core.comms.entrypoint import commands as comms_cmd
 from core.comms.entrypoint import exceptions as comms_svc_ex
 from core.entrypoint import queries as app_queries
-from core.entrypoint.uow import UnitOfWork
+from core.entrypoint.uow import AbstractUnitOfWork, UnitOfWork
 from core.event.domain import exceptions as event_mdl_exc
 from core.event.domain import model as event_mdl
 from core.event.entrypoint import commands as event_cmd
@@ -1113,18 +1114,7 @@ def get_all_closed_loops(uid):
     ).__dict__
 
 
-@cardpay_app.route("/get-user-recent-transactions", methods=["GET"])
-@utils.authenticate_token
-@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
-@utils.user_verified
-def get_user_recent_transactions(uid):
-    uow = UnitOfWork()
-    txs = pmt_qry.get_all_successful_transactions_of_a_user(
-        user_id=uid,
-        offset=0,
-        page_size=50,
-        uow=uow,
-    )
+def check_last_deposit_transaction(uid: str, uow: AbstractUnitOfWork):
     try:
         deposit_tx = pmt_qry.get_last_deposit_transaction(user_id=uid, uow=uow)
         logging.info(
@@ -1171,12 +1161,6 @@ def get_user_recent_transactions(uid):
                         "not_found_invoice_ids": not_found_invoice_ids,
                     },
                 )
-                txs = pmt_qry.get_all_successful_transactions_of_a_user(
-                    user_id=uid,
-                    offset=0,
-                    page_size=50,
-                    uow=uow,
-                )
         uow.commit_close_connection()
     except pmt_svc_ex.NoUserDepositRequest:
         uow.close_connection()
@@ -1191,7 +1175,23 @@ def get_user_recent_transactions(uid):
                 "exception_message": str(e),
             },
         )
-        raise e
+
+
+@cardpay_app.route("/get-user-recent-transactions", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_user_recent_transactions(uid):
+    uow = UnitOfWork()
+    txs = pmt_qry.get_all_successful_transactions_of_a_user(
+        user_id=uid,
+        offset=0,
+        page_size=50,
+        uow=uow,
+    )
+
+    executor = ThreadPoolExecutor(max_workers=1)
+    executor.submit(check_last_deposit_transaction, uid, uow)
 
     return utils.Response(
         message="User recent transactions returned successfully",
