@@ -347,7 +347,7 @@ export default function page() {
                 <div className="form-control">
                     <input type="number" className="input input-bordered w-full max-w-xs" onChange={handleInputChange} />
 
-                    {Array.from({ length: dynamicInputStrs[index] }, (_, i) => i + 1).map((option, j) => (
+                    {Array.from({ length: Number(dynamicInputStrs[index]) }, (_, i) => i + 1).map((option, j) => (
                         schemaItem.options.map((elem, k) => (
                             <div key={k}>
                                 <label className="label">
