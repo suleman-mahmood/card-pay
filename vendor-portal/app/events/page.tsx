@@ -99,8 +99,6 @@ export default function page() {
     const handleSelectChange = (event: any) => {
         events.map((item) => {
             if (event.target.value === item.id) {
-                console.log(item);
-
                 setSelectedEvent(item);
             }
         })
@@ -204,9 +202,6 @@ export default function page() {
 
         let formattedResponses: any = outputList.filter((response) => response !== undefined);
         formattedResponses = { fields: formattedResponses }
-
-        console.log(formattedResponses);
-        return;
 
         sendFormData(user, formattedResponses, selectedEvent?.id)
     };
