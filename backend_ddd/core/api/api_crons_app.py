@@ -197,7 +197,7 @@ def paypro_manual_inquiry():
         }
     )
 
-    uow.close_connection()
+    uow.commit_close_connection()
     logging.info({"message": "PayPro inquiry cron | finished successfully!"})
 
     return "PayPro Inquiry Cron finished successfully!", 200
