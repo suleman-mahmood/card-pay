@@ -1,6 +1,6 @@
 import os
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import randint
 from typing import Tuple
 from uuid import uuid4
@@ -13,6 +13,7 @@ from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint.uow import AbstractUnitOfWork, FakeUnitOfWork, UnitOfWork
+from core.event.domain import model as event_mdl
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import commands as pmt_cmd
 
@@ -570,3 +571,39 @@ def _verify_phone_number(user_id, mocker, client):
         headers=headers,
     )
     return
+
+
+@pytest.fixture
+def seed_event():
+    def _seed_event(
+        organizer_id=str(uuid4()),
+        capacity=1,
+        registration_fee=1,
+        status=event_mdl.EventStatus.DRAFT,
+        registration_start_timestamp=datetime.now() + timedelta(minutes=1),
+        registration_end_timestamp=datetime.now() + timedelta(minutes=2),
+        event_start_timestamp=datetime.now() + timedelta(minutes=3),
+        event_end_timestamp=datetime.now() + timedelta(minutes=4),
+        closed_loop_id=str(uuid4()),
+    ) -> event_mdl.Event:
+        return event_mdl.Event(
+            id=str(uuid4()),
+            status=status,
+            registrations={},
+            cancellation_reason="",
+            name="CARD PAY FAIR",
+            organizer_id=organizer_id,
+            venue="SDSB B2",
+            capacity=capacity,
+            description="The ultimate fintech hackathon.",
+            image_url="https://media.licdn.com/dms/image/D4D16AQGJJTwwC6-6mA/profile-displaybackgroundimage-shrink_200_800/0/1686490135139?e=2147483647&v=beta&t=eJwseRkzlGuk3D8ImC5Ga1EajMf4kdgOkK3C0oHDHT4",
+            closed_loop_id=closed_loop_id,
+            registration_start_timestamp=registration_start_timestamp,
+            registration_end_timestamp=registration_end_timestamp,
+            event_start_timestamp=event_start_timestamp,
+            event_end_timestamp=event_end_timestamp,
+            registration_fee=registration_fee,
+            event_form_schema={"fields": []},
+        )
+
+    return _seed_event

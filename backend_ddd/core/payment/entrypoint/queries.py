@@ -709,8 +709,8 @@ def get_last_deposit_transaction(
             mode,
             transaction_type,
             status,
-            created_at at time zone '+5',
-            last_updated at time zone '+5'
+            created_at at time zone '+5' as created_at,
+            last_updated at time zone '+5' as last_updated
         from
             transactions
         where

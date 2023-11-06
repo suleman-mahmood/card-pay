@@ -1,9 +1,14 @@
 from io import BytesIO
+from typing import Dict, List
 
 import qrcode
 from core.comms.entrypoint import commands as comms_cmd
 from core.entrypoint.uow import AbstractUnitOfWork
+from core.event.domain import model as event_mdl
 from core.event.entrypoint import queries as event_qry
+
+DRAMALINE_EVENT_ID = "4399b8ea-0ee8-4b69-8187-861baf61c858"
+PARTICIPANTS_COUNT_QUESTION = "Number of delegates"
 
 
 def send_registration_email(paypro_id: str, uow: AbstractUnitOfWork):
@@ -65,3 +70,22 @@ def send_registration_email(paypro_id: str, uow: AbstractUnitOfWork):
         to=attendance_details.email,
         image_bytes=qr_code_bytes,
     )
+
+
+def calculate_ticket_price(
+    event_id: str,
+    form_data: Dict[str, List[event_mdl.EventFormDataItem]],
+    uow: AbstractUnitOfWork,
+) -> int:
+    event = uow.events.get(event_id=event_id)
+
+    if event_id != DRAMALINE_EVENT_ID:
+        return event.registration_fee
+
+    participants = int(
+        next(
+            item for item in form_data["fields"] if item.question == PARTICIPANTS_COUNT_QUESTION
+        ).answer
+    )
+
+    return participants * event.registration_fee

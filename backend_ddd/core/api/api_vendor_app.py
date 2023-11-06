@@ -12,6 +12,7 @@ from core.event.domain import model as event_mdl
 from core.event.entrypoint import commands as event_cmd
 from core.event.entrypoint import exceptions as event_svc_ex
 from core.event.entrypoint import queries as event_qry
+from core.event.entrypoint import services as event_svc
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
@@ -143,12 +144,18 @@ def register_event():
     uow = UnitOfWork()
 
     try:
-        event = uow.events.get(event_id=req["event_id"])
+        form_data = event_mdl.Registration.from_json_to_form_data(req["event_form_data"])
+        event_id = req["event_id"]
+
+        event = uow.events.get(event_id=event_id)
+        ticket_price = event_svc.calculate_ticket_price(
+            event_id=event_id, form_data=form_data, uow=uow
+        )
 
         checkout_url, paypro_id = pmt_cmd.create_any_deposit_request(
             tx_id=str(uuid4()),
             user_id=event.organizer_id,
-            amount=event.registration_fee,
+            amount=ticket_price,
             full_name=req["full_name"],
             phone_number=req["phone_number"],
             email=req["email"],
@@ -157,10 +164,10 @@ def register_event():
             pp_svc=pmt_acl.PayproService(),
         )
         event_cmd.register_user_open_loop(
-            event_id=req["event_id"],
+            event_id=event_id,
             qr_id=qr_id,
             current_time=datetime.now() + timedelta(hours=5),
-            event_form_data=event_mdl.Registration.from_json_to_form_data(req["event_form_data"]),
+            event_form_data=form_data,
             paypro_id=paypro_id,
             uow=uow,
         )
