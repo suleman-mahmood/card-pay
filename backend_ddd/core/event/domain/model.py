@@ -79,6 +79,7 @@ class QuestionType(str, Enum):
     INPUT_FLOAT = 3
     MULTIPLE_CHOICE = 4
     DROPDOWN = 5
+    DYNAMIC_INPUT_STR = 6
 
 
 @dataclass
