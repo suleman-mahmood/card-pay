@@ -290,3 +290,55 @@ class PayProAndTxIDsDTO:
             tx_id=row["id"],
             paypro_id=row["paypro_id"],
         )
+
+
+@dataclass(frozen=True)
+class DepositRequest:
+    tx_id: str
+    created_at: str
+    last_updated: str
+    amount: int
+    recipient_name: str
+    sender_name: str
+    status: str
+    paypro_id: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "DepositRequest":
+        return DepositRequest(
+            tx_id=row["id"],
+            created_at=row["created_at"],
+            last_updated=row["last_updated"],
+            amount=row["amount"],
+            recipient_name=row["recipient_name"],
+            sender_name=row["sender_name"],
+            status=row["status"],
+            paypro_id=row["paypro_id"],
+        )
+
+
+@dataclass(frozen=True)
+class DailyUserCheckpoints:
+    day: str
+    total_users: int
+    phone_verified_users: int
+    lums_registered_users: int
+    lums_verified_users: int
+    signup_success_users: int
+    pending_deposit_users: int
+    successful_deposit_users: int
+    percentage_acquisition: float
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "DailyUserCheckpoints":
+        return DailyUserCheckpoints(
+            day=row["day"],
+            total_users=row["total_users"],
+            phone_verified_users=row["phone_verified_users"],
+            lums_registered_users=row["lums_registered_users"],
+            lums_verified_users=row["lums_verified_users"],
+            signup_success_users=row["signup_success_users"],
+            pending_deposit_users=row["pending_deposit_users"],
+            successful_deposit_users=row["successful_deposit_users"],
+            percentage_acquisition=row["percentage_acquisition"],
+        )

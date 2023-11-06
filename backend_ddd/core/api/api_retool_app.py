@@ -931,3 +931,29 @@ def form_schema():
         raise e
 
     return utils.Response(message="Schema attached successfully", status_code=200, data={}).__dict__
+
+
+@retool.route("/deposit-requests", methods=["POST"])
+@utils.authenticate_retool_secret
+def deposit_requests():
+    uow = UnitOfWork()
+    dr = pmt_qry.get_deposit_requests(uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="Deposit requests returned successfully", status_code=200, data=dr
+    ).__dict__
+
+
+@retool.route("/daily-user-checkpoints", methods=["POST"])
+@utils.authenticate_retool_secret
+def daily_user_checkpoints():
+    uow = UnitOfWork()
+    duc = pmt_qry.get_daily_user_checkpoints(uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="Daily user checkpoints returned successfully",
+        status_code=200,
+        data=duc,
+    ).__dict__

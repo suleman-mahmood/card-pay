@@ -572,7 +572,7 @@ def get_tx_recipient(tx_id: str, uow: AbstractUnitOfWork) -> str:
 def get_daily_successful_deposits(uow: AbstractUnitOfWork):
     sql = """
         select
-            date(tx.created_at) as day,
+            date(tx.created_at at time zone '+5') as day,
             count(*) as successful_deposit_count,
             sum(tx.amount) as total_amount,
             avg(tx.amount)::int as avg_amount,
@@ -595,7 +595,7 @@ def get_daily_successful_deposits(uow: AbstractUnitOfWork):
 def get_daily_pending_deposits(uow: AbstractUnitOfWork):
     sql = """
         select
-            date(tx.created_at) as day,
+            date(tx.created_at at time zone '+5') as day,
             count(*) as pending_deposit_count,
             sum(tx.amount) as total_amount,
             avg(tx.amount)::int as avg_amount,
@@ -617,7 +617,7 @@ def get_daily_pending_deposits(uow: AbstractUnitOfWork):
 
 def get_daily_transactions(uow: AbstractUnitOfWork):
     sql = """
-    SELECT DATE(created_at) AS day,
+    SELECT DATE(created_at at time zone '+5') AS day,
         COUNT(*) AS transaction_count,
         SUM(amount) AS total_amount,
         AVG(amount)::INT AS avg_amount
@@ -639,7 +639,7 @@ def get_daily_transactions(uow: AbstractUnitOfWork):
 def get_monthly_transactions(uow: AbstractUnitOfWork):
     sql = """
         SELECT
-            DATE_TRUNC('month', created_at) AS month,
+            DATE_TRUNC('month', created_at at time zone '+5') AS month,
             COUNT(*) AS transaction_count,
             SUM(amount) AS total_amount,
             AVG(amount)::INT AS avg_amount
@@ -649,7 +649,7 @@ def get_monthly_transactions(uow: AbstractUnitOfWork):
             status = 'SUCCESSFUL'
             and transaction_type != 'CARD_PAY'
 
-        GROUP BY DATE_TRUNC('month', created_at)
+        GROUP BY DATE_TRUNC('month', created_at at time zone '+5')
         ORDER BY month;
         """
 
@@ -709,8 +709,8 @@ def get_last_deposit_transaction(
             mode,
             transaction_type,
             status,
-            created_at,
-            last_updated
+            created_at at time zone '+5',
+            last_updated at time zone '+5'
         from
             transactions
         where
@@ -748,3 +748,193 @@ def get_last_n_pending_deposit_transactions(
     rows = uow.dict_cursor.fetchall()
 
     return [pmt_vm.PayProAndTxIDsDTO.from_db_dict_row(row=r) for r in rows]
+
+
+def get_deposit_requests(uow: AbstractUnitOfWork) -> List[pmt_vm.DepositRequest]:
+    sql = """
+        select
+            tx.id,
+            tx.created_at at time zone '+5' as created_at,
+            tx.last_updated at time zone '+5' as last_updated,
+            amount,
+            r.full_name as recipient_name,
+            s.full_name as sender_name,
+            status,
+            tx.paypro_id
+        from
+            transactions tx
+            inner join users r on tx.recipient_wallet_id = r.wallet_id
+            inner join users s on tx.sender_wallet_id = s.wallet_id
+        where
+            transaction_type='PAYMENT_GATEWAY'
+        order by tx.created_at desc
+    """
+
+    uow.dict_cursor.execute(sql)
+    rows = uow.dict_cursor.fetchall()
+
+    return [pmt_vm.DepositRequest.from_db_dict_row(r) for r in rows]
+
+
+def get_daily_user_checkpoints(
+    uow: AbstractUnitOfWork,
+) -> List[pmt_vm.DailyUserCheckpoints]:
+    sql = """
+        with total_users as (
+            -- Daily users that tried to sign up
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+            group by day
+            order by day desc
+        ), phone_verified_users as (
+            -- Daily users that verified their phone otp
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join users u on w.id = u.wallet_id
+            where
+                is_phone_number_verified
+            group by day
+            order by day desc
+        ), phone_unverified_users as (
+            -- Daily users that failed to verify their phone otp
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join users u on w.id = u.wallet_id
+            where
+                not is_phone_number_verified
+            group by day
+            order by day desc
+        ), lums_registered_users as (
+            -- Daily users that tried to register to a closed loop
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join user_closed_loops ucl on w.id = ucl.user_id
+            group by day
+            order by day desc
+        ), lums_verified_users as (
+            -- Daily users that verified their closed loop
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join user_closed_loops ucl on w.id = ucl.user_id
+            where
+                ucl.status = 'VERIFIED'
+            group by day
+            order by day desc
+        ), lums_unverified_users as (
+            -- Daily users that failed to verify their closed loop
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join user_closed_loops ucl on w.id = ucl.user_id
+            where
+                ucl.status = 'UN_VERIFIED'
+            group by day
+            order by day desc
+        ), signup_success_users as (
+            -- Daily users that are at the dashboard
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join users u on w.id = u.wallet_id
+            where
+                pin != '0000'
+            group by day
+            order by day desc
+        ),  pin_not_setup_users as (
+            -- Daily users that are at the dashboard
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join users u on w.id = u.wallet_id
+            where
+                pin = '0000'
+            group by day
+            order by day desc
+        ), successful_deposit_users as (
+            -- Daily users that have done at least one successful deposit!
+            with wallets_with_transactions as (
+                select
+                    w.id as wallet_id
+                from
+                    wallets w
+                    join transactions tx on tx.recipient_wallet_id = w.id
+                where
+                    tx.transaction_type = 'PAYMENT_GATEWAY'
+                    and tx.status = 'SUCCESSFUL'
+                group by w.id
+            )
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join wallets_with_transactions wth on wth.wallet_id = w.id
+            group by day
+            order by day desc
+        ), pending_deposit_users as (
+            -- Daily users that have done at least one pending deposit!
+            with wallets_with_transactions as (
+                select
+                    w.id as wallet_id
+                from
+                    wallets w
+                    join transactions tx on tx.recipient_wallet_id = w.id
+                where
+                    tx.transaction_type = 'PAYMENT_GATEWAY'
+                    and tx.status = 'PENDING'
+                group by w.id
+            )
+            select
+                date(w.created_at at time zone '+5') as day,
+                count(*) as user_count
+            from
+                wallets w
+                join wallets_with_transactions wth on wth.wallet_id = w.id
+            group by day
+            order by day desc
+        )
+        select
+            tu.day,
+            tu.user_count as total_users,
+            pvu.user_count as phone_verified_users,
+            lru.user_count as lums_registered_users,
+            lvu.user_count as lums_verified_users,
+            ssu.user_count as signup_success_users,
+            pdu.user_count as pending_deposit_users,
+            sdu.user_count as successful_deposit_users,
+            round(cast(((sdu.user_count * 100)::double precision / tu.user_count::double precision) as numeric), 2) as percentage_acquisition
+        from
+            total_users tu
+            join phone_verified_users pvu on pvu.day = tu.day
+            join lums_registered_users lru on lru.day = tu.day
+            join lums_verified_users lvu on lvu.day = tu.day
+            join signup_success_users ssu on ssu.day = tu.day
+            join pending_deposit_users pdu on pdu.day = tu.day
+            join successful_deposit_users sdu on sdu.day = tu.day
+    """
+
+    uow.dict_cursor.execute(sql)
+    rows = uow.dict_cursor.fetchall()
+
+    return [pmt_vm.DailyUserCheckpoints.from_db_dict_row(r) for r in rows]

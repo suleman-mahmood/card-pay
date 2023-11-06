@@ -54,7 +54,7 @@ def get_all_closed_loops(uow: AbstractUnitOfWork):
 
 def get_all_closed_loops_with_user_counts(uow: AbstractUnitOfWork):
     sql = """
-        select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at, count(ucl.user_id)
+        select cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at at time zone '+5', count(ucl.user_id)
         from closed_loops cl
         left join user_closed_loops ucl on cl.id = ucl.closed_loop_id
         group by cl.id, cl.name, cl.logo_url, cl.description, cl.regex, cl.verification_type, cl.created_at
@@ -686,7 +686,7 @@ def get_total_users(uow: AbstractUnitOfWork):
 def get_signed_up_daily_users(uow: AbstractUnitOfWork):
     sql = """
         select
-            date(w.created_at) as day,
+            date(w.created_at at time zone '+5') as day,
             count(*) as user_count
         from
             users u
