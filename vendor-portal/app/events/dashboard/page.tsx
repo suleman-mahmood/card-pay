@@ -55,6 +55,7 @@ export default function page() {
   const [tabSelected, setTabSelected] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
   const [vendor_name, setVendorName] = useState<string>("");
+  const [maxIndex, setMaxIndex] = useState(0);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
@@ -92,6 +93,16 @@ export default function page() {
         const retrieved_registrations = data.data.external_registrations as Array<Registration>;
         const internal_registrations = data.data.internal_registrations as Array<InternalRegistration>;
         const unpaid_registrations = data.data.unpaid_registrations as Array<UnpaidRegistration>;
+
+        let maxLength = 0;
+        let maxIndex = 0;
+
+        retrieved_registrations.map((item, index) => {
+          if (item.form_data.length >= maxLength) {
+            maxIndex = index
+          }
+        })
+        setMaxIndex(maxIndex)
 
         setExternalRegistrations(retrieved_registrations);
         setInternalRegistrations(internal_registrations);
@@ -219,16 +230,16 @@ export default function page() {
           <table className="table">
             <thead>
               <tr className="bg-white">
-                {externalRegistrations.length !== 0 ? externalRegistrations[0].form_data.map((form_data, index) => (
+                <th>Event name</th>
+                <th>Status</th>
+                <th>Attendance status</th>
+                <th>Amount</th>
+                <th>Created at</th>
+                {externalRegistrations.length !== 0 ? externalRegistrations[maxIndex].form_data.map((form_data, index) => (
                   <th key={index}>
                     {form_data.question}
                   </th>
                 )) : null}
-                {/* <th>Event name</th>
-              <th>Status</th>
-              <th>Attendance status</th>
-              <th>Amount</th>
-              <th>Created at</th> */}
               </tr>
             </thead>
             <tbody>
@@ -236,16 +247,16 @@ export default function page() {
                 <tr
                   key={index}
                 >
+                  <td>{reg.event_name}</td>
+                  <td>{reg.status}</td> 
+                  <td>{reg.attendance_status}</td>
+                  <td>{reg.amount}</td>
+                  <td>{reg.created_at}</td>
                   {reg.form_data.map((form_data, index) => (
                     <td key={index}>
                       {form_data.answer}
                     </td>
                   ))}
-                  {/* <td>{reg.event_name}</td>
-                <td>{reg.status}</td> // Between we are only fetching successful invoices
-                <td>{reg.attendance_status}</td>
-                <td>{reg.amount}</td>
-                <td>{reg.created_at}</td> */}
                 </tr>
               ))}
             </tbody>
