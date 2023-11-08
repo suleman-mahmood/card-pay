@@ -6,12 +6,11 @@ from typing import Tuple
 from uuid import uuid4
 
 import pytest
-import sentry_sdk
-from core.api.api import app as flask_app
+
+# from core.api.api import app as flask_app
+from core.api.api_pytest import app as flask_app_test
 from core.authentication.domain import model as auth_mdl
-from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.authentication.entrypoint import commands as auth_cmd
-from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint.uow import AbstractUnitOfWork, FakeUnitOfWork, UnitOfWork
 from core.event.domain import model as event_mdl
 from core.payment.domain import model as pmt_mdl
@@ -20,26 +19,6 @@ from core.payment.entrypoint import commands as pmt_cmd
 
 @pytest.fixture(autouse=True)
 def initialize_pytest_config(mocker):
-    os.environ["DB_HOST"] = os.environ["DB_HOST_LOCAL"]
-    os.environ["DB_NAME"] = os.environ["DB_NAME_LOCAL"]
-    os.environ["DB_USER"] = os.environ["DB_USER_LOCAL"]
-    os.environ["DB_PASSWORD"] = os.environ["DB_PASSWORD_LOCAL"]
-    os.environ["DB_PORT"] = os.environ["DB_PORT_LOCAL"]
-
-    os.environ["EMAIL_USER"] = ""
-    os.environ["EMAIL_PASSWORD"] = ""
-
-    # PayPro stuff
-    os.environ["USERNAME"] = ""
-    os.environ["CLIENT_ID"] = ""
-    os.environ["CLIENT_SECRET"] = ""
-    os.environ["PAYPRO_BASE_URL"] = ""
-    os.environ["TOKEN_VALIDITY"] = ""
-
-    os.environ["SMS_API_TOKEN"] = ""
-    os.environ["SMS_API_SECRET"] = ""
-    os.environ["RETOOL_SECRET"] = ""
-
     mocker.patch("core.comms.entrypoint.commands.send_otp_sms", return_value=None)
     mocker.patch("core.comms.entrypoint.commands.send_marketing_sms", return_value=None)
     mocker.patch("core.comms.entrypoint.commands.send_email", return_value=None)
@@ -65,14 +44,13 @@ def initialize_pytest_config(mocker):
 
 @pytest.fixture()
 def app():
-    app = flask_app
-    sentry_sdk.init(transport=print)  # Disable the initialized sentry
-    app.config.update(
+    dev_app = flask_app_test
+    dev_app.config.update(
         {
             "TESTING": True,
         }
     )
-    yield app
+    yield dev_app
 
 
 @pytest.fixture()

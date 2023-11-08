@@ -13,3 +13,5 @@ credentials-prod.json
 /scripts/migration.py
 .coverage
 .pre-commit-config.yaml
+app.yaml
+dev_app.yaml
