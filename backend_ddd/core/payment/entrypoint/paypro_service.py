@@ -12,7 +12,7 @@ from core.payment.entrypoint import commands as cmd
 from core.payment.entrypoint import utils
 from core.payment.entrypoint.exceptions import *
 
-REQUEST_TIMEOUT = 10  # 10 seconds
+REQUEST_TIMEOUT = 20  # in seconds
 
 
 def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:

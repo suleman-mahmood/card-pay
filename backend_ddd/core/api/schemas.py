@@ -160,11 +160,8 @@ class AmountSchema(AbstractSchema):
         if not isinstance(self.value, int):
             raise utils.CustomException("Amount passed is not an integer")
 
-        if self.value <= 0:
-            raise utils.CustomException("Amount is zero or negative")
-
-        if self.value >= TX_UPPER_LIMIT:
-            raise utils.CustomException(f"Amount is greater than or equal to {TX_UPPER_LIMIT}")
+        if self.value < 0:
+            raise utils.CustomException("Amount is negative")
 
 
 @dataclass()
