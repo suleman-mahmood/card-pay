@@ -56,3 +56,11 @@ class CardPayWalletNotExists(Exception):
 
 class NoUserDepositRequest(Exception):
     """User has no deposit requests"""
+
+
+class NoNextReconciliationFound(Exception):
+    """No next reconciliation found"""
+
+
+class NoPreviousReconciliationFound(Exception):
+    """No previous reconciliation found"""

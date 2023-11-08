@@ -17,8 +17,8 @@ export interface Transaction {
   sender_name: string;
 }
 
-const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
-const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
+const BASE_URL_PROD = "https://cardpay-1.el.r.appspot.com";
+const BASE_URL_DEV = "https://dev-dot-cardpay-1.el.r.appspot.com";
 const BASE_URL = BASE_URL_PROD;
 
 export default function page() {
@@ -28,6 +28,12 @@ export default function page() {
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [balance, setBalance] = useState<number>(0);
   const [vendor_name, setVendorName] = useState<string>("");
+  const [currentReconciledTxnId, setCurrentReconciledTxnId] = useState<string>(
+    ""
+  );
+  const [lastestReconciledTxnId, setLatestReconciledTxnId] = useState<string>(
+    ""
+  );
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
@@ -73,17 +79,14 @@ export default function page() {
 
   const fetchVendorBalance = async (user: FirebaseUser) => {
     const token = await user?.getIdToken();
-    fetch(
-      `${BASE_URL}/api/v1/vendor-app/get-vendor-balance`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
+    fetch(`${BASE_URL}/api/v1/vendor-app/get-vendor-balance`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP Error! Status: ${response.status}`);
@@ -124,8 +127,135 @@ export default function page() {
       });
   };
 
+  const handlePrevious = async (currentReconciledTxnId: string) => {
+    setIsFetching(true);
+    const token = await user?.getIdToken();
+    let currentTx = "";
+
+    if (token === undefined) return;
+
+    if (currentReconciledTxnId === "") {
+      const response = await fetch(
+        `${BASE_URL}/api/v1/vendor-app/get-vendor-latest-reconciliation-txn-id`,
+        {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        return;
+      }
+      const data = await response.json();
+
+      currentTx = data.data.latest_reconciliation_txn_id;
+      setCurrentReconciledTxnId(currentTx);
+      setLatestReconciledTxnId(currentTx);
+    } else {
+      const response = await fetch(
+        `${BASE_URL}/api/v1/vendor-app/get-vendor-previous-reconciliation-txn-id?reconciled_txn_id=${currentReconciledTxnId}`,
+        {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        alert("No Previous Transactions Found.");
+        return;
+      }
+      const data = await response.json();
+      currentTx = data.data.previous_reconciliation_txn_id;
+      setCurrentReconciledTxnId(currentTx);
+    }
+
+    if (currentTx === undefined) {
+      return;
+    }
+
+    const response = await fetch(
+      `${BASE_URL}/api/v1/vendor-app/get-vendor-reconciled-transactions?reconciled_txn_id=${currentTx}`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      return;
+    }
+    const data = await response.json();
+    const retrieved_txns = data.data as Array<Transaction>;
+    setTxns(retrieved_txns);
+    setIsFetching(false);
+  };
+
+  const handleNext = async (currentReconciledTxnId: string) => {
+    setIsFetching(true);
+
+    if (currentReconciledTxnId === lastestReconciledTxnId) {
+      if (user === null) return;
+      setCurrentReconciledTxnId("");
+      fetchTransactions(user);
+      return;
+    }
+    const token = await user?.getIdToken();
+    let currentTx = "";
+    const response1 = await fetch(
+      `${BASE_URL}/api/v1/vendor-app/get-vendor-next-reconciliation-txn-id?reconciled_txn_id=${currentReconciledTxnId}`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response1.ok) {
+      alert("No Next Transactions Found.");
+      return;
+    }
+    const data1 = await response1.json();
+    currentTx = data1.data.next_reconciliation_txn_id;
+    setCurrentReconciledTxnId(currentTx);
+
+    if (currentTx === undefined) {
+      return;
+    }
+
+    const response = await fetch(
+      `${BASE_URL}/api/v1/vendor-app/get-vendor-reconciled-transactions?reconciled_txn_id=${currentTx}`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      return;
+    }
+    const data = await response.json();
+    const retrieved_txns = data.data as Array<Transaction>;
+    setTxns(retrieved_txns);
+    setIsFetching(false);
+  };
+
   return isFetching ? (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
+    <div className="flex flex-col items-center justify-between min-h-screen p-24">
       <TypeAnimation
         sequence={[
           // Same substring at the start will only be typed out once, initially
@@ -143,8 +273,25 @@ export default function page() {
       />
     </div>
   ) : (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
+    <div className="flex flex-col items-center justify-between min-h-screen p-24">
       <Table txns={txns} balance={balance} vendor_name={vendor_name} />
+
+      <div className="flex">
+        {currentReconciledTxnId && (
+          <div
+            className="max-w-xs mr-2 w-half btn btn-primary"
+            onClick={() => handleNext(currentReconciledTxnId)}
+          >
+            Next
+          </div>
+        )}
+        <div
+          className="max-w-xs w-half btn btn-primary"
+          onClick={() => handlePrevious(currentReconciledTxnId)}
+        >
+          Previous
+        </div>
+      </div>
     </div>
   );
 }

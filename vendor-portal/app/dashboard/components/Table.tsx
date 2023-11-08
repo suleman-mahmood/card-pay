@@ -21,6 +21,8 @@ const Table: React.FC<Props> = ({ txns, balance, vendor_name }) => {
   const [createdAt, setCreatedAt] = useState<string[]>([]);
 
   useEffect(() => {
+    createdAt && setCreatedAt([]);
+    times && setTimes([]);
     txns.map((txn) => {
       const timeStringGMT = txn.created_at;
       const parsedTimeGMT = moment.tz(
@@ -50,7 +52,7 @@ const Table: React.FC<Props> = ({ txns, balance, vendor_name }) => {
       <h1 className="mb-2 text-2xl font-bold text-center text-black">
         Transactions
       </h1>
-      <h3 className="mb-2 text-md text-center text-violet-600">
+      <h3 className="mb-2 text-center text-md text-violet-600">
         Balance: {balance}
       </h3>
       <table className="table lg:table-lg md:table-md sm:table-sm">

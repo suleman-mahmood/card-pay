@@ -103,6 +103,127 @@ def get_vendor(uid):
     ).__dict__
 
 
+@vendor_app.route("/get-vendor-previous-reconciliation-txn-id", methods=["GET"])
+@cross_origin(origin="*", headers=["Authorization"])
+@utils.authenticate_token
+@utils.authenticate_user_type(
+    allowed_user_types=[
+        auth_mdl.UserType.VENDOR,
+        auth_mdl.UserType.EVENT_ORGANIZER,
+    ]
+)
+@utils.user_verified
+def get_vendor_previous_reconciliation_txn_id(uid):
+    uow = UnitOfWork()
+    try:
+        previous_reconciliation_txn_id = pmt_qry.get_vendor_previous_reconciliation_txn_id(
+            vendor_id=uid,
+            reconciled_txn_id=request.args.get("reconciled_txn_id"),
+            uow=uow,
+        )
+    except pmt_svc_ex.NoPreviousReconciliationFound as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    uow.close_connection()
+
+    return utils.Response(
+        message="previous reconciliation txn id returned successfully",
+        status_code=200,
+        data={
+            "previous_reconciliation_txn_id": previous_reconciliation_txn_id,
+        },
+    ).__dict__
+
+
+@vendor_app.route("/get-vendor-next-reconciliation-txn-id", methods=["GET"])
+@cross_origin(origin="*", headers=["Authorization"])
+@utils.authenticate_token
+@utils.authenticate_user_type(
+    allowed_user_types=[
+        auth_mdl.UserType.VENDOR,
+        auth_mdl.UserType.EVENT_ORGANIZER,
+    ]
+)
+@utils.user_verified
+def get_vendor_next_reconciliation_txn_id(uid):
+    uow = UnitOfWork()
+
+    try:
+        next_reconciliation_txn_id = pmt_qry.get_vendor_next_reconciliation_txn_id(
+            vendor_id=uid,
+            reconciled_txn_id=request.args.get("reconciled_txn_id"),
+            uow=uow,
+        )
+    except pmt_svc_ex.NoNextReconciliationFound as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    uow.close_connection()
+
+    return utils.Response(
+        message="next reconciliation txn id returned successfully",
+        status_code=200,
+        data={
+            "next_reconciliation_txn_id": next_reconciliation_txn_id,
+        },
+    ).__dict__
+
+
+@vendor_app.route("/get-vendor-latest-reconciliation-txn-id", methods=["GET"])
+@cross_origin(origin="*", headers=["Authorization"])
+@utils.authenticate_token
+@utils.authenticate_user_type(
+    allowed_user_types=[
+        auth_mdl.UserType.VENDOR,
+        auth_mdl.UserType.EVENT_ORGANIZER,
+    ]
+)
+@utils.user_verified
+def get_vendor_latest_reconciliation_txn_id(uid):
+    uow = UnitOfWork()
+    latest_reconciliation_txn_id = pmt_qry.get_vendor_latest_reconciliation_txn_id(
+        vendor_id=uid,
+        uow=uow,
+    )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Latest reconciliation txn id returned successfully",
+        status_code=200,
+        data={
+            "latest_reconciliation_txn_id": latest_reconciliation_txn_id,
+        },
+    ).__dict__
+
+
+@vendor_app.route("/get-vendor-reconciled-transactions", methods=["GET"])
+@cross_origin(origin="*", headers=["Authorization"])
+@utils.authenticate_token
+@utils.authenticate_user_type(
+    allowed_user_types=[
+        auth_mdl.UserType.VENDOR,
+        auth_mdl.UserType.EVENT_ORGANIZER,
+    ]
+)
+@utils.user_verified
+def get_vendor_reconciled_transactions(uid):
+    uow = UnitOfWork()
+    transactions = pmt_qry.payment_retools_get_reconciled_transactions(
+        vendor_id=uid,
+        reconciliation_txn_id=request.args.get("reconciled_txn_id"),
+        uow=uow,
+    )
+
+    uow.close_connection()
+
+    return utils.Response(
+        message="Reconciled Transactions returned successfully",
+        status_code=200,
+        data=transactions,
+    ).__dict__
+
+
 """ 
     --- --- --- --- --- --- --- --- --- --- --- ---
     Events
@@ -116,7 +237,8 @@ def get_live_events():
     uow = UnitOfWork()
 
     try:
-        events = event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
+        events = event_qry.get_live_events(
+            closed_loop_id=closed_loop_id, uow=uow)
         uow.close_connection()
 
     except Exception as e:
