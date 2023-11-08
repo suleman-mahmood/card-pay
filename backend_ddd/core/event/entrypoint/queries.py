@@ -226,6 +226,7 @@ def get_unpaid_registrations(
         where
             tx.status = 'PENDING'
             and organizer_id = %(organizer_id)s
+        order by r.created_at desc;
     """
 
     uow.dict_cursor.execute(sql, {"organizer_id": organizer_id})
