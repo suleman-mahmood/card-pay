@@ -150,6 +150,7 @@ def get_registrations(
             join transactions tx on tx.paypro_id = r.paypro_id
         where
             r.paypro_id in (select unnest(%(paypro_ids)s::text[]))
+        order by r.created_at desc;
     """
 
     uow.dict_cursor.execute(sql, {"paypro_ids": paypro_ids})
@@ -167,14 +168,17 @@ def get_internal_registrations(
             u.full_name, 
             u.personal_email, 
             e.name as event_name,
-            u.phone_number
+            u.phone_number,
+            r.created_at
         from 
             users u
         inner join 
             registrations r on u.id = r.user_id
         inner join 
             events e on r.event_id = e.id
-        where e.organizer_id = %(organizer_id)s and r.paypro_id is null;
+        where 
+            e.organizer_id = %(organizer_id)s and r.paypro_id is null
+        order by r.created_at desc;
     """
     uow.dict_cursor.execute(sql, {"organizer_id": organizer_id})
     rows = uow.dict_cursor.fetchall()
@@ -222,6 +226,7 @@ def get_unpaid_registrations(
         where
             tx.status = 'PENDING'
             and organizer_id = %(organizer_id)s
+        order by r.created_at desc;
     """
 
     uow.dict_cursor.execute(sql, {"organizer_id": organizer_id})
