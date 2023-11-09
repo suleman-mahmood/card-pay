@@ -231,7 +231,6 @@ export default function page() {
             <thead>
               <tr className="bg-white">
                 <th>Event name</th>
-                <th>Status</th>
                 <th>Attendance status</th>
                 <th>Amount</th>
                 <th>Created at</th>
@@ -248,7 +247,6 @@ export default function page() {
                   key={index}
                 >
                   <td>{reg.event_name}</td>
-                  <td>{reg.status}</td> 
                   <td>{reg.attendance_status}</td>
                   <td>{reg.amount}</td>
                   <td>{reg.created_at}</td>
@@ -270,7 +268,11 @@ export default function page() {
           <table className="table">
             <thead>
               <tr className="bg-white">
-                {unpaidRegistrations.length !== 0 ? unpaidRegistrations[0].form_data.map((form_data, index) => (
+                <th>Event name</th>
+                <th>Attendance status</th>
+                <th>Amount</th>
+                <th>Created at</th>
+                {externalRegistrations.length !== 0 ? externalRegistrations[maxIndex].form_data.map((form_data, index) => (
                   <th key={index}>
                     {form_data.question}
                   </th>
@@ -282,6 +284,10 @@ export default function page() {
                 <tr
                   key={index}
                 >
+                  <td>{reg.event_name}</td>
+                  <td>{reg.attendance_status}</td>
+                  <td>{reg.amount}</td>
+                  <td>{reg.created_at}</td>
                   {reg.form_data.map((form_data, index) => (
                     <td key={index}>
                       {form_data.answer}
