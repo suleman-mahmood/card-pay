@@ -1,5 +1,7 @@
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
+import 'package:cardpay/src/domain/repositories/database_repository.dart';
 import 'package:cardpay/src/locator.dart';
+import 'package:cardpay/src/presentation/cubits/local/local_balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
@@ -94,6 +96,11 @@ class MainApp extends StatelessWidget {
               BlocProvider(
                 create: (context) =>
                     RegisterEventCubit(locator<ApiRepository>()),
+              ),
+              // Local
+              BlocProvider(
+                create: (context) =>
+                    LocalBalanceCubit(locator<DatabaseRepository>()),
               ),
             ],
             child: MaterialApp.router(

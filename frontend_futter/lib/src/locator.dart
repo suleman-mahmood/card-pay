@@ -1,9 +1,12 @@
 import 'package:awesome_dio_interceptor/awesome_dio_interceptor.dart';
 import 'package:cardpay/firebase_options.dart';
+import 'package:cardpay/src/data/datasources/local/app_database.dart';
 import 'package:cardpay/src/data/datasources/remote/python_api_service.dart';
 import 'package:cardpay/src/data/repositories/api_repository_fake.dart';
 import 'package:cardpay/src/data/repositories/api_repository_imp.dart';
+import 'package:cardpay/src/data/repositories/database_repository_impl.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
+import 'package:cardpay/src/domain/repositories/database_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +20,13 @@ final locator = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final db = await $FloorAppDatabase.databaseBuilder('zambeel').build();
+  locator.registerSingleton<AppDatabase>(db);
+
+  locator.registerSingleton<DatabaseRepository>(
+    DatabaseRepositoryImpl(locator<AppDatabase>()),
+  );
 
   final dio = Dio();
   dio.interceptors.add(AwesomeDioInterceptor());
@@ -36,9 +46,7 @@ Future<void> initializeDependencies() async {
 
   locator.registerSingleton<Dio>(dio);
 
-  locator.registerSingleton<PythonApiService>(
-    PythonApiService(locator<Dio>()),
-  );
+  locator.registerSingleton<PythonApiService>(PythonApiService(locator<Dio>()));
 
   locator.registerSingleton<ApiRepository>(
     ApiRepositoryImpl(locator<PythonApiService>()),
@@ -48,9 +56,7 @@ Future<void> initializeDependencies() async {
     await SharedPreferences.getInstance(),
   );
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
 
   FlutterError.onError = (errorDetails) {

@@ -38,6 +38,7 @@ dependencies:
   dio_smart_retry: ^5.0.0
   qr_flutter: ^4.1.0
   firebase_messaging: ^14.7.2
+  floor: ^1.4.2
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +50,7 @@ dev_dependencies:
   retrofit_generator: ^7.0.1
   json_serializable: ^6.7.0
   flutter_launcher_icons: ^0.13.1
+  floor_generator: ^1.4.2
 
 flutter:
   uses-material-design: true
