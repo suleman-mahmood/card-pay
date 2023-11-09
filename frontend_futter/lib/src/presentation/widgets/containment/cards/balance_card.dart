@@ -1,40 +1,59 @@
+import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/utils/constants/payment_strings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:skeleton_loader/skeleton_loader.dart';
 
 class BalanceCard extends HookWidget {
-  final String balance;
-  final String topRightImage;
-  final String bottomLeftImage;
-
   const BalanceCard({
     super.key,
-    required this.balance,
-    required this.topRightImage,
-    required this.bottomLeftImage,
   });
 
   @override
   Widget build(BuildContext context) {
+    String balance = 'Rs. ';
+    String topRightImage = 'assets/images/balance_corner.png';
+    String bottomLeftImage = 'assets/images/balance_corner2.png';
     final deviceHeight = MediaQuery.of(context).size.height;
 
-    Widget _cardContent() {
+    Widget _cardContent(bool loading) {
       return PaddingAll(
         slab: 2,
         child: Column(
           children: [
             Row(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(PaymentStrings.totalBalance,
-                        style: AppTypography.subHeading),
-                    Text(balance, style: AppTypography.mainHeadingWhite)
-                  ],
-                ),
+                loading
+                    ? SizedBox(
+                        height: 60,
+                        width: 200,
+                        child: SkeletonLoader(
+                          builder: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(PaymentStrings.totalBalance,
+                                  style: AppTypography.subHeading),
+                              Text(balance,
+                                  style: AppTypography.mainHeadingWhite),
+                            ],
+                          ),
+                          items: 1,
+                          period: const Duration(seconds: 2),
+                          highlightColor: AppColors.greyColor,
+                          direction: SkeletonDirection.ltr,
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(PaymentStrings.totalBalance,
+                              style: AppTypography.subHeading),
+                          Text(balance, style: AppTypography.mainHeadingWhite)
+                        ],
+                      ),
               ],
             ),
           ],
@@ -47,7 +66,7 @@ class BalanceCard extends HookWidget {
         top: 0,
         right: 0,
         child: ClipRRect(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topRight: Radius.circular(10.0), // Adjust the radius as needed
           ),
           child: Image.asset(
@@ -62,7 +81,7 @@ class BalanceCard extends HookWidget {
         bottom: 0,
         left: 0,
         child: ClipRRect(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(10.0), // Adjust the radius as needed
           ),
           child: Image.asset(
@@ -72,23 +91,58 @@ class BalanceCard extends HookWidget {
       );
     }
 
-    return Card(
-      color: AppColors.purpleColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: deviceHeight * 0.19,
-        ),
-        child: Stack(
-          children: [
-            _cardContent(),
-            _topRightImage(),
-            _bottomLeftImage(),
-          ],
-        ),
-      ),
-    );
+    return BlocBuilder<BalanceCubit, BalanceState>(builder: (_, state) {
+      switch (state.runtimeType) {
+        case BalanceLoading:
+          return Card(
+            color: AppColors.purpleColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: deviceHeight > 900
+                    ? deviceHeight * 0.19
+                    : deviceHeight > 750
+                        ? deviceHeight * 0.16
+                        : deviceHeight * 0.19,
+              ),
+              child: Stack(
+                children: [
+                  _cardContent(true),
+                  _topRightImage(),
+                  _bottomLeftImage(),
+                ],
+              ),
+            ),
+          );
+        case BalanceSuccess:
+          balance = 'Rs. ${state.balance.amount.toString()}';
+          return Card(
+            color: AppColors.purpleColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: deviceHeight > 900
+                    ? deviceHeight * 0.19
+                    : deviceHeight > 750
+                        ? deviceHeight * 0.16
+                        : deviceHeight * 0.19,
+              ),
+              child: Stack(
+                children: [
+                  _cardContent(false),
+                  _topRightImage(),
+                  _bottomLeftImage(),
+                ],
+              ),
+            ),
+          );
+        default:
+          return const SizedBox.shrink();
+      }
+    });
   }
 }

@@ -8,8 +8,7 @@ class OverlayLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height -
-          (inSafeArea ? MediaQuery.of(context).padding.top : 0),
+      height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: Stack(
         children: [

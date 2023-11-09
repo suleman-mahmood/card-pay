@@ -27,13 +27,13 @@ class BasicViewLayout extends HookWidget {
       return child;
     }
 
-    return Stack(
-      children: [
-        Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: backgroundColor,
-          body: SafeArea(
-            child: shouldCenter(
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: backgroundColor,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            shouldCenter(
               child: PaddingHorizontal(
                 slab: 2,
                 child: SingleChildScrollView(
@@ -50,13 +50,13 @@ class BasicViewLayout extends HookWidget {
                 ),
               ),
             ),
-          ),
+            PaddingHorizontal(
+              slab: 2,
+              child: Header(title: headerTitle),
+            ),
+          ],
         ),
-        PaddingHorizontal(
-          slab: 2,
-          child: Header(title: headerTitle),
-        ),
-      ],
+      ),
     );
   }
 }

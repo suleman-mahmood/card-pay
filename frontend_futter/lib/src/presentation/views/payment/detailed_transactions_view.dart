@@ -51,33 +51,35 @@ class DetailedTransactionsView extends HookWidget {
       );
     }
 
-    return Column(
-      children: [
-        const HeightBox(slab: 5),
-        PaddingHorizontal(
-          slab: 1,
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(PaymentStrings.transactionHistory,
-                    style: AppTypography.bodyText),
-              ),
-              InkWell(
-                onTap: _showModalBottomSheet,
-                child: Transform.scale(
-                  scale: 1.75,
-                  child: Icon(
-                    Icons.filter_alt,
-                    color: AppColors.greyColor.withOpacity(0.35),
+    return SafeArea(
+      child: Column(
+        children: [
+          const HeightBox(slab: 5),
+          PaddingHorizontal(
+            slab: 1,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(PaymentStrings.transactionHistory,
+                      style: AppTypography.bodyText),
+                ),
+                InkWell(
+                  onTap: _showModalBottomSheet,
+                  child: Transform.scale(
+                    scale: 1.75,
+                    child: Icon(
+                      Icons.filter_alt,
+                      color: AppColors.greyColor.withOpacity(0.35),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const HeightBox(slab: 3),
-        transactionList,
-      ],
+          const HeightBox(slab: 3),
+          transactionList,
+        ],
+      ),
     );
   }
 }

@@ -18,6 +18,7 @@ import 'package:cardpay/src/presentation/widgets/containment/cards/transaction_h
 import 'package:cardpay/src/presentation/widgets/containment/cards/greeting_card.dart';
 import 'package:cardpay/src/presentation/widgets/containment/cards/services_card.dart';
 import 'package:cardpay/src/utils/constants/payment_strings.dart';
+import 'package:skeleton_loader/skeleton_loader.dart';
 
 @RoutePage()
 class PaymentDashboardView extends HookWidget {
@@ -34,6 +35,7 @@ class PaymentDashboardView extends HookWidget {
     final balanceCubit = BlocProvider.of<BalanceCubit>(context);
     final recentTransactionsCubit =
         BlocProvider.of<RecentTransactionsCubit>(context);
+    final deviceHeight = MediaQuery.of(context).size.height;
 
     String displayName(String fullName) {
       final words = fullName.split(" ");
@@ -44,93 +46,88 @@ class PaymentDashboardView extends HookWidget {
       return words[0];
     }
 
-    return PaddingAll(
-      slab: 1,
-      child: RefreshIndicator(
-        onRefresh: () async {
+    return GestureDetector(
+      // reload when gesture scroll downn
+      onVerticalDragEnd: (details) {
+        if (details.primaryVelocity! > 100) {
           balanceCubit.getUserBalance();
           recentTransactionsCubit.getUserRecentTransactions();
-
-          // We are much faster than one sec :P
-          return Future<void>.delayed(const Duration(seconds: 1));
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              // Full name and avatar wala section
-              const HeightBox(slab: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        }
+      },
+      child: Container(
+        constraints: BoxConstraints.loose(
+          Size.fromHeight(deviceHeight),
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+        ),
+        // height - safe area height
+        //height: double.infinity,
+        margin: const EdgeInsets.only(
+          // bottom padding to accomodate the bottom navigation bar = qr code button height + bottom navigation bar height + some extra padding
+          bottom: 36 + 10,
+          top: 10,
+          left: 5,
+          right: 5,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Full name and avatar wala section
+            SizedBox(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  BlocBuilder<UserCubit, UserState>(
-                    builder: (_, state) {
-                      switch (state.runtimeType) {
-                        case UserLoading:
-                          return const ShimmerLoading(
-                            child: CircleListItemLoading(),
-                          );
-                        case UserSuccess || UserInitial:
-                          return GreetingRow(
-                            greeting: PaymentStrings.greet,
-                            name: displayName(state.user.fullName),
-                            imagePath: 'assets/images/talha.jpg',
-                          );
-                        default:
-                          return const SizedBox.shrink();
-                      }
-                    },
+                  const HeightBox(slab: 1),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      BlocBuilder<UserCubit, UserState>(
+                        builder: (_, state) {
+                          switch (state.runtimeType) {
+                            case UserLoading:
+                              return const ShimmerLoading(
+                                child: CircleListItemLoading(),
+                              );
+                            case UserSuccess || UserInitial:
+                              return GreetingRow(
+                                greeting: PaymentStrings.greet,
+                                name: displayName(state.user.fullName),
+                                imagePath: 'assets/images/talha.jpg',
+                              );
+                            default:
+                              return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+                      Transform.scale(
+                        scale: 1.75,
+                        child: IconButton(
+                          icon: const Icon(Icons.menu),
+                          color: AppColors.greyColor,
+                          onPressed: () {
+                            scaffoldKey?.currentState!.openEndDrawer();
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  Transform.scale(
-                    scale: 1.75,
-                    child: IconButton(
-                      icon: const Icon(Icons.menu),
-                      color: AppColors.greyColor,
-                      onPressed: () {
-                        scaffoldKey?.currentState!.openEndDrawer();
-                      },
-                    ),
-                  ),
+                  const SizedBox(height: 4),
+                  const BalanceCard(),
                 ],
               ),
+            ),
+            // Transactions wala section
 
-              // Balance wala section
-              const HeightBox(slab: 3),
-              BlocBuilder<BalanceCubit, BalanceState>(
-                builder: (_, state) {
-                  switch (state.runtimeType) {
-                    case BalanceLoading:
-                      return const Column(
+            BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
+              builder: (_, state) {
+                switch (state.runtimeType) {
+                  case RecentTransactionsLoading:
+                    return SkeletonLoader(
+                      builder: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircularProgressIndicator(),
-                          HeightBox(slab: 3),
-                        ],
-                      );
-                    case BalanceSuccess:
-                      return BalanceCard(
-                        balance: 'Rs. ${state.balance.amount.toString()}',
-                        topRightImage: 'assets/images/balance_corner.png',
-                        bottomLeftImage: 'assets/images/balance_corner2.png',
-                      );
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                },
-              ),
-
-              // Transactions wala section
-              BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
-                builder: (_, state) {
-                  switch (state.runtimeType) {
-                    case RecentTransactionsLoading:
-                      return const CircularProgressIndicator();
-                    case RecentTransactionsSuccess:
-                      if (state.recentTransactions.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
-                      return Column(
-                        children: [
-                          const HeightBox(slab: 2),
+                          SizedBox(height: deviceHeight * 0.007),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -138,130 +135,224 @@ class PaymentDashboardView extends HookWidget {
                               style: AppTypography.bodyTextBold,
                             ),
                           ),
-                          const HeightBox(slab: 1),
-                          SizedBox(
-                            height: MediaQuery.sizeOf(context).width / 4,
-                            child: RefreshIndicator(
-                              onRefresh: () async {
-                                balanceCubit.getUserBalance();
-                                recentTransactionsCubit
-                                    .getUserRecentTransactions();
-
-                                // We are much faster than one sec :P
-                                return Future<void>.delayed(
-                                    const Duration(seconds: 1));
-                              },
-                              child: ListView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: min(
-                                  2,
-                                  state.recentTransactions.length,
-                                ),
-                                itemBuilder: (_, index) {
-                                  return TransactionContainer(
-                                    senderName: state
-                                        .recentTransactions[index].senderName,
-                                    recipientName: state
-                                        .recentTransactions[index]
-                                        .recipientName,
-                                    amount: state
-                                        .recentTransactions[index].amount
-                                        .toString(),
-                                    currentUserName:
-                                        userCubit.state.user.fullName,
-                                  );
-                                },
+                          SizedBox(height: deviceHeight * 0.007),
+                          Column(
+                            children: [
+                              TransactionContainer(
+                                loading: true,
+                                senderName: 'Sender Name',
+                                recipientName: 'Recipient Name',
+                                amount: 'Rs',
+                                currentUserName: 'Current User Name',
+                                timeOfTransaction: DateTime.now(),
                               ),
+                              if (deviceHeight > 750)
+                                TransactionContainer(
+                                  loading: true,
+                                  senderName: 'Sender Name',
+                                  recipientName: 'Recipient Name',
+                                  amount: 'Rs',
+                                  currentUserName: 'Current User Name',
+                                  timeOfTransaction: DateTime.now(),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  case RecentTransactionsSuccess:
+                    if (state.recentTransactions.isEmpty) {
+                      // a no transaction found widget
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: deviceHeight * 0.007),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              PaymentStrings.recentTransactions,
+                              style: AppTypography.bodyTextBold,
+                            ),
+                          ),
+                          SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.13,
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                /* Image.asset(
+                                  'assets/images/logo.png',
+                                  height: 80,
+                                  width: 80,
+                                  color: AppColors.greyColor,
+                                ), */
+                                // const SizedBox(width: 8),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'No Recent Transactions Found!',
+                                      style: TextStyle(
+                                        color: Colors.black54,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Make a Deposit or Transfer',
+                                      style: TextStyle(
+                                        color: AppColors.greyColor,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       );
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                },
-              ),
+                    }
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(height: deviceHeight * 0.007),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            PaymentStrings.recentTransactions,
+                            style: AppTypography.bodyTextBold,
+                          ),
+                        ),
+                        SizedBox(height: deviceHeight * 0.007),
+                        // using a column instead of list to display the entire container
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TransactionContainer(
+                              senderName:
+                                  state.recentTransactions[0].senderName,
+                              recipientName:
+                                  state.recentTransactions[0].recipientName,
+                              amount:
+                                  state.recentTransactions[0].amount.toString(),
+                              currentUserName: userCubit.state.user.fullName,
+                              timeOfTransaction:
+                                  state.recentTransactions[0].createdAt,
+                            ),
+                            if (deviceHeight > 750)
+                              TransactionContainer(
+                                senderName:
+                                    state.recentTransactions[1].senderName,
+                                recipientName:
+                                    state.recentTransactions[1].recipientName,
+                                amount: state.recentTransactions[1].amount
+                                    .toString(),
+                                currentUserName: userCubit.state.user.fullName,
+                                timeOfTransaction:
+                                    state.recentTransactions[1].createdAt,
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                  default:
+                    return const SizedBox.shrink();
+                }
+              },
+            ),
+            // Reason? Wrapping it with Column prevents any unnecessary distance between the two rows, due to the parent column with space between property
+            Column(
+              children: [
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomBox(
+                      imagePath: 'assets/icon/deposit.svg',
+                      text: PaymentStrings.deposit,
+                      route: DepositAmountRoute(),
+                      cardColor: Color.fromRGBO(6, 127, 205, 1),
+                      splashColor: Color.fromRGBO(3, 83, 136, 1),
+                    ),
+                    CustomBox(
+                      imagePath: 'assets/icon/transfer.svg',
+                      text: PaymentStrings.transfer,
+                      route: TransferRecipientRoute(),
+                      cardColor: Color.fromRGBO(1, 204, 136, 1),
+                      splashColor: Color.fromRGBO(1, 96, 64, 1),
+                    )
+                  ],
+                ),
+                SizedBox(height: deviceHeight * 0.01),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomBox(
+                      imagePath: 'assets/icon/faqs.svg',
+                      text: PaymentStrings.events,
+                      route: EventSelectorRoute(),
+                      cardColor: Color.fromRGBO(1, 204, 192, 1),
+                      splashColor: Color.fromRGBO(1, 84, 79, 1),
+                    ),
+                    CustomBox(
+                      imagePath: 'assets/icon/faqs.svg',
+                      text: PaymentStrings.faq,
+                      route: FaqsRoute(),
+                      cardColor: Color.fromRGBO(1, 204, 192, 1),
+                      splashColor: Color.fromRGBO(1, 84, 79, 1),
+                    ),
+                  ],
+                ),
+              ],
+            ),
 
-              const HeightBox(slab: 3),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomBox(
-                    imagePath: 'assets/images/Upwork-3.png',
-                    text: PaymentStrings.deposit,
-                    route: DepositAmountRoute(),
-                  ),
-                  CustomBox(
-                    imagePath: 'assets/images/Upwork.png',
-                    text: PaymentStrings.transfer,
-                    route: TransferRecipientRoute(),
-                  )
-                ],
-              ),
-              const HeightBox(slab: 1),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomBox(
-                    imagePath: 'assets/images/faq.png',
-                    text: PaymentStrings.events,
-                    route: EventSelectorRoute(),
-                  ),
-                  CustomBox(
-                    imagePath: 'assets/images/faq.png',
-                    text: PaymentStrings.faq,
-                    route: FaqsRoute(),
-                  ),
-                ],
-              ),
+            // // // // // //// // // // // // // // // //
+            // The two rows and scroll left right thingy //
+            // // // // // //// // // // // // // // // //
 
-              // // // // // //// // // // // // // // // //
-              // The two rows and scroll left right thingy //
-              // // // // // //// // // // // // // // // //
-
-              // const HeightBox(slab: 3),
-              // const SingleChildScrollView(
-              //   scrollDirection: Axis.horizontal,
-              //   child: Row(
-              //     children: [
-              //       CustomBox(
-              //         imagePath: 'assets/images/Upwork-3.png',
-              //         text: PaymentStrings.deposit,
-              //         route: DepositAmountRoute(),
-              //       ),
-              //       WidthBetween(),
-              //       CustomBox(
-              //         imagePath: 'assets/images/Upwork.png',
-              //         text: PaymentStrings.transfer,
-              //         route: TransferRecipientRoute(),
-              //       ),
-              //       WidthBetween(),
-              //       CustomBox(
-              //         imagePath: 'assets/images/faq.png',
-              //         text: PaymentStrings.faq,
-              //         route: FaqsRoute(),
-              //       ),
-              //       WidthBetween(),
-              //       CustomBox(
-              //         imagePath: 'assets/images/request-disabled.png',
-              //         text: PaymentStrings.request,
-              //         isDisabled: true,
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              // const HeightBox(slab: 3),
-              // const Row(
-              //   children: [
-              //     CustomBox(
-              //       imagePath: 'assets/images/faq.png',
-              //       text: PaymentStrings.events,
-              //       route: EventSelectorRoute(),
-              //     ),
-              //   ],
-              // ),
-            ],
-          ),
+            // const HeightBox(slab: 3),
+            // const SingleChildScrollView(
+            //   scrollDirection: Axis.horizontal,
+            //   child: Row(
+            //     children: [
+            //       CustomBox(
+            //         imagePath: 'assets/images/Upwork-3.png',
+            //         text: PaymentStrings.deposit,
+            //         route: DepositAmountRoute(),
+            //       ),
+            //       WidthBetween(),
+            //       CustomBox(
+            //         imagePath: 'assets/images/Upwork.png',
+            //         text: PaymentStrings.transfer,
+            //         route: TransferRecipientRoute(),
+            //       ),
+            //       WidthBetween(),
+            //       CustomBox(
+            //         imagePath: 'assets/images/faq.png',
+            //         text: PaymentStrings.faq,
+            //         route: FaqsRoute(),
+            //       ),
+            //       WidthBetween(),
+            //       CustomBox(
+            //         imagePath: 'assets/images/request-disabled.png',
+            //         text: PaymentStrings.request,
+            //         isDisabled: true,
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const HeightBox(slab: 3),
+            // const Row(
+            //   children: [
+            //     CustomBox(
+            //       imagePath: 'assets/images/faq.png',
+            //       text: PaymentStrings.events,
+            //       route: EventSelectorRoute(),
+            //     ),
+            //   ],
+            // ),
+          ],
         ),
       ),
     );

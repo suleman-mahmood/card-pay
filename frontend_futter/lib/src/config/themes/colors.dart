@@ -24,6 +24,9 @@ class AppColors {
   static const Color greyColor = Colors.grey;
   static const Color lightGreyColor = Color.fromARGB(255, 249, 246, 246);
 
+  static Color inflowAmountColor = AppColors.greenColor;
+  static Color outflowAmountColor = AppColors.redColor;
+
   static const Color greenColor = Colors.lightGreen;
   static const Color blackColor = Colors.black;
 
@@ -102,6 +105,18 @@ class AppTypography {
   static TextStyle bodyText = TextStyle(
     fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     color: AppColors.blackColor,
+    fontSize: 16,
+  );
+  static TextStyle transactionAmountInflow = TextStyle(
+    fontWeight: FontWeight.bold,
+    color: AppColors.inflowAmountColor,
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+    fontSize: 16,
+  );
+  static TextStyle transactionAmountOutflow = TextStyle(
+    fontWeight: FontWeight.bold,
+    color: AppColors.outflowAmountColor,
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     fontSize: 16,
   );
   static TextStyle bodyTextBold = TextStyle(

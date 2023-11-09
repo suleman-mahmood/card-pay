@@ -5,6 +5,7 @@ import 'package:cardpay/src/utils/constants/payment_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomBox extends StatelessWidget {
   final String imagePath;
@@ -12,7 +13,8 @@ class CustomBox extends StatelessWidget {
   final PageRouteInfo? route;
   final bool isDisabled;
   final String disabledMessage;
-
+  final Color cardColor;
+  final Color splashColor;
   const CustomBox({
     Key? key,
     required this.imagePath,
@@ -20,6 +22,8 @@ class CustomBox extends StatelessWidget {
     this.route,
     this.isDisabled = false,
     this.disabledMessage = PaymentStrings.comingSoon,
+    this.cardColor = AppColors.teal,
+    this.splashColor = AppColors.teal,
   }) : super(key: key);
 
   @override
@@ -34,9 +38,13 @@ class CustomBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         child: Container(
           color: Colors.transparent,
-          height: deviceHeight * 0.165,
+          height: deviceHeight > 900
+              ? deviceHeight * 0.165
+              : deviceHeight > 750
+                  ? deviceHeight * 0.14
+                  : deviceHeight * 0.15,
           width: deviceWidth * 0.42,
-          child: Image.asset(
+          child: SvgPicture.asset(
             imagePath,
             fit: BoxFit.cover,
           ),
@@ -76,7 +84,10 @@ class CustomBox extends StatelessWidget {
     return Material(
       elevation: 8.0,
       borderRadius: BorderRadius.circular(10),
+      color: cardColor,
       child: InkWell(
+        splashColor: splashColor,
+        borderRadius: BorderRadius.circular(10),
         onTap: onTap,
         child: buildStack(),
       ),

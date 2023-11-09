@@ -53,7 +53,7 @@ class PaymentStrings {
   static const String receipt = 'Receipt';
   static const String seeAll = 'See All';
   static const String history = 'History';
-  static const String transaction = 'Transaction';
+  static const String transaction = 'Transactions';
   static const String phone = 'Phone Number';
 
   static const String successful = 'Transaction Successful';

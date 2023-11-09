@@ -14,55 +14,64 @@ class FaqsView extends HookWidget {
   const FaqsView({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          color: AppColors.teal,
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: FractionallySizedBox(
-              heightFactor: 3 / 4,
-              child: DecoratedBox(
-                decoration: CustomBoxDecoration.getDecoration(),
-                child: PaddingHorizontal(
-                    slab: 1,
-                    child: FutureBuilder(
-                      future: rootBundle.loadString('assets/files/faqs.json'),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          final List<dynamic> data =
-                              json.decode(snapshot.data.toString());
-                          return ListView(
-                            children: data.map<Widget>((item) {
-                              return Card(
-                                child: ExpansionTile(
-                                  title: Text(item['title']),
-                                  children: <Widget>[
-                                    ListTile(title: Text(item['listTile'])),
-                                  ],
-                                ),
+    return SafeArea(
+      child: Stack(
+        children: [
+          Container(
+            color: AppColors.teal,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FractionallySizedBox(
+                heightFactor: 3 / 4,
+                child: DecoratedBox(
+                  decoration: CustomBoxDecoration.getDecoration(),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 24.0),
+                    child: PaddingHorizontal(
+                        slab: 2,
+                        child: FutureBuilder(
+                          future:
+                              rootBundle.loadString('assets/files/faqs.json'),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              final List<dynamic> data =
+                                  json.decode(snapshot.data.toString());
+                              return ListView(
+                                children: data.map<Widget>((item) {
+                                  return Card(
+                                    child: ExpansionTile(
+                                      title: Text(item['title']),
+                                      children: <Widget>[
+                                        ListTile(title: Text(item['listTile'])),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
                               );
-                            }).toList(),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        }
-                        return const CircularProgressIndicator();
-                      },
-                    )),
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+                            return Container(
+                                alignment: AlignmentDirectional.center,
+                                width: double.infinity,
+                                child: const CircularProgressIndicator());
+                          },
+                        )),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-        const PaddingHorizontal(
-          slab: 2,
-          child: Header(
-            showBackButton: true,
-            showMainHeading: true,
-            mainHeadingText: PaymentStrings.helpDetail,
+          const PaddingHorizontal(
+            slab: 2,
+            child: Header(
+              showBackButton: true,
+              showMainHeading: true,
+              mainHeadingText: PaymentStrings.helpDetail,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

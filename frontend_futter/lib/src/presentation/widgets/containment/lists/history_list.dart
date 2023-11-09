@@ -29,9 +29,25 @@ class TransactionList extends HookWidget {
       builder: (_, state) {
         switch (state.runtimeType) {
           case RecentTransactionsLoading:
-            return const Center(child: CircularProgressIndicator());
+            return ListView.builder(
+              itemCount: 4,
+              itemBuilder: (context, index) {
+                return PaddingHorizontal(
+                  slab: 3,
+                  child: TransactionContainer(
+                    loading: true,
+                    senderName: 'Sender Name',
+                    recipientName: 'Recipient Name',
+                    amount: 'Rs',
+                    currentUserName: 'Current User Name',
+                    timeOfTransaction: DateTime.now(),
+                  ),
+                );
+              },
+            );
           case RecentTransactionsSuccess:
             return RefreshIndicator(
+              backgroundColor: AppColors.secondaryColor,
               onRefresh: () async {
                 balanceCubit.getUserBalance();
                 recentTransactionsCubit.getUserRecentTransactions();
@@ -44,12 +60,13 @@ class TransactionList extends HookWidget {
                 itemBuilder: (context, index) {
                   final transaction = state.recentTransactions[index];
                   return PaddingHorizontal(
-                    slab: 1,
+                    slab: 3,
                     child: TransactionContainer(
                       amount: transaction.amount.toString(),
                       senderName: transaction.senderName,
                       recipientName: transaction.recipientName,
                       currentUserName: userCubit.state.user.fullName,
+                      timeOfTransaction: transaction.createdAt,
                     ),
                   );
                 },

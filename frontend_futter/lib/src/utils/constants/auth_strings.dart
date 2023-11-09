@@ -65,7 +65,7 @@ class AppStrings {
   static const String resendCode = 'Resend code';
   static const String noOtp = 'Didn\'t receive the code?';
   static const String verify = 'Verify';
-  static const String revolution = 'Revolutionise your transactions';
+  static const String revolution = 'Revolutionise\nyour\ntransactions';
   static const String start = 'Get Started';
   static const String organization = 'Organization';
   static const String register = 'Register  organization';

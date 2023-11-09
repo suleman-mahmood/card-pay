@@ -81,41 +81,43 @@ class ReceiptView extends HookWidget {
     }
 
     return Scaffold(
-      body: Column(
-        children: [
-          BlocListener<DepositCubit, DepositState>(
-            listener: (_, state) {
-              if (state.runtimeType == DepositSuccess && topOfNavigationStack) {
-                depositCubit.init();
-              }
-            },
-            child: const SizedBox.shrink(),
-          ),
-          BlocListener<TransferCubit, TransferState>(
-            listener: (_, state) {
-              if (state.runtimeType == TransferSuccess &&
-                  topOfNavigationStack) {
-                transferCubit.init();
-              }
-            },
-            child: const SizedBox.shrink(),
-          ),
-          buildHeader(),
-          const HeightBox(slab: 3),
-          buildSuccessImage(),
-          const HeightBox(slab: 3),
-          buildSuccessLabel(),
-          const HeightBox(slab: 2),
-          buildBalanceLabel(),
-          const HeightBox(slab: 2),
-          buildConfirmationContainer(),
-          PrimaryButton(
-            text: PaymentStrings.done,
-            color: AppColors.parrotColor,
-            onPressed: handleDoneClick,
-          ),
-          const HeightBox(slab: 5),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            BlocListener<DepositCubit, DepositState>(
+              listener: (_, state) {
+                if (state.runtimeType == DepositSuccess && topOfNavigationStack) {
+                  depositCubit.init();
+                }
+              },
+              child: const SizedBox.shrink(),
+            ),
+            BlocListener<TransferCubit, TransferState>(
+              listener: (_, state) {
+                if (state.runtimeType == TransferSuccess &&
+                    topOfNavigationStack) {
+                  transferCubit.init();
+                }
+              },
+              child: const SizedBox.shrink(),
+            ),
+            buildHeader(),
+            const HeightBox(slab: 3),
+            buildSuccessImage(),
+            const HeightBox(slab: 3),
+            buildSuccessLabel(),
+            const HeightBox(slab: 2),
+            buildBalanceLabel(),
+            const HeightBox(slab: 2),
+            buildConfirmationContainer(),
+            PrimaryButton(
+              text: PaymentStrings.done,
+              color: AppColors.parrotColor,
+              onPressed: handleDoneClick,
+            ),
+            const HeightBox(slab: 5),
+          ],
+        ),
       ),
     );
   }

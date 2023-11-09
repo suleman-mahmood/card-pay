@@ -90,83 +90,85 @@ class DepositAmountView extends HookWidget {
       );
     }
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: AppColors.mediumBlueColor,
-          body: Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.secondaryColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0),
-                  topRight: Radius.circular(30.0),
+    return Scaffold(
+      backgroundColor: AppColors.mediumBlueColor,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.secondaryColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30.0),
+                    topRight: Radius.circular(30.0),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const HeightBox(slab: 3),
+                    BlocConsumer<DepositCubit, DepositState>(
+                      builder: (_, state) {
+                        switch (state.runtimeType) {
+                          case DepositFailed:
+                            return Text(
+                              state.errorMessage,
+                              style: const TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            );
+                          default:
+                            return const SizedBox.shrink();
+                        }
+                      },
+                      listener: (_, state) {
+                        switch (state.runtimeType) {
+                          case DepositSuccess:
+                            showDepositUrl(state.checkoutUrl);
+                            break;
+                        }
+                      },
+                    ),
+                    buildAmountDisplay(),
+                    const HeightBox(slab: 2),
+                    buildQuickAmountButtons(),
+                    const HeightBox(slab: 2),
+                    NumPad(
+                      controller: paymentController,
+                      buttonColor: AppColors.greyColor,
+                    ),
+                    const HeightBox(slab: 1),
+                    PrimaryButton(
+                      color: AppColors.mediumBlueColor,
+                      text: PaymentStrings.continueText,
+                      onPressed: () {
+                        if (paymentController.text.isEmpty) return;
+
+                        final amount = int.parse(paymentController.text);
+                        depositCubit.createDepositRequest(amount);
+                      },
+                    ),
+                    const HeightBox(slab: 4),
+                  ],
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const HeightBox(slab: 3),
-                  BlocConsumer<DepositCubit, DepositState>(
-                    builder: (_, state) {
-                      switch (state.runtimeType) {
-                        case DepositFailed:
-                          return Text(
-                            state.errorMessage,
-                            style: const TextStyle(color: Colors.red),
-                            textAlign: TextAlign.center,
-                          );
-                        default:
-                          return const SizedBox.shrink();
-                      }
-                    },
-                    listener: (_, state) {
-                      switch (state.runtimeType) {
-                        case DepositSuccess:
-                          showDepositUrl(state.checkoutUrl);
-                          break;
-                      }
-                    },
-                  ),
-                  buildAmountDisplay(),
-                  const HeightBox(slab: 2),
-                  buildQuickAmountButtons(),
-                  const HeightBox(slab: 2),
-                  NumPad(
-                    controller: paymentController,
-                    buttonColor: AppColors.greyColor,
-                  ),
-                  const HeightBox(slab: 1),
-                  PrimaryButton(
-                    color: AppColors.mediumBlueColor,
-                    text: PaymentStrings.continueText,
-                    onPressed: () {
-                      if (paymentController.text.isEmpty) return;
-
-                      final amount = int.parse(paymentController.text);
-                      depositCubit.createDepositRequest(amount);
-                    },
-                  ),
-                  const HeightBox(slab: 4),
-                ],
-              ),
             ),
-          ),
+            const PaddingHorizontal(
+              slab: 2,
+              child: Header(title: DepositViewConstants.title),
+            ),
+            BlocBuilder<DepositCubit, DepositState>(builder: (_, state) {
+              switch (state.runtimeType) {
+                case DepositLoading:
+                  return const OverlayLoading();
+                default:
+                  return const SizedBox.shrink();
+              }
+            }),
+          ],
         ),
-        const PaddingHorizontal(
-          slab: 2,
-          child: Header(title: DepositViewConstants.title),
-        ),
-        BlocBuilder<DepositCubit, DepositState>(builder: (_, state) {
-          switch (state.runtimeType) {
-            case DepositLoading:
-              return const OverlayLoading();
-            default:
-              return const SizedBox.shrink();
-          }
-        }),
-      ],
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -52,9 +53,9 @@ class Header extends HookWidget {
             : Padding(
                 padding: EdgeInsets.fromLTRB(
                   horizontalPadding * 0,
-                  verticalPadding * 4,
+                  verticalPadding * 2,
                   horizontalPadding * 9,
-                  verticalPadding * 3,
+                  verticalPadding * 4,
                 ),
                 child: Row(
                   children: [
@@ -69,6 +70,7 @@ class Header extends HookWidget {
                   ],
                 ),
               ),
+        HeightBox(slab: 2),
         if (showMainHeading && mainHeadingText != null)
           Text(
             mainHeadingText!,

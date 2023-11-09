@@ -66,51 +66,55 @@ class IntroView extends HookWidget {
 
     return AuthLayout(
       showBackButton: false,
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const HeightBox(slab: 3),
-            SlideTransition(
-              position: imageAnimationOffset,
-              child: Image.asset('assets/images/transection.png'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const HeightBox(slab: 3),
+          SlideTransition(
+            position: imageAnimationOffset,
+            child: Image.asset('assets/images/transection.png',
+                height: MediaQuery.of(context).size.height * 0.5),
+          ),
+          const HeightBox(slab: 1),
+          Text(
+            AppStrings.revolution,
+            textAlign: TextAlign.center,
+            style: AppTypography.introHeading.copyWith(
+              // no context in AppTypography so have to use it here
+              fontSize: MediaQuery.of(context).size.height * 0.05,
             ),
-            Text(
-              AppStrings.revolution,
-              textAlign: TextAlign.center,
-              style: AppTypography.introHeading,
+          ),
+          const HeightBox(slab: 4),
+          FadeTransition(
+            opacity: fadeAnimation,
+            child: PrimaryButton(
+              text: AppStrings.start,
+              onPressed: () {
+                versionCubit.getVersions();
+                context.router.push(const SignupRoute());
+              },
             ),
-            const HeightBox(slab: 3),
-            FadeTransition(
-              opacity: fadeAnimation,
-              child: PrimaryButton(
-                text: AppStrings.start,
-                onPressed: () {
-                  versionCubit.getVersions();
-                  context.router.push(const SignupRoute());
-                },
+          ),
+          const HeightBox(slab: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                AppStrings.alreadyHaveAccount,
+                style: AppTypography.bodyText,
               ),
-            ),
-            const HeightBox(slab: 3),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  AppStrings.alreadyHaveAccount,
-                  style: AppTypography.bodyText,
+              const WidthBetween(),
+              GestureDetector(
+                onTap: handleLoginClick,
+                child: Text(
+                  AppStrings.logIn,
+                  style: AppTypography.linkText,
                 ),
-                const WidthBetween(),
-                GestureDetector(
-                  onTap: handleLoginClick,
-                  child: Text(
-                    AppStrings.logIn,
-                    style: AppTypography.linkText,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -12,6 +12,7 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:cardpay/src/presentation/widgets/containment/lists/history_list.dart';
 import 'package:cardpay/src/utils/constants/payment_strings.dart';
+import 'package:skeleton_loader/skeleton_loader.dart';
 
 @RoutePage()
 class TransactionsView extends HookWidget {
@@ -29,19 +30,27 @@ class TransactionsView extends HookWidget {
               decoration: CustomBoxDecoration.getDecoration(),
               child: Column(
                 children: [
-                  const HeightBox(slab: 3),
+                  const HeightBox(slab: 1),
                   const PaddingAll(
                     slab: 2,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
+                        SizedBox(
+                          width: 10,
+                        ),
                         Text(
                           PaymentStrings.transaction,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 24),
                         ),
+                        const Spacer(),
                         Text(
                           PaymentStrings.seeAll,
                           style: TextStyle(color: AppColors.purpleColor),
+                        ),
+                        SizedBox(
+                          width: 5,
                         ),
                       ],
                     ),
@@ -57,7 +66,7 @@ class TransactionsView extends HookWidget {
             switch (state.runtimeType) {
               case BalanceSuccess:
                 return PaddingHorizontal(
-                  slab: 2,
+                  slab: 1,
                   child: Header(
                     showBackButton: false,
                     title: PaymentStrings.history,
@@ -66,7 +75,19 @@ class TransactionsView extends HookWidget {
                   ),
                 );
               default:
-                return const SizedBox.shrink();
+                return SkeletonLoader(
+                  builder: PaddingHorizontal(
+                    slab: 1,
+                    child: Header(
+                      showBackButton: false,
+                      title: PaymentStrings.history,
+                      showMainHeading: true,
+                      mainHeadingText: "",
+                    ),
+                  ),
+                  highlightColor: AppColors.secondaryColor,
+                  direction: SkeletonDirection.ltr,
+                );
             }
           },
         ),
