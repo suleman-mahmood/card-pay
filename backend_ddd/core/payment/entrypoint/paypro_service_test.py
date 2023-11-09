@@ -3,6 +3,8 @@
 # from time import sleep
 # from uuid import uuid4
 
+from datetime import datetime, timedelta
+
 from core.entrypoint.uow import UnitOfWork
 from core.payment.entrypoint import paypro_service as pp_svc
 
@@ -64,3 +66,14 @@ from core.payment.entrypoint import paypro_service as pp_svc
 #     uow.close_connection()
 
 #     assert invoice_paid == False
+
+
+# def test_invoice_range():
+#     uow = UnitOfWork()
+
+#     start_date = datetime.now() - timedelta(days=3)
+#     end_date = datetime.now()
+
+#     pp_svc.invoice_range(start_date=start_date, end_date=end_date, uow=uow)
+
+#     uow.close_connection()

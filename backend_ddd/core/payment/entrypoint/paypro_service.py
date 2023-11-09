@@ -10,6 +10,7 @@ from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.entrypoint import commands as cmd
 from core.payment.entrypoint import utils
+from core.payment.entrypoint import view_models as vm
 from core.payment.entrypoint.exceptions import *
 
 REQUEST_TIMEOUT = 10  # in seconds
@@ -271,3 +272,33 @@ def invoice_paid(paypro_id: str, uow: AbstractUnitOfWork) -> bool:
         )
 
     return order_status == "PAID"
+
+
+def invoice_range(
+    start_date: datetime, end_date: datetime, uow: AbstractUnitOfWork
+) -> List[vm.PayProOrderResponseDTO]:
+    auth_token = _get_paypro_auth_token(uow=uow)
+    config = {
+        "method": "get",
+        "url": f"{os.environ.get('PAYPRO_BASE_URL')}/v2/ppro/gpo",
+        "data": json.dumps(
+            {
+                "Username": os.environ.get("USERNAME"),
+                "startDate": start_date.isoformat(),
+                "endDate": end_date.isoformat(),
+            }
+        ),
+        "headers": {
+            "token": auth_token,
+        },
+    }
+
+    try:
+        pp_res = requests.request(**config, timeout=REQUEST_TIMEOUT)
+    except requests.exceptions.Timeout:
+        raise PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
+
+    pp_res.raise_for_status()
+    json_res = pp_res.json()
+
+    return [vm.PayProOrderResponseDTO.from_pp_api(response=order) for order in json_res]

@@ -1052,3 +1052,33 @@ def get_daily_user_checkpoints(
 
     return [pmt_vm.DailyUserCheckpoints.from_db_dict_row(r) for r in rows]
 
+  
+def get_many_transactions(
+    tx_ids: List[str], uow: AbstractUnitOfWork
+) -> List[pmt_vm.TransactionWithIdsDTO]:
+    sql = """
+        select 
+            txn.id,
+            txn.amount,
+            txn.mode,
+            txn.transaction_type,
+            txn.status,
+            txn.created_at,
+            txn.last_updated,
+            txn.sender_wallet_id as sender_id,
+            txn.recipient_wallet_id as recipient_id,
+            txn.paypro_id,
+            sender.full_name as sender_name,
+            recipient.full_name as recipient_name
+        from 
+            transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+            right join unnest(%(tx_ids)s::uuid[]) txs(id) on txs.id = txn.id
+        order by txn.created_at desc
+    """
+
+    uow.dict_cursor.execute(sql, {"tx_ids": tx_ids})
+    rows = uow.dict_cursor.fetchall()
+
+    return [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]

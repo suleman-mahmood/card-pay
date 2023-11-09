@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 
 from core.authentication.domain import model as auth_mdl
 from core.payment.domain import model as payment_mdl
@@ -289,6 +289,23 @@ class PayProAndTxIDsDTO:
         return PayProAndTxIDsDTO(
             tx_id=row["id"],
             paypro_id=row["paypro_id"],
+        )
+
+
+@dataclass(frozen=True)
+class PayProOrderResponseDTO:
+    tx_id: str
+    paypro_id: str
+    tx_status: str
+    amount: int
+
+    @classmethod
+    def from_pp_api(cls, response: Dict) -> "PayProOrderResponseDTO":
+        return PayProOrderResponseDTO(
+            tx_id=response.get("OrderId", ""),
+            paypro_id=response.get("PayProId", ""),
+            tx_status=response.get("TransactionStatus", ""),
+            amount=response.get("Amount Paid", 0),
         )
 
 

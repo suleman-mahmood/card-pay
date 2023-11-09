@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from uuid import uuid4
 
@@ -20,6 +21,7 @@ from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
+from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
 from flask import Blueprint, request
 
@@ -956,4 +958,57 @@ def daily_user_checkpoints():
         message="Daily user checkpoints returned successfully",
         status_code=200,
         data=duc,
+    ).__dict__
+
+
+@retool.route("paypro-ghost-invoices-report", methods=["POST"])
+@utils.authenticate_retool_secret
+def paypro_ghost_invoices_report():
+    logging.info({"message": "PayPro ghost invoices report | starting"})
+
+    uow = UnitOfWork()
+
+    pp_orders = pp_svc.invoice_range(
+        start_date=datetime.now() - timedelta(days=14), end_date=datetime.now(), uow=uow
+    )[1:]
+    logging.info(
+        {
+            "message": "PayPro ghost invoices report | Invoices fetched from PayPro",
+            "pp_orders": pp_orders,
+        }
+    )
+
+    tx_ids = [res.tx_id for res in pp_orders]
+    txs = pmt_qry.get_many_transactions(tx_ids=tx_ids, uow=uow)
+    uow.close_connection()
+
+    logging.info(
+        {
+            "message": "PayPro ghost invoices report | Pulled transactions from our db",
+            "txs": txs,
+        }
+    )
+
+    set_tx_pp_id = set([tx.paypro_id for tx in txs])
+    set_pp_id = set([order.paypro_id for order in pp_orders])
+
+    ghost_pp_ids = set_pp_id.difference(set_tx_pp_id)
+
+    ghost_paid_orders = [
+        order
+        for order in pp_orders
+        if order.paypro_id in ghost_pp_ids and order.tx_status == "PAID"
+    ]
+
+    logging.info(
+        {
+            "message": "PayPro ghost invoices report | finished successfully!",
+            "ghost_paid_orders": ghost_paid_orders,
+        }
+    )
+
+    return utils.Response(
+        message="PayPro ghost invoices report finished successfully!",
+        status_code=200,
+        data=ghost_paid_orders,
     ).__dict__
