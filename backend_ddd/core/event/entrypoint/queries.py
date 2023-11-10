@@ -143,7 +143,7 @@ def get_registrations(
             e.name as event_name,
             tx.amount,
             tx.status,
-            r.created_at
+            r.created_at at time zone '+5' as created_at
         from
             registrations r
             join events e on e.id = r.event_id
@@ -169,7 +169,7 @@ def get_internal_registrations(
             u.personal_email, 
             e.name as event_name,
             u.phone_number,
-            r.created_at
+            r.created_at at time zone '+5' as created_at
         from 
             users u
         inner join 
@@ -209,6 +209,31 @@ def get_attendance_data(qr_id: str, uow: AbstractUnitOfWork) -> event_vm.Attenda
     return event_vm.AttendanceDTO.from_db_dict_row(row)
 
 
+def get_paid_registrations_count(event_id: str, uow: AbstractUnitOfWork) -> int:
+    sql = """
+        select
+            count(case
+                when registrations.paypro_id is null then 1
+                when transactions.status = 'SUCCESSFUL' then 1
+                else null
+            end) as paid_registrations_count
+        from
+            registrations
+        left join
+            transactions on registrations.paypro_id = transactions.paypro_id
+        where
+            registrations.event_id = %(event_id)s;
+    """
+
+    uow.dict_cursor.execute(sql, {"event_id": event_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise event_ex.InvalidPaidRegistration("Could not get paid registrations")
+
+    return row["paid_registrations_count"]
+
+
 def get_unpaid_registrations(
     organizer_id: str, uow: AbstractUnitOfWork
 ) -> List[event_vm.UnpaidRegistrationsDTO]:
@@ -218,7 +243,7 @@ def get_unpaid_registrations(
             r.attendance_status,
             e.name as event_name,
             tx.amount,
-            r.created_at
+            r.created_at at time zone '+5' as created_at 
         from
             registrations r
             join events e on e.id = r.event_id

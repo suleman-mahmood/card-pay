@@ -89,3 +89,11 @@ def calculate_ticket_price(
     )
 
     return participants * event.registration_fee
+
+
+def get_paid_registrations_count(
+    event_id: str,
+    uow: AbstractUnitOfWork,
+):
+    paid_registrations_count = event_qry.get_paid_registrations_count(event_id=event_id, uow=uow)
+    return paid_registrations_count

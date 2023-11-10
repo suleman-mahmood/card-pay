@@ -11,6 +11,7 @@ import '../globals.css'
 
 const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
 const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
+const BASE_URL_LOCAL = 'http://127.0.0.1:5000';
 const BASE_URL = BASE_URL_PROD;
 
 enum EventStatus {
@@ -100,6 +101,7 @@ export default function page() {
     }
 
     const handleSelectChange = (event: any) => {
+        console.log(event)
         events.map((item) => {
             if (event === item.id) {
                 setSelectedEvent(item);
@@ -389,7 +391,7 @@ export default function page() {
     }
 
 
-    return <div className="flex min-h-screen flex-col items-center p-5 artboard phone-1 events-page overflow-scroll">
+    return <div className="flex min-h-screen flex-col items-center p-5 artboard phone-3 events-page overflow-scroll">
 
         <h3 className="" >REGISTER EVENT</h3>
 

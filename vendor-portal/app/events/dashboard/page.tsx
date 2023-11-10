@@ -16,7 +16,7 @@ interface Registration {
   }[];
   attendance_status: string;
   event_name: string;
-  created_at: string;
+  created_at: any;
   amount: number;
   status: string;
 }
@@ -36,7 +36,7 @@ interface UnpaidRegistration {
   }[];
   attendance_status: string;
   event_name: string;
-  created_at: string;
+  created_at: any;
   amount: number;
 }
 
@@ -97,10 +97,20 @@ export default function page() {
         let maxLength = 0;
         let maxIndex = 0;
 
+        unpaid_registrations.map((item, index) => {
+          if (item.form_data.length >= maxLength) {
+            maxIndex = index
+          }
+          item.created_at = new Date(item.created_at);
+          item.created_at = `${getDayName(item.created_at)}, ${getTwoDigitDay(item.created_at)} ${getMonthName(item.created_at)} ${item.created_at.getFullYear()} ${get12HourTime(item.created_at)}`
+        })
+
         retrieved_registrations.map((item, index) => {
           if (item.form_data.length >= maxLength) {
             maxIndex = index
           }
+          item.created_at = new Date(item.created_at);
+          item.created_at = `${getDayName(item.created_at)}, ${getTwoDigitDay(item.created_at)} ${getMonthName(item.created_at)} ${item.created_at.getFullYear()} ${get12HourTime(item.created_at)}`
         })
         setMaxIndex(maxIndex)
 
@@ -113,6 +123,27 @@ export default function page() {
         console.error("Error fetching data:", error);
       });
   };
+
+  function getDayName(date: any) {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return days[date.getUTCDay()];
+  }
+
+  function getTwoDigitDay(date: any) {
+    return ("0" + date.getUTCDate()).slice(-2);
+  }
+
+  function getMonthName(date: any) {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return months[date.getUTCMonth()];
+  }
+
+  function get12HourTime(date: any) {
+    const hours = date.getUTCHours() % 12 || 12;
+    const minutes = ("0" + date.getUTCMinutes()).slice(-2);
+    const period = date.getUTCHours() < 12 ? "AM" : "PM";
+    return `${hours}:${minutes} ${period}`;
+  }
 
   const fetchVendorBalance = async (user: FirebaseUser) => {
     const token = await user?.getIdToken();
@@ -272,7 +303,7 @@ export default function page() {
                 <th>Attendance status</th>
                 <th>Amount</th>
                 <th>Created at</th>
-                {externalRegistrations.length !== 0 ? externalRegistrations[maxIndex].form_data.map((form_data, index) => (
+                {unpaidRegistrations.length !== 0 ? unpaidRegistrations[maxIndex].form_data.map((form_data, index) => (
                   <th key={index}>
                     {form_data.question}
                   </th>

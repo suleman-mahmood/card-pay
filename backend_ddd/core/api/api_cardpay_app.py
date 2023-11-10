@@ -24,6 +24,7 @@ from core.event.domain import model as event_mdl
 from core.event.entrypoint import commands as event_cmd
 from core.event.entrypoint import exceptions as event_svc_ex
 from core.event.entrypoint import queries as event_qry
+from core.event.entrypoint import services as event_svc
 from core.marketing.adapters import exceptions as mktg_repo_ex
 from core.marketing.domain import exceptions as mktg_mdl_ex
 from core.marketing.entrypoint import commands as mktg_cmd
@@ -1404,6 +1405,10 @@ def register_event(uid):
         event = uow.events.get(event_id=req["event_id"])
         event_form_data = req["event_form_data"] if "event_form_data" in req else {"fields": []}
 
+        paid_registrations_count = event_svc.get_paid_registrations_count(
+            event_id=req["event_id"], uow=uow
+        )
+
         event_cmd.register_user_closed_loop(
             event_id=req["event_id"],
             qr_id=str(uuid4()),
@@ -1412,6 +1417,7 @@ def register_event(uid):
             uow=uow,
             user_id=uid,
             users_closed_loop_ids=list(user.closed_loops.keys()),
+            paid_registrations_count=int(paid_registrations_count),
         )
         pmt_cmd._execute_transaction(
             tx_id=str(uuid4()),

@@ -237,8 +237,7 @@ def get_live_events():
     uow = UnitOfWork()
 
     try:
-        events = event_qry.get_live_events(
-            closed_loop_id=closed_loop_id, uow=uow)
+        events = event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
         uow.close_connection()
 
     except Exception as e:
@@ -274,6 +273,10 @@ def register_event():
             event_id=event_id, form_data=form_data, uow=uow
         )
 
+        paid_registrations_count = event_svc.get_paid_registrations_count(
+            event_id=req["event_id"], uow=uow
+        )
+
         checkout_url, paypro_id = pmt_cmd.create_any_deposit_request(
             tx_id=str(uuid4()),
             user_id=event.organizer_id,
@@ -291,6 +294,7 @@ def register_event():
             current_time=datetime.now() + timedelta(hours=5),
             event_form_data=form_data,
             paypro_id=paypro_id,
+            paid_registrations_count=int(paid_registrations_count),
             uow=uow,
         )
         uow.commit_close_connection()

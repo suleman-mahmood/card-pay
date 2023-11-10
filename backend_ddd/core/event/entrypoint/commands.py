@@ -103,6 +103,7 @@ def register_user_closed_loop(
     users_closed_loop_ids: List[str],
     current_time: datetime,
     event_form_data: Dict[str, List[mdl.EventFormDataItem]],
+    paid_registrations_count: int,
     uow: AbstractUnitOfWork,
 ):
     event = uow.events.get(event_id=event_id)
@@ -112,6 +113,7 @@ def register_user_closed_loop(
         users_closed_loop_ids=users_closed_loop_ids,
         current_time=current_time,
         event_form_data=event_form_data,
+        paid_registrations_count=paid_registrations_count,
     )
     uow.events.save(event=event)
 
@@ -122,6 +124,7 @@ def register_user_open_loop(
     current_time: datetime,
     event_form_data: Dict[str, List[mdl.EventFormDataItem]],
     paypro_id: str,
+    paid_registrations_count: int,
     uow: AbstractUnitOfWork,
 ):
     event = uow.events.get(event_id=event_id)
@@ -130,6 +133,7 @@ def register_user_open_loop(
         current_time=current_time,
         event_form_data=event_form_data,
         paypro_id=paypro_id,
+        paid_registrations_count=paid_registrations_count,
     )
     uow.events.save(event=event)
 

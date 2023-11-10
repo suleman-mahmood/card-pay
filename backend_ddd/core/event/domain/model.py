@@ -241,6 +241,7 @@ class Event:
         current_time: datetime,
         registration: Registration,
         registration_key: str,
+        paid_registrations_count: int,
     ):
         """
         need to carry out transaction after registering at command layer.
@@ -256,7 +257,9 @@ class Event:
         if current_time >= self.registration_end_timestamp:
             raise ex.RegistrationEnded("Registration time has passed.")
 
-        if len(self.registrations) >= self.capacity:
+        print("paid_registration_count", paid_registrations_count)
+
+        if paid_registrations_count >= self.capacity:
             raise ex.EventCapacityExceeded("This event is already at capacity.")
 
         self.registrations[registration_key] = registration
@@ -268,6 +271,7 @@ class Event:
         users_closed_loop_ids: List[str],
         current_time: datetime,
         event_form_data: Dict[str, List[EventFormDataItem]],
+        paid_registrations_count: int,
     ):
         if self.closed_loop_id not in users_closed_loop_ids:
             raise ex.UserInvalidClosedLoop("User is not allowed to register for this event.")
@@ -285,6 +289,7 @@ class Event:
                 event_form_data=event_form_data,
                 paypro_id=None,
             ),
+            paid_registrations_count=paid_registrations_count,
         )
 
     def register_user_open_loop(
@@ -293,6 +298,7 @@ class Event:
         current_time: datetime,
         event_form_data: Dict[str, List[EventFormDataItem]],
         paypro_id: str,
+        paid_registrations_count: int,
     ):
         self._register_user(
             current_time=current_time,
@@ -304,6 +310,7 @@ class Event:
                 event_form_data=event_form_data,
                 paypro_id=paypro_id,
             ),
+            paid_registrations_count=paid_registrations_count,
         )
 
     def mark_attendance(self, registration_id: str, current_time: datetime):
