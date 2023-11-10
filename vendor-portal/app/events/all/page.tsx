@@ -415,7 +415,7 @@ export default function page() {
     }
 
 
-    return <div className="flex min-h-screen flex-col items-center artboard phone-2 events-all-page overflow-scroll">
+    return <div className="flex min-h-screen flex-col items-center artboard phone-3 events-all-page overflow-scroll">
 
         {
             !selectedEvent && (
