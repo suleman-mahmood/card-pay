@@ -415,15 +415,20 @@ export default function page() {
     }
 
 
-    return <div className="flex min-h-screen flex-col items-center artboard phone-2 events-all-page overflow-y-scroll">
+    return <div className="flex min-h-screen flex-col items-center artboard phone-2 events-all-page overflow-scroll">
 
-        <h4 className="mt-2 text-2xl">Select Event</h4>
+        {
+            !selectedEvent && (
+                <h4 className="mt-2 text-2xl">Select Event</h4>
+            )
+        }
 
         {
             !selectedEvent && (
                 <div className="carousel-vertical carousel-center max-w-md p-2 space-y-4 rounded-box w-full">
                     {events.map((event, i) => (
-                        <div key={i} className="carousel-item w-full py-2 flex shadow rounded-xl" id={String("item" + i)}>
+                        <div key={i} className="carousel-item w-full py-2 flex shadow rounded-xl" id={String("item" + i)}
+                            onClick={() => handleSelectChange(event.id)}>
                             <img src={event.image_url} className="w-1/4 h-14 w-14 rounded-xl ml-2" />
                             <div className="flex flex-col w-3/4 justify-center rounded ml-2">
                                 <div className="event-start text-xs">
@@ -444,12 +449,25 @@ export default function page() {
 
 
         {selectedEvent && (
-            <div>
-                <div className="btn" onClick={() => window.location.reload()}>
-                    Back to all events
+            <div className="items-center justify-center">
+                <div className="btn back-button" onClick={() => window.location.reload()}>
+                    ❮
                 </div>
-                <div>
-                    <b>EVENT:</b> {selectedEvent.name}
+                <img src={selectedEvent.image_url} className="w-full rounded-xl" />
+                <div className="text-center bg-white rounded-xl shadow w-full flex flex-col">
+                    <b>{selectedEvent.name}</b>
+                    <span className="text-sm">{selectedEvent.event_start_timestamp}</span>
+                    <span className="text-xs event-venue">{selectedEvent.venue}</span>
+                    <span className="text-sm event-start">Rs.{selectedEvent.registration_fee}</span>
+                </div>
+
+                <div className="flex flex-col p-3">
+                    <div>
+                        About
+                    </div>
+                    <span className="text-xs event-venue">
+                        {selectedEvent.description}
+                    </span>
                 </div>
             </div>
         )}

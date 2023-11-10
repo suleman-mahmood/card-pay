@@ -126,3 +126,13 @@ body {
 .event-venue {
   color: rgba(116, 118, 136, 1) !important;
 }
+
+.back-button {
+  position: absolute;
+  margin-left:5px !important;
+  margin-top: 2px !important;
+}
+
+.event-banner {
+  position: fixed;
+}
