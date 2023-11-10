@@ -120,7 +120,7 @@ class _$BalanceDao extends BalanceDao {
 
   @override
   Future<Balance?> getBalance() async {
-    return _queryAdapter.query('select * from balance limit 1',
+    return _queryAdapter.query('select * from balance where id = 0',
         mapper: (Map<String, Object?> row) =>
             Balance(id: row['id'] as int, amount: row['amount'] as int));
   }

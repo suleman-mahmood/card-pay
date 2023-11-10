@@ -63,4 +63,8 @@ class VersionsCubit extends BaseCubit<VersionsState, Versions> {
       }
     });
   }
+
+  skipDialog() {
+    emit(VersionsInitial());
+  }
 }

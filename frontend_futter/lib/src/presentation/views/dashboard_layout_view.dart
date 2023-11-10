@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/views/payment/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/views/profile/profile_view.dart';
+import 'package:cardpay/src/presentation/widgets/layout/root_layout.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/animated_bottom_bar.dart';
 import 'package:cardpay/src/presentation/widgets/navigations/drawer_navigation.dart';
 import 'package:flutter/material.dart';
@@ -51,40 +52,42 @@ class DashboardLayoutView extends HookWidget {
       }
     }, [selectedIndex.value]);
 
-    return Scaffold(
-      key: scaffoldKey,
-      resizeToAvoidBottomInset: true,
-      backgroundColor: backgroundColor.value,
-      body: SafeArea(
-        child: Padding(
-          padding: horizontalPadding.value
-              ? const EdgeInsets.symmetric(horizontal: 18)
-              : EdgeInsets.zero,
-          child: pageList.elementAt(selectedIndex.value),
+    return RootLayout(
+      child: Scaffold(
+        key: scaffoldKey,
+        resizeToAvoidBottomInset: true,
+        backgroundColor: backgroundColor.value,
+        body: SafeArea(
+          child: Padding(
+            padding: horizontalPadding.value
+                ? const EdgeInsets.symmetric(horizontal: 18)
+                : EdgeInsets.zero,
+            child: pageList.elementAt(selectedIndex.value),
+          ),
         ),
-      ),
-      floatingActionButton: Transform.translate(
-        offset: const Offset(0, -8),
-        child: SizedBox(
-          width: 72,
-          height: 72,
-          child: FloatingActionButton(
-            shape: const CircleBorder(),
-            onPressed: () {
-              context.router.push(QrRoute());
-            },
-            child: Image.asset(
-              'assets/images/qrCode.png',
-              width: 48,
+        floatingActionButton: Transform.translate(
+          offset: const Offset(0, -8),
+          child: SizedBox(
+            width: 72,
+            height: 72,
+            child: FloatingActionButton(
+              shape: const CircleBorder(),
+              onPressed: () {
+                context.router.push(QrRoute());
+              },
+              child: Image.asset(
+                'assets/images/qrCode.png',
+                width: 48,
+              ),
             ),
           ),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: showBottomBar
+            ? AnimatedBottomBar(selectedIndex: selectedIndex)
+            : null,
+        endDrawer: MyDrawer(),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: showBottomBar
-          ? AnimatedBottomBar(selectedIndex: selectedIndex)
-          : null,
-      endDrawer: MyDrawer(),
     );
   }
 }

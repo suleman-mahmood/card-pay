@@ -40,12 +40,6 @@ class BiometricLoginSuccess extends LoginState {
   });
 }
 
-class LogoutSuccess extends LoginState {
-  LogoutSuccess({
-    super.message,
-  });
-}
-
 class LoginFailed extends LoginState {
   LoginFailed({super.errorMessage});
 }

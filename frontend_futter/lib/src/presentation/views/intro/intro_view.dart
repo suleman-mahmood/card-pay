@@ -1,6 +1,4 @@
-import 'package:cardpay/src/presentation/cubits/remote/fcm_token_cubit.dart';
-import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,8 +18,7 @@ class IntroView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final versionCubit = BlocProvider.of<VersionsCubit>(context);
-    final fcmTokemCubit = BlocProvider.of<FcmTokenCubit>(context);
+    final loginCubit = BlocProvider.of<LoginCubit>(context);
 
     final fadeAnimation = useFadeAnimation(
       begin: 0.0,
@@ -34,34 +31,9 @@ class IntroView extends HookWidget {
       duration: const Duration(milliseconds: 2000),
     );
 
-    handleLoginClick() async {
-      await FirebaseMessaging.instance.requestPermission(
-        alert: true,
-        announcement: true,
-        badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
-        sound: true,
-      );
-
-      final fcmToken = await FirebaseMessaging.instance.getToken();
-      if (fcmToken != null) {
-        fcmTokemCubit.setFcmTokem(fcmToken);
-      }
-
-      versionCubit.getVersions();
+    void handleLoginClick() {
+      loginCubit.loginWithBiometric();
       context.router.push(const LoginRoute());
-
-      // TODO: look into this baad main
-      // FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
-      //   // TODO: If necessary send token to application server.
-
-      //   // Note: This callback is fired at each app startup and whenever a new
-      //   // token is generated.
-      // }).onError((err) {
-      //   // Error getting token.
-      // });
     }
 
     return AuthLayout(
@@ -91,7 +63,6 @@ class IntroView extends HookWidget {
             child: PrimaryButton(
               text: AppStrings.start,
               onPressed: () {
-                versionCubit.getVersions();
                 context.router.push(const SignupRoute());
               },
             ),

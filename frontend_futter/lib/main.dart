@@ -1,3 +1,5 @@
+import 'package:cardpay/src/config/router/app_router.dart';
+import 'package:cardpay/src/config/router/route_observer.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/domain/repositories/database_repository.dart';
 import 'package:cardpay/src/locator.dart';
@@ -21,7 +23,6 @@ import 'package:cardpay/src/presentation/cubits/remote/full_name_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/views/intro/splash_view.dart';
 import 'package:flutter/material.dart';
-import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/themes/app_themes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,8 +33,6 @@ Future<void> main() async {
 
 class MainApp extends StatelessWidget {
   MainApp({super.key});
-
-  final _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +103,9 @@ class MainApp extends StatelessWidget {
               ),
             ],
             child: MaterialApp.router(
-              routerConfig: _appRouter.config(),
+              routerConfig: locator<AppRouter>().config(
+                navigatorObservers: () => [MyObserver()],
+              ),
               theme: AppTheme.light,
             ),
           );

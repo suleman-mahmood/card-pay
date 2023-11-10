@@ -1,5 +1,7 @@
 import 'package:awesome_dio_interceptor/awesome_dio_interceptor.dart';
 import 'package:cardpay/firebase_options.dart';
+import 'package:cardpay/src/all_listeners.dart';
+import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/data/datasources/local/app_database.dart';
 import 'package:cardpay/src/data/datasources/remote/python_api_service.dart';
 import 'package:cardpay/src/data/repositories/api_repository_fake.dart';
@@ -50,11 +52,15 @@ Future<void> initializeDependencies() async {
 
   locator.registerSingleton<ApiRepository>(
     ApiRepositoryImpl(locator<PythonApiService>()),
-    //FakeApiRepositoryImpl(),
+    // FakeApiRepositoryImpl(),
   );
   locator.registerSingleton<SharedPreferences>(
     await SharedPreferences.getInstance(),
   );
+
+  locator.registerSingleton<AppRouter>(AppRouter());
+
+  locator.registerSingleton<AllListeners>(AllListeners());
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);

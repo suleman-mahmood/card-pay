@@ -1,4 +1,6 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cardpay/src/config/router/auth_guard.dart';
+import 'package:cardpay/src/config/router/splash_guard.dart';
 import 'package:cardpay/src/domain/models/event.dart';
 import 'package:cardpay/src/presentation/views/event/event_attendance_qr_view.dart';
 import 'package:cardpay/src/presentation/views/event/event_details_view.dart';
@@ -8,6 +10,7 @@ import 'package:cardpay/src/presentation/views/event/registered_events_view.dart
 import 'package:cardpay/src/presentation/views/faqs_view.dart';
 import 'package:cardpay/src/presentation/views/dashboard_layout_view.dart';
 import 'package:cardpay/src/presentation/views/intro/intro_view.dart';
+import 'package:cardpay/src/presentation/views/intro/splash_view.dart';
 import 'package:cardpay/src/presentation/views/intro/splash_view_animated.dart';
 import 'package:cardpay/src/presentation/views/payment/deposit_amount_view.dart';
 import 'package:cardpay/src/presentation/views/payment/qr_amount_view.dart';
@@ -37,8 +40,14 @@ class AppRouter extends _$AppRouter {
   List<AutoRoute> get routes => [
         CustomRoute(
           initial: true,
+          page: SplashRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+          guards: [SplashGuard()],
+        ),
+        CustomRoute(
           page: IntroRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
+          guards: [AuthGuard()],
         ),
         CustomRoute(
           page: SignupRoute.page,
@@ -59,6 +68,7 @@ class AppRouter extends _$AppRouter {
         CustomRoute(
           page: DashboardLayoutRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
+          guards: [AuthGuard()],
         ),
         CustomRoute(
           page: DepositAmountRoute.page,

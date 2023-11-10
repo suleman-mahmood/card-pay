@@ -87,21 +87,4 @@ class LoginCubit extends BaseCubit<LoginState, Login> {
       }
     });
   }
-
-  Future<void> logout() async {
-    if (isBusy) return;
-
-    await run(() async {
-      emit(LoginLoading());
-
-      try {
-        await firebase_auth.FirebaseAuth.instance.signOut();
-        emit(LogoutSuccess(
-          message: "Log out was successful",
-        ));
-      } on firebase_auth.FirebaseAuthException catch (e) {
-        emit(LoginFailed(errorMessage: e.message ?? ''));
-      }
-    });
-  }
 }

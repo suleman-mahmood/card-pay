@@ -4,6 +4,7 @@ import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/presentation/cubits/base/base_cubit.dart';
 import 'package:cardpay/src/utils/data_state.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:meta/meta.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
@@ -14,11 +15,25 @@ class FcmTokenCubit extends BaseCubit<FcmTokenState, void> {
 
   FcmTokenCubit(this._apiRepository) : super(FcmTokenInitial(), null);
 
-  Future<void> setFcmTokem(String fcmToken) async {
+  Future<void> setFcmTokem() async {
     if (isBusy) return;
 
     await run(() async {
       emit(FcmTokenLoading());
+
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        announcement: true,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
+      if (fcmToken == null) return;
 
       final token =
           await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??

@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:cardpay/src/config/screen_utills/box_shadow.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
-import 'package:cardpay/src/presentation/cubits/remote/versions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/communication/progress_bar/divder.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
 import 'package:flutter/material.dart';
@@ -66,45 +63,6 @@ class SignupView extends HookWidget {
             ),
           );
         },
-      );
-    }
-
-    void _showDialog(bool showMaybeLaterButton) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) => AlertDialog(
-          backgroundColor: Colors.white,
-          title: const Text('Update your app'),
-          content: Text(Platform.isIOS
-              ? AppStrings.updateMessageIOS
-              : AppStrings.updateMessageAndroid),
-          actions: <Widget>[
-            if (showMaybeLaterButton)
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, 'Cancel');
-                },
-                child: const Text('Maybe later'),
-              ),
-            TextButton(
-              onPressed: () async {
-                final appId =
-                    Platform.isAndroid ? 'io.payment.cardpay' : '1644127078';
-                final url = Uri.parse(
-                  Platform.isAndroid
-                      ? "market://details?id=$appId"
-                      : "https://apps.apple.com/app/id$appId",
-                );
-                launchUrl(
-                  url,
-                  mode: LaunchMode.externalApplication,
-                );
-              },
-              child: const Text('Update Now'),
-            ),
-          ],
-        ),
       );
     }
 
@@ -339,27 +297,6 @@ class SignupView extends HookWidget {
                 ),
               ),
               const HeightBox(slab: 3),
-              BlocListener<VersionsCubit, VersionsState>(
-                listener: (_, state) {
-                  switch (state.runtimeType) {
-                    case VersionsSuccess:
-                      if (state.forceUpdate) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          _showDialog(false);
-                        });
-                        return;
-                      }
-                      if (state.normalUpdate) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          _showDialog(true);
-                        });
-                        return;
-                      }
-                      break;
-                  }
-                },
-                child: const SizedBox.shrink(),
-              ),
             ],
           ),
         ),

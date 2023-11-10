@@ -1,8 +1,6 @@
-import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/screen_utills/box_decoration_all.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
-import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/actions/button/primary_button.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/verticle_padding.dart';
@@ -19,6 +17,7 @@ import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class ProfileItem {
   final IconData icon;
@@ -35,11 +34,10 @@ class ProfileView extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loginCubit = BlocProvider.of<LoginCubit>(context);
     final checkpointsCubit = BlocProvider.of<CheckpointsCubit>(context);
 
     void handleLogout() {
-      loginCubit.logout();
+      firebase_auth.FirebaseAuth.instance.signOut();
     }
 
     void _showBottomSheetDelete() {
@@ -138,22 +136,6 @@ class ProfileView extends HookWidget {
               ),
               child: Column(
                 children: [
-                  BlocListener<LoginCubit, LoginState>(
-                    listener: (_, state) {
-                      switch (state.runtimeType) {
-                        case LogoutSuccess:
-                          checkpointsCubit.init();
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            context.router.pushAndPopUntil(
-                              const IntroRoute(),
-                              predicate: (route) => false,
-                            );
-                          });
-                          break;
-                      }
-                    },
-                    child: const SizedBox.shrink(),
-                  ),
                   const HeightBox(slab: 1),
                   // const CustomListTile(
                   //   iconColor: AppColors.primaryColor,
