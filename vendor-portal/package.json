@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@expo/vector-icons": "^13.0.0",
     "@types/moment-timezone": "^0.5.30",
     "@types/node": "20.5.9",
     "@types/react": "18.2.21",

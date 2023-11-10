@@ -7,6 +7,8 @@ import { User as FirebaseUser } from "firebase/auth";
 import LoadingOverlay from "./spinner";
 import { useSearchParams } from 'next/navigation'
 
+import '../globals.css'
+
 const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
 const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
 const BASE_URL = BASE_URL_PROD;
@@ -85,6 +87,7 @@ export default function page() {
     const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
     const [email, setEmail] = useState('');
     const [isValidEmail, setIsValidEmail] = useState(false);
+    const [isLumsEmail, setIsLumsEmail] = useState(false);
     const [dynamicInputStrs, setDynamicInputStrs] = useState<{ [name: string]: string }>({});
 
     useEffect(() => {
@@ -98,8 +101,11 @@ export default function page() {
 
     const handleSelectChange = (event: any) => {
         events.map((item) => {
-            if (event.target.value === item.id) {
+            if (event === item.id) {
                 setSelectedEvent(item);
+                if (event === '1ba4c981-5d98-431c-84bf-67ad8d8cc0a9') {
+                    setIsLumsEmail(true)
+                }
             }
         })
     };
@@ -235,7 +241,13 @@ export default function page() {
                 value = e.target.value;
                 setEmail(value);
                 const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
-                setIsValidEmail(emailPattern.test(value));
+                const lumsEmailPattern = /^[a-zA-Z0-9._%+-]+@lums\.edu\.pk$/i;
+                if (selectedEvent?.id === '1ba4c981-5d98-431c-84bf-67ad8d8cc0a9') {
+                    setIsValidEmail(lumsEmailPattern.test(value));
+                }
+                else {
+                    setIsValidEmail(emailPattern.test(value));
+                }
                 const updatedResponses: any = { ...formResponses, [schemaItem.question]: value };
                 setFormResponses(updatedResponses);
             }
@@ -298,9 +310,18 @@ export default function page() {
                             onChange={handleInputChange}
                             placeholder={"coolemail@gmail.com"}
                         />
-                        {!isValidEmail && (
-                            <div className="error-message">Please enter a valid email.</div>
-                        )}
+                        {isLumsEmail ? (
+                            <div>
+                                {!isValidEmail && (
+                                    <div className="error-message">Please enter a valid LUMS email address.</div>
+                                )}
+                            </div>
+                        ) : <div>
+                            {!isValidEmail && (
+                                <div className="error-message">Please enter a valid email.</div>
+                            )}
+                        </div>
+                        }
                     </form>
                 )
             }
@@ -367,23 +388,41 @@ export default function page() {
 
     }
 
-    return <div className="flex min-h-screen flex-col items-center p-2">
+
+    return <div className="flex min-h-screen flex-col items-center p-5 artboard phone-1 events-page overflow-scroll">
+
         <h3 className="" >REGISTER EVENT</h3>
 
-        <select className="select select-bordered mt-4 mb-4"
-            value={selectedEvent?.name}
-            onChange={handleSelectChange}
-        >
-            <option value="">Select an event</option>
-            {events.map((event, i) => (
-                <option key={i} value={event.id}>
-                    {event.name}
-                </option>
-            ))}
-        </select>
+        {
+            !selectedEvent && (
+                <div className="carousel-vertical w-full mt-2">
+                    {events.map((event, i) => (
+                        <div key={i} className="carousel-item w-full flex flex-col" id={String("item" + i)}>
+                            <div className="flex flex-col w-full justify-center event-detail mt-4 rounded items-center">
+                                <div>
+                                    {event.name}
+                                </div>
+                                <div>
+                                    {event.registration_start_timestamp}
+                                </div>
+                            </div>
+                            <img src={event.image_url} className="w-full aspect-video" onClick={() => handleSelectChange(event.id)} />
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+
 
         {selectedEvent && (
-            <p><b>EVENT:</b> {selectedEvent.name}</p>
+            <div>
+                <div className="btn" onClick={() => window.location.reload()}>
+                    Back to all events
+                </div>
+                <div>
+                    <b>EVENT:</b> {selectedEvent.name}
+                </div>
+            </div>
         )}
 
         {
@@ -401,7 +440,11 @@ export default function page() {
             )
         }
 
-        <button className="m-4 btn bg-white" onClick={submitForm} disabled={!isValidPhoneNumber || !isValidEmail}>Submit</button>
+        {
+            selectedEvent && (
+                <button className="m-4 btn bg-white" onClick={submitForm} disabled={!isValidPhoneNumber || !isValidEmail}>Submit</button>
+            )
+        }
 
         {isLoadingSpinner && <LoadingOverlay />}
 
