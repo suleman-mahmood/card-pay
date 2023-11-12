@@ -6,6 +6,7 @@ import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/overlay_loading.dart';
+import 'package:cardpay/src/presentation/widgets/navigations/top_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -139,6 +140,12 @@ class PinView extends HookWidget {
                   ),
                   Expanded(flex: 1, child: Container()),
                 ],
+              ),
+            ),
+            const SafeArea(
+              child: PaddingHorizontal(
+                slab: 2,
+                child: Header(color: AppColors.secondaryColor),
               ),
             ),
           ],

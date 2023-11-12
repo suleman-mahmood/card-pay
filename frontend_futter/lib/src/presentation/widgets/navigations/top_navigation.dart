@@ -1,5 +1,6 @@
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/screen_utills/screen_util.dart';
@@ -39,15 +40,21 @@ class Header extends HookWidget {
             ? Row(
                 children: [
                   if (showBackButton == true) BackButton(color),
-                  WidthArrowBetween(),
                   if (title != null)
                     Text(
                       title!,
                       style: AppTypography.mainHeading.copyWith(
                           color: color, decoration: TextDecoration.none),
                     ),
-
-                  // BackButton(Colors.transparent),
+                  const Expanded(child: SizedBox.shrink()),
+                  IconButton(
+                    icon: Icon(
+                      Icons.logout_outlined,
+                      color: color,
+                      size: 30,
+                    ),
+                    onPressed: FirebaseAuth.instance.signOut,
+                  ),
                 ],
               )
             : Padding(
@@ -60,13 +67,21 @@ class Header extends HookWidget {
                 child: Row(
                   children: [
                     if (showBackButton) BackButton(color),
-                    WidthArrowBetween(),
                     if (title != null)
                       Text(
                         title!,
                         style: AppTypography.mainHeading.copyWith(
                             color: color, decoration: TextDecoration.none),
                       ),
+                    const Expanded(child: SizedBox.shrink()),
+                    IconButton(
+                      icon: Icon(
+                        Icons.logout_outlined,
+                        color: color,
+                        size: 30,
+                      ),
+                      onPressed: FirebaseAuth.instance.signOut,
+                    ),
                   ],
                 ),
               ),

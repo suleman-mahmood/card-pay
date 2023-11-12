@@ -32,9 +32,14 @@ class RootLayout extends HookWidget {
         route = const ClosedLoopRoute();
       }
 
-      if (locator<AppRouter>().topRoute.name != 'DashboardLayoutRoute') {
-        locator<AppRouter>().push(route);
+      if (locator<AppRouter>().topRoute.name == 'DashboardLayoutRoute' &&
+          route.runtimeType == DashboardLayoutRoute) {
+        return;
       }
+      locator<AppRouter>().pushAndPopUntil(
+        route,
+        predicate: (newRoute) => newRoute.data?.name == route.routeName,
+      );
     }
 
     return Stack(
