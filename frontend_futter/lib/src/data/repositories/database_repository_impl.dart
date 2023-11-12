@@ -20,7 +20,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
 
   @override
   Future<List<Transaction>> getRecentTransactions() async {
-    return await _appDatabase.recentTransactions.getRecentTransactions() ?? [];
+    return await _appDatabase.recentTransactions.getRecentTransactions();
   }
 
   @override
