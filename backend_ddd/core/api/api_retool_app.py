@@ -969,7 +969,9 @@ def paypro_ghost_invoices_report():
     uow = UnitOfWork()
 
     pp_orders = pp_svc.invoice_range(
-        start_date=datetime.now() - timedelta(days=14), end_date=datetime.now(), uow=uow
+        start_date=datetime.now() - timedelta(days=14) + timedelta(hours=5),
+        end_date=datetime.now() + timedelta(hours=5),
+        uow=uow,
     )[1:]
     logging.info(
         {
