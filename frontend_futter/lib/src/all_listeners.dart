@@ -1,12 +1,13 @@
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/locator.dart';
+import 'package:cardpay/src/presentation/cubits/local/local_balance_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/local/local_recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/fcm_token_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
-import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,6 +34,11 @@ class AllListeners {
     recentTransactionsCubit = BlocProvider.of<RecentTransactionsCubit>(context);
     checkpointsCubit = BlocProvider.of<CheckpointsCubit>(context);
 
+    // Read local db
+    final localBalanceCubit = BlocProvider.of<LocalBalanceCubit>(context);
+    final localRecentTransactionsCubit =
+        BlocProvider.of<LocalRecentTransactionsCubit>(context);
+
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
         if (locator<AppRouter>().topRoute.name != 'IntroRoute') {
@@ -51,6 +57,8 @@ class AllListeners {
         recentTransactionsCubit.getUserRecentTransactions();
         closedLoopCubit.getAllClosedLoops();
         checkpointsCubit.getCheckpoints();
+        localBalanceCubit.getBalance();
+        localRecentTransactionsCubit.getRecentTransactions();
       }
     });
   }

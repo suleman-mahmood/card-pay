@@ -247,6 +247,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
       () => DataSuccess(
         GetUserRecentTransactionsResponse(
           message: 'Customer created successfully',
+          // recentTransactions: [],
           recentTransactions: [
             Transaction(
               id: 'transaction-1',

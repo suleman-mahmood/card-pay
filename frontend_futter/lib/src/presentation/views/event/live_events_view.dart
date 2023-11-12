@@ -28,7 +28,7 @@ class LiveEventsView extends HookWidget {
           switch (state.runtimeType) {
             case LiveEventsSuccess:
               return SizedBox(
-                height: ScreenUtil.screenHeight(context),
+                height: ScreenUtil.screenHeight(context) * 0.8,
                 child: ListView.builder(
                   itemCount: state.events.length,
                   itemBuilder: (_, index) {

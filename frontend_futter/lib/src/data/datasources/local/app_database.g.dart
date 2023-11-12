@@ -63,6 +63,8 @@ class _$AppDatabase extends AppDatabase {
 
   BalanceDao? _balanceDaoInstance;
 
+  RecentTransactionsDao? _recentTransactionsInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -86,6 +88,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `balance` (`id` INTEGER NOT NULL, `amount` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `transactions` (`id` TEXT NOT NULL, `amount` INTEGER NOT NULL, `mode` INTEGER NOT NULL, `transactionType` INTEGER NOT NULL, `status` INTEGER NOT NULL, `createdAt` TEXT, `lastUpdated` TEXT, `senderName` TEXT NOT NULL, `recipientName` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -96,6 +100,12 @@ class _$AppDatabase extends AppDatabase {
   @override
   BalanceDao get balanceDao {
     return _balanceDaoInstance ??= _$BalanceDao(database, changeListener);
+  }
+
+  @override
+  RecentTransactionsDao get recentTransactions {
+    return _recentTransactionsInstance ??=
+        _$RecentTransactionsDao(database, changeListener);
   }
 }
 
@@ -130,3 +140,61 @@ class _$BalanceDao extends BalanceDao {
     await _balanceInsertionAdapter.insert(balance, OnConflictStrategy.replace);
   }
 }
+
+class _$RecentTransactionsDao extends RecentTransactionsDao {
+  _$RecentTransactionsDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _transactionInsertionAdapter = InsertionAdapter(
+            database,
+            'transactions',
+            (Transaction item) => <String, Object?>{
+                  'id': item.id,
+                  'amount': item.amount,
+                  'mode': item.mode.index,
+                  'transactionType': item.transactionType.index,
+                  'status': item.status.index,
+                  'createdAt': _datetimeTypeConverter.encode(item.createdAt),
+                  'lastUpdated':
+                      _datetimeTypeConverter.encode(item.lastUpdated),
+                  'senderName': item.senderName,
+                  'recipientName': item.recipientName
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Transaction> _transactionInsertionAdapter;
+
+  @override
+  Future<List<Transaction>> getRecentTransactions() async {
+    return _queryAdapter.queryList(
+        'select * from transactions order by createdAt desc',
+        mapper: (Map<String, Object?> row) => Transaction(
+            createdAt:
+                _datetimeTypeConverter.decode(row['createdAt'] as String),
+            lastUpdated:
+                _datetimeTypeConverter.decode(row['lastUpdated'] as String),
+            id: row['id'] as String,
+            amount: row['amount'] as int,
+            mode: TransactionMode.values[row['mode'] as int],
+            transactionType:
+                TransactionType.values[row['transactionType'] as int],
+            status: TransactionStatus.values[row['status'] as int],
+            senderName: row['senderName'] as String,
+            recipientName: row['recipientName'] as String));
+  }
+
+  @override
+  Future<void> updateRecentTransactions(List<Transaction> txs) async {
+    await _transactionInsertionAdapter.insertList(
+        txs, OnConflictStrategy.replace);
+  }
+}
+
+// ignore_for_file: unused_element
+final _datetimeTypeConverter = DatetimeTypeConverter();

@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'package:floor/floor.dart';
 import 'package:intl/intl.dart';
 
 enum TransactionStatus {
@@ -32,14 +33,16 @@ enum TransactionType {
   EVENT_REGISTRATION_FEE,
 }
 
+@Entity(tableName: "transactions")
 class Transaction {
+  @PrimaryKey()
   String id;
   int amount;
   TransactionMode mode;
   TransactionType transactionType;
   TransactionStatus status;
-  DateTime createdAt;
-  DateTime lastUpdated;
+  DateTime? createdAt;
+  DateTime? lastUpdated;
   String senderName;
   String recipientName;
 
@@ -88,8 +91,8 @@ class Transaction {
       'mode': mode.name,
       'transaction_type': transactionType.name,
       'status': status.name,
-      'created_at': createdAt.millisecondsSinceEpoch,
-      'last_updated': lastUpdated.millisecondsSinceEpoch,
+      'created_at': createdAt?.millisecondsSinceEpoch,
+      'last_updated': lastUpdated?.millisecondsSinceEpoch,
       'sender_name': senderName,
       'recipient_name': recipientName,
     };

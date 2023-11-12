@@ -16,7 +16,8 @@ class LocalBalanceCubit extends Cubit<LocalBalanceState> {
   }
 
   Future<void> updateBalance(int amount) async {
-    await _databaseRepository.updateBalance(Balance(amount: amount));
-    emit(LocalBalanceSuccess());
+    final balance = Balance(amount: amount);
+    await _databaseRepository.updateBalance(balance);
+    emit(LocalBalanceSuccess(balance: balance));
   }
 }

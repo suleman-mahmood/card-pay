@@ -1,12 +1,11 @@
-import 'dart:math';
+import 'package:cardpay/src/presentation/cubits/local/local_recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
+import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -35,7 +34,222 @@ class PaymentDashboardView extends HookWidget {
     final balanceCubit = BlocProvider.of<BalanceCubit>(context);
     final recentTransactionsCubit =
         BlocProvider.of<RecentTransactionsCubit>(context);
+    final localRecentTransactionsCubit =
+        BlocProvider.of<LocalRecentTransactionsCubit>(context);
+
     final deviceHeight = MediaQuery.of(context).size.height;
+
+    Widget buildTransactions() {
+      return BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
+        builder: (_, state) {
+          switch (state.runtimeType) {
+            case RecentTransactionsLoading:
+              return BlocBuilder<LocalRecentTransactionsCubit,
+                  LocalRecentTransactionsState>(
+                builder: (_, state) {
+                  switch (state.runtimeType) {
+                    case LocalRecentTransactionsSuccess:
+                      if (state.transactions.isEmpty) {
+                        // a no transaction found widget
+                        return SkeletonLoader(
+                          builder: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: deviceHeight * 0.007),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  PaymentStrings.recentTransactions,
+                                  style: AppTypography.bodyTextBold,
+                                ),
+                              ),
+                              SizedBox(
+                                height:
+                                    MediaQuery.sizeOf(context).height * 0.13,
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'No Recent Transactions Found!',
+                                          style: TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Make a Deposit or Transfer',
+                                          style: TextStyle(
+                                            color: AppColors.greyColor,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return SkeletonLoader(
+                        builder: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: deviceHeight * 0.007),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                PaymentStrings.recentTransactions,
+                                style: AppTypography.bodyTextBold,
+                              ),
+                            ),
+                            SizedBox(height: deviceHeight * 0.007),
+                            // using a column instead of list to display the entire container
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TransactionContainer(
+                                  senderName: state.transactions[0].senderName,
+                                  recipientName:
+                                      state.transactions[0].recipientName,
+                                  amount:
+                                      state.transactions[0].amount.toString(),
+                                  currentUserName:
+                                      userCubit.state.user.fullName,
+                                  timeOfTransaction:
+                                      state.transactions[0].createdAt ??
+                                          DateTime.now(),
+                                ),
+                                if (deviceHeight > 750)
+                                  TransactionContainer(
+                                    senderName:
+                                        state.transactions[1].senderName,
+                                    recipientName:
+                                        state.transactions[1].recipientName,
+                                    amount:
+                                        state.transactions[1].amount.toString(),
+                                    currentUserName:
+                                        userCubit.state.user.fullName,
+                                    timeOfTransaction:
+                                        state.transactions[1].createdAt ??
+                                            DateTime.now(),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              );
+
+            case RecentTransactionsSuccess:
+              localRecentTransactionsCubit
+                  .updateRecentTransactions(state.recentTransactions);
+              if (state.recentTransactions.isEmpty) {
+                // a no transaction found widget
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: deviceHeight * 0.007),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        PaymentStrings.recentTransactions,
+                        style: AppTypography.bodyTextBold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.13,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'No Recent Transactions Found!',
+                                style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Make a Deposit or Transfer',
+                                style: TextStyle(
+                                  color: AppColors.greyColor,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: deviceHeight * 0.007),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      PaymentStrings.recentTransactions,
+                      style: AppTypography.bodyTextBold,
+                    ),
+                  ),
+                  SizedBox(height: deviceHeight * 0.007),
+                  // using a column instead of list to display the entire container
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TransactionContainer(
+                        senderName: state.recentTransactions[0].senderName,
+                        recipientName:
+                            state.recentTransactions[0].recipientName,
+                        amount: state.recentTransactions[0].amount.toString(),
+                        currentUserName: userCubit.state.user.fullName,
+                        timeOfTransaction:
+                            state.recentTransactions[0].createdAt ??
+                                DateTime.now(),
+                      ),
+                      if (deviceHeight > 750)
+                        TransactionContainer(
+                          senderName: state.recentTransactions[1].senderName,
+                          recipientName:
+                              state.recentTransactions[1].recipientName,
+                          amount: state.recentTransactions[1].amount.toString(),
+                          currentUserName: userCubit.state.user.fullName,
+                          timeOfTransaction:
+                              state.recentTransactions[1].createdAt ??
+                                  DateTime.now(),
+                        ),
+                    ],
+                  ),
+                ],
+              );
+            default:
+              return const SizedBox.shrink();
+          }
+        },
+      );
+    }
 
     String displayName(String fullName) {
       final words = fullName.split(" ");
@@ -117,151 +331,10 @@ class PaymentDashboardView extends HookWidget {
                 ],
               ),
             ),
-            // Transactions wala section
 
-            BlocBuilder<RecentTransactionsCubit, RecentTransactionsState>(
-              builder: (_, state) {
-                switch (state.runtimeType) {
-                  case RecentTransactionsLoading:
-                    return SkeletonLoader(
-                      builder: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: deviceHeight * 0.007),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              PaymentStrings.recentTransactions,
-                              style: AppTypography.bodyTextBold,
-                            ),
-                          ),
-                          SizedBox(height: deviceHeight * 0.007),
-                          Column(
-                            children: [
-                              TransactionContainer(
-                                loading: true,
-                                senderName: 'Sender Name',
-                                recipientName: 'Recipient Name',
-                                amount: 'Rs',
-                                currentUserName: 'Current User Name',
-                                timeOfTransaction: DateTime.now(),
-                              ),
-                              if (deviceHeight > 750)
-                                TransactionContainer(
-                                  loading: true,
-                                  senderName: 'Sender Name',
-                                  recipientName: 'Recipient Name',
-                                  amount: 'Rs',
-                                  currentUserName: 'Current User Name',
-                                  timeOfTransaction: DateTime.now(),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  case RecentTransactionsSuccess:
-                    if (state.recentTransactions.isEmpty) {
-                      // a no transaction found widget
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: deviceHeight * 0.007),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              PaymentStrings.recentTransactions,
-                              style: AppTypography.bodyTextBold,
-                            ),
-                          ),
-                          SizedBox(
-                            height: MediaQuery.sizeOf(context).height * 0.13,
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                /* Image.asset(
-                                  'assets/images/logo.png',
-                                  height: 80,
-                                  width: 80,
-                                  color: AppColors.greyColor,
-                                ), */
-                                // const SizedBox(width: 8),
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'No Recent Transactions Found!',
-                                      style: TextStyle(
-                                        color: Colors.black54,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Make a Deposit or Transfer',
-                                      style: TextStyle(
-                                        color: AppColors.greyColor,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(height: deviceHeight * 0.007),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            PaymentStrings.recentTransactions,
-                            style: AppTypography.bodyTextBold,
-                          ),
-                        ),
-                        SizedBox(height: deviceHeight * 0.007),
-                        // using a column instead of list to display the entire container
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TransactionContainer(
-                              senderName:
-                                  state.recentTransactions[0].senderName,
-                              recipientName:
-                                  state.recentTransactions[0].recipientName,
-                              amount:
-                                  state.recentTransactions[0].amount.toString(),
-                              currentUserName: userCubit.state.user.fullName,
-                              timeOfTransaction:
-                                  state.recentTransactions[0].createdAt,
-                            ),
-                            if (deviceHeight > 750)
-                              TransactionContainer(
-                                senderName:
-                                    state.recentTransactions[1].senderName,
-                                recipientName:
-                                    state.recentTransactions[1].recipientName,
-                                amount: state.recentTransactions[1].amount
-                                    .toString(),
-                                currentUserName: userCubit.state.user.fullName,
-                                timeOfTransaction:
-                                    state.recentTransactions[1].createdAt,
-                              ),
-                          ],
-                        ),
-                      ],
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              },
-            ),
+            // Transactions wala section
+            buildTransactions(),
+
             // Reason? Wrapping it with Column prevents any unnecessary distance between the two rows, due to the parent column with space between property
             Column(
               children: [

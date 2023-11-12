@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:cardpay/src/presentation/cubits/local/local_recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
@@ -29,20 +30,32 @@ class TransactionList extends HookWidget {
       builder: (_, state) {
         switch (state.runtimeType) {
           case RecentTransactionsLoading:
-            return ListView.builder(
-              itemCount: 4,
-              itemBuilder: (context, index) {
-                return PaddingHorizontal(
-                  slab: 3,
-                  child: TransactionContainer(
-                    loading: true,
-                    senderName: 'Sender Name',
-                    recipientName: 'Recipient Name',
-                    amount: 'Rs',
-                    currentUserName: 'Current User Name',
-                    timeOfTransaction: DateTime.now(),
-                  ),
-                );
+            return BlocBuilder<LocalRecentTransactionsCubit,
+                LocalRecentTransactionsState>(
+              builder: (_, state) {
+                switch (state.runtimeType) {
+                  case LocalRecentTransactionsSuccess:
+                    return ListView.builder(
+                      itemCount: state.transactions.length,
+                      itemBuilder: (context, index) {
+                        final transaction = state.transactions[index];
+                        return PaddingHorizontal(
+                          slab: 3,
+                          child: TransactionContainer(
+                            loading: true,
+                            amount: transaction.amount.toString(),
+                            senderName: transaction.senderName,
+                            recipientName: transaction.recipientName,
+                            currentUserName: userCubit.state.user.fullName,
+                            timeOfTransaction:
+                                transaction.createdAt ?? DateTime.now(),
+                          ),
+                        );
+                      },
+                    );
+                  default:
+                    return const SizedBox.shrink();
+                }
               },
             );
           case RecentTransactionsSuccess:
@@ -66,7 +79,8 @@ class TransactionList extends HookWidget {
                       senderName: transaction.senderName,
                       recipientName: transaction.recipientName,
                       currentUserName: userCubit.state.user.fullName,
-                      timeOfTransaction: transaction.createdAt,
+                      timeOfTransaction:
+                          transaction.createdAt ?? DateTime.now(),
                     ),
                   );
                 },
