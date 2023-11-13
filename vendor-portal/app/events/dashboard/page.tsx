@@ -29,6 +29,18 @@ interface InternalRegistration {
   event_name: string
 }
 
+interface internalGroupedData {
+  [name: string]: InternalRegistration[]
+}
+
+interface externalGroupedData {
+  [name: string]: Registration[]
+}
+
+interface unpaidGroupedData {
+  [name: string]: UnpaidRegistration[]
+}
+
 interface UnpaidRegistration {
   form_data: {
     "question": string;
@@ -48,14 +60,17 @@ const BASE_URL = BASE_URL_PROD;
 export default function page() {
   const router = useRouter();
   const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [externalRegistrations, setExternalRegistrations] = useState<Registration[]>([]);
-  const [internalRegistrations, setInternalRegistrations] = useState<InternalRegistration[]>([]);
-  const [unpaidRegistrations, setUnpaidRegistrations] = useState<UnpaidRegistration[]>([]);
+  const [externalRegistrations, setExternalRegistrations] = useState<externalGroupedData>({});
+  const [internalRegistrations, setInternalRegistrations] = useState<internalGroupedData>({});
+  const [unpaidRegistrations, setUnpaidRegistrations] = useState<unpaidGroupedData>({});
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [tabSelected, setTabSelected] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
   const [vendor_name, setVendorName] = useState<string>("");
-  const [maxIndex, setMaxIndex] = useState(0);
+  const [maxIndexUnpaid, setMaxIndexUnpaid] = useState(0);
+  const [maxIndexExternal, setMaxIndexExternal] = useState(0);
+  const [allEvents, setAllEvents] = useState<string[]>([]);
+  const [selectedOption, setSelectedOption] = useState('');
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
@@ -69,6 +84,11 @@ export default function page() {
       }
     });
   }, []);
+
+  const handleSelectChange = (event: any) => {
+    const selectedValue = event.target.value;
+    setSelectedOption(selectedValue);
+  };
 
   const fetchRegistrations = async (user: FirebaseUser) => {
     const token = await user?.getIdToken();
@@ -90,33 +110,63 @@ export default function page() {
         return response.json();
       })
       .then((data) => {
-        const retrieved_registrations = data.data.external_registrations as Array<Registration>;
+        const external_registrations = data.data.external_registrations as Array<Registration>;
         const internal_registrations = data.data.internal_registrations as Array<InternalRegistration>;
         const unpaid_registrations = data.data.unpaid_registrations as Array<UnpaidRegistration>;
 
-        let maxLength = 0;
-        let maxIndex = 0;
-
         unpaid_registrations.map((item, index) => {
-          if (item.form_data.length >= maxLength) {
-            maxIndex = index
-          }
           item.created_at = new Date(item.created_at);
           item.created_at = `${getDayName(item.created_at)}, ${getTwoDigitDay(item.created_at)} ${getMonthName(item.created_at)} ${item.created_at.getFullYear()} ${get12HourTime(item.created_at)}`
         })
 
-        retrieved_registrations.map((item, index) => {
-          if (item.form_data.length >= maxLength) {
-            maxIndex = index
-          }
+        external_registrations.map((item, index) => {
           item.created_at = new Date(item.created_at);
           item.created_at = `${getDayName(item.created_at)}, ${getTwoDigitDay(item.created_at)} ${getMonthName(item.created_at)} ${item.created_at.getFullYear()} ${get12HourTime(item.created_at)}`
         })
-        setMaxIndex(maxIndex)
 
-        setExternalRegistrations(retrieved_registrations);
-        setInternalRegistrations(internal_registrations);
-        setUnpaidRegistrations(unpaid_registrations);
+        const unpaidGroupedData : unpaidGroupedData = {};
+        const internalGroupedData : internalGroupedData = {};
+        const externalGroupedData : externalGroupedData = {};
+
+        unpaid_registrations.forEach((obj: UnpaidRegistration) => {
+          const eventName : string = obj.event_name;
+
+          if (!unpaidGroupedData[eventName]) {
+            unpaidGroupedData[eventName] = [];
+          }
+
+          unpaidGroupedData[eventName].push(obj);
+        });
+
+        internal_registrations.forEach((obj: InternalRegistration) => {
+          const eventName = obj.event_name;
+
+          if (!internalGroupedData[eventName]) {
+            internalGroupedData[eventName] = [];
+          }
+
+          internalGroupedData[eventName].push(obj);
+        });
+
+        external_registrations.forEach((obj: Registration) => {
+          const eventName = obj.event_name;
+
+          if (!externalGroupedData[eventName]) {
+            externalGroupedData[eventName] = [];
+          }
+
+          externalGroupedData[eventName].push(obj);
+        });
+
+        const keysUnion = Array.from(
+          new Set([...Object.keys(unpaidGroupedData), ...Object.keys(internalGroupedData), ...Object.keys(externalGroupedData)])
+        );
+
+        setSelectedOption(keysUnion[0])
+        setAllEvents(keysUnion)
+        setExternalRegistrations(externalGroupedData);
+        setInternalRegistrations(internalGroupedData);
+        setUnpaidRegistrations(unpaidGroupedData);
         setIsFetching(false);
       })
       .catch((error) => {
@@ -221,6 +271,22 @@ export default function page() {
       <h1 className="mb-2 text-2xl font-bold text-center text-violet-600">
         {vendor_name}
       </h1>
+
+      <div className="w-full items-center justify-center">
+        <select className="select select-bordered w-full max-w-xs" placeholder="Select Event"
+          value={selectedOption} onChange={handleSelectChange}>
+          {
+            allEvents.map((item, index) => (
+              <option key={index} value={item}>
+                {item}
+              </option>
+            )
+            )
+          }
+        </select>
+      </div>
+
+
       <h3 className="mb-2 text-xl text-center text-violet-600">
         Balance: {balance}
       </h3>
@@ -243,7 +309,7 @@ export default function page() {
               </tr>
             </thead>
             <tbody>
-              {internalRegistrations.map((registration, index) => (
+              {internalRegistrations[selectedOption].map((registration, index) => (
                 <tr key={index}>
                   <td>{registration.full_name}</td>
                   <td>{registration.personal_email}</td>
@@ -265,7 +331,7 @@ export default function page() {
                 <th>Attendance status</th>
                 <th>Amount</th>
                 <th>Created at</th>
-                {externalRegistrations.length !== 0 ? externalRegistrations[maxIndex].form_data.map((form_data, index) => (
+                {externalRegistrations[selectedOption].length !== 0 ? externalRegistrations[selectedOption][maxIndexExternal].form_data.map((form_data, index) => (
                   <th key={index}>
                     {form_data.question}
                   </th>
@@ -273,7 +339,7 @@ export default function page() {
               </tr>
             </thead>
             <tbody>
-              {externalRegistrations.map((reg, index) => (
+              {externalRegistrations[selectedOption].map((reg, index) => (
                 <tr
                   key={index}
                 >
@@ -303,7 +369,7 @@ export default function page() {
                 <th>Attendance status</th>
                 <th>Amount</th>
                 <th>Created at</th>
-                {unpaidRegistrations.length !== 0 ? unpaidRegistrations[maxIndex].form_data.map((form_data, index) => (
+                {unpaidRegistrations[selectedOption].length !== 0 ? unpaidRegistrations[selectedOption][maxIndexUnpaid].form_data.map((form_data, index) => (
                   <th key={index}>
                     {form_data.question}
                   </th>
@@ -311,7 +377,7 @@ export default function page() {
               </tr>
             </thead>
             <tbody>
-              {unpaidRegistrations.map((reg, index) => (
+              {unpaidRegistrations[selectedOption].map((reg, index) => (
                 <tr
                   key={index}
                 >
