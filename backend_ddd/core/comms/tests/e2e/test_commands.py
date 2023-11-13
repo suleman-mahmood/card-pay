@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 import qrcode
 import requests
+from core.authentication.entrypoint import view_models as auth_vm
 from core.comms.entrypoint import anti_corruption as acl
 from core.comms.entrypoint import commands as comms_cmd
 from core.comms.entrypoint import exceptions as comms_svc_ex
@@ -262,3 +263,33 @@ data={"name":"Mr Anderson","ledger":"-R520,78","date":"28 February 2015"}
 
 #     response = requests.post(url, data=parameters)
 #     print(response.content)
+
+
+@pytest.mark.skip
+def test_send_personalized_emails():
+    def task(subject, text, to):
+        print(f"To: {to} \n")
+        print(f"Subject: {subject} \n")
+        print(f"Text: {text} \n")
+
+    auth_acl = acl.FakeAuthenticationService()
+    auth_acl.set_all_emails(
+        [
+            auth_vm.EmailInfoDTO(email="1e", full_name="1n"),
+            auth_vm.EmailInfoDTO(email="2e", full_name="2n"),
+            auth_vm.EmailInfoDTO(email="3e", full_name="3n"),
+            auth_vm.EmailInfoDTO(email="4e", full_name="4n"),
+            auth_vm.EmailInfoDTO(email="5e", full_name="5n"),
+            auth_vm.EmailInfoDTO(email="6e", full_name="6n"),
+        ]
+    )
+
+    comms_cmd.send_personalized_emails(
+        email_body_template="Hi {{name}}, this is a test email.",
+        email_subject="Test email",
+        uow=UnitOfWork(),
+        auth_acl=auth_acl,
+        task=task,
+    )
+
+    assert False

@@ -19,6 +19,8 @@
 13. update closed loop
 14. get information of all users of a closed loop
 """
+from typing import List
+
 from core.api import view_models as vm
 from core.authentication.adapters import exceptions as auth_rep_ex
 from core.authentication.domain import model as auth_mdl
@@ -759,3 +761,18 @@ def get_user_from_phone_number(phone_number: str, uow: AbstractUnitOfWork) -> au
     user = uow.users.get(user_id)
 
     return user
+
+
+def get_all_emails(uow: AbstractUnitOfWork) -> List[auth_vm.EmailInfoDTO]:
+    sql = """
+        select
+            personal_email, 
+            full_name 
+        from 
+            users
+    """
+
+    uow.dict_cursor.execute(sql)
+    rows = uow.dict_cursor.fetchall()
+
+    return [auth_vm.EmailInfoDTO.from_db_dict_row(row) for row in rows]

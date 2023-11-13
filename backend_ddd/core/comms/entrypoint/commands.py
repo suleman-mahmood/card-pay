@@ -1,13 +1,16 @@
 import os
 import smtplib
+from concurrent.futures import ThreadPoolExecutor
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from json import dumps
-from typing import Dict
+from time import sleep
+from typing import Callable, Dict, List
 
 import firebase_admin
 import requests
+from core.authentication.entrypoint import queries as auth_qry
 from core.comms.entrypoint import anti_corruption as acl
 from core.entrypoint.uow import AbstractUnitOfWork
 from dotenv import load_dotenv
@@ -19,6 +22,7 @@ EMAIL_FROM = "cardpayteam@gmail.com"
 
 EVENT_ID = "366"
 SMS_SENDER_FROM = "CardPay"
+STEP_SIZE = 5
 
 """
 Example:
@@ -57,6 +61,34 @@ def send_marketing_sms(content: str, to: str):
 
     response = requests.post(url, data=parameters)
     print(response.content)
+
+
+def send_personalized_emails(
+    email_body_template: str,
+    email_subject: str,
+    uow: AbstractUnitOfWork,
+    auth_acl: acl.AbstractAuthenticationService,
+    task: Callable,
+):
+    recipient_data = auth_acl.get_all_emails(uow=uow)
+
+    for i in range(0, len(recipient_data), STEP_SIZE):
+        chunk = recipient_data[i : i + STEP_SIZE]
+        with ThreadPoolExecutor(max_workers=STEP_SIZE) as executor:
+            executor.map(
+                task,
+                [
+                    email_subject.replace("{{name}}", recipient_info.full_name)
+                    for recipient_info in chunk
+                ],  # subject 1st arg
+                [
+                    email_body_template.replace("{{name}}", recipient_info.full_name)
+                    for recipient_info in chunk
+                ],  # text 2nd arg
+                [recipient_info.email for recipient_info in chunk],  # to 3rd arg
+                timeout=10,
+            )
+        sleep(1)
 
 
 def send_email(subject: str, text: str, to: str):

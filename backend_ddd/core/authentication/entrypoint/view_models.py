@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+
 from psycopg2.extras import DictRow
 
 
@@ -13,4 +14,17 @@ class SignedUpDailyUsersDTO:
         return SignedUpDailyUsersDTO(
             day=row["day"],
             user_count=row["user_count"],
+        )
+
+
+@dataclass(frozen=True)
+class EmailInfoDTO:
+    email: str
+    full_name: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "EmailInfoDTO":
+        return EmailInfoDTO(
+            email=row["personal_email"],
+            full_name=row["full_name"],
         )

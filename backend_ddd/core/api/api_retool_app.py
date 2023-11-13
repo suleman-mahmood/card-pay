@@ -8,6 +8,8 @@ from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import anti_corruption as auth_acl
 from core.authentication.entrypoint import commands as auth_cmd
 from core.authentication.entrypoint import queries as auth_qry
+from core.comms.entrypoint import anti_corruption as comms_acl
+from core.comms.entrypoint import commands as comms_cmd
 from core.entrypoint.uow import UnitOfWork
 from core.event.domain import exceptions as event_mdl_exc
 from core.event.domain import model as event_mdl
@@ -1014,3 +1016,37 @@ def paypro_ghost_invoices_report():
         status_code=200,
         data=ghost_paid_orders,
     ).__dict__
+
+
+@retool.route("/send-email-to-all", methods=["POST"])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "email_body_template": sch.StringSchema,
+        "email_subject": sch.StringSchema,
+    }
+)
+def send_email_to_all():
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+
+    try:
+        comms_cmd.send_personalized_emails(
+            email_body_template=req["email_body_template"],
+            email_subject=req["email_subject"],
+            uow=uow,
+            auth_acl=comms_acl.AuthenticationService(),
+            task=comms_cmd.send_email,
+        )
+        uow.close_connection()
+
+    except TimeoutError as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="Event published", status_code=200).__dict__
