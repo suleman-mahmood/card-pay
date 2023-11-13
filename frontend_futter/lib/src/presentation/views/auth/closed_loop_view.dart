@@ -67,6 +67,7 @@ class ClosedLoopView extends HookWidget {
     }
 
     return AuthLayout(
+      logoutOnBack: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

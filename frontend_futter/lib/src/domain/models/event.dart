@@ -84,7 +84,7 @@ class Event {
       'venue': venue,
       'description': description,
       'image_url': imageUrl,
-      'attendance_qr': attendanceQr,
+      'qr_id': attendanceQr,
       'capacity': capacity,
       'registration_fee': registrationFee,
       'event_start_time': eventStartTimestamp.millisecondsSinceEpoch,
@@ -104,8 +104,7 @@ class Event {
       venue: map['venue'] as String,
       description: map['description'] as String,
       imageUrl: map['image_url'] as String,
-      attendanceQr:
-          map['attendance_qr'] != null ? map['attendance_qr'] as String : null,
+      attendanceQr: map['qr_id'] != null ? map['qr_id'] as String : null,
       capacity: map['capacity'] as int,
       registrationFee: map['registration_fee'] as int,
       eventStartTimestamp: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")

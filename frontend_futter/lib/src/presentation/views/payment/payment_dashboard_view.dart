@@ -129,7 +129,8 @@ class PaymentDashboardView extends HookWidget {
                                       state.transactions[0].createdAt ??
                                           DateTime.now(),
                                 ),
-                                if (deviceHeight > 750)
+                                if (deviceHeight > 750 &&
+                                    state.transactions.length > 1)
                                   TransactionContainer(
                                     senderName:
                                         state.transactions[1].senderName,
@@ -229,7 +230,8 @@ class PaymentDashboardView extends HookWidget {
                             state.recentTransactions[0].createdAt ??
                                 DateTime.now(),
                       ),
-                      if (deviceHeight > 750)
+                      if (deviceHeight > 750 &&
+                          state.recentTransactions.length > 1)
                         TransactionContainer(
                           senderName: state.recentTransactions[1].senderName,
                           recipientName:

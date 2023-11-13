@@ -145,7 +145,10 @@ class PinView extends HookWidget {
             const SafeArea(
               child: PaddingHorizontal(
                 slab: 2,
-                child: Header(color: AppColors.secondaryColor),
+                child: Header(
+                  color: AppColors.secondaryColor,
+                  logoutOnBack: true,
+                ),
               ),
             ),
           ],

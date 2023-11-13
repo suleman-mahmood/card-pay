@@ -1,5 +1,4 @@
 import 'package:cardpay/src/config/themes/colors.dart';
-import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/signup_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/horizontal_padding.dart';
@@ -13,11 +12,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class AuthLayout extends HookWidget {
   final Widget child;
   final bool showBackButton;
+  final bool logoutOnBack;
 
   const AuthLayout({
     super.key,
     required this.child,
     this.showBackButton = true,
+    this.logoutOnBack = false,
   });
 
   @override
@@ -51,10 +52,11 @@ class AuthLayout extends HookWidget {
                   },
                 ),
                 if (showBackButton)
-                  const PaddingHorizontal(
+                  PaddingHorizontal(
                     slab: 2,
                     child: Header(
                       color: AppColors.blackColor,
+                      logoutOnBack: logoutOnBack,
                     ),
                   ),
               ],

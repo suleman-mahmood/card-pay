@@ -1,7 +1,7 @@
 name: cardpay
 description: A new Flutter project.
 publish_to: "none"
-version: 1.2.30+41
+version: 1.2.31+42
 
 environment:
   sdk: ">=3.0.3 <4.0.0"

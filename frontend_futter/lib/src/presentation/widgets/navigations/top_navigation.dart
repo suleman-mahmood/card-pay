@@ -1,5 +1,4 @@
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/width_between.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
@@ -14,6 +13,7 @@ class Header extends HookWidget {
   final bool showMainHeading;
   final String? mainHeadingText;
   final bool? removeTopPadding;
+  final bool logoutOnBack;
 
   const Header({
     super.key,
@@ -23,6 +23,7 @@ class Header extends HookWidget {
     this.showMainHeading = false,
     this.removeTopPadding,
     this.mainHeadingText,
+    this.logoutOnBack = false,
   });
 
   @override
@@ -30,58 +31,60 @@ class Header extends HookWidget {
     final double horizontalPadding = ScreenUtil.blockSizeHorizontal(context);
     final double verticalPadding = ScreenUtil.blockSizeVertical(context);
     Widget BackButton(color) => IconButton(
-          icon: Icon(Icons.arrow_back, color: color, size: 30),
+          icon: Icon(
+            Icons.arrow_back,
+            color: color,
+            size: 30,
+          ),
           onPressed: () => context.router.pop(),
+        );
+    Widget LogoutButton(color) => IconButton(
+          icon: Icon(
+            Icons.logout,
+            color: color,
+            size: 30,
+          ),
+          onPressed: FirebaseAuth.instance.signOut,
         );
 
     return Column(
       children: [
         removeTopPadding ?? false
             ? Row(
+                mainAxisAlignment: logoutOnBack
+                    ? MainAxisAlignment.end
+                    : MainAxisAlignment.start,
                 children: [
-                  if (showBackButton == true) BackButton(color),
+                  if (showBackButton)
+                    logoutOnBack ? LogoutButton(color) : BackButton(color),
                   if (title != null)
                     Text(
                       title!,
                       style: AppTypography.mainHeading.copyWith(
                           color: color, decoration: TextDecoration.none),
                     ),
-                  const Expanded(child: SizedBox.shrink()),
-                  IconButton(
-                    icon: Icon(
-                      Icons.logout_outlined,
-                      color: color,
-                      size: 30,
-                    ),
-                    onPressed: FirebaseAuth.instance.signOut,
-                  ),
                 ],
               )
             : Padding(
                 padding: EdgeInsets.fromLTRB(
                   horizontalPadding * 0,
                   verticalPadding * 2,
-                  horizontalPadding * 9,
+                  horizontalPadding * 0,
                   verticalPadding * 4,
                 ),
                 child: Row(
+                  mainAxisAlignment: logoutOnBack
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
                   children: [
-                    if (showBackButton) BackButton(color),
+                    if (showBackButton)
+                      logoutOnBack ? LogoutButton(color) : BackButton(color),
                     if (title != null)
                       Text(
                         title!,
                         style: AppTypography.mainHeading.copyWith(
                             color: color, decoration: TextDecoration.none),
                       ),
-                    const Expanded(child: SizedBox.shrink()),
-                    IconButton(
-                      icon: Icon(
-                        Icons.logout_outlined,
-                        color: color,
-                        size: 30,
-                      ),
-                      onPressed: FirebaseAuth.instance.signOut,
-                    ),
                   ],
                 ),
               ),
