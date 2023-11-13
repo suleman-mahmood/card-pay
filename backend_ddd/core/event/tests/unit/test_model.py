@@ -155,12 +155,12 @@ def test_update(seed_event):
             capacity=1,
             description="The ultimate fintech hackathon.",
             image_url="https://media.licdn.com/dms/image/D4D16AQGJJTwwC6-6mA/profile-displaybackgroundimage-shrink_200_800/0/1686490135139?e=2147483647&v=beta&t=eJwseRkzlGuk3D8ImC5Ga1EajMf4kdgOkK3C0oHDHT4",
-            registration_start_timestamp=REGISTRATION_START - timedelta(minutes=1),
+            registration_start_timestamp=REGISTRATION_START,
             registration_end_timestamp=REGISTRATION_END,
             event_start_timestamp=EVENT_START,
             event_end_timestamp=EVENT_END,
             registration_fee=1,
-            current_time=REGISTRATION_START,
+            current_time=REGISTRATION_START + timedelta(minutes=1),
         )
 
     with pytest.raises(
@@ -276,10 +276,10 @@ def test_update(seed_event):
         capacity=2,
         description="The ultimate ahhm.",
         image_url="https://media.licdn.com/dms/image/D4D16AQGJJTwwC6-6mA/profile-displaybackgroundimage-shrink_200_800/0/1686490135139?e=2147483647&v=beta&t=eJwseRkzlGuk3D8ImC5Ga1EajMf4kdgOkK3C0oHDHT4",
-        registration_start_timestamp=REGISTRATION_START - timedelta(minutes=1),
-        registration_end_timestamp=REGISTRATION_END - timedelta(minutes=2),
-        event_start_timestamp=EVENT_START - timedelta(minutes=3),
-        event_end_timestamp=EVENT_END - timedelta(minutes=4),
+        registration_start_timestamp=REGISTRATION_START,
+        registration_end_timestamp=REGISTRATION_END,
+        event_start_timestamp=EVENT_START,
+        event_end_timestamp=EVENT_END,
         registration_fee=10000,
         current_time=REGISTRATION_START - timedelta(minutes=2),
     )
@@ -288,10 +288,10 @@ def test_update(seed_event):
     assert event.venue == "HOCKEY GROUND"
     assert event.capacity == 2
     assert event.description == "The ultimate ahhm."
-    assert event.registration_start_timestamp == REGISTRATION_START - timedelta(minutes=1)
-    assert event.registration_end_timestamp == REGISTRATION_END - timedelta(minutes=2)
-    assert event.event_start_timestamp == EVENT_START - timedelta(minutes=3)
-    assert event.event_end_timestamp == EVENT_END - timedelta(minutes=4)
+    assert event.registration_start_timestamp == REGISTRATION_START
+    assert event.registration_end_timestamp == REGISTRATION_END
+    assert event.event_start_timestamp == EVENT_START
+    assert event.event_end_timestamp == EVENT_END
     assert event.registration_fee == 10000
 
 
@@ -310,6 +310,7 @@ def test_register_closed_loop(seed_event):
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=datetime.now(),
             event_form_data={},
+            paid_registrations_count=0,
         )
 
     event.status = mdl.EventStatus.APPROVED
@@ -324,6 +325,7 @@ def test_register_closed_loop(seed_event):
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START - timedelta(minutes=1),
             event_form_data={},
+            paid_registrations_count=0,
         )
 
     with pytest.raises(ex.RegistrationEnded, match="Registration time has passed."):
@@ -333,6 +335,7 @@ def test_register_closed_loop(seed_event):
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_END + timedelta(minutes=1),
             event_form_data={},
+            paid_registrations_count=0,
         )
 
     with pytest.raises(
@@ -345,6 +348,7 @@ def test_register_closed_loop(seed_event):
             users_closed_loop_ids=[],
             current_time=REGISTRATION_START,
             event_form_data={},
+            paid_registrations_count=0,
         )
 
     qr_id = str(uuid4())
@@ -360,6 +364,7 @@ def test_register_closed_loop(seed_event):
         users_closed_loop_ids=users_closed_loop_ids,
         current_time=REGISTRATION_START + timedelta(minutes=0.5),
         event_form_data={},
+        paid_registrations_count=0,
     )
 
     assert event.registrations[user_id].qr_id == qr_id
@@ -376,6 +381,7 @@ def test_register_closed_loop(seed_event):
             users_closed_loop_ids=users_closed_loop_ids,
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
             event_form_data={},
+            paid_registrations_count=1,
         )
 
     event.capacity = 2
@@ -390,6 +396,7 @@ def test_register_closed_loop(seed_event):
             users_closed_loop_ids=users_closed_loop_ids,
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
             event_form_data={},
+            paid_registrations_count=0,
         )
 
     assert len(event.registrations) == 1
@@ -581,6 +588,7 @@ def test_register_open_loop(seed_event):
         current_time=REGISTRATION_START + timedelta(minutes=0.5),
         event_form_data={},
         paypro_id="",
+        paid_registrations_count=0,
     )
 
     assert event.registrations[qr_id].qr_id == qr_id

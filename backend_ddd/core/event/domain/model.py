@@ -257,8 +257,6 @@ class Event:
         if current_time >= self.registration_end_timestamp:
             raise ex.RegistrationEnded("Registration time has passed.")
 
-        print("paid_registration_count", paid_registrations_count)
-
         if paid_registrations_count >= self.capacity:
             raise ex.EventCapacityExceeded("This event is already at capacity.")
 

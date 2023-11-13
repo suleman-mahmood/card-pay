@@ -30,6 +30,7 @@ def test_events_repository_add_get(seed_event):
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
             event_form_data={"fields": []},
+            paid_registrations_count=0,
         )
 
         uow.events.add(event=event)
@@ -98,6 +99,7 @@ def test_events_repository_add_get_save(seed_event):
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
             event_form_data={"fields": event_form_data},
+            paid_registrations_count=0,
         )
 
         event_copy_v2 = copy.deepcopy(event)
@@ -168,6 +170,7 @@ def test_events_repository_add_get_save_form_schema(seed_event):
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
             event_form_data={"fields": event_form_data_1},
+            paid_registrations_count=0,
         )
 
         event_form_data_2 = [
@@ -180,6 +183,7 @@ def test_events_repository_add_get_save_form_schema(seed_event):
             users_closed_loop_ids=[event.closed_loop_id],
             current_time=REGISTRATION_START + timedelta(minutes=0.5),
             event_form_data={"fields": event_form_data_2},
+            paid_registrations_count=0,
         )
 
         event_copy_v2 = copy.deepcopy(event)

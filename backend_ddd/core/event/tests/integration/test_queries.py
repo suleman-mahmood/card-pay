@@ -135,6 +135,7 @@ def test_get_registered_events(
         current_time=datetime.now() + timedelta(minutes=1.5),
         event_form_data={"fields": event_form_data},
         uow=uow,
+        paid_registrations_count=0,
     )
 
     events: List[vm.EventDTO] = qry.get_registered_events(
@@ -226,6 +227,7 @@ def test_get_attendance_details(
         event_form_data={"fields": event_form_data},
         paypro_id=paypro_id,
         uow=uow,
+        paid_registrations_count=0,
     )
 
     attendance_details = qry.get_attendance_details(paypro_id=paypro_id, uow=uow)

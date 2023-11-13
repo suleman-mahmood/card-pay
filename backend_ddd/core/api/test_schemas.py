@@ -94,8 +94,8 @@ def test_validate_payload():
             ],
         },
         sch.AmountSchema: {
-            "invalid_inputs": ["", "    ", 0, 100000000, 5.5, -100],
-            "valid_inputs": [100, 5000, 9999],
+            "invalid_inputs": ["", "    ", 5.5, -100, -1],
+            "valid_inputs": [100, 5000, 9999, 0, 100000000],
         },
         sch.LUMSRollNumberSchema: {
             "invalid_inputs": [
@@ -245,8 +245,8 @@ def test_invalid_lums_rollnumber_or_faculty_schema(input):
     with pytest.raises(utils.CustomException):
         schema(input).validate()
 
-def test_event_form_schema_validation():
 
+def test_event_form_schema_validation():
     valid_schema = sch.EventFormSchema(value={"fields": []})
     assert valid_schema.validate() is None
 
@@ -260,23 +260,22 @@ def test_event_form_schema_validation():
         invalid_schema.validate()
     assert str(exc_info.value) == "EventFormSchema is not an object/dictionary"
 
-def test_valid_event_form_data_schema():
 
+def test_valid_event_form_data_schema():
     data = {
         "fields": [
             {"question": "What is your name?", "answer": "John Doe"},
-            {"question": "Age", "answer": 25}
+            {"question": "Age", "answer": 25},
         ]
     }
     event_data = sch.EventFormDataSchema(value=data)
 
     assert event_data.validate() is None
 
-def test_invalid_event_form_data_schema():
 
+def test_invalid_event_form_data_schema():
     data = {"invalid_key": "This should raise an exception"}
     event_data = sch.EventFormDataSchema(value=data)
 
     with pytest.raises(utils.CustomException):
         event_data.validate()
-

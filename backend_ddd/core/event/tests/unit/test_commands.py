@@ -118,6 +118,7 @@ def test_register_user_closed_loop(seed_event):
             event_form_data={"fields": event_form_data},
             current_time=datetime.now(),
             uow=uow,
+            paid_registrations_count=0,
         )
 
     event_cmd.publish(event_id=event.id, uow=uow)
@@ -129,6 +130,7 @@ def test_register_user_closed_loop(seed_event):
         event_form_data={"fields": event_form_data},
         current_time=REGISTRATION_START,
         uow=uow,
+        paid_registrations_count=0,
     )
     fetched_event = uow.events.get(event_id=event.id)
 
@@ -163,6 +165,7 @@ def test_register_user_open_loop(seed_event):
         current_time=REGISTRATION_START,
         uow=uow,
         paypro_id="",
+        paid_registrations_count=0,
     )
     fetched_event = uow.events.get(event_id=event.id)
 
@@ -195,6 +198,7 @@ def test_mark_attendance(seed_event):
         event_form_data={"fields": []},
         current_time=REGISTRATION_START,
         uow=uow,
+        paid_registrations_count=0,
     )
 
     fetched_event = uow.events.get(event_id=event.id)

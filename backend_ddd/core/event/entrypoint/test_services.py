@@ -26,6 +26,7 @@ def test_calculate_ticket_price(seed_event):
         current_time=tst_cmd.REGISTRATION_START,
         uow=uow,
         paypro_id="",
+        paid_registrations_count=0,
     )
     fetched_event = uow.events.get(event_id=event.id)
 
