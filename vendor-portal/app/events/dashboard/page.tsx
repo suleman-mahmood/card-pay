@@ -309,7 +309,7 @@ export default function page() {
               </tr>
             </thead>
             <tbody>
-              {internalRegistrations[selectedOption].map((registration, index) => (
+              {internalRegistrations[selectedOption]?.map((registration, index) => (
                 <tr key={index}>
                   <td>{registration.full_name}</td>
                   <td>{registration.personal_email}</td>
@@ -331,7 +331,7 @@ export default function page() {
                 <th>Attendance status</th>
                 <th>Amount</th>
                 <th>Created at</th>
-                {externalRegistrations[selectedOption].length !== 0 ? externalRegistrations[selectedOption][maxIndexExternal].form_data.map((form_data, index) => (
+                {externalRegistrations[selectedOption] ? externalRegistrations[selectedOption][maxIndexExternal]?.form_data.map((form_data, index) => (
                   <th key={index}>
                     {form_data.question}
                   </th>
@@ -339,7 +339,7 @@ export default function page() {
               </tr>
             </thead>
             <tbody>
-              {externalRegistrations[selectedOption].map((reg, index) => (
+              {externalRegistrations[selectedOption]?.map((reg, index) => (
                 <tr
                   key={index}
                 >
@@ -369,7 +369,7 @@ export default function page() {
                 <th>Attendance status</th>
                 <th>Amount</th>
                 <th>Created at</th>
-                {unpaidRegistrations[selectedOption].length !== 0 ? unpaidRegistrations[selectedOption][maxIndexUnpaid].form_data.map((form_data, index) => (
+                {unpaidRegistrations[selectedOption] ? unpaidRegistrations[selectedOption][maxIndexUnpaid]?.form_data.map((form_data, index) => (
                   <th key={index}>
                     {form_data.question}
                   </th>
@@ -377,7 +377,7 @@ export default function page() {
               </tr>
             </thead>
             <tbody>
-              {unpaidRegistrations[selectedOption].map((reg, index) => (
+              {unpaidRegistrations[selectedOption]?.map((reg, index) => (
                 <tr
                   key={index}
                 >
