@@ -979,7 +979,7 @@ def paypro_ghost_invoices_report():
     logging.info(
         {
             "message": "PayPro ghost invoices report | Invoices fetched from PayPro",
-            "pp_orders": pp_orders,
+            "pp_orders": [order.__dict__ for order in pp_orders],
         }
     )
 
@@ -990,7 +990,7 @@ def paypro_ghost_invoices_report():
     logging.info(
         {
             "message": "PayPro ghost invoices report | Pulled transactions from our db",
-            "txs": txs,
+            "txs": [tx.__dict__ for tx in txs],
         }
     )
 
@@ -1008,7 +1008,7 @@ def paypro_ghost_invoices_report():
     logging.info(
         {
             "message": "PayPro ghost invoices report | finished successfully!",
-            "ghost_paid_orders": ghost_paid_orders,
+            "ghost_paid_orders": [order.__dict__ for order in ghost_paid_orders],
         }
     )
 

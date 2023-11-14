@@ -453,7 +453,21 @@ def verify_closed_loop(uid):
         )
         raise utils.CustomException(str(e))
 
-    except (Exception, AssertionError) as e:
+    except AssertionError:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "/verify-closed-loop",
+                "invoked_by": "cardpay_app",
+                "exception_type": "AssertionError",
+                "exception_message": "User is already verified",
+                "json_request": req,
+            },
+        )
+        raise utils.CustomException("User is already verified")
+
+    except Exception as e:
         uow.close_connection()
         logging.info(
             {
