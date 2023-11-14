@@ -17,6 +17,7 @@ from core.event.entrypoint import anti_corruption as event_acl
 from core.event.entrypoint import commands as event_cmd
 from core.event.entrypoint import exceptions as event_svc_exc
 from core.event.entrypoint import queries as event_qry
+from core.event.entrypoint import services as event_svc
 from core.marketing.domain import exceptions as mktg_mdl_ex
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.payment.domain import exceptions as pmt_mdl_ex
@@ -1050,3 +1051,17 @@ def send_email_to_all():
         raise e
 
     return utils.Response(message="Event published", status_code=200).__dict__
+
+
+@retool.route("/send-event-registration-email", methods=["POST"])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_and_sanitize_json_payload(required_parameters={"paypro_id": sch.StringSchema})
+def send_event_registration_email():
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+    event_svc.send_registration_email(paypro_id=req["paypro_id"], uow=uow)
+    uow.close_connection()
+
+    return utils.Response(message="Event email sent!", status_code=200).__dict__
