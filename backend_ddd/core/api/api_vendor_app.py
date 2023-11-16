@@ -182,12 +182,16 @@ def get_vendor_next_reconciliation_txn_id(uid):
 @utils.user_verified
 def get_vendor_latest_reconciliation_txn_id(uid):
     uow = UnitOfWork()
-    latest_reconciliation_txn_id = pmt_qry.get_vendor_latest_reconciliation_txn_id(
-        vendor_id=uid,
-        uow=uow,
-    )
-    uow.close_connection()
+    try:
+        latest_reconciliation_txn_id = pmt_qry.get_vendor_latest_reconciliation_txn_id(
+            vendor_id=uid,
+            uow=uow,
+        )
+    except pmt_svc_ex.NoLatestReconciliationFound as e:
+        uow.close_connection()
+        raise (utils.CustomException(str(e)))
 
+    uow.close_connection()
     return utils.Response(
         message="Latest reconciliation txn id returned successfully",
         status_code=200,

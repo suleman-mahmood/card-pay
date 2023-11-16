@@ -64,3 +64,7 @@ class NoNextReconciliationFound(Exception):
 
 class NoPreviousReconciliationFound(Exception):
     """No previous reconciliation found"""
+
+
+class NoLatestReconciliationFound(Exception):
+    """No Latest reconciliation found"""
