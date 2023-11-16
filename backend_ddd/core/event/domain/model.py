@@ -85,6 +85,7 @@ class QuestionType(str, Enum):
 class EventType(str, Enum):
     INTERNAL = 1
     EXTERNAL = 2
+    INCLUSIVE = 2
 
 
 @dataclass
