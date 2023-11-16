@@ -1350,7 +1350,9 @@ def get_live_events(uid):
     uow = UnitOfWork()
 
     try:
-        events = event_qry.get_live_events(closed_loop_id=closed_loop_id, uow=uow)
+        events = event_qry.get_live_events(
+            closed_loop_id=closed_loop_id, uow=uow, event_type=event_mdl.EventType.INTERNAL
+        )
         uow.close_connection()
 
     except Exception as e:

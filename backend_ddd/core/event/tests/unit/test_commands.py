@@ -46,6 +46,7 @@ def seed_event_cmd(
         event_start_timestamp=event.event_start_timestamp,
         event_end_timestamp=event.event_end_timestamp,
         registration_fee=event.registration_fee,
+        event_type=event_mdl.EventType.INTERNAL.name,
         uow=uow,
         auth_acl=acl.FakeAuthenticationService(),
     )

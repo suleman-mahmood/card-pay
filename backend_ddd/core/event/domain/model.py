@@ -82,6 +82,11 @@ class QuestionType(str, Enum):
     DYNAMIC_INPUT_STR = 6
 
 
+class EventType(str, Enum):
+    INTERNAL = 1
+    EXTERNAL = 2
+
+
 @dataclass
 class ValidationRule:
     type: ValidationEnum
@@ -117,11 +122,12 @@ class Event:
     description: str
     image_url: str
     closed_loop_id: str
+    registration_fee: int
+    event_type: EventType
     event_start_timestamp: datetime
     event_end_timestamp: datetime
     registration_start_timestamp: datetime
     registration_end_timestamp: datetime
-    registration_fee: int
 
     event_form_schema: Dict[str, List[EventFormSchemaItem]]
 

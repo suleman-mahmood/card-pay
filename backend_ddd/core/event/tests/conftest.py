@@ -20,6 +20,7 @@ def seed_event_cmd(seed_event):
         uow: AbstractUnitOfWork,
         closed_loop_id: str = str(uuid4()),
         organizer_id: str = str(uuid4()),
+        event_type: mdl.EventType = mdl.EventType.INTERNAL,
     ):
         event = seed_event(
             registration_start_timestamp=REGISTRATION_START,
@@ -47,6 +48,7 @@ def seed_event_cmd(seed_event):
             event_start_timestamp=event.event_start_timestamp,
             event_end_timestamp=event.event_end_timestamp,
             registration_fee=event.registration_fee,
+            event_type=event_type.name,
             uow=uow,
             auth_acl=acl.FakeAuthenticationService(),
         )

@@ -1,7 +1,8 @@
 import json
-from typing import List
+from typing import List, Optional
 
 from core.entrypoint.uow import AbstractUnitOfWork
+from core.event.domain import model as event_mdl
 from core.event.entrypoint import exceptions as event_ex
 from core.event.entrypoint import view_models as event_vm
 
@@ -9,6 +10,7 @@ from core.event.entrypoint import view_models as event_vm
 def get_live_events(
     closed_loop_id: str,
     uow: AbstractUnitOfWork,
+    event_type: Optional[event_mdl.EventType] = None,
 ) -> List[event_vm.EventDTO]:
     sql = """
         select
@@ -36,6 +38,11 @@ def get_live_events(
             and e.closed_loop_id = %(closed_loop_id)s
             and e.event_end_timestamp > NOW()
     """
+
+    # Add the filter for event type
+    if event_type is not None:
+        sql += f" and e.event_type = '{event_type.name}' "
+
     uow.dict_cursor.execute(sql, {"closed_loop_id": closed_loop_id})
     events = uow.dict_cursor.fetchall()
 

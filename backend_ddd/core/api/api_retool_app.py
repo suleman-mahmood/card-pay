@@ -775,6 +775,7 @@ def get_total_dashboard_reached_users():
         "registration_start_timestamp": sch.EventTimestampSchema,
         "registration_end_timestamp": sch.EventTimestampSchema,
         "registration_fee": sch.AmountSchema,
+        "event_type": sch.EventTypeSchema,
     }
 )
 def create_event():
@@ -800,6 +801,7 @@ def create_event():
             registration_start_timestamp=req["registration_start_timestamp"],
             registration_end_timestamp=req["registration_end_timestamp"],
             registration_fee=req["registration_fee"],
+            event_type=req["event_type"],
             uow=uow,
             auth_acl=event_acl.AuthenticationService(),
         )

@@ -438,3 +438,15 @@ class StringSchema(AbstractSchema):
     def validate(self):
         if not isinstance(self.value, str):
             raise utils.CustomException("StringSchema is not a string")
+
+
+@dataclass()
+class EventTypeSchema(AbstractSchema):
+    value: str
+
+    def validate(self):
+        if not isinstance(self.value, str):
+            raise utils.CustomException("Event Type passed is not a string")
+
+        if not re.match(r"^(INTERNAL|EXTERNAL)$", self.value):
+            raise utils.CustomException("Invalid Event Type Passed")

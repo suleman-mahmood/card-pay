@@ -582,6 +582,7 @@ def seed_event():
             event_end_timestamp=event_end_timestamp,
             registration_fee=registration_fee,
             event_form_schema={"fields": []},
+            event_type=event_mdl.EventType.INTERNAL,
         )
 
     return _seed_event

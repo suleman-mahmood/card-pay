@@ -20,11 +20,12 @@ def create(
     description: str,
     image_url: str,
     closed_loop_id: str,
+    event_type: str,
+    registration_fee: int,
     event_start_timestamp: datetime,
     event_end_timestamp: datetime,
     registration_start_timestamp: datetime,
     registration_end_timestamp: datetime,
-    registration_fee: int,
     uow: AbstractUnitOfWork,
     auth_acl: acl.AbstractAuthenticationService,
 ):
@@ -53,6 +54,7 @@ def create(
         registration_end_timestamp=registration_end_timestamp,
         registration_fee=registration_fee,
         event_form_schema={"fields": []},
+        event_type=mdl.EventType[event_type],
     )
     uow.events.add(event)
 

@@ -57,6 +57,7 @@ def test_add_event_form(seed_api_customer, add_1000_wallet, mocker, client):
         registration_end_timestamp=datetime.now() + timedelta(hours=5) + timedelta(minutes=2),
         registration_fee=500,
         event_form_schema={"fields": []},
+        event_type=mdl.EventType.INTERNAL,
     )
     uow.events.add(event=event)
     uow.commit_close_connection()
@@ -152,6 +153,7 @@ def test_register_event(seed_api_customer, add_1000_wallet, mocker, client):
         registration_end_timestamp=datetime.now() + timedelta(hours=5) + timedelta(minutes=2),
         registration_fee=500,
         event_form_schema={"fields": []},
+        event_type=mdl.EventType.INTERNAL,
     )
     uow.events.add(event=event)
     uow.commit_close_connection()

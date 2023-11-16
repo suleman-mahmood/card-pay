@@ -81,6 +81,77 @@ def test_get_live_events(seed_verified_auth_event_organizer, seed_event_cmd):
     uow.close_connection()
 
 
+def test_get_live_events_with_type(seed_verified_auth_event_organizer, seed_event_cmd):
+    uow = UnitOfWork()
+
+    closed_loop_id = str(uuid4())
+    auth_cmd.create_closed_loop(
+        id=closed_loop_id,
+        name="Test Closed Loop",
+        logo_url="https://www.google.com",
+        description="Test Closed Loop",
+        verification_type="NONE",
+        regex="",
+        uow=uow,
+    )
+
+    event_organizer: auth_mdl.User = seed_verified_auth_event_organizer(uow)
+    auth_cmd.register_closed_loop(
+        user_id=event_organizer.id,
+        closed_loop_id=closed_loop_id,
+        unique_identifier="1234",
+        uow=uow,
+        auth_svc=auth_acl.AuthenticationService(),
+    )
+
+    event: mdl.Event = seed_event_cmd(
+        uow=uow,
+        closed_loop_id=closed_loop_id,
+        organizer_id=event_organizer.id,
+        event_type=mdl.EventType.INTERNAL,
+    )
+    cmd.publish(event_id=event.id, uow=uow)
+
+    events: List[vm.EventDTO] = qry.get_live_events(
+        closed_loop_id=closed_loop_id,
+        uow=uow,
+        event_type=mdl.EventType.EXTERNAL,
+    )
+
+    event = uow.events.get(event_id=event.id)
+    assert len(events) == 0
+
+    events: List[vm.EventDTO] = qry.get_live_events(
+        closed_loop_id=closed_loop_id,
+        uow=uow,
+        event_type=mdl.EventType.INTERNAL,
+    )
+    event = uow.events.get(event_id=event.id)
+
+    assert len(events) == 1
+    assert events[0] == vm.EventDTO(
+        id=event.id,
+        status=event.status,
+        cancellation_reason=event.cancellation_reason,
+        name=event.name,
+        organizer_name=event_organizer.full_name,
+        venue=event.venue,
+        capacity=event.capacity,
+        description=event.description,
+        image_url=event.image_url,
+        closed_loop_id=event.closed_loop_id,
+        event_start_timestamp=event.event_start_timestamp,
+        event_end_timestamp=event.event_end_timestamp,
+        registration_start_timestamp=event.registration_start_timestamp,
+        registration_end_timestamp=event.registration_end_timestamp,
+        registration_fee=event.registration_fee,
+        event_form_schema={"fields": []},
+        qr_id=None,
+    )
+
+    uow.close_connection()
+
+
 def test_get_registered_events(
     seed_verified_auth_event_organizer, seed_verified_auth_user, seed_event_cmd
 ):

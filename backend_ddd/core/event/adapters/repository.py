@@ -72,7 +72,8 @@ class EventRepository(EventAbstractRepository):
                 registration_start_timestamp, 
                 registration_end_timestamp, 
                 registration_fee,
-                event_form_schema
+                event_form_schema,
+                event_type
             )
             values (
                 %(id)s, 
@@ -90,7 +91,8 @@ class EventRepository(EventAbstractRepository):
                 %(registration_start_timestamp)s, 
                 %(registration_end_timestamp)s, 
                 %(registration_fee)s,
-                %(event_form_schema)s
+                %(event_form_schema)s,
+                %(event_type)s
             )
         """
         for each in event.event_form_schema["fields"]:
@@ -119,6 +121,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
                 "event_form_schema": event_schema,
+                "event_type": event.event_type.name,
             },
         )
 
@@ -178,7 +181,8 @@ class EventRepository(EventAbstractRepository):
                 registration_start_timestamp, 
                 registration_end_timestamp, 
                 registration_fee,
-                event_form_schema
+                event_form_schema,
+                event_type
             from 
                 events
             where 
@@ -263,6 +267,7 @@ class EventRepository(EventAbstractRepository):
             registration_end_timestamp=event_row["registration_end_timestamp"],
             registration_fee=event_row["registration_fee"],
             event_form_schema=event_form_schema,
+            event_type=mdl.EventType[event_row["event_type"]],
         )
 
     def save(self, event: mdl.Event) -> None:
@@ -283,7 +288,8 @@ class EventRepository(EventAbstractRepository):
                 registration_start_timestamp, 
                 registration_end_timestamp, 
                 registration_fee,
-                event_form_schema
+                event_form_schema,
+                event_type
             )
             values (
                 %(id)s, 
@@ -301,7 +307,8 @@ class EventRepository(EventAbstractRepository):
                 %(registration_start_timestamp)s, 
                 %(registration_end_timestamp)s, 
                 %(registration_fee)s,
-                %(event_form_schema)s
+                %(event_form_schema)s,
+                %(event_type)s
             )
             on conflict (id) do update set
                 status = excluded.status,
@@ -318,7 +325,8 @@ class EventRepository(EventAbstractRepository):
                 registration_start_timestamp = excluded.registration_start_timestamp,
                 registration_end_timestamp = excluded.registration_end_timestamp,
                 registration_fee = excluded.registration_fee,
-                event_form_schema = excluded.event_form_schema
+                event_form_schema = excluded.event_form_schema,
+                event_type = excluded.event_type
         """
 
         for each in event.event_form_schema["fields"]:
@@ -347,6 +355,7 @@ class EventRepository(EventAbstractRepository):
                 "registration_end_timestamp": event.registration_end_timestamp,
                 "registration_fee": event.registration_fee,
                 "event_form_schema": event_schema,
+                "event_type": event.event_type.name,
             },
         )
 
