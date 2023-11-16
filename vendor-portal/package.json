@@ -10,6 +10,11 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
+    "@fortawesome/fontawesome-svg-core": "^6.4.2",
+    "@fortawesome/free-brands-svg-icons": "^6.4.2",
+    "@fortawesome/free-regular-svg-icons": "^6.4.2",
+    "@fortawesome/free-solid-svg-icons": "^6.4.2",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@types/moment-timezone": "^0.5.30",
     "@types/node": "20.5.9",
     "@types/react": "18.2.21",

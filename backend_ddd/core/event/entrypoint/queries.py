@@ -199,10 +199,14 @@ def get_attendance_data(qr_id: str, uow: AbstractUnitOfWork) -> event_vm.Attenda
             r.event_form_data::json->'fields' as form_data,
             r.attendance_status,
             e.name as event_name,
-            e.registration_fee
+            e.registration_fee,
+            u.full_name,
+            ucl.unique_identifier
         from
             registrations r
             join events e on e.id = r.event_id
+            left join users u on u.id = r.user_id
+            left join user_closed_loops ucl on ucl.user_id = r.user_id
         where
             r.qr_id = %(qr_id)s
     """
@@ -265,3 +269,24 @@ def get_unpaid_registrations(
     rows = uow.dict_cursor.fetchall()
 
     return [event_vm.UnpaidRegistrationsDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_event_from_registration(
+    registration_id: str, uow: AbstractUnitOfWork
+) -> event_vm.AttendanceEventDTO:
+    sql = """
+        select 
+            r.event_id,
+            r.user_id
+        from
+            registrations r
+        where r.qr_id = %(registration_id)s
+    """
+
+    uow.dict_cursor.execute(sql, {"registration_id": registration_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise event_ex.EventNotFound("Could not find event through registration")
+
+    return event_vm.AttendanceEventDTO.from_db_dict_row(row)

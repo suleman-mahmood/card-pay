@@ -10,6 +10,8 @@ import { auth } from "../../../services/initialize-firebase";
 import { TypeAnimation } from "react-type-animation";
 import QrScanner from 'qr-scanner';
 import LoadingOverlay from "../spinner";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faTrash, faX } from "@fortawesome/free-solid-svg-icons";
 
 const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
 const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
@@ -25,6 +27,8 @@ interface MarkAttendanceResponse {
     attendance_status: string;
     event_name: string;
     registration_fee: number;
+    full_name?: string,
+    unique_identifier?: string
   }
   already_marked: boolean,
 }
@@ -37,7 +41,7 @@ export default function page() {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [res, setRes] = useState<MarkAttendanceResponse>();
   const [error, setError] = useState();
-  const [isLoadingSpinner, setIsLoadingSpinner] = useState(true);
+  const [isLoadingSpinner, setIsLoadingSpinner] = useState(false);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
@@ -58,16 +62,17 @@ export default function page() {
 
     const qrScanner = new QrScanner(
       videoElem,
-      (result) => {
-        let x = result.data;
+      (result: any) => {
+        let x : string = result.data;
         x = x.replace(/['"]+/g, '"')
-        console.log(JSON.parse(x))
-
-        const json_data: { "event_id": string, "qr_id": string } = JSON.parse(x)
-
-        markAttendance(json_data.event_id, json_data.qr_id, qrScanner)
-
-        // markAttendance("65e2263f-2953-497d-be63-05c31f88274c", "f76c6f08-d28b-4de3-ba65-0ae7a3c2cef6", qrScanner)
+        let json_data: { "qr_id": string }
+        if(x.includes("qr_id")){
+          json_data = JSON.parse(x)
+          markAttendance(json_data.qr_id, qrScanner)
+        }
+        else {
+          markAttendance(x, qrScanner)
+        }
 
         qrScanner.pause();
       },
@@ -77,7 +82,8 @@ export default function page() {
     qrScanner.start();
   }, [isFetching]);
 
-  const markAttendance = async (event_id: string, qr_id: string, qrScanner: QrScanner) => {
+  const markAttendance = async (qr_id: string, qrScanner: QrScanner) => {
+    setIsLoadingSpinner(true);
     const token = await user?.getIdToken();
     fetch(
       `${BASE_URL}/api/v1/vendor-app/mark-entry-event-attendance`,
@@ -90,7 +96,6 @@ export default function page() {
         },
         body: JSON.stringify(
           {
-            event_id: event_id,
             qr_id: qr_id
           }
         )
@@ -140,23 +145,45 @@ export default function page() {
   ) : (
     <div className="flex min-h-screen flex-col items-center justify-between p-4">
       <div className="overflow-x-auto">
-        <h1 className="" >Mark attendance</h1>
+        <h1 className="w-full text-center" >Mark attendance</h1>
 
         <video></video>
 
+        {isLoadingSpinner && <LoadingOverlay />}
+
         <dialog className={'modal ' + (isModalOpen ? 'modal-open' : '')}>
-          <form method='dialog' className='modal-box'>
+          <form method='dialog' className='modal-box text-center items-center justify-center'>
             <h5><b>Attendance Status</b></h5>
             {res?.already_marked ? (
-              <div className="mt-4 success">Already marked</div>
+              <FontAwesomeIcon
+              icon={faX}
+              className="fas fa-x"
+              style={{ color: "red", fontSize: 64 }}
+            />
+            ) : (
+              <FontAwesomeIcon
+              icon={faCheck}
+              className="fas fa-check"
+              style={{ color: "green", fontSize: 64 }}
+            />
+            )}
+            {res?.already_marked ? (
+              <div className="mt-4 error-message">Already marked</div>
             ) : (
               <div></div>
             )}
             <div className="mt-2"><b>Event Name: </b>{res?.attendance_data.event_name}</div>
-            <div className="mt-2"><b>Name: </b>{res?.attendance_data.form_data[0].answer}</div>
-            <div className="mt-2"><b>Phone Number: </b>{res?.attendance_data.form_data[1].answer}</div>
-            <div className="mt-2"><b> Email: </b>{res?.attendance_data.form_data[2].answer}</div>
-            <div className="mt-2 success"><b>Status: </b>{res?.attendance_data.attendance_status}</div>
+            {
+              res?.attendance_data.full_name ? <div><b>Name:</b> {res?.attendance_data.full_name}</div> : null
+            }
+            {
+              res?.attendance_data.unique_identifier ? <div><b>Roll Number:</b> {res?.attendance_data.unique_identifier}</div> : null
+            }
+            {
+              res?.attendance_data.form_data.map((item: any, index: any) => (
+                  <div className="mt-2" key={index}><b>{item.question}: </b>{item.answer}</div>
+              ))
+            }
             <div
               className='modal-action'
               onClick={() => setIsModalOpen(false)}
@@ -175,6 +202,11 @@ export default function page() {
 
         <dialog className={'modal ' + (isErrorModalOpen ? 'modal-open' : '')}>
           <form method='dialog' className='modal-box'>
+            <FontAwesomeIcon
+              icon={faX}
+              className="fas fa-x"
+              style={{ color: "red", fontSize: 64 }}
+            />
             <h5><b>Attendance Status</b></h5>
             <div className="error-message"><b>Error: </b> {error}</div>
             <div

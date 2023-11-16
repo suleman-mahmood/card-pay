@@ -16,3 +16,7 @@ class InvalidAttendanceQrId(Exception):
 
 class InvalidPaidRegistration(Exception):
     """Could not get paid registrations"""
+
+
+class EventNotFound(Exception):
+    """Could not find event through registration"""

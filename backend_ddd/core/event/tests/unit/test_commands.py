@@ -9,6 +9,7 @@ from core.event.domain import exceptions as event_mdl_ex
 from core.event.domain import model as event_mdl
 from core.event.entrypoint import anti_corruption as acl
 from core.event.entrypoint import commands as event_cmd
+from core.event.entrypoint import view_models as event_vm
 
 REGISTRATION_START = datetime.now() + timedelta(minutes=1)
 REGISTRATION_END = datetime.now() + timedelta(minutes=2)
@@ -212,11 +213,12 @@ def test_mark_attendance(seed_event):
             paypro_id=None,
         )
     }
+
+    event_service_acl = acl.FakeEventsService(
+        attendance_event_dto=event_vm.AttendanceEventDTO(event_id=fetched_event.id, user_id=user_id)
+    )
     event_cmd.mark_attendance(
-        event_id=event.id,
-        registration_id=user_id,
-        current_time=REGISTRATION_START,
-        uow=uow,
+        qr_id=user_id, current_time=REGISTRATION_START, uow=uow, event_service_acl=event_service_acl
     )
 
     fetched_event = uow.events.get(event_id=event.id)

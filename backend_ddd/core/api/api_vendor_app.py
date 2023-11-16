@@ -9,6 +9,7 @@ from core.entrypoint.uow import UnitOfWork
 from core.event.adapters import exceptions as event_repo_exc
 from core.event.domain import exceptions as event_mdl_exc
 from core.event.domain import model as event_mdl
+from core.event.entrypoint import anti_corruption as event_acl
 from core.event.entrypoint import commands as event_cmd
 from core.event.entrypoint import exceptions as event_svc_ex
 from core.event.entrypoint import queries as event_qry
@@ -335,21 +336,17 @@ def register_event():
 @utils.authenticate_token
 @utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.EVENT_ORGANIZER])
 @utils.user_verified
-@utils.validate_and_sanitize_json_payload(
-    required_parameters={"event_id": sch.UuidSchema, "qr_id": sch.UuidSchema}
-)
+@utils.validate_and_sanitize_json_payload(required_parameters={"qr_id": sch.UuidSchema})
 def mark_entry_event_attendance(uid):
     req = request.get_json(force=True)
     uow = UnitOfWork()
 
     try:
         event_cmd.mark_attendance(
-            event_id=req["event_id"],
-            registration_id=req[
-                "qr_id"
-            ],  # It can be both user_id or qr_id, user_id for closed loop and qr_id for open loop
+            qr_id=req["qr_id"],
             current_time=datetime.now() + timedelta(hours=5),
             uow=uow,
+            event_service_acl=event_acl.EventsService(),
         )
         attendance_data = event_qry.get_attendance_data(qr_id=req["qr_id"], uow=uow)
         uow.commit_close_connection()
@@ -361,6 +358,7 @@ def mark_entry_event_attendance(uid):
         event_mdl_exc.EventRegistrationNotStarted,
         event_mdl_exc.RegistrationDoesNotExist,
         event_svc_ex.InvalidAttendanceQrId,
+        event_svc_ex.EventNotFound,
     ) as e:
         uow.close_connection()
         raise utils.CustomException(str(e))

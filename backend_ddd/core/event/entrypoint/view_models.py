@@ -126,6 +126,8 @@ class AttendanceDTO:
     attendance_status: str
     event_name: str
     registration_fee: int
+    full_name: str
+    unique_identifier: str
 
     @classmethod
     def from_db_dict_row(cls, row: DictRow) -> "AttendanceDTO":
@@ -134,6 +136,8 @@ class AttendanceDTO:
             attendance_status=row["attendance_status"],
             event_name=row["event_name"],
             registration_fee=row["registration_fee"],
+            full_name=row["full_name"],
+            unique_identifier=row["unique_identifier"],
         )
 
 
@@ -171,3 +175,13 @@ class UnpaidRegistrationsDTO:
             amount=row["amount"],
             created_at=row["created_at"],
         )
+
+
+@dataclass(frozen=True)
+class AttendanceEventDTO:
+    event_id: str
+    user_id: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "AttendanceEventDTO":
+        return AttendanceEventDTO(event_id=row["event_id"], user_id=row["user_id"])

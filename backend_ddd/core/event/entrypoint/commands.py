@@ -5,6 +5,7 @@ from typing import Dict, List
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.event.domain import model as mdl
 from core.event.entrypoint import anti_corruption as acl
+from core.event.entrypoint import anti_corruption as event_acl
 from core.event.entrypoint import exceptions as exc
 
 
@@ -141,12 +142,18 @@ def register_user_open_loop(
 
 
 def mark_attendance(
-    event_id: str,
-    registration_id: str,
+    qr_id: str,
     current_time: datetime,
     uow: AbstractUnitOfWork,
+    event_service_acl: event_acl.AbstractEventsService,
 ):
-    event = uow.events.get(event_id=event_id)
+    event_dto = event_service_acl.get_event_from_registration(registration_id=qr_id, uow=uow)
+    event = uow.events.get(event_id=event_dto.event_id)
+
+    registration_id = event_dto.user_id
+    if qr_id == event_dto.user_id:
+        registration_id = qr_id
+
     event.mark_attendance(
         registration_id=registration_id,
         current_time=current_time,
