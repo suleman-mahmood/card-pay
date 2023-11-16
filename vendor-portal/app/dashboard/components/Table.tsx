@@ -14,9 +14,15 @@ interface Props {
   txns: Transaction[]; // Define the txns prop here
   balance: number;
   vendor_name: string;
+  currentReconciledTxnBalance: number | null;
 }
 
-const Table: React.FC<Props> = ({ txns, balance, vendor_name }) => {
+const Table: React.FC<Props> = ({
+  txns,
+  balance,
+  vendor_name,
+  currentReconciledTxnBalance,
+}) => {
   const [times, setTimes] = useState<string[]>([]);
   const [createdAt, setCreatedAt] = useState<string[]>([]);
 
@@ -53,8 +59,13 @@ const Table: React.FC<Props> = ({ txns, balance, vendor_name }) => {
         Transactions
       </h1>
       <h3 className="mb-2 text-center text-md text-violet-600">
-        Balance: {balance}
+        Today's Balance: {balance}
       </h3>
+      {currentReconciledTxnBalance && (
+        <h3 className="mb-2 text-center text-md text-violet-600">
+          Reconciled Amount: {currentReconciledTxnBalance}
+        </h3>
+      )}
       <table className="table lg:table-lg md:table-md sm:table-sm">
         <thead>
           <tr className="bg-white">

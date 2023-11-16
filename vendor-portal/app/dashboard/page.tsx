@@ -34,6 +34,10 @@ export default function page() {
   const [lastestReconciledTxnId, setLatestReconciledTxnId] = useState<string>(
     ""
   );
+  const [
+    currentReconciledTxnBalance,
+    setCurrentReconciledTxnBalance,
+  ] = useState<number | null>(null);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
@@ -196,6 +200,11 @@ export default function page() {
     const data = await response.json();
     const retrieved_txns = data.data as Array<Transaction>;
     setTxns(retrieved_txns);
+    const totalBalance: number = retrieved_txns.reduce(
+      (sum, txn) => sum + txn.amount,
+      0
+    );
+    setCurrentReconciledTxnBalance(totalBalance);
     setIsFetching(false);
   };
 
@@ -205,6 +214,7 @@ export default function page() {
     if (currentReconciledTxnId === lastestReconciledTxnId) {
       if (user === null) return;
       setCurrentReconciledTxnId("");
+      setCurrentReconciledTxnBalance(null);
       fetchTransactions(user);
       return;
     }
@@ -251,6 +261,11 @@ export default function page() {
     const data = await response.json();
     const retrieved_txns = data.data as Array<Transaction>;
     setTxns(retrieved_txns);
+    const totalBalance: number = retrieved_txns.reduce(
+      (sum, txn) => sum + txn.amount,
+      0
+    );
+    setCurrentReconciledTxnBalance(totalBalance);
     setIsFetching(false);
   };
 
@@ -274,8 +289,12 @@ export default function page() {
     </div>
   ) : (
     <div className="flex flex-col items-center justify-between min-h-screen p-24">
-      <Table txns={txns} balance={balance} vendor_name={vendor_name} />
-
+      <Table
+        txns={txns}
+        balance={balance}
+        vendor_name={vendor_name}
+        currentReconciledTxnBalance={currentReconciledTxnBalance}
+      />
       <div className="flex">
         {currentReconciledTxnId && (
           <div
