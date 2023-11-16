@@ -36,7 +36,7 @@ def get_live_events(
         where
             e.status = 'APPROVED'
             and e.closed_loop_id = %(closed_loop_id)s
-            and e.event_end_timestamp > NOW()
+            and e.registration_end_timestamp > (current_timestamp at time zone '-5')
     """
 
     # Add the filter for event type
