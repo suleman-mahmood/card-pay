@@ -1,4 +1,6 @@
+import 'package:cardpay/src/config/firebase/analytics_service.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/locator.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/utils/constants/payment_strings.dart';
@@ -70,6 +72,8 @@ class CustomBox extends StatelessWidget {
     }
 
     onTap() async {
+      locator<AnalyticsService>().logSelectContent('DashboardMainButton', text);
+
       if (!isDisabled) {
         userCubit.initialize();
         context.router.push(route!);

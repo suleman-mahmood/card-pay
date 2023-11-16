@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cardpay/src/config/firebase/analytics_service.dart';
 import 'package:cardpay/src/config/themes/colors.dart';
+import 'package:cardpay/src/locator.dart';
 import 'package:cardpay/src/presentation/views/payment/payment_dashboard_view.dart';
 import 'package:cardpay/src/presentation/views/profile/profile_view.dart';
 import 'package:cardpay/src/presentation/widgets/layout/root_layout.dart';
@@ -41,12 +43,15 @@ class DashboardLayoutView extends HookWidget {
     useEffect(() {
       switch (selectedIndex.value) {
         case 1 || 2:
+          locator<AnalyticsService>().logScreenView('TransactionsRoute');
           backgroundColor.value = AppColors.purpleColor;
           horizontalPadding.value = false;
         case 3:
+          locator<AnalyticsService>().logScreenView('ProfileRoute');
           horizontalPadding.value = true;
           backgroundColor.value = AppColors.secondaryColor;
         default:
+          locator<AnalyticsService>().logScreenView('PaymentDashboardRoute');
           backgroundColor.value = AppColors.secondaryColor;
           horizontalPadding.value = true;
       }

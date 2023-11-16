@@ -1,6 +1,7 @@
 import 'package:awesome_dio_interceptor/awesome_dio_interceptor.dart';
 import 'package:cardpay/firebase_options.dart';
 import 'package:cardpay/src/all_listeners.dart';
+import 'package:cardpay/src/config/firebase/analytics_service.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/data/datasources/local/app_database.dart';
 import 'package:cardpay/src/data/datasources/remote/python_api_service.dart';
@@ -74,4 +75,6 @@ Future<void> initializeDependencies() async {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
+
+  locator.registerSingleton<AnalyticsService>(AnalyticsService());
 }

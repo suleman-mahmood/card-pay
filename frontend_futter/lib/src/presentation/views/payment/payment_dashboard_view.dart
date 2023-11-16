@@ -1,3 +1,5 @@
+import 'package:cardpay/src/config/firebase/analytics_service.dart';
+import 'package:cardpay/src/locator.dart';
 import 'package:cardpay/src/presentation/cubits/local/local_recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
@@ -268,6 +270,11 @@ class PaymentDashboardView extends HookWidget {
         if (details.primaryVelocity! > 100) {
           balanceCubit.getUserBalance();
           recentTransactionsCubit.getUserRecentTransactions();
+
+          locator<AnalyticsService>().logMotion(
+            'VerticalDrag',
+            "Dashboard",
+          );
         }
       },
       child: Container(

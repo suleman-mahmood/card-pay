@@ -101,42 +101,21 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 class AnalyticsService {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
-  Future<void> logSelectContentEvent(String contentType, String itemId) async {
-    await _analytics.logEvent(
-      name: 'select_content',
-      parameters: {
-        'content_type': contentType,
-        'item_id': itemId,
-      },
-    );
+  // For route navigation
+  Future<void> logScreenView(String screenName) async {
+    await _analytics.logScreenView(screenName: screenName);
   }
 
-  Future<void> logScreenView(String screenName, String screenClass) async {
-    await _analytics.logEvent(
-      name: 'screen_view',
-      parameters: {
-        'firebase_screen': screenName,
-        'firebase_screen_class': screenClass,
-      },
-    );
+  // For clicks!
+  Future<void> logSelectContent(String contentType, String itemId) async {
+    await _analytics.logSelectContent(contentType: contentType, itemId: itemId);
   }
 
-  Future<void> logShareImageEvent(String imageName, String fullText) async {
+  // For gestures!
+  Future<void> logMotion(String contentType, String itemId) async {
     await _analytics.logEvent(
-      name: 'share_image',
-      parameters: {
-        'image_name': imageName,
-        'full_text': fullText,
-      },
-    );
-  }
-
-  // Example method for logging a custom event
-  Future<void> logCustomEvent(
-      String eventName, Map<String, dynamic> parameters) async {
-    await _analytics.logEvent(
-      name: eventName,
-      parameters: parameters,
+      name: "Swipe",
+      parameters: {"contentType": contentType, "itemId": itemId},
     );
   }
 }
