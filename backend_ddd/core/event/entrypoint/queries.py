@@ -41,7 +41,7 @@ def get_live_events(
 
     # Add the filter for event type
     if event_type is not None:
-        sql += f" and e.event_type = '{event_type.name}' "
+        sql += f" and (e.event_type = '{event_type.name}' or e.event_type = 'INCLUSIVE') "
 
     uow.dict_cursor.execute(sql, {"closed_loop_id": closed_loop_id})
     events = uow.dict_cursor.fetchall()
