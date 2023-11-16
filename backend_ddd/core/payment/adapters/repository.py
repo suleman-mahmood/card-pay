@@ -124,8 +124,8 @@ class TransactionRepository(TransactionAbstractRepository):
     def add(self, transaction: mdl.Transaction):
         # updating transactions
         sql = """
-            insert into transactions (id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated)
-            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            insert into transactions (id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated, ghost)
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.cursor.execute(
             sql,
@@ -140,6 +140,7 @@ class TransactionRepository(TransactionAbstractRepository):
                 transaction.recipient_wallet.id,
                 transaction.created_at,
                 transaction.last_updated,
+                transaction.ghost,
             ],
         )
         # updating wallets
@@ -179,7 +180,7 @@ class TransactionRepository(TransactionAbstractRepository):
 
     def get(self, transaction_id: str) -> mdl.Transaction:
         sql = """
-            select id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated
+            select id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated, ghost
             from transactions
             where id=%s 
             for update
@@ -224,6 +225,7 @@ class TransactionRepository(TransactionAbstractRepository):
             ),
             created_at=transaction_row[8],
             last_updated=transaction_row[9],
+            ghost=transaction_row[10],
         )
 
     def get_wallets_create_transaction(
@@ -275,7 +277,7 @@ class TransactionRepository(TransactionAbstractRepository):
     ) -> mdl.Transaction:
         # as voucher has same recipient and sender wallet, we need to change the recipient wallet
         sql = """
-            select id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated
+            select id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated, ghost
             from transactions
             where id=%s 
             for update
@@ -319,12 +321,13 @@ class TransactionRepository(TransactionAbstractRepository):
             ),
             created_at=transaction_row[8],
             last_updated=transaction_row[9],
+            ghost=transaction_row[10],
         )
 
     def save(self, transaction: mdl.Transaction):
         sql = """
-            insert into transactions (id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated)
-            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            insert into transactions (id, paypro_id, amount, mode, transaction_type, status, sender_wallet_id, recipient_wallet_id, created_at, last_updated, ghost)
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             on conflict (id) do update set
                 paypro_id = excluded.paypro_id,
                 amount = excluded.amount,
@@ -334,7 +337,8 @@ class TransactionRepository(TransactionAbstractRepository):
                 sender_wallet_id = excluded.sender_wallet_id,
                 recipient_wallet_id = excluded.recipient_wallet_id,
                 created_at = excluded.created_at,
-                last_updated = excluded.last_updated
+                last_updated = excluded.last_updated,
+                ghost = excluded.ghost
         """
         self.cursor.execute(
             sql,
@@ -349,6 +353,7 @@ class TransactionRepository(TransactionAbstractRepository):
                 transaction.recipient_wallet.id,
                 transaction.created_at,
                 transaction.last_updated,
+                transaction.ghost,
             ],
         )
         # updating wallets

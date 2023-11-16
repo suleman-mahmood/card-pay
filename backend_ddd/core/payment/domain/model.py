@@ -74,6 +74,7 @@ class Transaction:
     status: TransactionStatus
     recipient_wallet: Wallet
     sender_wallet: Wallet
+    ghost: bool = False
 
     def execute_transaction(self):
         """for executing a transaction"""
@@ -143,3 +144,6 @@ class Transaction:
 
     def add_paypro_id(self, paypro_id: str):
         self.paypro_id = paypro_id
+
+    def mark_as_ghost(self):
+        self.ghost = True

@@ -507,11 +507,23 @@ def create_deposit_request(uid):
         )
         uow.commit_close_connection()
 
+    except pmt_svc_ex.PayProsCreateOrderTimedOut as e:
+        uow.commit_close_connection()
+        logging.info(
+            {
+                "message": "PayProsCreateOrderTimedOut exception raised",
+                "endpoint": "create-deposit-request",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        raise utils.CustomException(str(e))
     except (
         pmt_svc_ex.DepositAmountTooSmallException,
         pmt_svc_ex.NotVerifiedException,
         pmt_svc_ex.PaymentUrlNotFoundException,
-        pmt_svc_ex.PayProsCreateOrderTimedOut,
         pmt_svc_ex.PayProsGetAuthTokenTimedOut,
     ) as e:
         uow.close_connection()

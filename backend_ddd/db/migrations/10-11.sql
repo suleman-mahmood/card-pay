@@ -1,0 +1,1 @@
+alter table transactions add column ghost boolean;

@@ -147,17 +147,14 @@ def get_deposit_checkout_url_and_paypro_id(
         },
     )
 
-    try:
-        pp_order_res = requests.post(
-            config["url"],
-            headers=config["headers"],
-            data=json.dumps(
-                config["data"],
-            ),
-            timeout=REQUEST_TIMEOUT,
-        )
-    except requests.exceptions.Timeout:
-        raise PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
+    pp_order_res = requests.post(
+        config["url"],
+        headers=config["headers"],
+        data=json.dumps(
+            config["data"],
+        ),
+        timeout=REQUEST_TIMEOUT,
+    )
 
     pp_order_res.raise_for_status()
 

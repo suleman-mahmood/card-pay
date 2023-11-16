@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Tuple
 from uuid import uuid4
 
+import requests
 from core.api.event_codes import EventCode
 from core.authentication.domain import model as auth_mdl
 from core.entrypoint.uow import AbstractUnitOfWork
@@ -194,15 +195,20 @@ def create_deposit_request(
         uow=uow,
         auth_svc=auth_svc,
     )
-
-    checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
-        amount=amount,
-        transaction_id=tx_id,
-        full_name=user.full_name,
-        phone_number=user.phone_number.value,
-        email=user.personal_email.value,
-        uow=uow,
-    )
+    try:
+        checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
+            amount=amount,
+            transaction_id=tx_id,
+            full_name=user.full_name,
+            phone_number=user.phone_number.value,
+            email=user.personal_email.value,
+            uow=uow,
+        )
+    except requests.exceptions.Timeout:
+        tx = uow.transactions.get(transaction_id=tx_id)
+        tx.mark_as_ghost()
+        uow.transactions.save(tx)
+        raise svc_ex.PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
 
     # Add PayPro id to the transaction
     tx = uow.transactions.get(transaction_id=tx_id)
@@ -233,15 +239,17 @@ def create_any_deposit_request(
         uow=uow,
         auth_svc=auth_svc,
     )
-
-    checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
-        amount=amount,
-        transaction_id=tx_id,
-        full_name=full_name,
-        phone_number=phone_number,
-        email=email,
-        uow=uow,
-    )
+    try:
+        checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
+            amount=amount,
+            transaction_id=tx_id,
+            full_name=full_name,
+            phone_number=phone_number,
+            email=email,
+            uow=uow,
+        )
+    except requests.exceptions.Timeout:
+        raise svc_ex.PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
 
     # Add PayPro id to the transaction
     tx = uow.transactions.get(transaction_id=tx_id)
