@@ -114,100 +114,110 @@ class QrAmountView extends HookWidget {
       );
     }
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: AppColors.parrotColor,
-          body: Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.secondaryColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0),
-                  topRight: Radius.circular(30.0),
+    return Scaffold(
+      backgroundColor: AppColors.parrotColor,
+      body: Stack(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PaddingHorizontal(
+                  slab: 2,
+                  child: Header(title: PaymentStrings.qrTitle),
                 ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const HeightBox(slab: 3),
-                  BlocConsumer<TransferCubit, TransferState>(
-                    builder: (_, state) {
-                      switch (state.runtimeType) {
-                        case TransferFailed:
-                          return Column(
-                            children: [
-                              Text(
-                                state.errorMessage,
-                                style: const TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
-                              ),
-                              const HeightBox(slab: 3),
-                            ],
-                          );
-                        default:
-                          return const SizedBox.shrink();
-                      }
-                    },
-                    listener: (_, state) {
-                      switch (state.runtimeType) {
-                        case TransferSuccess:
-                          balanceCubit.getUserBalance();
-                          recentTransactionsCubit.getUserRecentTransactions();
-                          context.router.push(
-                            ReceiptRoute(
-                              recipientName: vendorName,
-                              amount: int.parse(paymentController.text),
-                            ),
-                          );
-                          break;
-                      }
-                    },
-                  ),
-                  buildRecipientInfo(),
-                  buildAmountDisplay(),
-                  const HeightBox(slab: 2),
-                  buildQuickAmountButtons(),
-                  const HeightBox(slab: 2),
-                  NumPad(
-                    controller: paymentController,
-                    buttonColor: AppColors.greyColor,
-                  ),
-                  const HeightBox(slab: 1),
-                  PrimaryButton(
-                    color: AppColors.parrotColor,
-                    text: PaymentStrings.continueText,
-                    onPressed: () {
-                      if (paymentController.text.isEmpty) return;
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: AppColors.secondaryColor,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30.0),
+                        topRight: Radius.circular(30.0),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const HeightBox(slab: 3),
+                        BlocConsumer<TransferCubit, TransferState>(
+                          builder: (_, state) {
+                            switch (state.runtimeType) {
+                              case TransferFailed:
+                                return Column(
+                                  children: [
+                                    Text(
+                                      state.errorMessage,
+                                      style: const TextStyle(color: Colors.red),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const HeightBox(slab: 3),
+                                  ],
+                                );
+                              default:
+                                return const SizedBox.shrink();
+                            }
+                          },
+                          listener: (_, state) {
+                            switch (state.runtimeType) {
+                              case TransferSuccess:
+                                balanceCubit.getUserBalance();
+                                recentTransactionsCubit
+                                    .getUserRecentTransactions();
+                                context.router.push(
+                                  ReceiptRoute(
+                                    recipientName: vendorName,
+                                    amount: int.parse(paymentController.text),
+                                  ),
+                                );
+                                break;
+                            }
+                          },
+                        ),
+                        buildRecipientInfo(),
+                        buildAmountDisplay(),
+                        const HeightBox(slab: 2),
+                        buildQuickAmountButtons(),
+                        const HeightBox(slab: 2),
+                        NumPad(
+                          controller: paymentController,
+                          buttonColor: AppColors.greyColor,
+                        ),
+                        const HeightBox(slab: 1),
+                        PrimaryButton(
+                          color: AppColors.parrotColor,
+                          text: PaymentStrings.continueText,
+                          onPressed: () {
+                            if (paymentController.text.isEmpty) return;
 
-                      final amount = int.parse(paymentController.text);
-                      transferCubit.executeQrTransaction(
-                        qrId,
-                        amount,
-                        v,
-                      );
-                    },
+                            final amount = int.parse(paymentController.text);
+                            transferCubit.executeQrTransaction(
+                              qrId,
+                              amount,
+                              v,
+                            );
+                          },
+                        ),
+                        const HeightBox(slab: 4),
+                      ],
+                    ),
                   ),
-                  const HeightBox(slab: 4),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ),
-        const PaddingHorizontal(
-          slab: 2,
-          child: Header(title: PaymentStrings.qrTitle),
-        ),
-        BlocBuilder<TransferCubit, TransferState>(builder: (_, state) {
-          switch (state.runtimeType) {
-            case TransferLoading:
-              return const OverlayLoading();
-            default:
-              return const SizedBox.shrink();
-          }
-        }),
-      ],
+          BlocBuilder<TransferCubit, TransferState>(builder: (_, state) {
+            switch (state.runtimeType) {
+              case TransferLoading:
+                return const OverlayLoading();
+              default:
+                return const SizedBox.shrink();
+            }
+          }),
+        ],
+      ),
     );
   }
 }

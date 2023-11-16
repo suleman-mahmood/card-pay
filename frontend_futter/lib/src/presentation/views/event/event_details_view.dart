@@ -34,13 +34,81 @@ class EventDetailsView extends StatelessWidget {
       showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
+          alignment: Alignment.center,
           backgroundColor: Colors.white,
-          title: const Text('Confirm registration'),
+          title: Column(
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: AppColors.lightBlueColor,
+                  ),
+                  /*  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: AppColors.secondaryColor,
+                  ), */
+                  const Icon(
+                    Icons.question_mark_rounded,
+                    color: AppColors.secondaryColor,
+                    size: 50,
+                  ),
+                ],
+              ),
+              const HeightBox(slab: 2),
+              const Text('Confirm registration',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                  )),
+            ],
+          ),
           content: BlocBuilder<RegisterEventCubit, RegisterEventState>(
             builder: (_, state) {
               switch (state.runtimeType) {
                 case RegisterEventInitial:
-                  return Text('Amount ${event.registrationFee}');
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const HeightBox(slab: 2),
+                      Text(
+                        'You are about to register for ${event.name}',
+                        textAlign: TextAlign.center,
+                      ),
+                      const HeightBox(slab: 2),
+                      Text(
+                        'Tap on Pay to Register\nRs.${event.registrationFee}',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.bodyTextBold,
+                      ),
+                      const HeightBox(slab: 5),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 80, vertical: 12),
+                          primary: AppColors.lightBlueColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          onPrimary: Colors.white,
+                        ),
+                        onPressed: handleEventRegistration,
+                        child: const Text('Pay!',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w600)),
+                      ),
+                      const HeightBox(slab: 1),
+                      TextButton(
+                        onPressed: () => context.router.pop(),
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  );
                 case RegisterEventLoading:
                   return const SizedBox(
                     width: 10,
@@ -58,137 +126,194 @@ class EventDetailsView extends StatelessWidget {
               }
             },
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: handleEventRegistration,
-              child: const Text('Pay!'),
-            ),
-            TextButton(
-              onPressed: () => context.router.pop(),
-              child: const Text('Cancel'),
-            ),
-          ],
         ),
       );
     }
 
-    return BasicViewLayout(
-      centered: false,
-      headerTitle: "Event Details",
-      backgroundColor: AppColors.teal,
-      children: [
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(15)),
-              image: DecorationImage(
-                fit: BoxFit.fitWidth,
-                alignment: FractionalOffset.center,
-                image: NetworkImage(event.imageUrl),
-              ),
-            ),
-          ),
-        ),
-        const HeightBox(slab: 2),
-        Align(
-          child: Text(
-            event.name,
-            style: AppTypography.mainHeadingWhite,
-          ),
-        ),
-        const HeightBox(slab: 1),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-              width: ScreenUtil.screenWidth(context) * (3 / 7),
-              child: Card(
-                child: ListTile(
-                  title: const Text("Date"),
-                  titleTextStyle: AppTypography.subHeadingBoldBlue,
-                  subtitleTextStyle: AppTypography.bodyText,
-                  subtitle: Text(
-                    DateFormat('d MMM yy').format(event.eventStartTimestamp),
+    return Scaffold(
+      backgroundColor: AppColors.secondaryColor,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                height: ScreenUtil.screenHeight(context) * 0.5,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(15)),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: NetworkImage(event.imageUrl),
                   ),
-                  trailing: const Icon(Icons.calendar_month_outlined),
                 ),
               ),
-            ),
-            SizedBox(
-              width: ScreenUtil.screenWidth(context) * (3 / 7),
-              child: Card(
-                child: ListTile(
-                  title: const Text("Time"),
-                  titleTextStyle: AppTypography.subHeadingBoldBlue,
-                  subtitleTextStyle: AppTypography.bodyText,
-                  subtitle: Text(
-                    DateFormat.jm().format(event.eventStartTimestamp),
+              Positioned(
+                top: 40,
+                left: 20,
+                child: GestureDetector(
+                  onTap: () => context.router.pop(),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.blackColor.withOpacity(0.5),
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
                   ),
-                  trailing: const Icon(Icons.hourglass_empty_outlined),
                 ),
               ),
-            ),
-          ],
-        ),
-        const HeightBox(slab: 1),
-        Card(
-          child: ListTile(
-            title: const Text("Venue"),
-            titleTextStyle: AppTypography.subHeadingBoldBlue,
-            subtitle: Text(event.venue),
-            subtitleTextStyle: AppTypography.bodyText,
-            trailing: const Icon(Icons.location_on_outlined),
-          ),
-        ),
-        const HeightBox(slab: 1),
-        Text(
-          "Additional information",
-          style: AppTypography.subHeadingBoldBlue,
-        ),
-        Text(
-          event.description,
-          style: AppTypography.bodyText,
-        ),
-        const HeightBox(slab: 1),
-        Text(
-          "Organizer",
-          style: AppTypography.subHeadingBoldBlue,
-        ),
-        Text(
-          event.organizerName,
-          style: AppTypography.bodyText,
-        ),
-        const HeightBox(slab: 2),
-        Visibility(
-          visible: showRegistrationButton,
-          child: Align(
-            alignment: Alignment.center,
-            child: PrimaryButton(
-              color: AppColors.blackColor,
-              text: 'Register Now!',
-              onPressed: () {
-                registerEventCubit.initialize();
-                _showDialog();
-              },
-            ),
-          ),
-        ),
-        BlocListener<RegisterEventCubit, RegisterEventState>(
-          listener: (_, state) {
-            switch (state.runtimeType) {
-              case RegisterEventSuccess:
-                context.router.push(
-                  ReceiptRoute(
-                    amount: event.registrationFee,
-                    recipientName: event.organizerName,
+              Positioned(
+                bottom: -ScreenUtil.screenHeight(context) * 0.075,
+                left: 20,
+                right: 20,
+                child: Container(
+                  width: ScreenUtil.screenWidth(context) * 0.7,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondaryColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(15)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.blackColor.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
-                );
-            }
-          },
-          child: const SizedBox.shrink(),
-        ),
-      ],
+                  padding: const EdgeInsets.only(
+                      top: 8, bottom: 8, right: 14.0, left: 16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        softWrap: true,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        event.name,
+                        style: AppTypography.headingFont.copyWith(
+                          color: AppColors.blackColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 2,
+                      ),
+                      Text(
+                        DateFormat('MMM dd, yyyy')
+                            .format(event.eventStartTimestamp),
+                        style: AppTypography.bodyText.copyWith(
+                          color: AppColors.greyColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        '${DateFormat('hh:mm a').format(event.eventStartTimestamp)}, ${event.venue}',
+                        style: AppTypography.bodyText.copyWith(
+                          color: AppColors.greyColor,
+                          fontSize: 12,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Rs. ${event.registrationFee}',
+                        style: AppTypography.bodyText.copyWith(
+                          color: AppColors.lightBlueColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            height: ScreenUtil.screenHeight(context) * 0.4,
+            margin:
+                EdgeInsets.only(top: ScreenUtil.screenHeight(context) * 0.08),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Event By',
+                    style: AppTypography.bodyTextBold,
+                  ),
+                  const HeightBox(slab: 1),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        event.organizerName,
+                        style: AppTypography.bodyText,
+                      ),
+                    ],
+                  ),
+                  const HeightBox(slab: 1),
+                  const HeightBox(slab: 1),
+                  Text(
+                    "About",
+                    style: AppTypography.bodyTextBold,
+                  ),
+                  const HeightBox(slab: 1),
+                  Container(
+                    height: ScreenUtil.screenHeight(context) * 0.15,
+                    child: SingleChildScrollView(
+                      child: Text(
+                        event.description,
+                        style: AppTypography.bodyText.copyWith(
+                          color: AppColors.greyColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const HeightBox(slab: 3),
+                  Visibility(
+                    visible: showRegistrationButton,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: PrimaryButton(
+                        color: AppColors.lightBlueColor,
+                        text: 'Register Now!',
+                        onPressed: () {
+                          registerEventCubit.initialize();
+                          _showDialog();
+                        },
+                      ),
+                    ),
+                  ),
+                  BlocListener<RegisterEventCubit, RegisterEventState>(
+                    listener: (_, state) {
+                      switch (state.runtimeType) {
+                        case RegisterEventSuccess:
+                          context.router.push(
+                            ReceiptRoute(
+                              amount: event.registrationFee,
+                              recipientName: event.organizerName,
+                            ),
+                          );
+                      }
+                    },
+                    child: const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

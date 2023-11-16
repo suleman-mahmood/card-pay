@@ -516,7 +516,23 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
             organizerName: "Student Council",
             venue: "Sports Complex",
           ),
-          Event(name: "FIFA", description: "OMG! FIFA screening!"),
+          Event(name: "FIFA 14", description: "OMG! FIFA screening!", venue: "Khokha Stall", ),
+          Event(name: "FIFA 15", description: "OMG! FIFA screening!", venue: "Khokha Stall", imageUrl:
+                "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
+            registrationFee: 1500,
+            ),
+          Event(name: "FIFA 16", description: "OMG! FIFA screening!", venue: "Khokha Stall", imageUrl:
+                "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
+            registrationFee: 1500,
+            ),
+          Event(name: "FIFA 2062314123 version 20000.00123213", description: "OMG! FIFA screening!", venue: "Khokha Stall", imageUrl:
+                "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
+            registrationFee: 1500,
+            ),
+          Event(name: "FIFA 18", description: "OMG! FIFA screening!", venue: "Khokha Stall", imageUrl:
+                "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
+            registrationFee: 1500,
+            ),
         ],
       )),
     );

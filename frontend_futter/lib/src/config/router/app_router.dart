@@ -5,6 +5,7 @@ import 'package:cardpay/src/domain/models/event.dart';
 import 'package:cardpay/src/presentation/views/event/event_attendance_qr_view.dart';
 import 'package:cardpay/src/presentation/views/event/event_details_view.dart';
 import 'package:cardpay/src/presentation/views/event/event_selector_view.dart';
+import 'package:cardpay/src/presentation/views/event/live_events_detailed_view.dart';
 import 'package:cardpay/src/presentation/views/event/live_events_view.dart';
 import 'package:cardpay/src/presentation/views/event/registered_events_view.dart';
 import 'package:cardpay/src/presentation/views/faqs_view.dart';
@@ -133,6 +134,10 @@ class AppRouter extends _$AppRouter {
         ),
         CustomRoute(
           page: LiveEventsRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: LiveEventsDetailedRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(

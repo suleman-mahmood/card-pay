@@ -52,7 +52,7 @@ Future<void> initializeDependencies() async {
 
   locator.registerSingleton<ApiRepository>(
     ApiRepositoryImpl(locator<PythonApiService>()),
-    // FakeApiRepositoryImpl(),
+    //FakeApiRepositoryImpl(),
   );
   locator.registerSingleton<SharedPreferences>(
     await SharedPreferences.getInstance(),
