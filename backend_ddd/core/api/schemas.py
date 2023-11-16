@@ -448,5 +448,5 @@ class EventTypeSchema(AbstractSchema):
         if not isinstance(self.value, str):
             raise utils.CustomException("Event Type passed is not a string")
 
-        if not re.match(r"^(INTERNAL|EXTERNAL)$", self.value):
+        if not re.match(r"^(INTERNAL|EXTERNAL|INCLUSIVE)$", self.value):
             raise utils.CustomException("Invalid Event Type Passed")
