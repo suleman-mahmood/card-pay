@@ -10,6 +10,7 @@ from uuid import NAMESPACE_OID, uuid5
 from core.api import schemas as sch
 from core.api.event_codes import EventCode
 from core.authentication.domain.model import UserType
+from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.entrypoint import queries as auth_qry
 from core.entrypoint.uow import UnitOfWork
 from firebase_admin import auth
@@ -100,8 +101,28 @@ def authenticate_user_type(allowed_user_types: List[UserType]):
         @wraps(func)
         def wrapper(*args, **kwargs):
             uow = UnitOfWork()
-            user_type = auth_qry.get_user_type_from_user_id(user_id=kwargs["uid"], uow=uow)
-            uow.close_connection()
+            try:
+                user_type = auth_qry.get_user_type_from_user_id(user_id=kwargs["uid"], uow=uow)
+                uow.close_connection()
+            except auth_svc_ex.UserNotFoundException as e:
+                uow.close_connection()
+                logging.info(
+                    {
+                        "message": "Custom exception raised",
+                        "endpoint": "api-decorator",
+                        "exception_type": "UserNotExists",
+                    },
+                )
+                raise CustomException(str(e))
+            except Exception:
+                uow.close_connection()
+                logging.info(
+                    {
+                        "message": "Unhandled exception raised",
+                        "endpoint": "api-decorator",
+                    },
+                )
+                raise CustomException(str(e))
 
             if user_type not in allowed_user_types:
                 logging.info(

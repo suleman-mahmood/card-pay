@@ -103,6 +103,10 @@ def get_user_type_from_user_id(user_id: str, uow: AbstractUnitOfWork):
     """
     uow.cursor.execute(sql, [user_id])
     row = uow.cursor.fetchone()
+
+    if row is None:
+        raise auth_svc_ex.UserNotFoundException("User does not exists in database")
+
     user_type = auth_mdl.UserType[row[0]]
     return user_type
 
