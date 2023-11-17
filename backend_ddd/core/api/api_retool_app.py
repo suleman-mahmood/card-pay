@@ -21,6 +21,7 @@ from core.event.entrypoint import services as event_svc
 from core.marketing.domain import exceptions as mktg_mdl_ex
 from core.marketing.entrypoint import commands as mktg_cmd
 from core.payment.domain import exceptions as pmt_mdl_ex
+from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
@@ -1067,3 +1068,34 @@ def send_event_registration_email():
     uow.close_connection()
 
     return utils.Response(message="Event email sent!", status_code=200).__dict__
+
+
+@retool.route("/force-transaction", methods=["POST"])
+@utils.authenticate_retool_secret
+def force_transaction():
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+    auth_svc = pmt_acl.AuthenticationService()
+
+    try:
+        pmt_cmd._execute_transaction(
+            tx_id=str(uuid4()),
+            amount=req["amount"],
+            sender_wallet_id=req["sender_wallet_id"],
+            recipient_wallet_id=req["recipient_wallet_id"],
+            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+            transaction_type=pmt_mdl.TransactionType.CARD_PAY,
+            uow=uow,
+            auth_svc=auth_svc,
+        )
+        uow.close_connection()
+
+    except (pmt_mdl_ex.TransactionNotAllowedException, pmt_svc_ex.TransactionFailedException) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(message="Transaction forced successfully", status_code=200).__dict__
