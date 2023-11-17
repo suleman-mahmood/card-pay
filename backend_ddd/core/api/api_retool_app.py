@@ -1088,7 +1088,7 @@ def force_transaction():
             uow=uow,
             auth_svc=auth_svc,
         )
-        uow.close_connection()
+        uow.commit_close_connection()
 
     except (pmt_mdl_ex.TransactionNotAllowedException, pmt_svc_ex.TransactionFailedException) as e:
         uow.close_connection()
