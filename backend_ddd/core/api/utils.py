@@ -203,7 +203,7 @@ def validate_and_sanitize_json_payload(
                             "exception_type": "InvalidSchema",
                             "param_type": param,
                             "param_value": req[param],
-                            "schema_type": schema.__dict__,
+                            "schema_type": schema.__class__.__name__,
                             "json_request": req,
                             "optional_parameters": optional_parameters,
                             "required_parameters": required_parameters,
