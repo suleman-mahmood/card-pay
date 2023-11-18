@@ -1216,9 +1216,10 @@ def get_user_recent_transactions(uid):
         page_size=50,
         uow=uow,
     )
+    uow.close_connection()
 
-    executor = ThreadPoolExecutor(max_workers=1)
-    executor.submit(check_last_deposit_transaction, uid, uow)
+    # executor = ThreadPoolExecutor(max_workers=1)
+    # executor.submit(check_last_deposit_transaction, uid, uow)
 
     return utils.Response(
         message="User recent transactions returned successfully",
@@ -1363,7 +1364,9 @@ def get_live_events(uid):
 
     try:
         events = event_qry.get_live_events(
-            closed_loop_id=closed_loop_id, uow=uow, event_type=event_mdl.EventType.INTERNAL
+            closed_loop_id=closed_loop_id,
+            uow=uow,
+            event_type=event_mdl.EventType.INTERNAL,
         )
         uow.close_connection()
 

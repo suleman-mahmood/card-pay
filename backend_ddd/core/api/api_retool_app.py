@@ -970,6 +970,10 @@ def daily_user_checkpoints():
 @utils.authenticate_retool_secret
 def paypro_ghost_invoices_report():
     logging.info({"message": "PayPro ghost invoices report | starting"})
+    return utils.Response(
+        message="Ghost invoice disabled",
+        status_code=200,
+    ).__dict__
 
     uow = UnitOfWork()
 
