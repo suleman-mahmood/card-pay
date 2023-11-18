@@ -169,11 +169,10 @@ export default function page() {
             }
             <div
               className='modal-action'
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => { setIsModalOpen(false), qrScanner?.start() }}
             >
               <button
                 className='btn'
-                onClick={() => setIsModalOpen(false)}
               >
                 Cancel
               </button>
