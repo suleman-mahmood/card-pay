@@ -41,6 +41,7 @@ export default function page() {
   const [error, setError] = useState();
   const [isLoadingSpinner, setIsLoadingSpinner] = useState(true);
   const [isQrInitialized, setIsQrInitialized] = useState(false);
+  const [qrScanner, setQrScanner] = useState<QrScanner>();
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (user: any) => {
@@ -80,6 +81,7 @@ export default function page() {
       {}
     );
 
+    setQrScanner(qrScanner);
     qrScanner.start();
   }
 
@@ -109,7 +111,6 @@ export default function page() {
           setError(res.message);
           setIsLoadingSpinner(false);
           setIsErrorModalOpen(true);
-          qrScanner.start();
           throw new Error(`HTTP Error! Status: ${response.status}`);
         }
         return response.json();
@@ -118,7 +119,6 @@ export default function page() {
         setRes(data.data);
         setIsLoadingSpinner(false);
         setIsModalOpen(true);
-        qrScanner.start();
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -194,11 +194,10 @@ export default function page() {
             <div className="error-message"><b>Error: </b> {error}</div>
             <div
               className='modal-action'
-              onClick={() => setIsErrorModalOpen(false)}
+              onClick={() => { setIsErrorModalOpen(false), qrScanner?.start() }}
             >
               <button
                 className='btn'
-                onClick={() => setIsErrorModalOpen(false)}
               >
                 Cancel
               </button>
