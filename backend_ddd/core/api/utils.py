@@ -193,7 +193,23 @@ def validate_and_sanitize_json_payload(
                 if isinstance(req[param], str):
                     req[param] = req[param].strip()
 
-                schema(req[param]).validate()
+                try:
+                    schema(req[param]).validate()
+                except CustomException as e:
+                    logging.info(
+                        {
+                            "message": "Custom exception raised",
+                            "endpoint": "api-decorator",
+                            "exception_type": "InvalidSchema",
+                            "param_type": param,
+                            "param_value": req[param],
+                            "schema_type": schema.__dict__,
+                            "json_request": req,
+                            "optional_parameters": optional_parameters,
+                            "required_parameters": required_parameters,
+                        },
+                    )
+                    raise e
 
             return func(*args, **kwargs)
 

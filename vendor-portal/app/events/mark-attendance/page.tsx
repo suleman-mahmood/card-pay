@@ -42,6 +42,7 @@ export default function page() {
   const [res, setRes] = useState<MarkAttendanceResponse>();
   const [error, setError] = useState();
   const [isLoadingSpinner, setIsLoadingSpinner] = useState(false);
+  const [isMarkingAttendance, setIsMarkingAttendance] = useState(false);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user: any) => {
@@ -63,10 +64,10 @@ export default function page() {
     const qrScanner = new QrScanner(
       videoElem,
       (result: any) => {
-        let x : string = result.data;
+        let x: string = result.data;
         x = x.replace(/['"]+/g, '"')
         let json_data: { "qr_id": string }
-        if(x.includes("qr_id")){
+        if (x.includes("qr_id")) {
           json_data = JSON.parse(x)
           markAttendance(json_data.qr_id, qrScanner)
         }
@@ -83,6 +84,9 @@ export default function page() {
   }, [isFetching]);
 
   const markAttendance = async (qr_id: string, qrScanner: QrScanner) => {
+    if (isMarkingAttendance) return
+    setIsMarkingAttendance(true);
+
     setIsLoadingSpinner(true);
     const token = await user?.getIdToken();
     fetch(
@@ -105,6 +109,7 @@ export default function page() {
         if (!response.ok) {
           const res = await response.json();
           setError(res.message);
+          setIsMarkingAttendance(false);
           setIsFetching(false);
           setIsLoadingSpinner(false);
           setIsErrorModalOpen(true);
@@ -114,6 +119,7 @@ export default function page() {
         return response.json();
       })
       .then((data) => {
+        setIsMarkingAttendance(false);
         setIsFetching(false);
         setRes(data.data);
         setIsLoadingSpinner(false);
@@ -156,16 +162,16 @@ export default function page() {
             <h5><b>Attendance Status</b></h5>
             {res?.already_marked ? (
               <FontAwesomeIcon
-              icon={faX}
-              className="fas fa-x"
-              style={{ color: "red", fontSize: 64 }}
-            />
+                icon={faX}
+                className="fas fa-x"
+                style={{ color: "red", fontSize: 64 }}
+              />
             ) : (
               <FontAwesomeIcon
-              icon={faCheck}
-              className="fas fa-check"
-              style={{ color: "green", fontSize: 64 }}
-            />
+                icon={faCheck}
+                className="fas fa-check"
+                style={{ color: "green", fontSize: 64 }}
+              />
             )}
             {res?.already_marked ? (
               <div className="mt-4 error-message">Already marked</div>
@@ -181,7 +187,7 @@ export default function page() {
             }
             {
               res?.attendance_data.form_data.map((item: any, index: any) => (
-                  <div className="mt-2" key={index}><b>{item.question}: </b>{item.answer}</div>
+                <div className="mt-2" key={index}><b>{item.question}: </b>{item.answer}</div>
               ))
             }
             <div

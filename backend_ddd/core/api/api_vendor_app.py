@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from uuid import uuid4
 
@@ -364,12 +365,32 @@ def mark_entry_event_attendance(uid):
         event_svc_ex.EventNotFound,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "mark-entry-event-attendance",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
-    except event_mdl_exc.UserIsAlreadyMarkedPresent:
+    except event_mdl_exc.UserIsAlreadyMarkedPresent as e:
         attendance_data = event_qry.get_attendance_data(qr_id=req["qr_id"], uow=uow)
         uow.close_connection()
-
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "mark-entry-event-attendance",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+                "attendance_data": attendance_data.__dict__,
+            },
+        )
         return utils.Response(
             message="Event attendance already marked",
             status_code=200,
@@ -378,6 +399,16 @@ def mark_entry_event_attendance(uid):
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": f"Unhandled exception raised",
+                "endpoint": "mark-entry-event-attendance",
+                "invoked_by": "vendor_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(
