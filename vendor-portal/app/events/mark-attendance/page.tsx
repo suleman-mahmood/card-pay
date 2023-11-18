@@ -35,31 +35,33 @@ interface MarkAttendanceResponse {
 
 export default function page() {
   const router = useRouter();
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [isFetching, setIsFetching] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [res, setRes] = useState<MarkAttendanceResponse>();
   const [error, setError] = useState();
-  const [isLoadingSpinner, setIsLoadingSpinner] = useState(false);
-  const [isMarkingAttendance, setIsMarkingAttendance] = useState(false);
+  const [isLoadingSpinner, setIsLoadingSpinner] = useState(true);
+  const [isQrInitialized, setIsQrInitialized] = useState(false);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, (user: any) => {
+    return onAuthStateChanged(auth, async (user: any) => {
       if (user) {
-        setUser(user);
-        setIsFetching(false);
+        const token = await user?.getIdToken();
+        setUpQrScanner(token);
+        setIsLoadingSpinner(false);
       } else {
         router.push("/");
       }
     });
   }, []);
 
-  useEffect(() => {
+  const setUpQrScanner = (token: string) => {
     if (document === null) return;
 
     const videoElem = document.querySelector('video');
     if (videoElem === null) return;
+
+    if (isQrInitialized) return;
+    setIsQrInitialized(true);
 
     const qrScanner = new QrScanner(
       videoElem,
@@ -69,26 +71,22 @@ export default function page() {
         let json_data: { "qr_id": string }
         if (x.includes("qr_id")) {
           json_data = JSON.parse(x)
-          markAttendance(json_data.qr_id, qrScanner)
+          markAttendance(json_data.qr_id, qrScanner, token)
         }
         else {
-          markAttendance(x, qrScanner)
+          markAttendance(x, qrScanner, token)
         }
-
-        qrScanner.pause();
       },
       {}
     );
 
     qrScanner.start();
-  }, [isFetching]);
+  }
 
-  const markAttendance = async (qr_id: string, qrScanner: QrScanner) => {
-    if (isMarkingAttendance) return
-    setIsMarkingAttendance(true);
-
+  const markAttendance = async (qr_id: string, qrScanner: QrScanner, token: string) => {
+    qrScanner.pause();
     setIsLoadingSpinner(true);
-    const token = await user?.getIdToken();
+
     fetch(
       `${BASE_URL}/api/v1/vendor-app/mark-entry-event-attendance`,
       {
@@ -109,8 +107,6 @@ export default function page() {
         if (!response.ok) {
           const res = await response.json();
           setError(res.message);
-          setIsMarkingAttendance(false);
-          setIsFetching(false);
           setIsLoadingSpinner(false);
           setIsErrorModalOpen(true);
           qrScanner.start();
@@ -119,8 +115,6 @@ export default function page() {
         return response.json();
       })
       .then((data) => {
-        setIsMarkingAttendance(false);
-        setIsFetching(false);
         setRes(data.data);
         setIsLoadingSpinner(false);
         setIsModalOpen(true);
@@ -131,24 +125,7 @@ export default function page() {
       });
   };
 
-  return isFetching ? (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
-      <TypeAnimation
-        sequence={[
-          "CardPay",
-          1000,
-          "Payment Sirf CardPay",
-          1000,
-          "Thora Intezar Farmaein",
-          1000,
-        ]}
-        wrapper="span"
-        speed={60}
-        style={{ fontSize: "2em", display: "inline-block" }}
-        repeat={Infinity}
-      />
-    </div>
-  ) : (
+  return (
     <div className="flex min-h-screen flex-col items-center justify-between p-4">
       <div className="overflow-x-auto">
         <h1 className="w-full text-center" >Mark attendance</h1>
