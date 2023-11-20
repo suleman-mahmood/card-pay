@@ -74,9 +74,6 @@ def get_vendor_balance(uid):
     )
     uow.close_connection()
 
-    if uid == "147df93b-e2ee-50d3-bc36-258c28edcae7":
-        balance = 0
-
     return utils.Response(
         message="Vendor balance returned successfully",
         status_code=200,
@@ -461,11 +458,6 @@ def get_society_registrations(uid):
     internal_registrations = event_qry.get_internal_registrations(organizer_id=uid, uow=uow)
     unpaid_registrations = event_qry.get_unpaid_registrations(organizer_id=uid, uow=uow)
     uow.close_connection()
-
-    if uid == "147df93b-e2ee-50d3-bc36-258c28edcae7":
-        external_registrations = []
-        internal_registrations = []
-        unpaid_registrations = []
 
     return utils.Response(
         message="All transactions returned successfully",
