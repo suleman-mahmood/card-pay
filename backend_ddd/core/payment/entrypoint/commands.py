@@ -331,3 +331,35 @@ def execute_qr_transaction(
         uow=uow,
         auth_svc=auth_svc,
     )
+
+
+def execute_top_up_transaction(
+    tx_id: str,
+    amount: int,
+    sender_wallet_id: str,
+    recipient_roll_number: str,
+    closed_loop_id: str,
+    uow: AbstractUnitOfWork,
+    auth_svc: acl.AbstractAuthenticationService,
+    pmt_svc: acl.AbstractPaymentService,
+):
+    recipient_wallet_id = pmt_svc.get_wallet_id_from_unique_identifier_and_closed_loop_id(
+        unique_identifier=recipient_roll_number,
+        closed_loop_id=closed_loop_id,
+        uow=uow,
+    )
+
+    # Check if recipient is a student
+    if not auth_svc.user_customer(wallet_id=recipient_wallet_id, uow=uow):
+        raise svc_ex.InvalidUserTypeException("Top ups can only be given to students")
+
+    _execute_transaction(
+        tx_id=tx_id,
+        amount=amount,
+        sender_wallet_id=sender_wallet_id,
+        recipient_wallet_id=recipient_wallet_id,
+        transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=pmt_mdl.TransactionType.TOP_UP,
+        uow=uow,
+        auth_svc=auth_svc,
+    )

@@ -22,7 +22,6 @@ from core.entrypoint.uow import AbstractUnitOfWork, UnitOfWork
 from core.event.domain import exceptions as event_mdl_exc
 from core.event.domain import model as event_mdl
 from core.event.entrypoint import commands as event_cmd
-from core.event.entrypoint import exceptions as event_svc_ex
 from core.event.entrypoint import queries as event_qry
 from core.event.entrypoint import services as event_svc
 from core.marketing.adapters import exceptions as mktg_repo_ex

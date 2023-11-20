@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "../../services/initialize-firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { User as FirebaseUser } from "firebase/auth";
+import { BASE_URL } from "@/services/remote-config";
 
 function Login() {
   const router = useRouter();
@@ -17,10 +18,6 @@ function Login() {
   const [errorPhone, setErrorPhone] = useState<string>("");
   const [errorPassword, setErrorPassword] = useState<string>("");
   const [vendor_type, setVendorType] = useState<string>("");
-
-  const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
-  const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
-  const BASE_URL = BASE_URL_PROD;
 
   useEffect(() => {
     return auth.onAuthStateChanged(async (user: any) => {
@@ -58,10 +55,10 @@ function Login() {
       })
       .then((data) => {
         setVendorType(data.data.user_type)
-        if(data.data.user_type === '6'){
+        if (data.data.user_type === '6') {
           router.push("/events/dashboard")
         }
-        else{
+        else {
           router.push("/dashboard")
         }
       })

@@ -9,6 +9,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../services/initialize-firebase";
 import Table from "./components/Table";
 import { TypeAnimation } from "react-type-animation";
+import { BASE_URL } from "@/services/remote-config";
 
 export interface Transaction {
   amount: number;
@@ -16,10 +17,6 @@ export interface Transaction {
   last_updated: string;
   sender_name: string;
 }
-
-const BASE_URL_PROD = "https://cardpay-1.el.r.appspot.com";
-const BASE_URL_DEV = "https://dev-dot-cardpay-1.el.r.appspot.com";
-const BASE_URL = BASE_URL_PROD;
 
 export default function page() {
   const router = useRouter();

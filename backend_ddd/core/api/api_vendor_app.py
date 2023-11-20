@@ -5,7 +5,11 @@ from uuid import uuid4
 from core.api import schemas as sch
 from core.api import utils
 from core.authentication.domain import model as auth_mdl
+from core.authentication.entrypoint import exceptions as auth_svc_ex
 from core.authentication.entrypoint import queries as auth_qry
+from core.comms.entrypoint import anti_corruption as comms_acl
+from core.comms.entrypoint import commands as comms_cmd
+from core.comms.entrypoint import exceptions as comms_svc_ex
 from core.entrypoint.uow import UnitOfWork
 from core.event.adapters import exceptions as event_repo_exc
 from core.event.domain import exceptions as event_mdl_exc
@@ -15,7 +19,6 @@ from core.event.entrypoint import commands as event_cmd
 from core.event.entrypoint import exceptions as event_svc_ex
 from core.event.entrypoint import queries as event_qry
 from core.event.entrypoint import services as event_svc
-from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
@@ -227,6 +230,176 @@ def get_vendor_reconciled_transactions(uid):
         message="Reconciled Transactions returned successfully",
         status_code=200,
         data=transactions,
+    ).__dict__
+
+
+@vendor_app.route("/execute-top-up-transaction", methods=["POST"])
+@cross_origin(origin="*", headers=["Authorization"])
+@utils.authenticate_token
+@utils.user_verified
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "recipient_unique_identifier": sch.LUMSRollNumberSchema,
+        "amount": sch.AmountSchema,
+        "closed_loop_id": sch.UuidSchema,
+    }
+)
+def execute_top_up_transaction(uid):
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+
+    try:
+        pmt_cmd.execute_top_up_transaction(
+            tx_id=str(uuid4()),
+            amount=req["amount"],
+            closed_loop_id=req["closed_loop_id"],
+            sender_wallet_id=uid,
+            recipient_roll_number=req["recipient_unique_identifier"],
+            uow=uow,
+            auth_svc=pmt_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
+        )
+        uow.commit_close_connection()
+
+    except pmt_svc_ex.TransactionFailedException as e:
+        uow.commit_close_connection()  # save the failed transactions
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "/execute-top-up-transaction",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        raise utils.CustomException(str(e))
+
+    except pmt_svc_ex.UserDoesNotExistException as e:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "/execute-top-up-transaction",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        raise utils.CustomException(str(e))
+
+    except (Exception, AssertionError) as e:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "Unhandled exception raised",
+                "endpoint": "/execute-top-up-transaction",
+                "invoked_by": "vendor_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        raise e
+
+    # Send notification
+    uow = UnitOfWork()
+    try:
+        recipient_wallet_id = pmt_qry.get_wallet_id_from_unique_identifier_and_closed_loop_id(
+            unique_identifier=req["recipient_unique_identifier"],
+            closed_loop_id=req["closed_loop_id"],
+            uow=uow,
+        )
+        #         Top Up Received of 2,000 PKR 🎉
+        # -
+        sender = uow.users.get(user_id=uid)
+        comms_cmd.send_notification(
+            user_id=recipient_wallet_id,
+            title=f"Top Up Received of {req['amount']} PKR 🎉",
+            body=f"{sender.full_name} has given you a top up of {req['amount']} PKR",
+            uow=uow,
+            comms_svc=comms_acl.CommunicationService(),
+        )
+    except comms_svc_ex.FcmTokenNotFound as e:
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "/execute-top-up-transaction",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+                "silent": True,
+            },
+        )
+    except Exception as e:
+        logging.info(
+            {
+                "message": "Unhandled exception raised",
+                "endpoint": "/execute-top-up-transaction",
+                "invoked_by": "vendor_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+                "silent": True,
+            },
+        )
+    uow.close_connection()
+
+    return utils.Response(
+        message="Top up transaction executed successfully",
+        status_code=201,
+    ).__dict__
+
+
+@vendor_app.route("/get-name-from-unique-identifier-and-closed-loop", methods=["GET"])
+@cross_origin(origin="*", headers=["Authorization"])
+@utils.authenticate_token
+@utils.user_verified
+@utils.authenticate_user_type(allowed_user_types=[auth_mdl.UserType.VENDOR])
+def get_name_from_unique_identifier_and_closed_loop(uid):
+    uow = UnitOfWork()
+
+    try:
+        full_name = auth_qry.get_full_name_from_unique_identifier_and_closed_loop(
+            unique_identifier=request.args.get("unique_identifier"),
+            closed_loop_id=request.args.get("closed_loop_id"),
+            uow=uow,
+        )
+        uow.close_connection()
+
+    except auth_svc_ex.UserNotFoundException as e:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "get-name-from-unique-identifier-and-closed-loop",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+            },
+        )
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "Unhandled exception raised",
+                "endpoint": "get-name-from-unique-identifier-and-closed-loop",
+                "invoked_by": "vendor_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+            },
+        )
+        raise e
+
+    return utils.Response(
+        message="User full name returned successfully",
+        status_code=200,
+        data={"full_name": full_name},
     ).__dict__
 
 

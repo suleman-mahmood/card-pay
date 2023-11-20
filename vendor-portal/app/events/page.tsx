@@ -10,13 +10,6 @@ import { useSearchParams } from 'next/navigation'
 import '../globals.css'
 import Link from "@/node_modules/next/link";
 
-const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
-const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
-const BASE_URL_LOCAL = 'http://127.0.0.1:5000';
-const BASE_URL = BASE_URL_PROD;
-
-
-
 export default function page() {
     const router = useRouter();
     const [isLoadingSpinner, setIsLoadingSpinner] = useState(false);

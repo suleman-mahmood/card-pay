@@ -54,6 +54,7 @@ class TransactionType(str, Enum):
     REFERRAL = 9  # Marketing
     RECONCILIATION = 10  # reconciliation to cardpay by vendors
     EVENT_REGISTRATION_FEE = 11  # payment from a user to an event organizer
+    TOP_UP = 12  # Vendor tops up a customer
 
 
 @dataclass

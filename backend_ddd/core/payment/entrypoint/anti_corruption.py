@@ -15,22 +15,24 @@ PAYPRO_USER_ID = "93c74873-294f-4d64-a7cc-2435032e3553"
 @dataclass
 class AbstractAuthenticationService(ABC):
     @abstractmethod
-    def user_verification_status_from_user_id(
-        self,
-        user_id: str,
-        uow: AbstractUnitOfWork,
-    ) -> bool:
+    def user_verification_status_from_user_id(self, user_id: str, uow: AbstractUnitOfWork) -> bool:
+        pass
+
+    @abstractmethod
+    def user_customer(self, wallet_id: str, uow: AbstractUnitOfWork) -> bool:
         pass
 
 
 @dataclass
 class AuthenticationService(AbstractAuthenticationService):
-    def user_verification_status_from_user_id(
-        self,
-        user_id: str,
-        uow: AbstractUnitOfWork,
-    ) -> bool:
+    def user_verification_status_from_user_id(self, user_id: str, uow: AbstractUnitOfWork) -> bool:
         return auth_qry.user_verification_status_from_user_id(user_id=user_id, uow=uow)
+
+    def user_customer(self, wallet_id: str, uow: AbstractUnitOfWork) -> bool:
+        return (
+            auth_qry.get_user_type_from_user_id(user_id=wallet_id, uow=uow)
+            == auth_mdl.UserType.CUSTOMER
+        )
 
 
 @dataclass
@@ -46,6 +48,9 @@ class FakeAuthenticationService(AbstractAuthenticationService):
         uow: AbstractUnitOfWork,
     ) -> bool:
         return self.user_verification_status
+
+    def user_customer(self, wallet_id: str, uow: AbstractUnitOfWork) -> bool:
+        return True
 
 
 @dataclass

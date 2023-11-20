@@ -8,11 +8,7 @@ import LoadingOverlay from "../spinner";
 import { useSearchParams } from 'next/navigation'
 
 import '../../globals.css'
-
-const BASE_URL_PROD = 'https://cardpay-1.el.r.appspot.com';
-const BASE_URL_DEV = 'https://dev-dot-cardpay-1.el.r.appspot.com';
-const BASE_URL_LOCAL = 'http://127.0.0.1:5000';
-const BASE_URL = BASE_URL_PROD;
+import { BASE_URL } from "@/services/remote-config";
 
 enum EventStatus {
     DRAFT,
@@ -174,23 +170,23 @@ export default function page() {
     function getDayName(date: any) {
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         return days[date.getUTCDay()];
-      }
-    
-      function getTwoDigitDay(date: any) {
+    }
+
+    function getTwoDigitDay(date: any) {
         return ("0" + date.getUTCDate()).slice(-2);
-      }
-    
-      function getMonthName(date: any) {
+    }
+
+    function getMonthName(date: any) {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         return months[date.getUTCMonth()];
-      }
-    
-      function get12HourTime(date: any) {
+    }
+
+    function get12HourTime(date: any) {
         const hours = date.getUTCHours() % 12 || 12;
         const minutes = ("0" + date.getUTCMinutes()).slice(-2);
         const period = date.getUTCHours() < 12 ? "AM" : "PM";
         return `${hours}:${minutes} ${period}`;
-      }
+    }
 
     const sendFormData = async (user: any, formData: any, eventId: any) => {
         try {
