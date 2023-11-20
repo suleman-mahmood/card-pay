@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime, timedelta
 
 from core.comms.entrypoint import anti_corruption as comms_acl
 from core.comms.entrypoint import commands as comms_cmd
@@ -26,25 +27,29 @@ def paypro_manual_inquiry():
 
     uow = UnitOfWork()
 
-    # Get last x pending deposit requests
-    pp_tx_ids = pmt_qry.get_last_n_pending_deposit_transactions(uow=uow)
-    logging.info(
-        {
-            "message": "PayPro inquiry cron | Fetched pending txns",
-            "txs": [res.__dict__ for res in pp_tx_ids],
-        }
+    # Get last pending deposit requests
+    pk_time = datetime.now() + timedelta(hours=5)
+    pp_orders = pp_svc.invoice_range(
+        start_date=pk_time - timedelta(hours=1),
+        end_date=pk_time,
+        uow=uow,
     )
 
-    # Check these requests from PayPro
-    paid_txs = [
-        pp_tx_id.tx_id
-        for pp_tx_id in pp_tx_ids
-        if pp_svc.invoice_paid(paypro_id=pp_tx_id.paypro_id, uow=uow)
-    ]
+    pp_paid_tx_ids = [pp_order.tx_id for pp_order in pp_orders if pp_order.tx_status == "PAID"]
+
     logging.info(
         {
             "message": "PayPro inquiry cron | Filtered paid txns",
-            "txs": paid_txs,
+            "txs": pp_paid_tx_ids,
+        }
+    )
+
+    # These are the txns that are paid in PayPro but pending in our db
+    paid_txs = pmt_qry.get_pending_txns_from_paid_pp_txn_ids(pp_paid_tx_ids, uow)
+    logging.info(
+        {
+            "message": "PayPro inquiry cron | Fetched pending txns",
+            "txs": [res.__dict__ for res in paid_txs],
         }
     )
 
@@ -73,7 +78,7 @@ def paypro_manual_inquiry():
     )
 
     ### ### ###
-    ### Do the rest of important stuff
+    # Do the rest of important stuff
     ### ### ###
 
     # Give cashbacks for all the accepted transactions

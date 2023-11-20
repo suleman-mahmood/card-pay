@@ -1066,3 +1066,20 @@ def get_many_transactions(
     rows = uow.dict_cursor.fetchall()
 
     return [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_pending_txns_from_paid_pp_txn_ids(tx_ids: List[str], uow: AbstractUnitOfWork):
+    sql = """
+        select
+            txs.id
+        from
+            transactions txn
+            join unnest(%(tx_ids)s::uuid[]) txs(id) on txs.id = txn.id
+        where
+            status = 'PENDING'::transaction_status_enum
+            and transaction_type = 'PAYMENT_GATEWAY'::transaction_type_enum
+    """
+    uow.dict_cursor.execute(sql, {"tx_ids": tx_ids})
+    rows = uow.dict_cursor.fetchall()
+
+    return [row["id"] for row in rows]

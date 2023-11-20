@@ -297,5 +297,6 @@ def invoice_range(
 
     pp_res.raise_for_status()
     json_res = pp_res.json()
-
-    return [vm.PayProOrderResponseDTO.from_pp_api(response=order) for order in json_res]
+    result = [vm.PayProOrderResponseDTO.from_pp_api(response=order) for order in json_res]
+    result = result[1:]
+    return result
