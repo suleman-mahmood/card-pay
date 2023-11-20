@@ -31,6 +31,7 @@ enum TransactionType {
   REFERRAL,
   RECONCILIATION,
   EVENT_REGISTRATION_FEE,
+  TOP_UP,
 }
 
 @Entity(tableName: "transactions")
@@ -104,12 +105,15 @@ class Transaction {
       amount: map['amount'] as int,
       mode: TransactionMode.values.firstWhere(
         (e) => e.name == map['mode'],
+        orElse: () => TransactionMode.APP_TRANSFER,
       ),
       transactionType: TransactionType.values.firstWhere(
         (e) => e.name == map['transaction_type'],
+        orElse: () => TransactionType.P2P_PUSH,
       ),
       status: TransactionStatus.values.firstWhere(
         (e) => e.name == map['status'],
+        orElse: () => TransactionStatus.PENDING,
       ),
       createdAt: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
           .parse(map['created_at']),

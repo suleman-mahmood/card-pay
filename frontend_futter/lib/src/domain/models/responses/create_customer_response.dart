@@ -39,6 +39,7 @@ class CreateCustomerResponse {
       message: map['message'] as String,
       eventCode: EventCodes.values.firstWhere(
         (e) => e.name == map['event_code'],
+        orElse: () => EventCodes.DEFAULT_EVENT,
       ),
       userId: map['data']['user_id'] as String,
     );

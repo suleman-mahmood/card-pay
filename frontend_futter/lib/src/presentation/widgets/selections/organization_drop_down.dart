@@ -68,8 +68,10 @@ class DropDown extends HookWidget {
                           }
                           onInstituteChanged(
                             value,
-                            state.closedLoops
-                                .firstWhere((e) => e.name == value),
+                            state.closedLoops.firstWhere(
+                              (e) => e.name == value,
+                              orElse: () => ClosedLoop(),
+                            ),
                           );
                           selectedOrganization.value = value;
                         },
