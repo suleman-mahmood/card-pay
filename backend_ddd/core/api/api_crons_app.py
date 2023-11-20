@@ -49,7 +49,7 @@ def paypro_manual_inquiry():
     logging.info(
         {
             "message": "PayPro inquiry cron | Fetched pending txns",
-            "txs": [res.__dict__ for res in paid_txs],
+            "txs": paid_txs,
         }
     )
 

@@ -1068,7 +1068,7 @@ def get_many_transactions(
     return [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
 
 
-def get_pending_txns_from_paid_pp_txn_ids(tx_ids: List[str], uow: AbstractUnitOfWork):
+def get_pending_txns_from_paid_pp_txn_ids(tx_ids: List[str], uow: AbstractUnitOfWork) -> List[str]:
     sql = """
         select
             txs.id
