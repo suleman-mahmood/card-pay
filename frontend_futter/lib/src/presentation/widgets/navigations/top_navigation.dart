@@ -70,7 +70,7 @@ class Header extends HookWidget {
                   horizontalPadding * 0,
                   verticalPadding * 2,
                   horizontalPadding * 0,
-                  verticalPadding * 4,
+                  verticalPadding,
                 ),
                 child: Row(
                   mainAxisAlignment: logoutOnBack

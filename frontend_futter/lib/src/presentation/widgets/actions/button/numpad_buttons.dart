@@ -17,7 +17,7 @@ class NumPad extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 16),
+      padding: EdgeInsets.only(top: MediaQuery.of(context).size.width * 0.02),
       child: Column(
         children: [
           for (int row = 0; row < 3; row++)
@@ -25,7 +25,7 @@ class NumPad extends HookWidget {
               row: row,
               controller: controller,
               buttonColor: buttonColor,
-              height: 80,
+              height: MediaQuery.of(context).size.width * 0.2,
             ),
           NumberPadLastRow(
             controller: controller,
