@@ -18,6 +18,8 @@ class EventSelectorView extends HookWidget {
   const EventSelectorView({super.key});
   @override
   Widget build(BuildContext context) {
+    
+    
     final liveEventsCubit = BlocProvider.of<LiveEventsCubit>(context);
     final registeredEventsCubit = BlocProvider.of<RegisteredEventsCubit>(
       context,

@@ -35,11 +35,12 @@ class RegisteredEventsView extends HookWidget {
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: SizedBox(
-                      height: ScreenUtil.screenHeight(context) * 0.6,
+                      height: ScreenUtil.screenHeight(context) * 0.7,
                       width: ScreenUtil.screenWidth(context),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          Spacer(),
                           SvgPicture.asset(
                             "assets/icon/noEventCalender.svg",
                           ),
@@ -50,6 +51,62 @@ class RegisteredEventsView extends HookWidget {
                               color: AppColors.blackColor,
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Spacer(),
+                          Container(
+                            width: ScreenUtil.screenWidth(context) * 0.7,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color.fromRGBO(67, 157, 254, 1),
+                                  Color.fromRGBO(90, 39, 200, 1),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Builder(
+                              builder: (BuildContext context) {
+                                return ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.transparent,
+                                    onPrimary: Colors.white,
+                                    shadowColor: Colors.transparent,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    DefaultTabController.of(context)
+                                        .animateTo(0);
+                                  },
+                                  child: Row(
+                                    children: [
+                                      const Spacer(),
+                                      Text("Explore Events",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                          )),
+                                      const Spacer(),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.05),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        padding: const EdgeInsets.all(5),
+                                        child: Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],
@@ -99,161 +156,6 @@ class RegisteredEventsView extends HookWidget {
                     ),
                   ),
                 );
-
-        /* Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HeightBox(slab: 2),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Your Events",
-                          style: TextStyle(
-                            color: AppColors.blackColor,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextButton(onPressed: () {}, child: Text("See All")),
-                      ],
-                    ),
-                    SizedBox(
-                      height: ScreenUtil.screenHeight(context) * 0.4,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: state.events.length,
-                        itemBuilder: (_, index) {
-                          return InkWell(
-                            onTap: () {
-                              context.router.push(
-                                EventAttendanceQrRoute(
-                                    event: state.events[index]),
-                              );
-                            },
-                            child: PaddingBoxVertical(
-                              slab: 1,
-                              child: Container(
-                                margin: const EdgeInsets.only(
-                                    left: 10, right: 15, top: 20),
-                                clipBehavior: Clip.antiAlias,
-                                width: 300,
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondaryColor,
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                    color:
-                                        AppColors.blackColor.withOpacity(0.55),
-                                  ),
-                                ),
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Image.network(
-                                      state.events[index].imageUrl,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    // a blur box
-                                    Positioned.fill(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color:
-                                              AppColors.blackColor.withOpacity(
-                                            0.3,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 10,
-                                      right: 10,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 15,
-                                          vertical: 7.5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.secondaryColor
-                                              .withOpacity(
-                                            0.75,
-                                          ),
-                                          borderRadius: BorderRadius.all(
-                                            Radius.circular(15),
-                                          ),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              // state.events[index].eventStartTimestamp.month as Jan/Feb/Mar etc not number of month
-                                              DateFormat('MMM').format(state
-                                                  .events[index]
-                                                  .eventStartTimestamp),
-                                              style: TextStyle(
-                                                color: AppColors.blackColor
-                                                    .withOpacity(0.6),
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w300,
-                                              ),
-                                            ),
-                                            Text(
-                                              state.events[index]
-                                                  .eventStartTimestamp.day
-                                                  .toString(),
-                                              style: TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.w900,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      bottom: 10,
-                                      left: 10,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              state.events[index].organizerName,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color: AppColors.secondaryColor
-                                                    .withOpacity(0.7),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            Text(
-                                              state.events[index].name,
-                                              style: TextStyle(
-                                                color: AppColors.secondaryColor,
-                                                fontSize: 30,
-                                                fontWeight: FontWeight.w900,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ); */
         case RegisterEventFailed:
           return const Center(child: CircularProgressIndicator());
         case RegisterEventLoading:

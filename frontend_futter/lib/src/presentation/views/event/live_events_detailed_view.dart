@@ -56,7 +56,7 @@ class LiveEventsDetailedView extends HookWidget {
                               ),
                               const HeightBox(slab: 2),
                               Text(
-                                "No Registered Events!",
+                                "No Upcoming Events!",
                                 style: TextStyle(
                                   color: AppColors.blackColor,
                                   fontSize: 22,
@@ -167,7 +167,7 @@ class LiveEventsDetailedView extends HookWidget {
                         ),
                         const HeightBox(slab: 2),
                         Text(
-                          "No Registered Events!",
+                          "No Upcoming Events!",
                           style: TextStyle(
                             color: AppColors.blackColor,
                             fontSize: 22,
