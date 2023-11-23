@@ -1075,7 +1075,6 @@ def send_event_registration_email():
 def force_transaction():
     req = request.get_json(force=True)
     uow = UnitOfWork()
-    auth_svc = pmt_acl.AuthenticationService()
 
     try:
         pmt_cmd._execute_transaction(
@@ -1086,16 +1085,39 @@ def force_transaction():
             transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
             transaction_type=pmt_mdl.TransactionType.CARD_PAY,
             uow=uow,
-            auth_svc=auth_svc,
+            auth_svc=pmt_acl.AuthenticationService(),
         )
         uow.commit_close_connection()
 
-    except (pmt_mdl_ex.TransactionNotAllowedException, pmt_svc_ex.TransactionFailedException) as e:
-        uow.close_connection()
+    except (
+        pmt_mdl_ex.TransactionNotAllowedException,
+        pmt_svc_ex.TransactionFailedException,
+    ) as e:
+        uow.commit_close_connection()
+        logging.info(
+            {
+                "message": "Transaction failed exception raised",
+                "endpoint": "/force-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "/force-transaction",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
 
     return utils.Response(message="Transaction forced successfully", status_code=200).__dict__
