@@ -117,3 +117,38 @@ class UnitOfWork(AbstractUnitOfWork):
 
     def rollback(self):
         self.connection.rollback()
+
+
+class PaymentGatewayUnitOfWork(AbstractUnitOfWork):
+    @retry(PoolError, tries=5, delay=0.5, logger=logging)
+    def __init__(self):
+        self.pool = ConnectionPool().pool
+
+        if self.pool is None:
+            return
+
+        self.connection = self.pool.getconn()
+        self.cursor = self.connection.cursor()
+        self.dict_cursor = self.connection.cursor(cursor_factory=DictCursor)
+
+    def __enter__(self, *args):
+        super().__enter__(*args)
+
+    def __exit__(self, *args):
+        super().__exit__(*args)
+
+    def commit_close_connection(self):
+        self.commit()
+        self.close_connection()
+
+    def close_connection(self):
+        if self.pool is None:
+            return
+
+        self.pool.putconn(self.connection)
+
+    def commit(self):
+        self.connection.commit()
+
+    def rollback(self):
+        self.connection.rollback()

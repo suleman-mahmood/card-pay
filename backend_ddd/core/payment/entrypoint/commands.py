@@ -13,8 +13,6 @@ from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
 
-MIN_DEPOSIT_AMOUNT = 1000
-
 
 # please only call this from create_user
 def create_wallet(user_id: str, uow: AbstractUnitOfWork):
@@ -51,6 +49,7 @@ def _execute_transaction(
         sender_wallet_id=sender_wallet_id,
         recipient_wallet_id=recipient_wallet_id,
     )
+    tx.verify_transaction()
 
     if utils.is_instant_transaction(transaction_type=transaction_type):
         try:
@@ -143,6 +142,7 @@ def decline_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
     uow.transactions.save(tx)
 
 
+# TODO: Probably deprecated, use wisely
 def generate_voucher(tx_id: str, sender_wallet_id: str, amount: int, uow: AbstractUnitOfWork):
     """creates a txn object whith same sender and recipient"""
 
@@ -158,6 +158,7 @@ def generate_voucher(tx_id: str, sender_wallet_id: str, amount: int, uow: Abstra
         last_updated=txn_time,
         status=pmt_mdl.TransactionStatus.PENDING,
     )
+    tx.verify_transaction()
     uow.transactions.save(tx)
 
 
@@ -177,14 +178,7 @@ def create_deposit_request(
     uow: AbstractUnitOfWork,
     auth_svc: acl.AbstractAuthenticationService,
     pp_svc: acl.AbstractPayproService,
-) -> str:
-    user = uow.users.get(user_id=user_id)
-
-    if amount < MIN_DEPOSIT_AMOUNT:
-        raise svc_ex.DepositAmountTooSmallException(
-            f"Deposit amount is less than the minimum allowed deposit {MIN_DEPOSIT_AMOUNT}"
-        )
-
+):
     _execute_transaction(
         tx_id=tx_id,
         sender_wallet_id=pp_svc.get_paypro_wallet(),
@@ -195,68 +189,18 @@ def create_deposit_request(
         uow=uow,
         auth_svc=auth_svc,
     )
-    try:
-        checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
-            amount=amount,
-            transaction_id=tx_id,
-            full_name=user.full_name,
-            phone_number=user.phone_number.value,
-            email=user.personal_email.value,
-            uow=uow,
-        )
-    except requests.exceptions.Timeout:
-        tx = uow.transactions.get(transaction_id=tx_id)
-        tx.mark_as_ghost()
-        uow.transactions.save(tx)
-        raise svc_ex.PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
 
-    # Add PayPro id to the transaction
+
+def add_paypro_id(tx_id: str, paypro_id: str, uow: AbstractUnitOfWork):
     tx = uow.transactions.get(transaction_id=tx_id)
     tx.add_paypro_id(paypro_id=paypro_id)
     uow.transactions.save(transaction=tx)
 
-    return checkout_url
 
-
-def create_any_deposit_request(
-    tx_id: str,
-    user_id: str,
-    amount: int,
-    full_name: str,
-    phone_number: str,
-    email: str,
-    uow: AbstractUnitOfWork,
-    auth_svc: acl.AbstractAuthenticationService,
-    pp_svc: acl.AbstractPayproService,
-) -> Tuple[str, str]:
-    _execute_transaction(
-        tx_id=tx_id,
-        sender_wallet_id=pp_svc.get_paypro_wallet(),
-        recipient_wallet_id=user_id,
-        amount=amount,
-        transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
-        transaction_type=pmt_mdl.TransactionType.PAYMENT_GATEWAY,
-        uow=uow,
-        auth_svc=auth_svc,
-    )
-    try:
-        checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
-            amount=amount,
-            transaction_id=tx_id,
-            full_name=full_name,
-            phone_number=phone_number,
-            email=email,
-            uow=uow,
-        )
-    except requests.exceptions.Timeout:
-        raise svc_ex.PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
-
-    # Add PayPro id to the transaction
+def mark_as_ghost(tx_id: str, uow: AbstractUnitOfWork):
     tx = uow.transactions.get(transaction_id=tx_id)
-    tx.add_paypro_id(paypro_id=paypro_id)
-    uow.transactions.save(transaction=tx)
-
-    return checkout_url, paypro_id
+    tx.mark_as_ghost()
+    uow.transactions.save(tx)
 
 
 def payment_retools_reconcile_vendor(

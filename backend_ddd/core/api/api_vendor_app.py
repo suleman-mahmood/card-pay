@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from uuid import uuid4
 
+import requests
 from core.api import schemas as sch
 from core.api import utils
 from core.authentication.domain import model as auth_mdl
@@ -19,9 +20,11 @@ from core.event.entrypoint import commands as event_cmd
 from core.event.entrypoint import exceptions as event_svc_ex
 from core.event.entrypoint import queries as event_qry
 from core.event.entrypoint import services as event_svc
+from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
+from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
 from flask import Blueprint, request
 from flask_cors import CORS, cross_origin
@@ -446,58 +449,116 @@ def register_event():
     req = request.get_json(force=True)
     qr_id = str(uuid4())
     uow = UnitOfWork()
+    event_id = req["event_id"]
+    form_data = event_mdl.Registration.from_json_to_form_data(req["event_form_data"])
+    tx_id = str(uuid4())
+    event = uow.events.get(event_id=event_id)
+
+    # TODO: move these to register_user_open_loop command
+    ticket_price = event_svc.calculate_ticket_price(event_id=event_id, form_data=form_data, uow=uow)
+    paid_registrations_count = event_qry.get_paid_registrations_count(event_id=event_id, uow=uow)
 
     try:
-        form_data = event_mdl.Registration.from_json_to_form_data(req["event_form_data"])
-        event_id = req["event_id"]
-
-        event = uow.events.get(event_id=event_id)
-        ticket_price = event_svc.calculate_ticket_price(
-            event_id=event_id, form_data=form_data, uow=uow
-        )
-
-        paid_registrations_count = event_svc.get_paid_registrations_count(
-            event_id=req["event_id"], uow=uow
-        )
-
-        checkout_url, paypro_id = pmt_cmd.create_any_deposit_request(
-            tx_id=str(uuid4()),
-            user_id=event.organizer_id,
-            amount=ticket_price,
-            full_name=req["full_name"],
-            phone_number=req["phone_number"],
-            email=req["email"],
-            uow=uow,
-            auth_svc=pmt_acl.AuthenticationService(),
-            pp_svc=pmt_acl.PayproService(),
-        )
         event_cmd.register_user_open_loop(
             event_id=event_id,
             qr_id=qr_id,
             current_time=datetime.now() + timedelta(hours=5),
             event_form_data=form_data,
-            paypro_id=paypro_id,
+            paypro_id="",  # TODO: use tx_id instead
             paid_registrations_count=int(paid_registrations_count),
             uow=uow,
+        )
+        pmt_cmd.create_deposit_request(
+            tx_id=tx_id,
+            user_id=event.organizer_id,
+            amount=ticket_price,
+            uow=uow,
+            auth_svc=pmt_acl.AuthenticationService(),
+            pp_svc=pmt_acl.PayproService(),
         )
         uow.commit_close_connection()
 
     except (
         event_mdl_exc.EventNotApproved,
         event_mdl_exc.RegistrationEnded,
-        event_mdl_exc.UserInvalidClosedLoop,
         event_mdl_exc.EventCapacityExceeded,
-        event_mdl_exc.RegistrationAlreadyExists,
-        pmt_svc_ex.PaymentUrlNotFoundException,
-        pmt_svc_ex.PayProsCreateOrderTimedOut,
-        pmt_svc_ex.PayProsGetAuthTokenTimedOut,
+        pmt_mdl_ex.DepositAmountTooSmallException,
     ) as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "register-event",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise utils.CustomException(str(e))
 
     except Exception as e:
         uow.close_connection()
+        logging.info(
+            {
+                "message": "Unhandled exception raised",
+                "endpoint": "register-event",
+                "invoked_by": "vendor_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
         raise e
+
+    ### ### ### ### ### ### ### ###
+    ### Deposit Url
+    ### ### ### ### ### ### ### ###
+
+    paypro_id = ""
+    checkout_url = ""
+    try:
+        # Slow AF API
+        checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
+            amount=ticket_price,
+            transaction_id=tx_id,
+            full_name=req["full_name"],
+            phone_number=req["phone_number"],
+            email=req["email"],
+        )
+
+    except requests.exceptions.Timeout as e:
+        uow = UnitOfWork()
+        pmt_cmd.mark_as_ghost(tx_id=tx_id, uow=uow)
+        uow.commit_close_connection()
+
+        logging.info(
+            {
+                "message": "Timeout exception raised",
+                "endpoint": "register-event",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        raise utils.CustomException("PayPro's request timed out, retry again please!")
+    except pmt_svc_ex.PaymentUrlNotFoundException as e:
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "register-event",
+                "invoked_by": "vendor_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        raise utils.CustomException(str(e))
+
+    uow = UnitOfWork()
+    pmt_cmd.add_paypro_id(tx_id=tx_id, paypro_id=paypro_id, uow=uow)
+    uow.commit_close_connection()
 
     return utils.Response(
         message="User successfully registered for the event",

@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from uuid import uuid4
 
+import requests
 from core.api import schemas as sch
 from core.api import utils
 from core.api.event_codes import EventCode
@@ -494,36 +495,27 @@ def verify_closed_loop(uid):
 @utils.validate_and_sanitize_json_payload(required_parameters={"amount": sch.AmountSchema})
 def create_deposit_request(uid):
     req = request.get_json(force=True)
+
     uow = UnitOfWork()
+
+    user = uow.users.get(user_id=uid)
+    tx_id = str(uuid4())
+    amount = req["amount"]
+
     try:
-        checkout_url = pmt_cmd.create_deposit_request(
-            tx_id=str(uuid4()),
+        pmt_cmd.create_deposit_request(
+            tx_id=tx_id,
             user_id=uid,
-            amount=req["amount"],
+            amount=amount,
             uow=uow,
             auth_svc=pmt_acl.AuthenticationService(),
             pp_svc=pmt_acl.PayproService(),
         )
         uow.commit_close_connection()
 
-    except pmt_svc_ex.PayProsCreateOrderTimedOut as e:
-        uow.commit_close_connection()
-        logging.info(
-            {
-                "message": "PayProsCreateOrderTimedOut exception raised",
-                "endpoint": "create-deposit-request",
-                "invoked_by": "cardpay_app",
-                "exception_type": e.__class__.__name__,
-                "exception_message": str(e),
-                "json_request": req,
-            },
-        )
-        raise utils.CustomException(str(e))
     except (
-        pmt_svc_ex.DepositAmountTooSmallException,
+        pmt_mdl_ex.DepositAmountTooSmallException,
         pmt_svc_ex.NotVerifiedException,
-        pmt_svc_ex.PaymentUrlNotFoundException,
-        pmt_svc_ex.PayProsGetAuthTokenTimedOut,
     ) as e:
         uow.close_connection()
         logging.info(
@@ -542,7 +534,7 @@ def create_deposit_request(uid):
         uow.close_connection()
         logging.info(
             {
-                "message": f"Unhandled exception raised",
+                "message": "Unhandled exception raised",
                 "endpoint": "create-deposit-request",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
@@ -552,12 +544,54 @@ def create_deposit_request(uid):
         )
         raise e
 
+    paypro_id = ""
+    checkout_url = ""
+    try:
+        # Slow AF API
+        checkout_url, paypro_id = pp_svc.get_deposit_checkout_url_and_paypro_id(
+            amount=amount,
+            transaction_id=tx_id,
+            full_name=user.full_name,
+            phone_number=user.phone_number.value,
+            email=user.personal_email.value,
+        )
+    except requests.exceptions.Timeout as e:
+        uow = UnitOfWork()
+        pmt_cmd.mark_as_ghost(tx_id=tx_id, uow=uow)
+        uow.commit_close_connection()
+
+        logging.info(
+            {
+                "message": "Timeout exception raised",
+                "endpoint": "create-deposit-request",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        raise utils.CustomException("PayPro's request timed out, retry again please!")
+    except pmt_svc_ex.PaymentUrlNotFoundException as e:
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "create-deposit-request",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "json_request": req,
+            },
+        )
+        raise utils.CustomException(str(e))
+
+    uow = UnitOfWork()
+    pmt_cmd.add_paypro_id(tx_id=tx_id, paypro_id=paypro_id, uow=uow)
+    uow.commit_close_connection()
+
     return utils.Response(
         message="Deposit request created successfully",
         status_code=201,
-        data={
-            "checkout_url": checkout_url,
-        },
+        data={"checkout_url": checkout_url},
     ).__dict__
 
 
@@ -1435,7 +1469,7 @@ def register_event(uid):
         event = uow.events.get(event_id=req["event_id"])
         event_form_data = req["event_form_data"] if "event_form_data" in req else {"fields": []}
 
-        paid_registrations_count = event_svc.get_paid_registrations_count(
+        paid_registrations_count = event_qry.get_paid_registrations_count(
             event_id=req["event_id"], uow=uow
         )
 

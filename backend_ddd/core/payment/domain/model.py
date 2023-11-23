@@ -1,12 +1,12 @@
 """payments microservices domain model"""
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from uuid import uuid4
 
 from core.payment.domain import exceptions as ex
 
 TX_UPPER_LIMIT = 10000
+MIN_DEPOSIT_AMOUNT = 1000
 
 
 @dataclass
@@ -76,6 +76,15 @@ class Transaction:
     recipient_wallet: Wallet
     sender_wallet: Wallet
     ghost: bool = False
+
+    def verify_transaction(self):
+        if self.transaction_type != TransactionType.PAYMENT_GATEWAY:
+            return
+
+        if self.amount < MIN_DEPOSIT_AMOUNT:
+            raise ex.DepositAmountTooSmallException(
+                f"Deposit amount is less than the minimum allowed deposit {MIN_DEPOSIT_AMOUNT}"
+            )
 
     def execute_transaction(self):
         """for executing a transaction"""

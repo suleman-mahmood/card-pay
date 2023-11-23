@@ -1,7 +1,3 @@
-class DepositAmountTooSmallException(Exception):
-    """Deposit amount is less than the minimum allowed deposit"""
-
-
 class InvalidQRCodeException(Exception):
     """exception raised for when a QR code is invalid"""
 
@@ -19,10 +15,6 @@ class PaymentUrlNotFoundException(Exception):
 
 
 class PayProsCreateOrderTimedOut(Exception):
-    """PayPro's request timed out, retry again please!"""
-
-
-class PayProsGetAuthTokenTimedOut(Exception):
     """PayPro's request timed out, retry again please!"""
 
 

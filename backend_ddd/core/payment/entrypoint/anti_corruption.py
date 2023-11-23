@@ -181,7 +181,6 @@ class AbstractPayproService(ABC):
         full_name: str,
         phone_number: str,
         email: str,
-        uow: AbstractUnitOfWork,
     ) -> Tuple[str, str]:
         pass
 
@@ -201,7 +200,6 @@ class FakePayproService(AbstractPayproService):
         full_name: str,
         phone_number: str,
         email: str,
-        uow: AbstractUnitOfWork,
     ) -> Tuple[str, str]:
         return "", ""
 
@@ -221,7 +219,6 @@ class PayproService(AbstractPayproService):
         full_name: str,
         phone_number: str,
         email: str,
-        uow: AbstractUnitOfWork,
     ) -> Tuple[str, str]:
         return pp_svc.get_deposit_checkout_url_and_paypro_id(
             amount=amount,
@@ -229,7 +226,6 @@ class PayproService(AbstractPayproService):
             full_name=full_name,
             phone_number=phone_number,
             email=email,
-            uow=uow,
         )
 
     def get_paypro_wallet(self) -> str:

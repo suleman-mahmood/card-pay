@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import List, Tuple
 
 import requests
-from core.entrypoint.uow import AbstractUnitOfWork
+from core.entrypoint.uow import AbstractUnitOfWork, PaymentGatewayUnitOfWork
 from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.entrypoint import commands as cmd
 from core.payment.entrypoint import utils
@@ -16,7 +16,9 @@ from core.payment.entrypoint.exceptions import *
 REQUEST_TIMEOUT = 10  # in seconds
 
 
-def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
+def _get_paypro_auth_token() -> str:
+    uow: AbstractUnitOfWork = PaymentGatewayUnitOfWork()
+
     sql = """
         select token, last_updated
         from payment_gateway_tokens
@@ -48,6 +50,7 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
                     ),
                 },
             )
+            uow.close_connection()
             return row[0]
 
     # Generate new token
@@ -64,13 +67,15 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
 
     try:
         pp_auth_res = requests.request(**config, timeout=REQUEST_TIMEOUT)
-    except requests.exceptions.Timeout:
-        raise PayProsGetAuthTokenTimedOut("PayPro's request timed out, retry again please!")
+    except requests.exceptions.Timeout as e:
+        uow.close_connection()
+        raise e
 
     pp_auth_res.raise_for_status()
 
     auth_token = pp_auth_res.headers.get("token")
     if auth_token is None:
+        uow.close_connection()
         raise Exception("No auth token returned from PayPro's api")
 
     sql = """
@@ -89,6 +94,7 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
             datetime.now(),
         ],
     )
+    uow.commit_close_connection()
 
     logging.info(
         {
@@ -97,7 +103,6 @@ def _get_paypro_auth_token(uow: AbstractUnitOfWork) -> str:
             "metadata": pp_auth_res.json(),
         },
     )
-
     return auth_token
 
 
@@ -107,9 +112,8 @@ def get_deposit_checkout_url_and_paypro_id(
     full_name: str,
     phone_number: str,
     email: str,
-    uow: AbstractUnitOfWork,
 ) -> Tuple[str, str]:
-    auth_token = _get_paypro_auth_token(uow=uow)
+    auth_token = _get_paypro_auth_token()
 
     now = datetime.now(tz=None)
     date_day_earlier = now - timedelta(days=1)
@@ -178,6 +182,7 @@ def get_deposit_checkout_url_and_paypro_id(
     return payment_url, paypro_id
 
 
+# TODO: Move this to payments commands
 def pay_pro_callback(
     user_name: str,
     password: str,
@@ -222,8 +227,8 @@ def pay_pro_callback(
     return success_invoice_ids, not_found_invoice_ids
 
 
-def invoice_paid(paypro_id: str, uow: AbstractUnitOfWork) -> bool:
-    auth_token = _get_paypro_auth_token(uow=uow)
+def invoice_paid(paypro_id: str) -> bool:
+    auth_token = _get_paypro_auth_token()
     config = {
         "method": "get",
         "url": f"{os.environ.get('PAYPRO_BASE_URL')}/v2/ppro/ggos",
@@ -271,10 +276,8 @@ def invoice_paid(paypro_id: str, uow: AbstractUnitOfWork) -> bool:
     return order_status == "PAID"
 
 
-def invoice_range(
-    start_date: datetime, end_date: datetime, uow: AbstractUnitOfWork
-) -> List[vm.PayProOrderResponseDTO]:
-    auth_token = _get_paypro_auth_token(uow=uow)
+def invoice_range(start_date: datetime, end_date: datetime) -> List[vm.PayProOrderResponseDTO]:
+    auth_token = _get_paypro_auth_token()
     config = {
         "method": "get",
         "url": f"{os.environ.get('PAYPRO_BASE_URL')}/v2/ppro/gpo",
