@@ -7,6 +7,7 @@ from core.event.domain import model as mdl
 from core.event.entrypoint import anti_corruption as acl
 from core.event.entrypoint import anti_corruption as event_acl
 from core.event.entrypoint import exceptions as exc
+from core.event.entrypoint import services as svc
 
 
 def create(
@@ -184,3 +185,32 @@ def add_form_schema(
     event = uow.events.get(event_id=event_id)
     event.upsert_form_schema(event_form_schema=event_form_schema, current_time=current_time)
     uow.events.save(event=event)
+
+
+def increment_voucher_count(tx_id: str, uow: AbstractUnitOfWork):
+    sql = """
+        select 
+            r.event_form_data::json->'fields' as form_data
+        from 
+            transactions t
+        join 
+            registrations r on transactions.id = registrations.tx_id
+        where transactions.id = %(tx_id)s;
+        
+    """
+
+    uow.dict_cursor.execute(sql, {"tx_id": tx_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise exc.TxIdDoesNotExist("Transaction Id does not exist")
+
+    form_data = row["form_data"]
+    for each in form_data:
+        if each.question == svc.VOUCHER_QUESTION:
+            sql = """
+                update vouchers
+                set paid_calls = paid_calls + 1
+                where voucher.code = %(voucher_code)s    
+            """
+            uow.dict_cursor.execute(sql, {"voucher_code": each.answer})

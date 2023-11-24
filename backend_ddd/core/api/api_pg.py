@@ -5,6 +5,7 @@ from core.comms.entrypoint import anti_corruption as comms_acl
 from core.comms.entrypoint import commands as comms_cmd
 from core.comms.entrypoint import exceptions as comms_svc_ex
 from core.entrypoint.uow import UnitOfWork
+from core.event.entrypoint import commands as event_cmd
 from core.event.entrypoint import exceptions as event_ex
 from core.event.entrypoint import services as event_svc
 from core.marketing.entrypoint import queries as mktg_qry
@@ -167,6 +168,34 @@ def pay_pro_callback():
         tx = uow.transactions.get(transaction_id=tx_id)
         try:
             event_svc.send_registration_email(tx_id=tx.id, uow=uow)
+        except event_ex.TxIdDoesNotExist as e:
+            logging.info(
+                {
+                    "message": "Pay Pro | Can't send email | Paypro ID does not exist",
+                    "exception_type": e.__class__.__name__,
+                    "tx_id": tx.id,
+                    "exception_message": str(e),
+                    "json_request": req,
+                    "silent": True,
+                },
+            )
+        except Exception as e:
+            logging.info(
+                {
+                    "message": "Pay Pro | Can't send email | Unhandled exception raised",
+                    "tx_id": tx.id,
+                    "exception_type": 500,
+                    "exception_message": str(e),
+                    "json_request": req,
+                    "silent": True,
+                },
+            )
+
+    # Increment voucher count
+    for tx_id in success_invoice_ids:
+        tx = uow.transactions.get(transaction_id=tx_id)
+        try:
+            event_cmd.increment_voucher_count(tx_id=tx.id, uow=uow)
         except event_ex.TxIdDoesNotExist as e:
             logging.info(
                 {
