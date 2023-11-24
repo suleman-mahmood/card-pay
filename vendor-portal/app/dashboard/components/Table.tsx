@@ -2,13 +2,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import moment from "moment";
 import "moment-timezone";
-
-interface Transaction {
-  amount: number;
-  created_at: string;
-  last_updated: string;
-  sender_name: string;
-}
+import { Transaction } from "../page";
 
 interface Props {
   txns: Transaction[]; // Define the txns prop here
@@ -66,10 +60,13 @@ const Table: React.FC<Props> = ({
           Reconciled Amount: {currentReconciledTxnBalance}
         </h3>
       )}
+      <h6 className="mb-2 text-center text-yellow-500 text-md">
+        *Yellow Colored Rows are Top Ups*
+      </h6>
       <table className="table lg:table-lg md:table-md sm:table-sm">
         <thead>
           <tr className="bg-white">
-            <th>Sender Name</th>
+            <th>Name</th>
             <th>Amount</th>
             <th>Time</th>
             <th>
@@ -91,10 +88,18 @@ const Table: React.FC<Props> = ({
             <tr
               key={index}
               className={`${
-                times[index] === "a few seconds ago" ? "bg-lime-500" : ""
+                times[index] === "a few seconds ago"
+                  ? "bg-lime-500"
+                  : txn.transaction_type === "TOP_UP"
+                  ? "bg-yellow-300"
+                  : ""
               }`}
             >
-              <td>{txn.sender_name}</td>
+              <td>
+                {txn.transaction_type === "TOP_UP"
+                  ? txn.recipient_name
+                  : txn.sender_name}
+              </td>
               <td>{txn.amount}</td>
               <td>{createdAt[index]}</td>
               <td>

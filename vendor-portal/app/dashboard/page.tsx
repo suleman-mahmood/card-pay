@@ -16,6 +16,8 @@ export interface Transaction {
   created_at: string;
   last_updated: string;
   sender_name: string;
+  recipient_name: string;
+  transaction_type: string;
 }
 
 export default function page() {
