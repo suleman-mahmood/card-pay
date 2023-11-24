@@ -1,3 +1,4 @@
+import math
 from io import BytesIO
 from typing import Dict, List
 
@@ -5,10 +6,15 @@ import qrcode
 from core.comms.entrypoint import commands as comms_cmd
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.event.domain import model as event_mdl
+from core.event.entrypoint import exceptions as event_exc
 from core.event.entrypoint import queries as event_qry
 
 DRAMALINE_EVENT_ID = "4399b8ea-0ee8-4b69-8187-861baf61c858"
+LAPS_EVENT_ID = "80ce325b-4081-4e7c-86aa-039e117ef4c8"
 PARTICIPANTS_COUNT_QUESTION = "Number of delegates"
+FURTHER_PARTICIPANTS_COUNT_QUESTION = "Add more teammates"
+MAX_LIMIT_VOUCHER = 20
+VOUCHER_QUESTION = "Enter voucher code"
 
 
 def send_registration_email(tx_id: str, uow: AbstractUnitOfWork):
@@ -79,13 +85,42 @@ def calculate_ticket_price(
 ) -> int:
     event = uow.events.get(event_id=event_id)
 
-    if event_id != DRAMALINE_EVENT_ID:
+    if event_id != LAPS_EVENT_ID:
         return event.registration_fee
 
     participants = int(
         next(
-            item for item in form_data["fields"] if item.question == PARTICIPANTS_COUNT_QUESTION
+            item
+            for item in form_data["fields"]
+            if item.question == FURTHER_PARTICIPANTS_COUNT_QUESTION
         ).answer
     )
 
-    return participants * event.registration_fee
+    voucher = str(
+        next(item for item in form_data["fields"] if item.question == VOUCHER_QUESTION).answer
+    )
+
+    if voucher == "":
+        return math.ceil(
+            (participants + 1) * event.registration_fee * (1.25) + event.registration_fee
+        )
+
+    paid_calls = event_qry.get_redeemed_count_from_vouchers(voucher_code=voucher, uow=uow)
+
+    if paid_calls == MAX_LIMIT_VOUCHER:
+        raise event_exc.VoucherLimitExceeded("Voucher limit has exceeded")
+
+    discounted_price = (participants + 1) * event.registration_fee * (1.25)
+
+    if voucher == "50%OFF_TEAM":
+        discounted_price = 0.5 * discounted_price + event.registration_fee
+    elif voucher == "100%OFF_TEAM":
+        discounted_price = event.registration_fee
+    elif voucher == "50%OFF_FULL":
+        discounted_price = 0.5 * (
+            (participants + 1) * event.registration_fee * (1.25) + event.registration_fee
+        )
+    else:
+        raise event_exc.VoucherNotFound("Voucher not found")
+
+    return math.ceil(discounted_price)

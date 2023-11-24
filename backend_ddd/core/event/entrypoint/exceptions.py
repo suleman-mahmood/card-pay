@@ -20,3 +20,11 @@ class InvalidPaidRegistration(Exception):
 
 class EventNotFound(Exception):
     """Could not find event through registration"""
+
+
+class VoucherNotFound(Exception):
+    """Could not find voucher through code"""
+
+
+class VoucherLimitExceeded(Exception):
+    """Voucher limit has exceeded"""

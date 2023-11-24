@@ -483,6 +483,8 @@ def register_event():
         event_mdl_exc.RegistrationEnded,
         event_mdl_exc.EventCapacityExceeded,
         pmt_mdl_ex.DepositAmountTooSmallException,
+        event_svc_ex.VoucherLimitExceeded,
+        event_svc_ex.VoucherNotFound,
     ) as e:
         uow.close_connection()
         logging.info(

@@ -290,3 +290,21 @@ def get_event_from_registration(
         raise event_ex.EventNotFound("Could not find event through registration")
 
     return event_vm.AttendanceEventDTO.from_db_dict_row(row)
+
+
+def get_redeemed_count_from_vouchers(voucher_code: str, uow: AbstractUnitOfWork) -> int:
+    sql = """
+        select 
+            paid_calls
+        from
+            vouchers
+        where code = %(voucher_code)s
+    """
+
+    uow.dict_cursor.execute(sql, {"voucher_code": voucher_code})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise event_ex.VoucherNotFound("Could not find voucher through code")
+
+    return row["paid_calls"]
