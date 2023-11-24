@@ -587,7 +587,7 @@ def test_register_open_loop(seed_event):
         qr_id=qr_id,
         current_time=REGISTRATION_START + timedelta(minutes=0.5),
         event_form_data={},
-        paypro_id="",
+        tx_id="",
         paid_registrations_count=0,
     )
 

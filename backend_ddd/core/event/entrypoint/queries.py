@@ -119,7 +119,7 @@ def get_draft_events(uow: AbstractUnitOfWork) -> List[event_vm.DraftEventDTO]:
     return [event_vm.DraftEventDTO.from_db_dict_row(row) for row in rows]
 
 
-def get_attendance_details(paypro_id: str, uow: AbstractUnitOfWork) -> event_vm.AttendanceQrDTO:
+def get_attendance_details(tx_id: str, uow: AbstractUnitOfWork) -> event_vm.AttendanceQrDTO:
     sql = """
         select
             qr_id,
@@ -128,20 +128,20 @@ def get_attendance_details(paypro_id: str, uow: AbstractUnitOfWork) -> event_vm.
         from
             registrations
         where
-            paypro_id = %(paypro_id)s
+            tx_id = %(tx_id)s
         """
 
-    uow.dict_cursor.execute(sql, {"paypro_id": paypro_id})
+    uow.dict_cursor.execute(sql, {"tx_id": tx_id})
     row = uow.dict_cursor.fetchone()
 
     if row is None:
-        raise event_ex.PayproIdDoesNotExist
+        raise event_ex.TxIdDoesNotExist
 
     return event_vm.AttendanceQrDTO.from_db_dict_row(row=row)
 
 
 def get_registrations(
-    paypro_ids: List[str], uow: AbstractUnitOfWork
+    tx_ids: List[str], uow: AbstractUnitOfWork
 ) -> List[event_vm.RegistrationsDTO]:
     sql = """
         select
@@ -154,13 +154,13 @@ def get_registrations(
         from
             registrations r
             join events e on e.id = r.event_id
-            join transactions tx on tx.paypro_id = r.paypro_id
+            join transactions tx on tx.id = r.tx_id
         where
-            r.paypro_id in (select unnest(%(paypro_ids)s::text[]))
+            r.tx_id in (select unnest(%(tx_ids)s::uuid[]))
         order by r.created_at desc;
     """
 
-    uow.dict_cursor.execute(sql, {"paypro_ids": paypro_ids})
+    uow.dict_cursor.execute(sql, {"tx_ids": tx_ids})
     rows = uow.dict_cursor.fetchall()
 
     return [event_vm.RegistrationsDTO.from_db_dict_row(row) for row in rows]
@@ -184,7 +184,7 @@ def get_internal_registrations(
         inner join 
             events e on r.event_id = e.id
         where 
-            e.organizer_id = %(organizer_id)s and r.paypro_id is null
+            e.organizer_id = %(organizer_id)s and r.tx_id is null
         order by r.created_at desc;
     """
     uow.dict_cursor.execute(sql, {"organizer_id": organizer_id})
@@ -224,14 +224,14 @@ def get_paid_registrations_count(event_id: str, uow: AbstractUnitOfWork) -> int:
     sql = """
         select
             count(case
-                when registrations.paypro_id is null then 1
+                when registrations.tx_id is null then 1
                 when transactions.status = 'SUCCESSFUL' then 1
                 else null
             end) as paid_registrations_count
         from
             registrations
         left join
-            transactions on registrations.paypro_id = transactions.paypro_id
+            transactions on registrations.tx_id = transactions.id
         where
             registrations.event_id = %(event_id)s;
     """
@@ -258,7 +258,7 @@ def get_unpaid_registrations(
         from
             registrations r
             join events e on e.id = r.event_id
-            join transactions tx on tx.paypro_id = r.paypro_id
+            join transactions tx on tx.id = r.tx_id
         where
             tx.status = 'PENDING'
             and organizer_id = %(organizer_id)s

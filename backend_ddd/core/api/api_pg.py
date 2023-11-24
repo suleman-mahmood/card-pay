@@ -166,13 +166,13 @@ def pay_pro_callback():
     for tx_id in success_invoice_ids:
         tx = uow.transactions.get(transaction_id=tx_id)
         try:
-            event_svc.send_registration_email(paypro_id=tx.paypro_id, uow=uow)
-        except event_ex.PayproIdDoesNotExist as e:
+            event_svc.send_registration_email(tx_id=tx.id, uow=uow)
+        except event_ex.TxIdDoesNotExist as e:
             logging.info(
                 {
                     "message": "Pay Pro | Can't send email | Paypro ID does not exist",
                     "exception_type": e.__class__.__name__,
-                    "paypro_id": tx.paypro_id,
+                    "tx_id": tx.id,
                     "exception_message": str(e),
                     "json_request": req,
                     "silent": True,
@@ -182,7 +182,7 @@ def pay_pro_callback():
             logging.info(
                 {
                     "message": "Pay Pro | Can't send email | Unhandled exception raised",
-                    "paypro_id": tx.paypro_id,
+                    "tx_id": tx.id,
                     "exception_type": 500,
                     "exception_message": str(e),
                     "json_request": req,

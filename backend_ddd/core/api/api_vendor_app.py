@@ -464,7 +464,7 @@ def register_event():
             qr_id=qr_id,
             current_time=datetime.now() + timedelta(hours=5),
             event_form_data=form_data,
-            paypro_id="",  # TODO: use tx_id instead
+            tx_id=tx_id,
             paid_registrations_count=int(paid_registrations_count),
             uow=uow,
         )
@@ -687,7 +687,7 @@ def get_society_registrations(uid):
         uow=uow,
     )
     external_registrations = event_qry.get_registrations(
-        paypro_ids=[tx.paypro_id for tx in transactions],
+        tx_ids=[tx.id for tx in transactions],
         uow=uow,
     )
     internal_registrations = event_qry.get_internal_registrations(organizer_id=uid, uow=uow)

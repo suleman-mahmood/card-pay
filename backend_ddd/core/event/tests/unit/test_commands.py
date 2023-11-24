@@ -142,7 +142,7 @@ def test_register_user_closed_loop(seed_event):
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
             event_form_data={"fields": event_form_data},
-            paypro_id=None,
+            tx_id=None,
         )
     }
 
@@ -166,7 +166,7 @@ def test_register_user_open_loop(seed_event):
         event_form_data={"fields": event_form_data},
         current_time=REGISTRATION_START,
         uow=uow,
-        paypro_id="",
+        tx_id="",
         paid_registrations_count=0,
     )
     fetched_event = uow.events.get(event_id=event.id)
@@ -177,7 +177,7 @@ def test_register_user_open_loop(seed_event):
             user_id=qr_id,
             attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
             event_form_data={"fields": event_form_data},
-            paypro_id="",
+            tx_id="",
         )
     }
 
@@ -210,7 +210,7 @@ def test_mark_attendance(seed_event):
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.UN_ATTENDED,
             event_form_data={"fields": []},
-            paypro_id=None,
+            tx_id=None,
         )
     }
 
@@ -228,7 +228,7 @@ def test_mark_attendance(seed_event):
             user_id=user_id,
             attendance_status=event_mdl.EventAttendanceStatus.ATTENDED,
             event_form_data={"fields": []},
-            paypro_id=None,
+            tx_id=None,
         )
     }
 

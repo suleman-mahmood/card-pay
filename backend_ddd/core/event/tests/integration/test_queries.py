@@ -296,12 +296,12 @@ def test_get_attendance_details(
         qr_id=qr_id,
         current_time=datetime.now() + timedelta(minutes=1.5),
         event_form_data={"fields": event_form_data},
-        paypro_id=paypro_id,
+        tx_id="",
         uow=uow,
         paid_registrations_count=0,
     )
 
-    attendance_details = qry.get_attendance_details(paypro_id=paypro_id, uow=uow)
+    attendance_details = qry.get_attendance_details(tx_id="", uow=uow)
 
     assert attendance_details == vm.AttendanceQrDTO(
         qr_id=qr_id, event_id=event.id, email=email, full_name="Khuzaima"
@@ -366,12 +366,12 @@ def test_get_attendance_data(
         qr_id=qr_id,
         current_time=datetime.now() + timedelta(minutes=1.5),
         event_form_data={"fields": event_form_data},
-        paypro_id=paypro_id,
+        tx_id="",
         uow=uow,
         paid_registrations_count=0,
     )
 
-    attendance_details = qry.get_attendance_details(paypro_id=paypro_id, uow=uow)
+    attendance_details = qry.get_attendance_details(tx_id="", uow=uow)
 
     assert attendance_details == vm.AttendanceQrDTO(
         qr_id=qr_id, event_id=event.id, email=email, full_name="Khuzaima"

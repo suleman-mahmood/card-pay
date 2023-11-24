@@ -33,7 +33,7 @@ class Registration:
     user_id: str
     attendance_status: EventAttendanceStatus
     event_form_data: Dict[str, List[EventFormDataItem]]
-    paypro_id: Optional[str]
+    tx_id: Optional[str]
 
     @property
     def qr_code(self) -> str:
@@ -292,7 +292,7 @@ class Event:
                 user_id=user_id,
                 attendance_status=EventAttendanceStatus.UN_ATTENDED,
                 event_form_data=event_form_data,
-                paypro_id=None,
+                tx_id=None,
             ),
             paid_registrations_count=paid_registrations_count,
         )
@@ -302,7 +302,7 @@ class Event:
         qr_id: str,
         current_time: datetime,
         event_form_data: Dict[str, List[EventFormDataItem]],
-        paypro_id: str,
+        tx_id: str,
         paid_registrations_count: int,
     ):
         self._register_user(
@@ -313,7 +313,7 @@ class Event:
                 user_id=qr_id,
                 attendance_status=EventAttendanceStatus.UN_ATTENDED,
                 event_form_data=event_form_data,
-                paypro_id=paypro_id,
+                tx_id=tx_id,
             ),
             paid_registrations_count=paid_registrations_count,
         )
