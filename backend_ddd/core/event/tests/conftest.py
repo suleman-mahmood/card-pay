@@ -66,7 +66,7 @@ def seed_registration():
             qr_id=str(uuid4()),
             attendance_status=mdl.EventAttendanceStatus.UN_ATTENDED,
             event_form_data={},
-            paypro_id="",
+            tx_id="",
         )
 
     return _seed_registration

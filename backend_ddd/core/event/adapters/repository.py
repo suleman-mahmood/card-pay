@@ -135,7 +135,7 @@ class EventRepository(EventAbstractRepository):
                 attendance_status, 
                 event_id,
                 event_form_data,
-                paypro_id
+                tx_id
             )
             values
         """
@@ -149,14 +149,14 @@ class EventRepository(EventAbstractRepository):
                 "event_form_data": {
                     "fields": [asdict(l) for l in registration.event_form_data["fields"]]
                 },
-                "paypro_id": registration.paypro_id,
+                "tx_id": registration.tx_id,
             }
             for _, registration in event.registrations.items()
         ]
 
         args_str = ",".join(
             self.cursor.mogrify(
-                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s, %(event_form_data)s, %(paypro_id)s)",
+                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s, %(event_form_data)s, %(tx_id)s)",
                 x,
             ).decode("utf-8")
             for x in args
@@ -202,7 +202,7 @@ class EventRepository(EventAbstractRepository):
                 attendance_status,
                 event_id,
                 event_form_data,
-                paypro_id
+                tx_id
             from 
                 registrations
             where 
@@ -221,7 +221,7 @@ class EventRepository(EventAbstractRepository):
                 )
             registration_key = (
                 registration_row["user_id"]
-                if registration_row["paypro_id"] is None
+                if registration_row["tx_id"] is None
                 else registration_row["qr_id"]
             )
             registrations[registration_key] = mdl.Registration(
@@ -229,7 +229,7 @@ class EventRepository(EventAbstractRepository):
                 user_id=registration_row["user_id"],
                 attendance_status=mdl.EventAttendanceStatus[registration_row["attendance_status"]],
                 event_form_data={"fields": event_form_data},
-                paypro_id=registration_row["paypro_id"],
+                tx_id=registration_row["tx_id"],
             )
 
         event_form_schema = []
@@ -369,7 +369,7 @@ class EventRepository(EventAbstractRepository):
                 attendance_status, 
                 event_id,
                 event_form_data,
-                paypro_id
+                tx_id
             )
             values
         """
@@ -380,7 +380,7 @@ class EventRepository(EventAbstractRepository):
                 attendance_status = excluded.attendance_status,
                 event_id = excluded.event_id,
                 event_form_data = excluded.event_form_data,
-                paypro_id = excluded.paypro_id
+                tx_id = excluded.tx_id
         """
 
         args = [
@@ -392,14 +392,14 @@ class EventRepository(EventAbstractRepository):
                 "event_form_data": {
                     "fields": [asdict(l) for l in registration.event_form_data["fields"]]
                 },
-                "paypro_id": registration.paypro_id,
+                "tx_id": registration.tx_id,
             }
             for _, registration in event.registrations.items()
         ]
 
         args_str = ",".join(
             self.cursor.mogrify(
-                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s, %(event_form_data)s, %(paypro_id)s)",
+                "(%(qr_id)s, %(user_id)s, %(attendance_status)s, %(event_id)s, %(event_form_data)s, %(tx_id)s)",
                 x,
             ).decode("utf-8")
             for x in args

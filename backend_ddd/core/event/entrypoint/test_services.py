@@ -25,7 +25,7 @@ def test_calculate_ticket_price(seed_event):
         event_form_data={"fields": event_form_data},
         current_time=tst_cmd.REGISTRATION_START,
         uow=uow,
-        paypro_id="",
+        tx_id="",
         paid_registrations_count=0,
     )
     fetched_event = uow.events.get(event_id=event.id)
@@ -36,7 +36,7 @@ def test_calculate_ticket_price(seed_event):
             user_id=qr_id,
             attendance_status=mdl.EventAttendanceStatus.UN_ATTENDED,
             event_form_data={"fields": event_form_data},
-            paypro_id="",
+            tx_id="",
         )
     }
 

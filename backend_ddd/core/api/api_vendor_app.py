@@ -464,7 +464,7 @@ def register_event():
             qr_id=qr_id,
             current_time=datetime.now() + timedelta(hours=5),
             event_form_data=form_data,
-            paypro_id="",  # TODO: use tx_id instead
+            tx_id=tx_id,
             paid_registrations_count=int(paid_registrations_count),
             uow=uow,
         )

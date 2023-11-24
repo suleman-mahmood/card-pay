@@ -126,7 +126,7 @@ def register_user_open_loop(
     qr_id: str,
     current_time: datetime,
     event_form_data: Dict[str, List[mdl.EventFormDataItem]],
-    paypro_id: str,
+    tx_id: str,
     paid_registrations_count: int,
     uow: AbstractUnitOfWork,
 ):
@@ -135,7 +135,7 @@ def register_user_open_loop(
         qr_id=qr_id,
         current_time=current_time,
         event_form_data=event_form_data,
-        paypro_id=paypro_id,
+        tx_id=tx_id,
         paid_registrations_count=paid_registrations_count,
     )
     uow.events.save(event=event)

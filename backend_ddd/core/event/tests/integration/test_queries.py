@@ -296,7 +296,7 @@ def test_get_attendance_details(
         qr_id=qr_id,
         current_time=datetime.now() + timedelta(minutes=1.5),
         event_form_data={"fields": event_form_data},
-        paypro_id=paypro_id,
+        tx_id="",
         uow=uow,
         paid_registrations_count=0,
     )
@@ -366,7 +366,7 @@ def test_get_attendance_data(
         qr_id=qr_id,
         current_time=datetime.now() + timedelta(minutes=1.5),
         event_form_data={"fields": event_form_data},
-        paypro_id=paypro_id,
+        tx_id="",
         uow=uow,
         paid_registrations_count=0,
     )
