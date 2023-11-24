@@ -164,35 +164,35 @@ def paypro_manual_inquiry():
 
     logging.info({"message": "PayPro inquiry cron | Notifications sent", "notifs": notifs})
 
-    # Send registation emails to successfull people
+    # Send registration emails to successful people
     reg_emails = []
     for tx_id in success_invoice_ids:
         tx = uow.transactions.get(transaction_id=tx_id)
         try:
-            event_svc.send_registration_email(paypro_id=tx.paypro_id, uow=uow)
-            reg_emails.append({"paypro_id": tx.paypro_id, "status": "sent"})
-        except event_ex.PayproIdDoesNotExist as e:
+            event_svc.send_registration_email(tx_id=tx.id, uow=uow)
+            reg_emails.append({"tx_id": tx.id, "status": "sent"})
+        except event_ex.TxIdDoesNotExist as e:
             logging.info(
                 {
                     "message": "Pay Pro | Can't send email | Paypro ID does not exist",
                     "exception_type": e.__class__.__name__,
-                    "paypro_id": tx.paypro_id,
+                    "tx_id": tx.id,
                     "exception_message": str(e),
                     "silent": True,
                 },
             )
-            reg_emails.append({"paypro_id": tx.paypro_id, "status": "no_regis_for_pp_id"})
+            reg_emails.append({"tx_id": tx.id, "status": "no_regis_for_pp_id"})
         except Exception as e:
             logging.info(
                 {
                     "message": "Pay Pro | Can't send email | Unhandled exception raised",
-                    "paypro_id": tx.paypro_id,
+                    "tx_id": tx.id,
                     "exception_type": 500,
                     "exception_message": str(e),
                     "silent": True,
                 },
             )
-            reg_emails.append({"paypro_id": tx.paypro_id, "status": "error_500"})
+            reg_emails.append({"tx_id": tx.id, "status": "error_500"})
 
     logging.info(
         {

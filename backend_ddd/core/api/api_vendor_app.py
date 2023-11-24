@@ -687,7 +687,7 @@ def get_society_registrations(uid):
         uow=uow,
     )
     external_registrations = event_qry.get_registrations(
-        paypro_ids=[tx.paypro_id for tx in transactions],
+        tx_ids=[tx.id for tx in transactions],
         uow=uow,
     )
     internal_registrations = event_qry.get_internal_registrations(organizer_id=uid, uow=uow)

@@ -301,7 +301,7 @@ def test_get_attendance_details(
         paid_registrations_count=0,
     )
 
-    attendance_details = qry.get_attendance_details(paypro_id=paypro_id, uow=uow)
+    attendance_details = qry.get_attendance_details(tx_id="", uow=uow)
 
     assert attendance_details == vm.AttendanceQrDTO(
         qr_id=qr_id, event_id=event.id, email=email, full_name="Khuzaima"
@@ -371,7 +371,7 @@ def test_get_attendance_data(
         paid_registrations_count=0,
     )
 
-    attendance_details = qry.get_attendance_details(paypro_id=paypro_id, uow=uow)
+    attendance_details = qry.get_attendance_details(tx_id="", uow=uow)
 
     assert attendance_details == vm.AttendanceQrDTO(
         qr_id=qr_id, event_id=event.id, email=email, full_name="Khuzaima"

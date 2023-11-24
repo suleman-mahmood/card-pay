@@ -11,8 +11,8 @@ DRAMALINE_EVENT_ID = "4399b8ea-0ee8-4b69-8187-861baf61c858"
 PARTICIPANTS_COUNT_QUESTION = "Number of delegates"
 
 
-def send_registration_email(paypro_id: str, uow: AbstractUnitOfWork):
-    attendance_details = event_qry.get_attendance_details(paypro_id=paypro_id, uow=uow)
+def send_registration_email(tx_id: str, uow: AbstractUnitOfWork):
+    attendance_details = event_qry.get_attendance_details(tx_id=tx_id, uow=uow)
     event = uow.events.get(event_id=attendance_details.event_id)
 
     data = {"qr_id": attendance_details.qr_id, "event_id": attendance_details.event_id}
