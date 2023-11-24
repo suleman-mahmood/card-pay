@@ -122,6 +122,10 @@ class PhoneNumber:
     def sms(self) -> str:
         return self.value.replace("+", "")
 
+    @property
+    def consumer_id(self) -> str:
+        return "1235" + self.sms
+
     @classmethod
     def from_api(cls, phone_number) -> "PhoneNumber":
         new_phone_number = "+" + PK_CODE + phone_number

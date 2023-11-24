@@ -60,3 +60,7 @@ class NoPreviousReconciliationFound(Exception):
 
 class NoLatestReconciliationFound(Exception):
     """No Latest reconciliation found"""
+
+
+class ConsumerAlreadyExists(Exception):
+    """Consumer already exists"""

@@ -525,6 +525,7 @@ def register_event():
             full_name=req["full_name"],
             phone_number=req["phone_number"],
             email=req["email"],
+            consumer_id=None,
         )
 
     except requests.exceptions.Timeout as e:

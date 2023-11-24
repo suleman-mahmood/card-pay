@@ -3,15 +3,15 @@ import json
 import logging
 import os
 from datetime import datetime, timedelta
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import requests
 from core.entrypoint.uow import AbstractUnitOfWork, PaymentGatewayUnitOfWork
 from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.entrypoint import commands as cmd
+from core.payment.entrypoint import exceptions as ex
 from core.payment.entrypoint import utils
 from core.payment.entrypoint import view_models as vm
-from core.payment.entrypoint.exceptions import *
 
 REQUEST_TIMEOUT = 10  # in seconds
 
@@ -106,18 +106,68 @@ def _get_paypro_auth_token() -> str:
     return auth_token
 
 
+def register_customer_paypro(consumer_id: str):
+    auth_token = _get_paypro_auth_token()
+
+    config = {
+        "method": "post",
+        "url": f"{os.environ.get('PAYPRO_BASE_URL')}/v2/ppro/cmc",
+        "headers": {
+            "token": auth_token,
+        },
+        "data": [
+            {
+                "MerchantId": os.environ.get("USERNAME"),
+            },
+            {"ConsumerID": consumer_id, "Name": "", "Mobile": "", "Email": "", "Address": ""},
+        ],
+    }
+
+    logging.info(
+        {
+            "message": "Trying to generate static invoice from PayPro",
+            "config": config,
+        },
+    )
+
+    pp_order_res = requests.post(
+        config["url"],
+        headers=config["headers"],
+        data=json.dumps(
+            config["data"],
+        ),
+        timeout=REQUEST_TIMEOUT,
+    )
+
+    logging.info(
+        {
+            "message": "PayPro Static ID Registered",
+            "pp_order_res": pp_order_res.json(),
+        },
+    )
+
+    response_data = pp_order_res.json()[1]
+
+    print(response_data)
+
+    try:
+        consumer_id = response_data["FullConsumerId"]
+    except KeyError as e:
+        raise ex.ConsumerAlreadyExists("Consumer ID already exists")
+
+
 def get_deposit_checkout_url_and_paypro_id(
     amount: int,
     transaction_id: str,
     full_name: str,
     phone_number: str,
     email: str,
+    consumer_id: Optional[str],
 ) -> Tuple[str, str]:
     auth_token = _get_paypro_auth_token()
 
-    now = datetime.now(tz=None)
-    date_day_earlier = now - timedelta(days=1)
-    date_day_later = now + timedelta(days=1)
+    pk_time = datetime.now() + timedelta(hours=5)
+    hour_ahead = pk_time + timedelta(hours=1)
 
     config = {
         "method": "post",
@@ -132,10 +182,11 @@ def get_deposit_checkout_url_and_paypro_id(
             {
                 "OrderNumber": transaction_id,
                 "OrderAmount": amount,
-                "OrderDueDate": date_day_later.isoformat(),
+                "OrderDueDate": hour_ahead.isoformat(),
                 "OrderType": "Service",
-                "IssueDate": date_day_earlier.isoformat(),
-                "OrderExpireAfterSeconds": 0,
+                "IssueDate": pk_time.isoformat(),
+                "OrderExpireAfterSeconds": 60 * 60,
+                "ReusableConsumerId": consumer_id,
                 "CustomerName": full_name,
                 "CustomerMobile": phone_number,
                 "CustomerEmail": email,
@@ -143,6 +194,31 @@ def get_deposit_checkout_url_and_paypro_id(
             },
         ],
     }
+    if consumer_id is None:
+        config = {
+            "method": "post",
+            "url": f"{os.environ.get('PAYPRO_BASE_URL')}/v2/ppro/co",
+            "headers": {
+                "token": auth_token,
+            },
+            "data": [
+                {
+                    "MerchantId": os.environ.get("USERNAME"),
+                },
+                {
+                    "OrderNumber": transaction_id,
+                    "OrderAmount": amount,
+                    "OrderDueDate": hour_ahead.isoformat(),
+                    "OrderType": "Service",
+                    "IssueDate": pk_time.isoformat(),
+                    "OrderExpireAfterSeconds": 60 * 60,
+                    "CustomerName": full_name,
+                    "CustomerMobile": phone_number,
+                    "CustomerEmail": email,
+                    "CustomerAddress": "",
+                },
+            ],
+        }
 
     logging.info(
         {
@@ -171,11 +247,13 @@ def get_deposit_checkout_url_and_paypro_id(
 
     response_data = pp_order_res.json()[1]
 
+    print(response_data)
+
     try:
         payment_url = response_data["Click2Pay"]
         paypro_id = response_data["PayProId"]
     except:
-        raise PaymentUrlNotFoundException(
+        raise ex.PaymentUrlNotFoundException(
             "PayPro response does not contain payment url, please try again"
         )
 
@@ -196,7 +274,7 @@ def pay_pro_callback(
     password_mis_match = password != os.environ.get("PAYPRO_PASSWORD")
 
     if user_name_mis_match or password_mis_match:
-        raise InvalidPayProCredentialsException("PayPro credentials are invalid")
+        raise ex.InvalidPayProCredentialsException("PayPro credentials are invalid")
 
     invoice_ids = csv_invoice_ids.split(",")
     invoice_ids = [id.strip() for id in invoice_ids]
@@ -253,7 +331,7 @@ def invoice_paid(paypro_id: str) -> bool:
     try:
         pp_res = requests.request(**config, timeout=REQUEST_TIMEOUT)
     except requests.exceptions.Timeout:
-        raise PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
+        raise ex.PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
 
     pp_res.raise_for_status()
 
@@ -269,7 +347,7 @@ def invoice_paid(paypro_id: str) -> bool:
     try:
         order_status = response_data["OrderStatus"]
     except:
-        raise PaymentUrlNotFoundException(
+        raise ex.PaymentUrlNotFoundException(
             "PayPro response does not contain payment url, please try again"
         )
 
@@ -296,7 +374,7 @@ def invoice_range(start_date: datetime, end_date: datetime) -> List[vm.PayProOrd
     try:
         pp_res = requests.request(**config, timeout=REQUEST_TIMEOUT)
     except requests.exceptions.Timeout:
-        raise PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
+        raise ex.PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
 
     pp_res.raise_for_status()
     json_res = pp_res.json()

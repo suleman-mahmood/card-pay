@@ -2,6 +2,7 @@ import concurrent.futures
 import threading
 import time
 from json import loads
+from uuid import uuid4
 
 import pytest
 from core.api import utils
@@ -18,11 +19,9 @@ from core.conftest import (
     _verify_user_in_closed_loop,
 )
 from core.entrypoint.uow import UnitOfWork
+from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
 from core.payment.entrypoint.queries import get_wallet_balance
-from core.api import utils
-from core.authentication.tests.e2e import test_api as auth_test_api
-from uuid import uuid4
 
 
 def _post_p2p_push_transaction(client, url, json_data, headers):
@@ -520,24 +519,19 @@ def test_execute_p2p_push_api(
     assert EventCode[payload["event_code"]] == EventCode.DEFAULT_EVENT
     assert response.status_code == 400
 
-def _seed_customer_vendor_waiter(
-    seed_api_customer, mocker, client, seed_api_vendor, uow
-):
+
+def _seed_customer_vendor_waiter(seed_api_customer, mocker, client, seed_api_vendor, uow):
     closed_loop_id = _create_closed_loop_helper(client)
     customer_id = seed_api_customer(mocker, client)
     vendor_id = seed_api_vendor(mocker, client, closed_loop_id)
     waiter_id = seed_api_vendor(mocker, client, closed_loop_id)
 
     _verify_phone_number(customer_id, mocker, client)
-    _register_user_in_closed_loop(
-        mocker, client, customer_id, closed_loop_id, "26100279"
-    )
+    _register_user_in_closed_loop(mocker, client, customer_id, closed_loop_id, "26100279")
     customer = uow.users.get(user_id=customer_id)
 
     customer_otp = customer.closed_loops[closed_loop_id].unique_identifier_otp
-    _verify_user_in_closed_loop(
-        mocker, client, customer.id, closed_loop_id, customer_otp
-    )
+    _verify_user_in_closed_loop(mocker, client, customer.id, closed_loop_id, customer_otp)
 
     return customer_id, vendor_id, waiter_id, closed_loop_id
 
@@ -556,24 +550,24 @@ def test_execute_qr_transaction_v2_api_incorrect_QR_version(
     uow.commit_close_connection()
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=customer_id)
-    
+
     headers = {
         "Authorization": "Bearer pytest_auth_token",
         "Content-Type": "application/json",
     }
-    
+
     response = client.post(
-      "http://127.0.0.1:5000/api/v1/execute-qr-transaction-v2",
-      json={
+        "http://127.0.0.1:5000/api/v1/execute-qr-transaction-v2",
+        json={
             "vendor_qr_id": vendor_qr_id,
             "waiter_qr_id": waiter_qr_id,
             "bill_amount": 100,
             "tip_amount": 10,
             "v": 3,
-          },
-          headers=headers,
-      )
-    
+        },
+        headers=headers,
+    )
+
     payload = loads(response.data.decode())
     assert payload["message"] == "Invalid QR version"
     assert response.status_code == 400
@@ -696,9 +690,13 @@ def test_execute_qr_transaction_v2_api_incorrect_waiter_qr_id(
         headers=headers,
     )
     payload = loads(response.data.decode())
-    assert payload["message"] == "Vendor QR transaction executed successfully, Waiter transaction failed (Invalid QR code)"
+    assert (
+        payload["message"]
+        == "Vendor QR transaction executed successfully, Waiter transaction failed (Invalid QR code)"
+    )
     assert payload["status_code"] == 201
     assert payload["event_code"] == EventCode.WAITER_QR_KNOWN_FAILURE
+
 
 def test_execute_qr_transaction_v2_api_low_balance_for_tip(
     seed_api_customer,
@@ -708,7 +706,6 @@ def test_execute_qr_transaction_v2_api_low_balance_for_tip(
     add_1000_wallet,
     get_qr_id_from_user_id,
 ):
-    
     uow = UnitOfWork()
     customer_id, vendor_id, waiter_id, closed_loop_id = _seed_customer_vendor_waiter(
         seed_api_customer, mocker, client, seed_api_vendor, uow
@@ -736,15 +733,18 @@ def test_execute_qr_transaction_v2_api_low_balance_for_tip(
             "bill_amount": 900,
             "tip_amount": 101,
             "v": 2,
-          },
+        },
         headers=headers,
     )
 
-          
     payload = loads(response.data.decode())
-    assert payload["message"] == "Vendor QR transaction executed successfully, Waiter transaction failed (Insufficient balance in sender's wallet)"
+    assert (
+        payload["message"]
+        == "Vendor QR transaction executed successfully, Waiter transaction failed (Insufficient balance in sender's wallet)"
+    )
     assert payload["status_code"] == 201
     assert payload["event_code"] == EventCode.WAITER_QR_TRANSACTION_FAILED
+
 
 def test_execute_qr_transaction_v2_api_successful_transaction(
     seed_api_customer,
@@ -754,7 +754,6 @@ def test_execute_qr_transaction_v2_api_successful_transaction(
     add_1000_wallet,
     get_qr_id_from_user_id,
 ):
-    
     uow = UnitOfWork()
     customer_id, vendor_id, waiter_id, closed_loop_id = _seed_customer_vendor_waiter(
         seed_api_customer, mocker, client, seed_api_vendor, uow
@@ -791,6 +790,7 @@ def test_execute_qr_transaction_v2_api_successful_transaction(
     assert payload["status_code"] == 201
     assert payload["event_code"] == EventCode.WAITER_QR_TRANSACTION_SUCCESSFUL
 
+
 def test_get_user_recent_transcations_api(
     seed_api_customer, seed_api_admin, mocker, client, add_1000_wallet
 ):
@@ -811,7 +811,7 @@ def test_get_user_recent_transcations_api(
         json={
             "RETOOL_SECRET": "",
         },
-        headers=headers
+        headers=headers,
     )
 
     _verify_phone_number(recipient_id, mocker, client)
@@ -850,7 +850,7 @@ def test_get_user_recent_transcations_api(
             "amount": 100,
             "closed_loop_id": closed_loop_id,
         },
-        headers=headers
+        headers=headers,
     )
 
     # now send 100 back to sender
@@ -862,9 +862,8 @@ def test_get_user_recent_transcations_api(
             "amount": 100,
             "closed_loop_id": closed_loop_id,
         },
-        headers=headers
+        headers=headers,
     )
-        
 
     mocker.patch("core.api.utils._get_uid_from_bearer", return_value=sender_id)
     response = client.get(
@@ -885,3 +884,16 @@ def test_get_user_recent_transcations_api(
 
     assert payload["message"] == "User recent transactions returned successfully"
     assert payload["status_code"] == 200
+
+
+# def test_register_paypro():
+#     uow = UnitOfWork()
+#     pp_svc.register_customer_paypro("923366476692", uow)
+#     assert False
+
+# def test_static_id():
+#     uow = UnitOfWork()
+#     url, pp_id = pp_svc.get_deposit_checkout_url_and_paypro_id(amount=500,transaction_id=str(uuid4()),full_name="Khuzaima Saeed",
+#         phone_number="+923366476691",email="khuzaimasaeed@gmail.com", consumer_id="923366476692", uow=uow)
+#     print(pp_id)
+#     assert False

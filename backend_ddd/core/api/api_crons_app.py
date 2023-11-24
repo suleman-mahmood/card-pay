@@ -32,7 +32,6 @@ def paypro_manual_inquiry():
     pp_orders = pp_svc.invoice_range(
         start_date=pk_time - timedelta(hours=1),
         end_date=pk_time,
-        uow=uow,
     )
 
     pp_paid_tx_ids = [pp_order.tx_id for pp_order in pp_orders if pp_order.tx_status == "PAID"]

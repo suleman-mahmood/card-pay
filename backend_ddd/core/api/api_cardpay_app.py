@@ -35,6 +35,7 @@ from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
+from core.payment.entrypoint import view_models as pmt_vm
 from firebase_admin import exceptions as fb_ex
 from flask import Blueprint, request
 
@@ -83,6 +84,37 @@ def create_user():
     ).__dict__
 
 
+def register_paypro_customer(consumer_id: str):
+    try:
+        pp_svc.register_customer_paypro(consumer_id=consumer_id)
+
+    except pmt_svc_ex.ConsumerAlreadyExists as e:
+        logging.info(
+            {
+                "message": "Custom exception raised",
+                "endpoint": "/register-paypro-customer",
+                "invoked_by": "cardpay_app",
+                "exception_type": e.__class__.__name__,
+                "exception_message": str(e),
+                "consumer_id": consumer_id,
+            },
+        )
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        logging.info(
+            {
+                "message": "Unhandled exception raised",
+                "endpoint": "/register-paypro-custome",
+                "invoked_by": "cardpay_app",
+                "exception_type": 500,
+                "exception_message": str(e),
+                "consumer_id": consumer_id,
+            },
+        )
+        raise e
+
+
 @cardpay_app.route("/create-customer", methods=["POST"])
 @utils.handle_missing_payload
 @utils.validate_and_sanitize_json_payload(
@@ -119,7 +151,7 @@ def create_customer():
         uow.close_connection()
         logging.info(
             {
-                "message": f"Unhandled exception raised",
+                "message": "Unhandled exception raised",
                 "endpoint": "create-customer",
                 "invoked_by": "cardpay_app",
                 "exception_type": 500,
@@ -128,6 +160,9 @@ def create_customer():
             },
         )
         raise e
+
+    executor = ThreadPoolExecutor(max_workers=1)
+    executor.submit(register_paypro_customer, "92" + req["phone_number"])
 
     return utils.Response(
         message="User created successfully",
@@ -554,6 +589,7 @@ def create_deposit_request(uid):
             full_name=user.full_name,
             phone_number=user.phone_number.value,
             email=user.personal_email.value,
+            consumer_id=user.phone_number.consumer_id,
         )
     except requests.exceptions.Timeout as e:
         uow = UnitOfWork()
@@ -1174,67 +1210,70 @@ def get_all_closed_loops(uid):
     ).__dict__
 
 
-def check_last_deposit_transaction(uid: str, uow: AbstractUnitOfWork):
+def check_last_deposit_transaction(uid: str):
+    uow = UnitOfWork()
     try:
         deposit_tx = pmt_qry.get_last_deposit_transaction(user_id=uid, uow=uow)
-        logging.info(
-            {
-                "message": "last deposit transaction was called",
-                "endpoint": "/get-user-recent-transactions",
-                "deposit_tx": deposit_tx.status.name,
-            },
-        )
-        if deposit_tx.status == pmt_mdl.TransactionStatus.PENDING:
-            logging.info(
-                {
-                    "message": "last deposit transaction was pending",
-                    "endpoint": "/get-user-recent-transactions",
-                    "invoked_by": "cardpay_app",
-                },
-            )
-            if pp_svc.invoice_paid(paypro_id=deposit_tx.paypro_id, uow=uow):
-                logging.info(
-                    {
-                        "message": "last invoice was paid",
-                        "endpoint": "/get-user-recent-transactions",
-                        "invoked_by": "cardpay_app",
-                    },
-                )
-                user_name = os.environ.get("PAYPRO_USERNAME")
-                user_name = user_name if user_name is not None else ""
+        uow.close_connection()
 
-                password = os.environ.get("PAYPRO_PASSWORD")
-                password = password if password is not None else ""
-
-                success_invoice_ids, not_found_invoice_ids = pp_svc.pay_pro_callback(
-                    user_name=user_name,
-                    password=password,
-                    csv_invoice_ids=deposit_tx.id,
-                    uow=uow,
-                )
-                logging.info(
-                    {
-                        "message": "manual callback finished",
-                        "endpoint": "/get-user-recent-transactions",
-                        "invoked_by": "cardpay_app",
-                        "success_invoice_ids": success_invoice_ids,
-                        "not_found_invoice_ids": not_found_invoice_ids,
-                    },
-                )
-        uow.commit_close_connection()
     except pmt_svc_ex.NoUserDepositRequest:
         uow.close_connection()
-    except Exception as e:
-        uow.close_connection()
-        logging.info(
-            {
-                "message": f"Unhandled exception raised",
-                "endpoint": "/get-user-recent-transactions",
-                "invoked_by": "cardpay_app",
-                "exception_type": 500,
-                "exception_message": str(e),
-            },
-        )
+        return
+
+    logging.info(
+        {
+            "message": "last deposit transaction was called",
+            "endpoint": "/get-user-recent-transactions",
+            "deposit_tx": deposit_tx.status.name,
+        },
+    )
+
+    if deposit_tx.status != pmt_mdl.TransactionStatus.PENDING:
+        return
+
+    logging.info(
+        {
+            "message": "last deposit transaction was pending",
+            "endpoint": "/get-user-recent-transactions",
+            "invoked_by": "cardpay_app",
+        },
+    )
+
+    # Slow AF API
+    if not pp_svc.invoice_paid(paypro_id=deposit_tx.paypro_id):
+        return
+
+    logging.info(
+        {
+            "message": "last invoice was paid",
+            "endpoint": "/get-user-recent-transactions",
+            "invoked_by": "cardpay_app",
+        },
+    )
+    user_name = os.environ.get("PAYPRO_USERNAME")
+    user_name = user_name if user_name is not None else ""
+
+    password = os.environ.get("PAYPRO_PASSWORD")
+    password = password if password is not None else ""
+
+    uow = UnitOfWork()
+    success_invoice_ids, not_found_invoice_ids = pp_svc.pay_pro_callback(
+        user_name=user_name,
+        password=password,
+        csv_invoice_ids=deposit_tx.id,
+        uow=uow,
+    )
+    uow.commit_close_connection()
+
+    logging.info(
+        {
+            "message": "manual callback finished",
+            "endpoint": "/get-user-recent-transactions",
+            "invoked_by": "cardpay_app",
+            "success_invoice_ids": success_invoice_ids,
+            "not_found_invoice_ids": not_found_invoice_ids,
+        },
+    )
 
 
 @cardpay_app.route("/get-user-recent-transactions", methods=["GET"])
@@ -1251,13 +1290,13 @@ def get_user_recent_transactions(uid):
     )
     uow.close_connection()
 
-    # executor = ThreadPoolExecutor(max_workers=1)
-    # executor.submit(check_last_deposit_transaction, uid, uow)
+    executor = ThreadPoolExecutor(max_workers=1)
+    executor.submit(check_last_deposit_transaction, uid)
 
     return utils.Response(
         message="User recent transactions returned successfully",
         status_code=200,
-        data=txs,  # txs is a list of dictionaries
+        data=txs,
     ).__dict__
 
 

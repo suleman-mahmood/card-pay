@@ -180,6 +180,7 @@ class AbstractPayproService(ABC):
         transaction_id: str,
         full_name: str,
         phone_number: str,
+        consumer_id: str,
         email: str,
     ) -> Tuple[str, str]:
         pass
@@ -199,6 +200,7 @@ class FakePayproService(AbstractPayproService):
         transaction_id: str,
         full_name: str,
         phone_number: str,
+        consumer_id: str,
         email: str,
     ) -> Tuple[str, str]:
         return "", ""
@@ -218,6 +220,7 @@ class PayproService(AbstractPayproService):
         transaction_id: str,
         full_name: str,
         phone_number: str,
+        consumer_id: str,
         email: str,
     ) -> Tuple[str, str]:
         return pp_svc.get_deposit_checkout_url_and_paypro_id(
@@ -225,6 +228,7 @@ class PayproService(AbstractPayproService):
             transaction_id=transaction_id,
             full_name=full_name,
             phone_number=phone_number,
+            consumer_id=consumer_id,
             email=email,
         )
 
