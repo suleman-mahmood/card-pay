@@ -11,10 +11,10 @@ from core.event.entrypoint import queries as event_qry
 
 DRAMALINE_EVENT_ID = "4399b8ea-0ee8-4b69-8187-861baf61c858"
 LAPS_EVENT_ID = "80ce325b-4081-4e7c-86aa-039e117ef4c8"
-PARTICIPANTS_COUNT_QUESTION = "Number of delegates"
+PARTICIPANTS_COUNT_QUESTION = "Number of team members (excluding the one registering)"
 FURTHER_PARTICIPANTS_COUNT_QUESTION = "Add more teammates"
 MAX_LIMIT_VOUCHER = 20
-VOUCHER_QUESTION = "Enter voucher code"
+VOUCHER_QUESTION = "Promo code"
 
 
 def send_registration_email(tx_id: str, uow: AbstractUnitOfWork):
