@@ -105,22 +105,22 @@ def calculate_ticket_price(
             (participants + 1) * event.registration_fee * (1.25) + event.registration_fee
         )
 
-    paid_calls = event_qry.get_redeemed_count_from_vouchers(voucher_code=voucher, uow=uow)
+    redeemed = event_qry.get_redeemed_count_from_vouchers(voucher_code=voucher, uow=uow)
 
-    if paid_calls == MAX_LIMIT_VOUCHER:
+    if redeemed == MAX_LIMIT_VOUCHER:
         raise event_exc.VoucherLimitExceeded("Voucher limit has exceeded")
 
-    discounted_price = (participants + 1) * event.registration_fee * (1.25)
+    total_price = (participants + 1) * event.registration_fee * (1.25)
 
-    if voucher == "50%OFF_TEAM":
-        discounted_price = 0.5 * discounted_price + event.registration_fee
-    elif voucher == "100%OFF_TEAM":
-        discounted_price = event.registration_fee
-    elif voucher == "50%OFF_FULL":
-        discounted_price = 0.5 * (
+    if voucher == "XBAFUFJMY4":
+        total_price = 0.5 * total_price + event.registration_fee
+    elif voucher == "DD5NXDK3U5":
+        total_price = event.registration_fee
+    elif voucher == "QYNEVM4EDZ":
+        total_price = 0.5 * (
             (participants + 1) * event.registration_fee * (1.25) + event.registration_fee
         )
     else:
         raise event_exc.VoucherNotFound("Voucher not found")
 
-    return math.ceil(discounted_price)
+    return math.ceil(total_price)

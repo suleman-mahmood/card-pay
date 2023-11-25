@@ -199,7 +199,7 @@ def pay_pro_callback():
         except event_ex.TxIdDoesNotExist as e:
             logging.info(
                 {
-                    "message": "Pay Pro | Can't send email | Paypro ID does not exist",
+                    "message": "Pay Pro | Can't increment voucher | Transaction ID does not exist",
                     "exception_type": e.__class__.__name__,
                     "tx_id": tx.id,
                     "exception_message": str(e),
@@ -210,7 +210,7 @@ def pay_pro_callback():
         except Exception as e:
             logging.info(
                 {
-                    "message": "Pay Pro | Can't send email | Unhandled exception raised",
+                    "message": "Pay Pro | Can't increment voucher | Unhandled exception raised",
                     "tx_id": tx.id,
                     "exception_type": 500,
                     "exception_message": str(e),

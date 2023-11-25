@@ -295,7 +295,7 @@ def get_event_from_registration(
 def get_redeemed_count_from_vouchers(voucher_code: str, uow: AbstractUnitOfWork) -> int:
     sql = """
         select 
-            paid_calls
+            redeemed
         from
             vouchers
         where code = %(voucher_code)s
@@ -307,4 +307,4 @@ def get_redeemed_count_from_vouchers(voucher_code: str, uow: AbstractUnitOfWork)
     if row is None:
         raise event_ex.VoucherNotFound("Could not find voucher through code")
 
-    return row["paid_calls"]
+    return row["redeemed"]
