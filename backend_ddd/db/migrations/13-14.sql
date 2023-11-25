@@ -1,19 +1,19 @@
 create table vouchers (
     code varchar,
-    redeemed integer,
+    redeemed integer
 );
 
 -- for 50% off team
 
-insert into vouchers (code, paid_calls)
-values ('XBAFUFJMY4', 0);  
+insert into vouchers (code, redeemed)
+values ('XBAF', 0);
 
 -- for 100% off team
 
-insert into vouchers (code, paid_calls)
-values ('DD5NXDK3U5', 0);
+insert into vouchers (code, redeemed)
+values ('DD5N', 0);
 
 -- for 100% off full
 
-insert into vouchers (code, paid_calls)
-values ('QYNEVM4EDZ', 0);
+insert into vouchers (code, redeemed)
+values ('QYNE', 0);

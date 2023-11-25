@@ -112,11 +112,11 @@ def calculate_ticket_price(
 
     total_price = (participants + 1) * event.registration_fee * (1.25)
 
-    if voucher == "XBAFUFJMY4":
+    if voucher == "XBAF":
         total_price = 0.5 * total_price + event.registration_fee
-    elif voucher == "DD5NXDK3U5":
+    elif voucher == "DD5N":
         total_price = event.registration_fee
-    elif voucher == "QYNEVM4EDZ":
+    elif voucher == "QYNE":
         total_price = 0.5 * (
             (participants + 1) * event.registration_fee * (1.25) + event.registration_fee
         )
