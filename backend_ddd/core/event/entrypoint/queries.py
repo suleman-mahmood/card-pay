@@ -308,3 +308,30 @@ def get_redeemed_count_from_vouchers(voucher_code: str, uow: AbstractUnitOfWork)
         raise event_ex.VoucherNotFound("Could not find voucher through code")
 
     return row["redeemed"]
+
+
+def get_form_data_from_transaction_id(
+    tx_id: str, uow: AbstractUnitOfWork
+) -> List[event_mdl.EventFormDataItem]:
+    sql = """
+        select 
+            event_form_data::json->'fields' as form_data
+        from 
+            registrations
+        where 
+            registrations.tx_id = %(tx_id)s;
+        
+    """
+
+    uow.dict_cursor.execute(sql, {"tx_id": tx_id})
+    row = uow.dict_cursor.fetchone()
+
+    if row is None:
+        raise event_ex.TxIdDoesNotExist("Transaction Id does not exist")
+
+    for form_data_item in row["form_data"]:
+        form_data_item = event_mdl.EventFormDataItem(
+            question=form_data_item.question, answer=form_data_item.answer
+        )
+
+    return row["form_data"]

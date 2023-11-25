@@ -17,3 +17,8 @@ values ('DD5N', 0);
 
 insert into vouchers (code, redeemed)
 values ('QYNE', 0);
+
+update registrations
+set tx_id = transactions.id
+from transactions
+where registrations.paypro_id = transactions.paypro_id;

@@ -187,23 +187,10 @@ def add_form_schema(
     uow.events.save(event=event)
 
 
-def increment_voucher_count(tx_id: str, uow: AbstractUnitOfWork):
-    sql = """
-        select 
-            event_form_data::json->'fields' as form_data
-        from 
-            registrations
-        where registrations.tx_id = %(tx_id)s;
-        
-    """
-
-    uow.dict_cursor.execute(sql, {"tx_id": tx_id})
-    row = uow.dict_cursor.fetchone()
-
-    if row is None:
-        raise exc.TxIdDoesNotExist("Transaction Id does not exist")
-
-    form_data = row["form_data"]
+def increment_voucher_count(
+    tx_id: str, uow: AbstractUnitOfWork, event_acl: event_acl.EventsService
+):
+    form_data = event_acl.get_form_data_from_transaction_id(tx_id=tx_id, uow=uow)
 
     sql_voucher = """
                 update vouchers
