@@ -138,8 +138,8 @@ def pay_pro_callback():
         try:
             comms_cmd.send_notification(
                 user_id=tx.recipient_wallet.id,
-                title="Deposit success!",
-                body=f"{tx.amount} was deposited in your CardPay account",
+                title="Deposit Success! 🎉",
+                body=f"Yay! {tx.amount} is deposited in your CardPay wallet 🥳",
                 uow=uow,
                 comms_svc=comms_acl.CommunicationService(),
             )

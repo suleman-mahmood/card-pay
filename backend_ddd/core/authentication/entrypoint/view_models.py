@@ -28,3 +28,16 @@ class EmailInfoDTO:
             email=row["personal_email"],
             full_name=row["full_name"],
         )
+
+
+@dataclass(frozen=True)
+class UserIdNameDTO:
+    id: str
+    full_name: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "UserIdNameDTO":
+        return UserIdNameDTO(
+            id=row["id"],
+            full_name=row["full_name"],
+        )

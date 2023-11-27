@@ -780,3 +780,18 @@ def get_all_emails(uow: AbstractUnitOfWork) -> List[auth_vm.EmailInfoDTO]:
     rows = uow.dict_cursor.fetchall()
 
     return [auth_vm.EmailInfoDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_all_users(uow: AbstractUnitOfWork) -> List[auth_vm.UserIdNameDTO]:
+    sql = """
+        select
+            id,
+            full_name
+        from
+            users
+    """
+
+    uow.dict_cursor.execute(sql)
+    rows = uow.dict_cursor.fetchall()
+
+    return [auth_vm.UserIdNameDTO.from_db_dict_row(row) for row in rows]

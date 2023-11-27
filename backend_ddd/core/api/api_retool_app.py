@@ -1168,7 +1168,7 @@ def reverse_deposit():
     return utils.Response(message="Deposit reversed", status_code=200).__dict__
 
 
-@retool.route("/get-all-deposits-to-reverse", methods=["GET"])
+@retool.route("/get-all-deposits-to-reverse", methods=["POST"])
 @utils.authenticate_retool_secret
 def get_all_deposits_to_reverse():
     uow = UnitOfWork()
@@ -1182,7 +1182,7 @@ def get_all_deposits_to_reverse():
     ).__dict__
 
 
-@retool.route("/get-all-failed-reversals", methods=["GET"])
+@retool.route("/get-all-failed-reversals", methods=["POST"])
 @utils.authenticate_retool_secret
 def get_all_failed_reversals():
     uow = UnitOfWork()
@@ -1193,4 +1193,18 @@ def get_all_failed_reversals():
         message="All failed reversals returned successfully",
         status_code=200,
         data={"failed_reversals": failed_reversals},
+    ).__dict__
+
+
+@retool.route("/get-all-users", methods=["POST"])
+@utils.authenticate_retool_secret
+def get_all_users():
+    uow = UnitOfWork()
+    users = auth_qry.get_all_users(uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="All users with ids and full names returned successfully",
+        status_code=200,
+        data={"users": users},
     ).__dict__

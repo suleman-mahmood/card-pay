@@ -276,7 +276,7 @@ def payment_retools_get_vendors_and_balance(
             join user_closed_loops ucl on u.id = ucl.user_id
         where 
             ucl.closed_loop_id = %(closed_loop_id)s
-            and u.user_type = 'VENDOR'::user_type_enum
+            and (u.user_type = 'VENDOR'::user_type_enum or u.user_type = 'EVENT_ORGANIZER'::user_type_enum)
             and w.balance > 0
     """
 
