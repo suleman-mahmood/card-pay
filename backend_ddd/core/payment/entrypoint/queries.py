@@ -1068,7 +1068,7 @@ def get_many_transactions(
     return [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
 
 
-def get_pending_txns_from_paid_pp_txn_ids(tx_ids: List[str], uow: AbstractUnitOfWork) -> List[str]:
+def get_pending_pg_txs_from_ids(tx_ids: List[str], uow: AbstractUnitOfWork) -> List[str]:
     sql = """
         select
             txs.id
@@ -1083,3 +1083,89 @@ def get_pending_txns_from_paid_pp_txn_ids(tx_ids: List[str], uow: AbstractUnitOf
     rows = uow.dict_cursor.fetchall()
 
     return [row["id"] for row in rows]
+
+
+def get_successful_pg_txs_from_ids(tx_ids: List[str], uow: AbstractUnitOfWork) -> List[str]:
+    sql = """
+        select
+            txs.id
+        from
+            transactions txn
+            join unnest(%(tx_ids)s::uuid[]) txs(id) on txs.id = txn.id
+        where
+            status = 'SUCCESSFUL'::transaction_status_enum
+            and transaction_type = 'PAYMENT_GATEWAY'::transaction_type_enum
+    """
+    uow.dict_cursor.execute(sql, {"tx_ids": tx_ids})
+    rows = uow.dict_cursor.fetchall()
+
+    return [row["id"] for row in rows]
+
+
+def get_all_deposits_to_reverse(uow: AbstractUnitOfWork) -> List[pmt_vm.TransactionWithIdsDTO]:
+    sql = """
+        select 
+            txn.id,
+            txn.amount,
+            txn.mode,
+            txn.transaction_type,
+            txn.status,
+            txn.created_at,
+            txn.last_updated,
+            txn.sender_wallet_id as sender_id,
+            txn.recipient_wallet_id as recipient_id,
+            txn.paypro_id,
+            sender.full_name as sender_name,
+            recipient.full_name as recipient_name
+        from 
+            transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+        where 
+            txn.status = 'TO_REVERSE'::transaction_status_enum
+            and 
+            txn.transaction_type = 'PAYMENT_GATEWAY'::transaction_type_enum
+        order by txn.created_at desc
+        """
+
+    uow.dict_cursor.execute(sql)
+
+    rows = uow.dict_cursor.fetchall()
+
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
+
+    return transactions
+
+
+def get_all_failed_reversals(uow: AbstractUnitOfWork) -> List[pmt_vm.TransactionWithIdsDTO]:
+    sql = """
+        select 
+            txn.id,
+            txn.amount,
+            txn.mode,
+            txn.transaction_type,
+            txn.status,
+            txn.created_at,
+            txn.last_updated,
+            txn.sender_wallet_id as sender_id,
+            txn.recipient_wallet_id as recipient_id,
+            txn.paypro_id,
+            sender.full_name as sender_name,
+            recipient.full_name as recipient_name
+        from 
+            transactions txn
+            inner join users sender on txn.sender_wallet_id = sender.id
+            inner join users recipient on txn.recipient_wallet_id = recipient.id
+        where 
+            txn.status = 'FAILED'::transaction_status_enum
+            and txn.transaction_type = 'REVERSAL'::transaction_type_enum
+        order by txn.created_at desc
+        """
+
+    uow.dict_cursor.execute(sql)
+
+    rows = uow.dict_cursor.fetchall()
+
+    transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
+
+    return transactions

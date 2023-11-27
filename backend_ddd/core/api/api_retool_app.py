@@ -1125,3 +1125,72 @@ def force_transaction():
         raise e
 
     return utils.Response(message="Transaction forced successfully", status_code=200).__dict__
+
+
+@retool.route("/reverse-deposit", methods=["POST"])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_and_sanitize_json_payload(required_parameters={"tx_id": sch.UuidSchema})
+def reverse_deposit():
+    req = request.get_json(force=True)
+
+    uow = UnitOfWork()
+    try:
+        pmt_cmd.reverse_deposit(
+            txn_id=req["tx_id"], uow=uow, auth_svc=pmt_acl.AuthenticationService()
+        )
+        uow.commit_close_connection()
+    except pmt_svc_ex.TransactionFailedException as e:
+        # If a reversal fails due to balance/txn issues save it else dont
+        uow.commit_close_connection()
+        logging.info(
+            {
+                "message": "Reversal failed due to transaction failure",
+                "error": str(e),
+                "exception": e.__class__.__name__,
+            }
+        )
+    except (
+        pmt_svc_ex.NotVerifiedException,
+        pmt_mdl_ex.UnmarkedDepositReversal,
+        pmt_mdl_ex.NotDepositReversal,
+    ) as e:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "Reversal failed",
+                "error": str(e),
+                "exception": e.__class__.__name__,
+            }
+        )
+        raise utils.CustomException(str(e))
+
+    return utils.Response(message="Deposit reversed", status_code=200).__dict__
+
+
+@retool.route("/get-all-deposits-to-reverse", methods=["GET"])
+@utils.authenticate_retool_secret
+def get_all_deposits_to_reverse():
+    uow = UnitOfWork()
+    deposits = pmt_qry.get_all_deposits_to_reverse(uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="All deposits returned successfully",
+        status_code=200,
+        data={"deposits": deposits},
+    ).__dict__
+
+
+@retool.route("/get-all-failed-reversals", methods=["GET"])
+@utils.authenticate_retool_secret
+def get_all_failed_reversals():
+    uow = UnitOfWork()
+    failed_reversals = pmt_qry.get_all_failed_reversals(uow=uow)
+    uow.close_connection()
+
+    return utils.Response(
+        message="All failed reversals returned successfully",
+        status_code=200,
+        data={"failed_reversals": failed_reversals},
+    ).__dict__

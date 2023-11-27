@@ -26,6 +26,8 @@ class TransactionStatus(str, Enum):
     SUCCESSFUL = 3
     EXPIRED = 4
     DECLINED = 5
+    TO_REVERSE = 6
+    REVERSED = 7
 
 
 class TransactionMode(str, Enum):
@@ -55,6 +57,7 @@ class TransactionType(str, Enum):
     RECONCILIATION = 10  # reconciliation to cardpay by vendors
     EVENT_REGISTRATION_FEE = 11  # payment from a user to an event organizer
     TOP_UP = 12  # Vendor tops up a customer
+    REVERSAL = 13  # Reversal of a transaction
 
 
 @dataclass
@@ -157,3 +160,32 @@ class Transaction:
 
     def mark_as_ghost(self):
         self.ghost = True
+
+    def mark_as_to_reverse(self):
+        if self.status == TransactionStatus.TO_REVERSE:
+            raise ex.AlreadyMarkedToReverse("Transaction is already marked as to reversed")
+
+        if self.status != TransactionStatus.SUCCESSFUL:
+            raise ex.ReversingUnsuccessfulTransaction("Cannot reverse an unsuccessful transaction")
+
+        if self.transaction_type != TransactionType.PAYMENT_GATEWAY:
+            raise ex.NotDepositReversal("This is not a payment gateway transaction")
+
+        self.status = TransactionStatus.TO_REVERSE
+        self.last_updated = datetime.now()
+
+    def mark_as_reversed(self):
+        """for reversing a transaction - only for successful deposits"""
+
+        if self.transaction_type != TransactionType.PAYMENT_GATEWAY:
+            raise ex.NotDepositReversal("This is not a payment gateway transaction")
+
+        if self.status != TransactionStatus.TO_REVERSE:
+            raise ex.UnmarkedDepositReversal("Can only reverse marked transactions")
+
+        self.status = TransactionStatus.REVERSED
+        self.last_updated = datetime.now()
+
+    def mark_failed(self):
+        self.status = TransactionStatus.FAILED
+        self.last_updated = datetime.now()

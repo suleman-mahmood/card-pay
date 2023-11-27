@@ -10,6 +10,7 @@ from core.event.entrypoint import exceptions as event_ex
 from core.event.entrypoint import services as event_svc
 from core.marketing.entrypoint import queries as mktg_qry
 from core.marketing.entrypoint import services as mktg_svc
+from core.payment.domain import exceptions as pmt_mdl_ex
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
@@ -44,7 +45,7 @@ def paypro_manual_inquiry():
     )
 
     # These are the txns that are paid in PayPro but pending in our db
-    paid_txs = pmt_qry.get_pending_txns_from_paid_pp_txn_ids(pp_paid_tx_ids, uow)
+    paid_txs = pmt_qry.get_pending_pg_txs_from_ids(pp_paid_tx_ids, uow)
     logging.info(
         {
             "message": "PayPro inquiry cron | Fetched pending txns",
@@ -205,3 +206,65 @@ def paypro_manual_inquiry():
     logging.info({"message": "PayPro inquiry cron | finished successfully!"})
 
     return "PayPro Inquiry Cron finished successfully!", 200
+
+
+@crons_app.route("reverse-transaction-cron", methods=["GET"])
+def reverse_transaction_cron():
+    """
+    Runs every day and marks all the transactions of the entire week that
+     are to be reversed
+    """
+
+    logging.info({"message": "Reverse Transaction cron | starting"})
+
+    uow = UnitOfWork()
+
+    pk_time = datetime.now() + timedelta(hours=5)
+    pp_orders = pp_svc.invoice_range(
+        start_date=pk_time - timedelta(days=7),
+        end_date=pk_time,
+        uow=uow,
+    )
+
+    unpaid_pp_txns = [pp_order.tx_id for pp_order in pp_orders if pp_order.tx_status == "UNPAID"]
+
+    logging.info(
+        {
+            "message": "Reverse Transaction cron | Filtered unpaid txns",
+            "txs": unpaid_pp_txns,
+        }
+    )
+
+    txns_to_reverse = pmt_qry.get_successful_pg_txs_from_ids(tx_ids=unpaid_pp_txns, uow=uow)
+
+    logging.info(
+        {
+            "message": "Reverse Transaction cron | Fetched txns to reverse",
+            "txs": txns_to_reverse,
+        }
+    )
+    for txn_id in txns_to_reverse:
+        try:
+            pmt_cmd.mark_as_to_reverse(txn_id=txn_id, uow=uow)
+        except (
+            pmt_mdl_ex.ReversingUnsuccessfulTransaction,
+            pmt_mdl_ex.NotDepositReversal,
+            pmt_mdl_ex.AlreadyMarkedToReverse,
+        ) as e:
+            logging.info(
+                {
+                    "message": "Reverse Transaction cron | Can't mark as to reverse | Custom exception raised",
+                    "exception_type": e.__class__.__name__,
+                    "exception_message": str(e),
+                    "silent": True,
+                },
+            )
+
+    uow.commit_close_connection()
+
+    logging.info(
+        {
+            "message": "Reverse transaction cron | Marked transactions as to reverse",
+            "txns": txns_to_reverse,
+        }
+    )

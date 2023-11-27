@@ -60,7 +60,14 @@ class NoPreviousReconciliationFound(Exception):
 
 class NoLatestReconciliationFound(Exception):
     """No Latest reconciliation found"""
+<<<<<<< HEAD
 
 
 class ConsumerAlreadyExists(Exception):
     """Consumer already exists"""
+
+
+class ReversalFailedException(Exception):
+    """exception raised for when reversal fails"""
+=======
+>>>>>>> 4b741a6e (incorporated comments and changed exceptions)

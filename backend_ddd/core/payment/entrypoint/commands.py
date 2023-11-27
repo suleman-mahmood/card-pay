@@ -55,6 +55,7 @@ def _execute_transaction(
         try:
             tx.execute_transaction()
         except mdl_ex.TransactionNotAllowedException as e:
+            tx.mark_failed()
             uow.transactions.save(tx)
             raise svc_ex.TransactionFailedException(str(e))
 
@@ -307,3 +308,29 @@ def execute_top_up_transaction(
         uow=uow,
         auth_svc=auth_svc,
     )
+
+
+def reverse_deposit(
+    txn_id: str, uow: AbstractUnitOfWork, auth_svc: acl.AbstractAuthenticationService
+):
+    tx = uow.transactions.get(transaction_id=txn_id)
+
+    _execute_transaction(
+        tx_id=str(uuid4()),
+        sender_wallet_id=tx.recipient_wallet.id,
+        recipient_wallet_id=tx.sender_wallet.id,
+        amount=tx.amount,
+        transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+        transaction_type=pmt_mdl.TransactionType.REVERSAL,
+        uow=uow,
+        auth_svc=auth_svc,
+    )
+
+    tx.mark_as_reversed()
+    uow.transactions.save(tx)
+
+
+def mark_as_to_reverse(txn_id: str, uow: AbstractUnitOfWork):
+    tx = uow.transactions.get(transaction_id=txn_id)
+    tx.mark_as_to_reverse()
+    uow.transactions.save(tx)

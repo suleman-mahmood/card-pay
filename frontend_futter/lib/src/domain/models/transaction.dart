@@ -9,6 +9,8 @@ enum TransactionStatus {
   SUCCESSFUL,
   EXPIRED,
   DECLINED,
+  TO_REVERSE,
+  REVERSED,
 }
 
 enum TransactionMode {
@@ -32,6 +34,7 @@ enum TransactionType {
   RECONCILIATION,
   EVENT_REGISTRATION_FEE,
   TOP_UP,
+  REVERSAL,
 }
 
 @Entity(tableName: "transactions")
