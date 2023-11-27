@@ -15,3 +15,6 @@ credentials-prod.json
 .pre-commit-config.yaml
 app.yaml
 dev_app.yaml
+
+locust.py
+report.html
