@@ -148,8 +148,6 @@ def register_customer_paypro(consumer_id: str):
 
     response_data = pp_order_res.json()[1]
 
-    print(response_data)
-
     try:
         consumer_id = response_data["FullConsumerId"]
     except KeyError as e:

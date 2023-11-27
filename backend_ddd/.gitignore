@@ -18,3 +18,4 @@ dev_app.yaml
 
 locust.py
 report.html
+/scripts/deploy_local_prod.sh
