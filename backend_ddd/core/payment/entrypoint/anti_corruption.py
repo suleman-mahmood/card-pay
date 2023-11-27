@@ -174,18 +174,6 @@ class FakePaymentService(AbstractPaymentService):
 @dataclass
 class AbstractPayproService(ABC):
     @abstractmethod
-    def get_deposit_checkout_url_and_paypro_id(
-        self,
-        amount: int,
-        transaction_id: str,
-        full_name: str,
-        phone_number: str,
-        consumer_id: str,
-        email: str,
-    ) -> Tuple[str, str]:
-        pass
-
-    @abstractmethod
     def get_paypro_wallet(self) -> str:
         pass
 
@@ -193,17 +181,6 @@ class AbstractPayproService(ABC):
 @dataclass
 class FakePayproService(AbstractPayproService):
     pp_wallet_id: str = ""
-
-    def get_deposit_checkout_url_and_paypro_id(
-        self,
-        amount: int,
-        transaction_id: str,
-        full_name: str,
-        phone_number: str,
-        consumer_id: str,
-        email: str,
-    ) -> Tuple[str, str]:
-        return "", ""
 
     def set_paypro_wallet(self, wallet_id):
         self.pp_wallet_id = wallet_id
@@ -214,23 +191,5 @@ class FakePayproService(AbstractPayproService):
 
 @dataclass
 class PayproService(AbstractPayproService):
-    def get_deposit_checkout_url_and_paypro_id(
-        self,
-        amount: int,
-        transaction_id: str,
-        full_name: str,
-        phone_number: str,
-        consumer_id: str,
-        email: str,
-    ) -> Tuple[str, str]:
-        return pp_svc.get_deposit_checkout_url_and_paypro_id(
-            amount=amount,
-            transaction_id=transaction_id,
-            full_name=full_name,
-            phone_number=phone_number,
-            consumer_id=consumer_id,
-            email=email,
-        )
-
     def get_paypro_wallet(self) -> str:
         return PAYPRO_USER_ID

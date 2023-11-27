@@ -247,12 +247,16 @@ def get_deposit_checkout_url_and_paypro_id(
 
     response_data = pp_order_res.json()[1]
 
-    print(response_data)
-
     try:
         payment_url = response_data["Click2Pay"]
         paypro_id = response_data["PayProId"]
-    except:
+    except KeyError:
+        logging.info(
+            {
+                "message": "PayPro invoice doesn't contain deposit checkout link",
+                "pp_order_res": response_data,
+            },
+        )
         raise ex.PaymentUrlNotFoundException(
             "PayPro response does not contain payment url, please try again"
         )
