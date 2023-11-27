@@ -82,6 +82,7 @@ def test_get_all_closed_loops_id_and_names(seed_auth_closed_loop):
 
     uow.close_connection()
 
+
 def test_get_all_successful_transactions_of_a_user(
     seed_5_100_transactions_against_user_ids,
 ):
@@ -180,7 +181,7 @@ def test_payment_retools_get_customers_and_vendors_of_selected_closed_loop(
     assert customer_vendor_counts_dto.counts.count == 4
 
     uow.close_connection()
-    
+
 
 def test_payment_retools_get_all_transactions_of_selected_user(
     seed_5_100_transactions_against_user_ids,
@@ -335,6 +336,7 @@ def test_payment_retools_get_vendors(
 
     uow.close_connection()
 
+
 def test_payment_retools_get_reconciliation_history(
     seed_starred_wallet, seed_5_100_transactions_against_user_ids
 ):
@@ -437,6 +439,7 @@ def test_get_all_vendor_id_name_and_qr_id_of_a_closed_loop(
 
     uow.close_connection()
 
+
 def test_get_tx_balance_and_get_tx_recipient(seed_verified_auth_user, add_1000_wallet):
     uow = UnitOfWork()
     sender, _ = seed_verified_auth_user(uow)
@@ -473,7 +476,6 @@ def test_get_tx_balance_and_get_tx_recipient(seed_verified_auth_user, add_1000_w
     uow.close_connection()
 
 
-
 def test_get_last_deposit_transaction(seed_verified_auth_user, add_1000_wallet):
     uow = UnitOfWork()
 
@@ -484,7 +486,7 @@ def test_get_last_deposit_transaction(seed_verified_auth_user, add_1000_wallet):
     tx_id = str(uuid4())
     pmt_cmd._execute_transaction(
         tx_id=tx_id,
-        amount=100,
+        amount=1000,
         transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
         transaction_type=pmt_mdl.TransactionType.PAYMENT_GATEWAY,
         sender_wallet_id=pg.id,
@@ -500,7 +502,7 @@ def test_get_last_deposit_transaction(seed_verified_auth_user, add_1000_wallet):
 
     tx = pmt_qry.get_last_deposit_transaction(user_id=recipient.id, uow=uow)
 
-    assert tx.amount == 100
+    assert tx.amount == 1000
     assert tx.paypro_id == pp_tx_id
     assert tx.id == tx_id
     assert tx.status == pmt_mdl.TransactionStatus.PENDING
