@@ -267,3 +267,5 @@ def reverse_transaction_cron():
             "txns": txns_to_reverse,
         }
     )
+
+    return "PayPro Reverse Transactions Cron finished successfully!", 200
