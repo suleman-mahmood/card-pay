@@ -223,7 +223,6 @@ def reverse_transaction_cron():
     pp_orders = pp_svc.invoice_range(
         start_date=pk_time - timedelta(days=7),
         end_date=pk_time,
-        uow=uow,
     )
 
     unpaid_pp_txns = [pp_order.tx_id for pp_order in pp_orders if pp_order.tx_status == "UNPAID"]
