@@ -9,6 +9,9 @@ import { useSearchParams } from 'next/navigation'
 
 import '../../globals.css'
 import { BASE_URL } from "@/services/remote-config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/services/initialize-firebase";
+import { randomUUID } from "crypto";
 
 enum EventStatus {
     DRAFT,
@@ -23,6 +26,7 @@ enum QuestionType {
     MULTIPLE_CHOICE,
     DROPDOWN,
     DYNAMIC_INPUT_STR,
+    FILE_UPLOAD
 }
 
 enum ValidationEnum {
@@ -96,6 +100,15 @@ export default function page() {
         return search;
     }
 
+    const uploadToFirebase = async (file: any) => {
+        setIsLoadingSpinner(true);
+        const storageRef = ref(storage, 'images/' + randomUUID());
+        const snapshot = await uploadBytes(storageRef, file);
+        const download_url = await getDownloadURL(snapshot.ref)
+        setIsLoadingSpinner(false);
+        return download_url;
+    }
+
     const handleSelectChange = (event: any) => {
         console.log(event)
         events.map((item) => {
@@ -150,6 +163,9 @@ export default function page() {
                         }
                         else if (item.type === 'DYNAMIC_INPUT_STR') {
                             item.type = QuestionType.DYNAMIC_INPUT_STR
+                        }
+                        else if (item.type === 'FILE_UPLOAD') {
+                            item.type = QuestionType.FILE_UPLOAD
                         }
                     })
                     if (item.id === SearchBar()) {
@@ -236,7 +252,7 @@ export default function page() {
 
     const buildInput = (schemaItem: EventFormSchemaItem, index: any) => {
 
-        const handleInputChange: any = (e: any, question = null, option = null) => {
+        const handleInputChange: any = async (e: any, question: string | null = null, option = null) => {
             let value;
             if (schemaItem.type === QuestionType.MULTIPLE_CHOICE) {
                 const clickedOption: any = checkedOptions.indexOf(option);
@@ -281,8 +297,22 @@ export default function page() {
                 setFormResponses(updatedResponses);
             }
             else if (schemaItem.type === QuestionType.DYNAMIC_INPUT_STR) {
-                value = e.target.value;
+                let value = "";
+                if (question?.indexOf("Photograph link") !== -1) {
+                    const file_to_upload = e.target.files[0];
+                    value = await uploadToFirebase(file_to_upload);
+                }
+                else {
+                    value = e.target.value
+                };
+
                 const updatedResponses: any = { ...formResponses, [question!]: value };
+                setFormResponses(updatedResponses);
+            }
+            else if (schemaItem.type === QuestionType.FILE_UPLOAD) {
+                const file_to_upload = e.target.files[0];
+                const download_url = await uploadToFirebase(file_to_upload);
+                const updatedResponses: any = { ...formResponses, [schemaItem.question]: download_url };
                 setFormResponses(updatedResponses);
             }
             else {
@@ -370,6 +400,11 @@ export default function page() {
                 </select>
             )
         }
+        if (schemaItem.type === QuestionType.FILE_UPLOAD) {
+            return (
+                <input type="file" className="file-input file-input-bordered w-full max-w-xs" id="file-dynamic" onChange={(e) => handleInputChange(e)} />
+            )
+        }
         if (schemaItem.type === QuestionType.MULTIPLE_CHOICE) {
             return (
                 <div className="form-control">
@@ -396,11 +431,15 @@ export default function page() {
                                 <label className="label">
                                     <span className="label-text">{elem + ' ' + (j + 1).toString()}</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    className="input input-bordered w-full max-w-xs"
-                                    onChange={(e) => handleInputChange(e, elem + ' ' + (j + 1))}
-                                />
+                                {
+                                    elem.toString() === "Photograph link" ? (
+                                        <input type="file" className="file-input file-input-bordered w-full max-w-xs" onChange={(e) => handleInputChange(e, elem + ' ' + (j + 1))} />
+                                    ) : <input
+                                        type="text"
+                                        className="input input-bordered w-full max-w-xs"
+                                        onChange={(e) => handleInputChange(e, elem + ' ' + (j + 1))}
+                                    />
+                                }
                             </div>
                         ))
                     ))}
@@ -411,7 +450,7 @@ export default function page() {
     }
 
 
-    return <div className="flex min-h-screen flex-col items-center artboard phone-3 events-all-page overflow-scroll">
+    return <div className="flex min-h-screen flex-col items-center artboard xs:phone-3 events-all-page overflow-scroll">
 
         {
             !selectedEvent && (
@@ -445,7 +484,7 @@ export default function page() {
 
 
         {selectedEvent && (
-            <div className="items-center justify-center">
+            <div className="items-center justify-center md:w-1/4 lg:h-25">
                 <div className="btn back-button" onClick={() => window.location.reload()}>
                     ❮
                 </div>

@@ -2,17 +2,11 @@
 /* eslint-disable */
 import React from "react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { User as FirebaseUser } from "firebase/auth";
-import LoadingOverlay from "./spinner";
-import { useSearchParams } from 'next/navigation'
 
 import '../globals.css'
 import Link from "@/node_modules/next/link";
 
 export default function page() {
-    const router = useRouter();
-    const [isLoadingSpinner, setIsLoadingSpinner] = useState(false);
     const [animate, setAnimate] = useState(false);
 
     useEffect(() => {
@@ -24,7 +18,7 @@ export default function page() {
     }, []);
 
 
-    return <div className={`flex min-h-screen flex-col items-center justify-center p-5 artboard phone-3 events-page overflow-scroll ${animate ? 'animate' : ''}`}>
+    return <div className={`flex min-h-screen flex-col items-center justify-center p-5 artboard xs:phone-3 events-page overflow-scroll ${animate ? 'animate' : ''}`}>
 
         <img src={'../../cardpay.png'} />
 

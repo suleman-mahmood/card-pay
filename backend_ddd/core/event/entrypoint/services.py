@@ -11,8 +11,7 @@ from core.event.entrypoint import queries as event_qry
 
 DRAMALINE_EVENT_ID = "4399b8ea-0ee8-4b69-8187-861baf61c858"
 LAPS_EVENT_ID = "80ce325b-4081-4e7c-86aa-039e117ef4c8"
-PARTICIPANTS_COUNT_QUESTION = "Number of team members (excluding the one registering)"
-FURTHER_PARTICIPANTS_COUNT_QUESTION = "Add more teammates"
+FURTHER_PARTICIPANTS_COUNT_QUESTION = "Number of team members (excluding the one registering)"
 MAX_LIMIT_VOUCHER = 20
 VOUCHER_QUESTION = "Promo code"
 
@@ -88,17 +87,23 @@ def calculate_ticket_price(
     if event_id != LAPS_EVENT_ID:
         return event.registration_fee
 
-    participants = int(
-        next(
-            item
-            for item in form_data["fields"]
-            if item.question == FURTHER_PARTICIPANTS_COUNT_QUESTION
-        ).answer
-    )
+    try:
+        participants = int(
+            next(
+                item
+                for item in form_data["fields"]
+                if item.question == FURTHER_PARTICIPANTS_COUNT_QUESTION
+            ).answer
+        )
+    except StopIteration:
+        participants = 1
 
-    voucher = str(
-        next(item for item in form_data["fields"] if item.question == VOUCHER_QUESTION).answer
-    )
+    try:
+        voucher = str(
+            next(item for item in form_data["fields"] if item.question == VOUCHER_QUESTION).answer
+        )
+    except StopIteration:
+        voucher = ""
 
     if voucher == "":
         return math.ceil(

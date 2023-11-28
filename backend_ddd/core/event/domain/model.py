@@ -80,6 +80,7 @@ class QuestionType(str, Enum):
     MULTIPLE_CHOICE = 4
     DROPDOWN = 5
     DYNAMIC_INPUT_STR = 6
+    FILE_UPLOAD = 7
 
 
 class EventType(str, Enum):

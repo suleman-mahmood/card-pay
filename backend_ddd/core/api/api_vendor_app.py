@@ -459,6 +459,14 @@ def register_event():
     paid_registrations_count = event_qry.get_paid_registrations_count(event_id=event_id, uow=uow)
 
     try:
+        pmt_cmd.create_deposit_request(
+            tx_id=tx_id,
+            user_id=event.organizer_id,
+            amount=ticket_price,
+            uow=uow,
+            auth_svc=pmt_acl.AuthenticationService(),
+            pp_svc=pmt_acl.PayproService(),
+        )
         event_cmd.register_user_open_loop(
             event_id=event_id,
             qr_id=qr_id,
@@ -467,14 +475,6 @@ def register_event():
             tx_id=tx_id,
             paid_registrations_count=int(paid_registrations_count),
             uow=uow,
-        )
-        pmt_cmd.create_deposit_request(
-            tx_id=tx_id,
-            user_id=event.organizer_id,
-            amount=ticket_price,
-            uow=uow,
-            auth_svc=pmt_acl.AuthenticationService(),
-            pp_svc=pmt_acl.PayproService(),
         )
         uow.commit_close_connection()
 
