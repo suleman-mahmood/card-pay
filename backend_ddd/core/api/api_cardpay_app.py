@@ -84,9 +84,16 @@ def create_user():
     ).__dict__
 
 
-def register_paypro_customer(consumer_id: str):
+def register_paypro_customer(
+    consumer_id: str, full_name: str, personal_email: str, phone_number: str
+):
     try:
-        pp_svc.register_customer_paypro(consumer_id=consumer_id)
+        pp_svc.register_customer_paypro(
+            consumer_id=consumer_id,
+            full_name=full_name,
+            personal_email=personal_email,
+            phone_number=phone_number,
+        )
 
     except pmt_svc_ex.ConsumerAlreadyExists as e:
         logging.info(
@@ -162,7 +169,13 @@ def create_customer():
         raise e
 
     executor = ThreadPoolExecutor(max_workers=1)
-    executor.submit(register_paypro_customer, "92" + req["phone_number"])
+    executor.submit(
+        register_paypro_customer,
+        "92" + req["phone_number"],
+        req["full_name"],
+        req["personal_email"],
+        "+92" + req["phone_number"],
+    )
 
     return utils.Response(
         message="User created successfully",

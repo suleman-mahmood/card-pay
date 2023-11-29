@@ -106,7 +106,9 @@ def _get_paypro_auth_token() -> str:
     return auth_token
 
 
-def register_customer_paypro(consumer_id: str):
+def register_customer_paypro(
+    consumer_id: str, full_name: str, personal_email: str, phone_number: str
+):
     auth_token = _get_paypro_auth_token()
 
     config = {
@@ -119,7 +121,13 @@ def register_customer_paypro(consumer_id: str):
             {
                 "MerchantId": os.environ.get("USERNAME"),
             },
-            {"ConsumerID": consumer_id, "Name": "", "Mobile": "", "Email": "", "Address": ""},
+            {
+                "ConsumerID": consumer_id,
+                "Name": full_name,
+                "Mobile": phone_number,
+                "Email": personal_email,
+                "Address": "",
+            },
         ],
     }
 
