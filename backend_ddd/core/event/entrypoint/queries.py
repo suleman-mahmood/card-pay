@@ -37,6 +37,7 @@ def get_live_events(
             e.status = 'APPROVED'
             and e.closed_loop_id = %(closed_loop_id)s
             and e.registration_end_timestamp > (current_timestamp at time zone '-5')
+        order by e.created_at desc;
     """
 
     # Add the filter for event type
@@ -78,6 +79,7 @@ def get_registered_events(
             inner join registrations r on r.event_id = e.id
         where
             r.user_id = %(user_id)s
+        order by e.created_at desc;
     """
     uow.dict_cursor.execute(sql, {"user_id": user_id})
     events = uow.dict_cursor.fetchall()
