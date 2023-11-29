@@ -200,7 +200,7 @@ export default function page() {
     const retrieved_txns = data.data as Array<Transaction>;
     setTxns(retrieved_txns);
     const totalBalance: number = retrieved_txns.reduce(
-      (sum, txn) => sum + txn.amount,
+      (sum, txn) => txn.transaction_type == "TOP_UP" ? sum - txn.amount : sum + txn.amount,
       0
     );
     setCurrentReconciledTxnBalance(totalBalance);
@@ -261,7 +261,7 @@ export default function page() {
     const retrieved_txns = data.data as Array<Transaction>;
     setTxns(retrieved_txns);
     const totalBalance: number = retrieved_txns.reduce(
-      (sum, txn) => sum + txn.amount,
+      (sum, txn) => txn.transaction_type == "TOP_UP" ? sum - txn.amount : sum + txn.amount,
       0
     );
     setCurrentReconciledTxnBalance(totalBalance);
