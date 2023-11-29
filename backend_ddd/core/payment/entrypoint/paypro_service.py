@@ -382,7 +382,7 @@ def invoice_range(start_date: datetime, end_date: datetime) -> List[vm.PayProOrd
     }
 
     try:
-        pp_res = requests.request(**config, timeout=REQUEST_TIMEOUT)
+        pp_res = requests.request(**config)
     except requests.exceptions.Timeout:
         raise ex.PayProsCreateOrderTimedOut("PayPro's request timed out, retry again please!")
 

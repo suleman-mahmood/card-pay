@@ -971,17 +971,11 @@ def daily_user_checkpoints():
 @utils.authenticate_retool_secret
 def paypro_ghost_invoices_report():
     logging.info({"message": "PayPro ghost invoices report | starting"})
-    return utils.Response(
-        message="Ghost invoice disabled",
-        status_code=200,
-    ).__dict__
 
-    uow = UnitOfWork()
-
+    pk_time = datetime.now() + timedelta(hours=5)
     pp_orders = pp_svc.invoice_range(
-        start_date=datetime.now() - timedelta(days=14) + timedelta(hours=5),
-        end_date=datetime.now() + timedelta(hours=5),
-        uow=uow,
+        start_date=pk_time - timedelta(weeks=8),
+        end_date=pk_time,
     )
     logging.info(
         {
@@ -991,8 +985,22 @@ def paypro_ghost_invoices_report():
     )
 
     tx_ids = [res.tx_id for res in pp_orders]
-    txs = pmt_qry.get_many_transactions(tx_ids=tx_ids, uow=uow)
-    uow.close_connection()
+
+    uow = UnitOfWork()
+    try:
+        txs = pmt_qry.get_many_transactions(tx_ids=tx_ids, uow=uow)
+        uow.close_connection()
+    except Exception as e:
+        uow.close_connection()
+        logging.info(
+            {
+                "message": "PayPro ghost invoices report | Unhandled exception in pmt_qry.get_many_transactions",
+                "pp_orders": [order.__dict__ for order in pp_orders],
+                "exception_type": 500,
+                "exception_message": str(e),
+            }
+        )
+        raise utils.CustomException(str(e))
 
     logging.info(
         {
