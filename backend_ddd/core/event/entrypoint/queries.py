@@ -37,12 +37,13 @@ def get_live_events(
             e.status = 'APPROVED'
             and e.closed_loop_id = %(closed_loop_id)s
             and e.registration_end_timestamp > (current_timestamp at time zone '-5')
-        order by e.created_at desc;
     """
 
     # Add the filter for event type
     if event_type is not None:
         sql += f" and (e.event_type = '{event_type.name}' or e.event_type = 'INCLUSIVE') "
+
+    sql += " order by e.created_at desc "
 
     uow.dict_cursor.execute(sql, {"closed_loop_id": closed_loop_id})
     events = uow.dict_cursor.fetchall()
