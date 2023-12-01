@@ -11,7 +11,6 @@ import '../../globals.css'
 import { BASE_URL } from "@/services/remote-config";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/services/initialize-firebase";
-import { randomUUID } from "crypto";
 
 enum EventStatus {
     DRAFT,
@@ -102,7 +101,7 @@ export default function page() {
 
     const uploadToFirebase = async (file: any) => {
         setIsLoadingSpinner(true);
-        const storageRef = ref(storage, 'images/' + randomUUID());
+        const storageRef = ref(storage, 'images/' + crypto.randomUUID());
         const snapshot = await uploadBytes(storageRef, file);
         const download_url = await getDownloadURL(snapshot.ref)
         setIsLoadingSpinner(false);
@@ -291,14 +290,24 @@ export default function page() {
             }
             else if (schemaItem.type === QuestionType.DYNAMIC_INPUT_STR && question === null) {
                 value = e.target.value;
+
+                if (schemaItem.question === "Number of team members (excluding team lead)") {
+                    const newValue = parseInt(e.target.value);
+                    if (newValue >= 1 && newValue <= 5) {
+                        value = newValue.toString();
+                    }
+                    else {
+                        value = newValue < 1 ? '1' : '5';
+                    }
+                }
+
                 const updatedResponses: any = { ...formResponses, [schemaItem.question]: value };
                 const dis = { ...dynamicInputStrs, [index]: Number(value) }
                 setDynamicInputStrs(dis)
                 setFormResponses(updatedResponses);
             }
             else if (schemaItem.type === QuestionType.DYNAMIC_INPUT_STR) {
-                let value = "";
-                if (question?.indexOf("Photograph link") !== -1) {
+                if (question?.indexOf("Photograph") !== -1) {
                     const file_to_upload = e.target.files[0];
                     value = await uploadToFirebase(file_to_upload);
                 }
@@ -432,7 +441,7 @@ export default function page() {
                                     <span className="label-text">{elem + ' ' + (j + 1).toString()}</span>
                                 </label>
                                 {
-                                    elem.toString() === "Photograph link" ? (
+                                    elem.toString() === "Photograph" ? (
                                         <input type="file" className="file-input file-input-bordered w-full max-w-xs" onChange={(e) => handleInputChange(e, elem + ' ' + (j + 1))} />
                                     ) : <input
                                         type="text"
