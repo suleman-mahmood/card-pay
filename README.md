@@ -104,6 +104,11 @@
 - Install Datagrip
 
 
+#### Load testing
+- Run the following command in `backend_ddd` to load test the APIs
+- `locust -f locust_our_system.py --headless -u 100 -r 5 -t 1m --html report_doha.html`
+
+
 #### API status codes
 200 OK
 The request succeeded. The result meaning of "success" depends on the HTTP method:
