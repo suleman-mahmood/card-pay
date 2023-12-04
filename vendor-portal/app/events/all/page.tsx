@@ -291,7 +291,7 @@ export default function page() {
             else if (schemaItem.type === QuestionType.DYNAMIC_INPUT_STR && question === null) {
                 value = e.target.value;
 
-                if (schemaItem.question === "Number of team members (excluding team lead)") {
+                if (schemaItem.question === "Number of team members (excluding team lead) | Between 1-5") {
                     const newValue = parseInt(e.target.value);
                     if (newValue >= 1 && newValue <= 5) {
                         value = newValue.toString();

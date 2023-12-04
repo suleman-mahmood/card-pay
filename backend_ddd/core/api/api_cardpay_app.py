@@ -1535,16 +1535,17 @@ def register_event(uid):
             users_closed_loop_ids=list(user.closed_loops.keys()),
             paid_registrations_count=int(paid_registrations_count),
         )
-        pmt_cmd._execute_transaction(
-            tx_id=str(uuid4()),
-            sender_wallet_id=uid,
-            recipient_wallet_id=event.organizer_id,
-            amount=event.registration_fee,
-            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
-            transaction_type=pmt_mdl.TransactionType.EVENT_REGISTRATION_FEE,
-            uow=uow,
-            auth_svc=pmt_acl.AuthenticationService(),
-        )
+        if event.registration_fee > 0:
+            pmt_cmd._execute_transaction(
+                tx_id=str(uuid4()),
+                sender_wallet_id=uid,
+                recipient_wallet_id=event.organizer_id,
+                amount=event.registration_fee,
+                transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+                transaction_type=pmt_mdl.TransactionType.EVENT_REGISTRATION_FEE,
+                uow=uow,
+                auth_svc=pmt_acl.AuthenticationService(),
+            )
         uow.commit_close_connection()
 
     except (

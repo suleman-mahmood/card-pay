@@ -159,7 +159,7 @@ class Event:
                 "Event end timestamp cannot be before event registration end timestamp."
             )
 
-        if self.registration_fee <= 0:
+        if self.registration_fee < 0:
             raise ex.EventTicketPriceNegative("Event registration charges cannot be negative.")
 
         if self.capacity < 1:
