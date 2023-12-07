@@ -1,6 +1,6 @@
 """Payments micro-service commands"""
 from datetime import datetime
-from typing import Tuple
+from typing import List, Tuple
 from uuid import uuid4
 
 import requests
@@ -13,8 +13,9 @@ from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
 
-
 # please only call this from create_user
+
+
 def create_wallet(user_id: str, uow: AbstractUnitOfWork):
     """Create wallet command"""
     qr_id = str(uuid4())
@@ -334,3 +335,31 @@ def mark_as_to_reverse(txn_id: str, uow: AbstractUnitOfWork):
     tx = uow.transactions.get(transaction_id=txn_id)
     tx.mark_as_to_reverse()
     uow.transactions.save(tx)
+
+
+def bulk_reconcile_vendors(
+    vendor_wallet_ids: List[str],
+    uow: AbstractUnitOfWork,
+    auth_svc: acl.AbstractAuthenticationService,
+    pmt_svc: acl.AbstractPaymentService,
+):
+    card_pay_wallet_id = pmt_svc.get_starred_wallet_id(
+        uow=uow,
+    )
+
+    for vendor_wallet_id in vendor_wallet_ids:
+        vendor_balance = pmt_svc.get_wallet_balance(
+            wallet_id=vendor_wallet_id,
+            uow=uow,
+        )
+
+        _execute_transaction(
+            tx_id=str(uuid4()),
+            sender_wallet_id=vendor_wallet_id,
+            recipient_wallet_id=card_pay_wallet_id,
+            amount=vendor_balance,
+            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+            transaction_type=pmt_mdl.TransactionType.RECONCILIATION,
+            uow=uow,
+            auth_svc=auth_svc,
+        )

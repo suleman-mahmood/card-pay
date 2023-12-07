@@ -795,3 +795,20 @@ def get_all_users(uow: AbstractUnitOfWork) -> List[auth_vm.UserIdNameDTO]:
     rows = uow.dict_cursor.fetchall()
 
     return [auth_vm.UserIdNameDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_phone_numbers_from_ids(user_ids: List[str], uow: AbstractUnitOfWork) -> List[str]:
+    sql = """
+        select
+            phone_number, id
+        from
+            users
+            inner join unnest (%(user_ids)s::uuid[]) user_ids(id)
+                on user_ids.id = users.id
+        """
+
+    uow.dict_cursor.execute(sql, {"user_ids": user_ids})
+
+    rows = uow.dict_cursor.fetchall()
+
+    return [auth_vm.PhoneNumberWithIdDTO.from_db_dict_row(row) for row in rows]

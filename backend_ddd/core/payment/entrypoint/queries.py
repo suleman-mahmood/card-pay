@@ -1169,3 +1169,35 @@ def get_all_failed_reversals(uow: AbstractUnitOfWork) -> List[pmt_vm.Transaction
     transactions = [pmt_vm.TransactionWithIdsDTO.from_db_dict_row(row) for row in rows]
 
     return transactions
+
+
+def get_latest_reconciliation_amounts(
+    vendor_ids: List[str],
+    uow: AbstractUnitOfWork,
+):
+    sql = """
+    with latest_txs as (
+        select
+            max(created_at) as latest_created_at,
+            sender_wallet_id as id
+        from
+            transactions
+            inner join unnest(%(vendor_ids)s::uuid[]) vendor_ids(id) on vendor_ids.id = transactions.sender_wallet_id
+        where
+            transaction_type = 'RECONCILIATION'::transaction_type_enum
+            AND status = 'SUCCESSFUL'::transaction_status_enum
+        group by
+            sender_wallet_id
+    )
+    select
+        tx.amount as amount,
+        tx.sender_wallet_id as id
+    from
+        latest_txs lt
+        join transactions tx on tx.sender_wallet_id = lt.id and tx.created_at = lt.latest_created_at
+    """
+
+    uow.dict_cursor.execute(sql, {"vendor_ids": vendor_ids})
+    rows = uow.dict_cursor.fetchall()
+
+    return [pmt_vm.AmountWithIdDTO.from_db_dict_row(row) for row in rows]

@@ -450,3 +450,18 @@ class EventTypeSchema(AbstractSchema):
 
         if not re.match(r"^(INTERNAL|EXTERNAL|INCLUSIVE)$", self.value):
             raise utils.CustomException("Invalid Event Type Passed")
+
+
+@dataclass()
+class ListOfUuidSchema(AbstractSchema):
+    value: List[str]
+
+    def validate(self):
+        if not isinstance(self.value, list):
+            raise utils.CustomException("List of uuids passed is not a list")
+
+        if len(self.value) == 0:
+            raise utils.CustomException("List of uuids passed is empty")
+
+        for uuid in self.value:
+            UuidSchema(uuid).validate()

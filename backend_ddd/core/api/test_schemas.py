@@ -195,6 +195,29 @@ def test_validate_payload():
                 "2023-09-07 19:03:29.912769",
             ],
         },
+        sch.ListOfUuidSchema: {
+            "invalid_inputs": [
+                "",
+                "    ",
+                "invalid-uuid",
+                "12345",
+                "0000",
+                1234,
+                ["invalid-uuid", "12345", "0000", 1234],
+                ["d13eab16-4b8d-4e44"],
+                [
+                    "d13eab16-4b8d-e44-a9b6-2f47eb059153",
+                    "f34c798d-6257-4-981c-dde83cb8625f",
+                ],
+            ],
+            "valid_inputs": [
+                ["d13eab16-4b8d-4e44-a9b6-2f47eb059153"],
+                [
+                    "d13eab16-4b8d-4e44-a9b6-2f47eb059153",
+                    "f34c798d-6257-40e5-981c-dde83cb8625f",
+                ],
+            ],
+        },
     }
 
     for schema, data in sample_data.items():

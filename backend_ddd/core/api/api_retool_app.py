@@ -1216,3 +1216,67 @@ def get_all_users():
         status_code=200,
         data={"users": users},
     ).__dict__
+
+
+@retool.route("/bulk-reconcile-vendors", methods=["POST"])
+@utils.handle_missing_payload
+@utils.authenticate_retool_secret
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={"vendor_wallet_ids": sch.ListOfUuidSchema}
+)
+def bulk_reconcile_vendors():
+    req = request.get_json(force=True)
+    uow = UnitOfWork()
+
+    try:
+        pmt_cmd.bulk_reconcile_vendors(
+            vendor_wallet_ids=req["vendor_wallet_ids"],
+            uow=uow,
+            auth_svc=pmt_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
+        )
+        uow.commit_close_connection()
+
+    except (
+        pmt_svc_ex.TransactionFailedException,
+        pmt_mdl_ex.TransactionNotAllowedException,
+        mktg_mdl_ex.NegativeAmountException,
+        mktg_mdl_ex.InvalidTransactionTypeException,
+        mktg_mdl_ex.NotVerifiedException,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    balance_with_id_dtos = pmt_qry.get_latest_reconciliation_amounts(
+        vendor_ids=req["vendor_wallet_ids"],
+        uow=uow,
+    )
+
+    phone_number_with_id_dtos = auth_qry.get_phone_numbers_from_ids(
+        user_ids=req["vendor_wallet_ids"],
+        uow=uow,
+    )
+
+    balance_dict = {balance.id: balance for balance in balance_with_id_dtos}
+    phone_number_dict = {
+        phone_number.id: phone_number for phone_number in phone_number_with_id_dtos
+    }
+
+    # Merge the two DTOs based on ID
+    merged_dtos = [
+        {
+            "balance": balance_dict.get(vendor_id).amount,
+            "phone_number": phone_number_dict.get(vendor_id).phone_number,
+        }
+        for vendor_id in req["vendor_wallet_ids"]
+    ]
+
+    return utils.Response(
+        message="Vendors Bulk reconciled successfully",
+        status_code=201,
+        data=merged_dtos,
+    ).__dict__

@@ -359,3 +359,16 @@ class DailyUserCheckpoints:
             successful_deposit_users=row["successful_deposit_users"],
             percentage_acquisition=row["percentage_acquisition"],
         )
+
+
+@dataclass(frozen=True)
+class AmountWithIdDTO:
+    id: str
+    amount: int
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "AmountWithIdDTO":
+        return AmountWithIdDTO(
+            id=row["id"],
+            amount=row["amount"],
+        )

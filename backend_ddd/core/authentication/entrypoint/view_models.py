@@ -41,3 +41,16 @@ class UserIdNameDTO:
             id=row["id"],
             full_name=row["full_name"],
         )
+
+
+@dataclass(frozen=True)
+class PhoneNumberWithIdDTO:
+    id: str
+    phone_number: str
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "PhoneNumberWithIdDTO":
+        return PhoneNumberWithIdDTO(
+            id=row["id"],
+            phone_number=row["phone_number"],
+        )
