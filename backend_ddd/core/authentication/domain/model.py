@@ -154,8 +154,8 @@ class User:
     full_name: str
     wallet_id: str
     location: Location
-    public_key: bytes
-    private_key: bytes
+    public_key: str
+    private_key: str
 
     is_active: bool = True
     is_phone_number_verified: bool = False
