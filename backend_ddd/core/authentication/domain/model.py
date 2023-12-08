@@ -154,6 +154,8 @@ class User:
     full_name: str
     wallet_id: str
     location: Location
+    public_key: bytes
+    private_key: bytes
 
     is_active: bool = True
     is_phone_number_verified: bool = False
@@ -234,3 +236,9 @@ class User:
         closed_loop_user.verify_unique_identifier(otp)
 
         self.closed_loops[closed_loop_id] = closed_loop_user
+
+    def update_user(self, full_name: str, personal_email: PersonalEmail) -> None:
+        """Update already existing user"""
+        self.full_name = full_name
+        self.personal_email = personal_email
+
