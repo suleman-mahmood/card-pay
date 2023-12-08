@@ -170,6 +170,9 @@ def validate_and_sanitize_json_payload(
             if "RETOOL_SECRET" in req.keys():
                 req.pop("RETOOL_SECRET")
 
+            if "RP_SECRET" in req.keys():
+                req.pop("RP_SECRET")
+
             # Remove all optional parameters from the request
             if optional_parameters is not None:
                 for k, _ in optional_parameters.items():
@@ -244,6 +247,38 @@ def authenticate_retool_secret(func):
                 },
             )
             raise CustomException(message="invalid retool secret")
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def authenticate_rp_secret(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        req = request.get_json(force=True)
+
+        if "RP_SECRET" not in req.keys():
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "NoRPSecret",
+                },
+            )
+            raise CustomException(
+                message="retail pro secret missing in request",
+            )
+
+        if req["RP_SECRET"] != os.environ.get("RP_SECRET"):
+            logging.info(
+                {
+                    "message": "Custom exception raised",
+                    "endpoint": "api-decorator",
+                    "exception_type": "InvalidRPSecret",
+                },
+            )
+            raise CustomException(message="invalid retail pro secret")
 
         return func(*args, **kwargs)
 

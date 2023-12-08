@@ -1993,29 +1993,3 @@ def set_fcm_token(uid):
         message="fcm token set successfully",
         status_code=201,
     ).__dict__
-
-
-@cardpay_app.route("rp/execute-offline-qr-transaction", methods=["POST"])
-def exceute_offline_transaction(uid):
-    req = request.get_json(force=True)
-
-    if int(req["amount"]) < 500:
-        raise utils.CustomException("Amount less than 500")
-    else:
-        return utils.Response(
-            message="Transaction made successfully",
-            status_code=201,
-        ).__dict__
-    
-@cardpay_app.route("rp/reverse-transaction", methods=["POST"])
-def reverse_transaction(uid):
-    req = request.get_json(force=True)
-
-    if int(req["tx_id"]) == 12345:
-        return utils.Response(
-            message="Transaction made successfully",
-            status_code=201,
-        ).__dict__
-    else:
-        raise utils.CustomException("Transaction ID does not exist")
-

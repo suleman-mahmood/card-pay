@@ -10,6 +10,7 @@ from core.api.api_cardpay_app import cardpay_app
 from core.api.api_crons_app import crons_app
 from core.api.api_pg import pg
 from core.api.api_retool_app import retool as retool_app
+from core.api.api_rp import rp_app
 from core.api.api_vendor_app import vendor_app
 from flask import Flask
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -57,6 +58,7 @@ app.register_blueprint(retool_app)
 app.register_blueprint(vendor_app)
 app.register_blueprint(pg)
 app.register_blueprint(crons_app)
+app.register_blueprint(rp_app)
 
 cred = firebase_admin.credentials.Certificate("core/api/credentials-prod.json")
 firebase_admin.initialize_app(cred)
