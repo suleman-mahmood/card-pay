@@ -64,6 +64,8 @@ def seed_5_100_transactions_against_user_ids(add_1000_wallet):
             full_name="Malik Muhammad Moaz",
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=sender_id,
+            public_key=bytes(),
+            private_key=bytes()
         )
         wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=sender_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
@@ -80,6 +82,8 @@ def seed_5_100_transactions_against_user_ids(add_1000_wallet):
             full_name="Malik Muhammad Moaz",
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=recipient_id,
+            public_key=bytes(),
+            private_key=bytes()
         )
         wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=recipient_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(

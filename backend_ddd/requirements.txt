@@ -13,3 +13,4 @@ pre-commit
 google-cloud-logging
 retry
 qrcode
+pycryptodome

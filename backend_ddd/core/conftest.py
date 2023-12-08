@@ -15,6 +15,7 @@ from core.entrypoint.uow import AbstractUnitOfWork, FakeUnitOfWork, UnitOfWork
 from core.event.domain import model as event_mdl
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import commands as pmt_cmd
+from Crypto.PublicKey import RSA
 
 
 @pytest.fixture(autouse=True)
@@ -158,7 +159,9 @@ def seed_api_admin():
 def seed_user():
     def _seed_user() -> auth_mdl.User:
         uid = str(uuid4())
-
+        key = RSA.generate(2048)
+        # public_key = key.publickey().export_key(format="PEM")
+        # private_key = key.export_key(format="PEM")
         return auth_mdl.User(
             id=uid,
             personal_email=auth_mdl.PersonalEmail(value="sulemanmahmood99@gmail.com"),
@@ -168,10 +171,11 @@ def seed_user():
             full_name="Suleman Mahmood",
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=uid,
+            public_key=bytes(),
+            private_key=bytes()
         )
 
     return _seed_user
-
 
 @pytest.fixture
 def seed_closed_loop():
@@ -218,6 +222,8 @@ def seed_auth_user():
             full_name="Malik Muhammad Moaz",
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=user_id,
+            public_key=bytes(),
+            private_key=bytes()
         )
         wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
@@ -277,6 +283,8 @@ def seed_auth_vendor():
             full_name="Zain Ali Khokhar",
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
+            public_key=bytes(),
+            private_key=bytes()
         )
         wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
@@ -304,6 +312,8 @@ def seed_auth_event_organizer():
             full_name="Malik M. Moaz",
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
+            public_key=bytes(),
+            private_key=bytes()
         )
         wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
@@ -361,6 +371,8 @@ def seed_auth_cardpay():
             full_name="Card Pay",
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
+            public_key=bytes(),
+            private_key=bytes()
         )
 
         uow.transactions.add_wallet(
@@ -402,6 +414,8 @@ def seed_starred_wallet(add_1000_wallet):
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
             is_phone_number_verified=True,
+            public_key=bytes(),
+            private_key=bytes()
         )
 
         pmt_cmd.create_wallet(user_id=user_id, uow=uow)

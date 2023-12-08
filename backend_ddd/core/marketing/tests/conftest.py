@@ -31,6 +31,8 @@ def seed_starred_wallet():
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
             is_phone_number_verified=True,
+            public_key=bytes(),
+            private_key=bytes()
         )
 
         payment_commands.create_wallet(user_id=user_id, uow=uow)
