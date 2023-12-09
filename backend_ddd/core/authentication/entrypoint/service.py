@@ -1,4 +1,4 @@
-from backend_ddd.core.entrypoint.uow import AbstractUnitOfWork
+from core.entrypoint.uow import AbstractUnitOfWork
 from core.authentication.domain import model as mdl
 
 def verify_encryption_data(

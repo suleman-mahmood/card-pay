@@ -1,4 +1,4 @@
-from backend_ddd.core.entrypoint.uow import UnitOfWork
+from core.entrypoint.uow import UnitOfWork
 from core.api import schemas as sch
 from core.api import utils
 from flask import Blueprint, request
