@@ -1,6 +1,6 @@
 """payments microservices domain model"""
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 
 from core.payment.domain import exceptions as ex
@@ -189,3 +189,17 @@ class Transaction:
     def mark_failed(self):
         self.status = TransactionStatus.FAILED
         self.last_updated = datetime.now()
+
+@dataclass
+class OfflineQrExpiration:
+    decrypted_object: dict
+
+    def verify_offline_expiration(self):
+        datetime_object = datetime.strptime(self.decrypted_object["current_timestamp"], '%m/%d/%y %H:%M:%S')
+        time_milliseconds = int(datetime_object.timestamp() * 1000)
+        pk_time = datetime.now() + timedelta(hours=5) + timedelta(minutes=5)
+        current_timestamp = int(pk_time.timestamp() * 1000)
+        if current_timestamp > time_milliseconds:
+            raise ex.OfflineQrExpired("Offline QR Code has expired")
+
+

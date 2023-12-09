@@ -182,8 +182,8 @@ class UserRepository(UserAbstractRepository):
                 "otp_generated_at": user.otp_generated_at,
                 "location": user.location,
                 "created_at": user.created_at,
-                "public_key": str(user.public_key),
-                "private_key": str(user.private_key)
+                "public_key": user.public_key,
+                "private_key": user.private_key
             },
         )
 

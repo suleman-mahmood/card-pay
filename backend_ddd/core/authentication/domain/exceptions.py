@@ -12,3 +12,6 @@ class InvalidPinException(Exception):
 
 class InvalidNameException(Exception):
     """exception raised for when a user enters an invalid name"""
+
+class DecryptionFailed(Exception):
+    """Private Key could not decrypt data successfuly"""

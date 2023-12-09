@@ -15,7 +15,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Dict, Optional, Tuple
 from uuid import uuid4
-
+import rsa
 from core.authentication.domain import exceptions as ex
 from core.authentication.domain.utils import _generate_4_digit_otp
 
@@ -241,4 +241,19 @@ class User:
         """Update already existing user"""
         self.full_name = full_name
         self.personal_email = personal_email
+
+
+@dataclass
+class DecryptData:
+    private_key: bytes
+
+    def data_decriptor(self, digest: bytes):
+        """Verify encryption of data"""
+        try:
+            pv_key = rsa.PrivateKey.load_pkcs1(self.private_key)
+            plaintext = rsa.decrypt(digest, pv_key)
+            return plaintext.decode ("utf-8")
+
+        except rsa.DecryptionError:
+            raise ex.DecryptionFailed("Data could not be decrypted")
 

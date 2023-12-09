@@ -160,8 +160,8 @@ def seed_user():
     def _seed_user() -> auth_mdl.User:
         uid = str(uuid4())
         (public_key, private_key) = rsa.newkeys(512)
-        public_key_str = public_key.save_pkcs1().decode('utf-8')
-        private_key_str = private_key.save_pkcs1().decode('utf-8')
+        public_key_str = public_key.save_pkcs1().decode("utf-8")
+        private_key_str = private_key.save_pkcs1().decode("utf-8")
         return auth_mdl.User(
             id=uid,
             personal_email=auth_mdl.PersonalEmail(value="sulemanmahmood99@gmail.com"),

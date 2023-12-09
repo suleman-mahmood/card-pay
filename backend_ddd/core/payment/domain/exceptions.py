@@ -28,3 +28,6 @@ class InsufficientBalanceForReversal(Exception):
 
 class AlreadyMarkedToReverse(Exception):
     """exception raised for when tryin to mark a transaction already marked to reverse"""
+
+class OfflineQrExpired(Exception):
+    """Offline QR Code has expired"""

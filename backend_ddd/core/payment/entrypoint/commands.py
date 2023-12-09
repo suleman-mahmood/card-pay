@@ -12,6 +12,7 @@ from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import exceptions as svc_ex
 from core.payment.entrypoint import utils
+from core.authentication.entrypoint import service as auth_svc
 
 # please only call this from create_user
 
@@ -363,3 +364,30 @@ def bulk_reconcile_vendors(
             uow=uow,
             auth_svc=auth_svc,
         )
+
+def offline_qr_transaction(
+    digest: str, 
+    uow: AbstractUnitOfWork, 
+    user_id: str,
+    recipient_wallet_id: str,
+    amount: int,
+    auth_svc: acl.AbstractAuthenticationService,
+    pmt_svc: acl.AbstractPaymentService
+):
+    decrypted_data = auth_svc.decode_digest(digest=digest, uow=uow, user_id=user_id)
+    ofline_qr_verification = pmt_svc.verify_offline_timestamp(decrypted_data=decrypted_data)
+
+    if ofline_qr_verification == True:
+        _execute_transaction(
+                tx_id=str(uuid4()),
+                sender_wallet_id=user_id,
+                recipient_wallet_id=recipient_wallet_id,
+                amount=amount,
+                transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+                transaction_type=pmt_mdl.TransactionType.PAYMENT_GATEWAY,
+                uow=uow,
+                auth_svc=auth_svc,
+            )
+
+
+
