@@ -8,6 +8,7 @@ from core.authentication.entrypoint import commands as auth_cmd
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import anti_corruption as pmt_acl
 from core.payment.entrypoint import commands as pmt_cmd
+import rsa
 
 
 @pytest.fixture
@@ -54,7 +55,9 @@ def seed_txn(seed_wallet):
 def seed_5_100_transactions_against_user_ids(add_1000_wallet):
     def fixture_factory(sender_id, recipient_id, uow):
         """mega setup function for 5 transactions against 2 users each of 100 amount"""
-
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode("utf-8")
+        private_key_str = private_key.save_pkcs1().decode("utf-8")
         sender = auth_mdl.User(
             id=sender_id,
             personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
@@ -64,8 +67,8 @@ def seed_5_100_transactions_against_user_ids(add_1000_wallet):
             full_name="Malik Muhammad Moaz",
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=sender_id,
-            public_key=bytes(),
-            private_key=bytes()
+            public_key=public_key_str,
+            private_key=private_key_str
         )
         wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=sender_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
@@ -73,6 +76,9 @@ def seed_5_100_transactions_against_user_ids(add_1000_wallet):
         )
         uow.users.add(sender)
 
+        (public_key_recipient, private_key_recipient) = rsa.newkeys(512)
+        public_key_str_recipient = public_key_recipient.save_pkcs1().decode("utf-8")
+        private_key_str_recipient = private_key_recipient.save_pkcs1().decode("utf-8")
         recipient = auth_mdl.User(
             id=recipient_id,
             personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
@@ -82,8 +88,8 @@ def seed_5_100_transactions_against_user_ids(add_1000_wallet):
             full_name="Malik Muhammad Moaz",
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=recipient_id,
-            public_key=bytes(),
-            private_key=bytes()
+            public_key=public_key_recipient,
+            private_key=private_key_recipient
         )
         wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=recipient_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
