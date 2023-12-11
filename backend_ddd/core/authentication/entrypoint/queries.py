@@ -802,11 +802,11 @@ def get_phone_numbers_from_ids(
 ) -> List[auth_vm.PhoneNumberWithIdDTO]:
     sql = """
         select
-            phone_number, id
+            u.phone_number, u.id
         from
-            users
+            users u
             inner join unnest (%(user_ids)s::uuid[]) user_ids(id)
-                on user_ids.id = users.id
+                on user_ids.id = u.id
         """
 
     uow.dict_cursor.execute(sql, {"user_ids": user_ids})
