@@ -1174,7 +1174,7 @@ def get_all_failed_reversals(uow: AbstractUnitOfWork) -> List[pmt_vm.Transaction
 def get_latest_reconciliation_amounts(
     vendor_ids: List[str],
     uow: AbstractUnitOfWork,
-):
+) -> List[pmt_vm.AmountWithIdDTO]:
     sql = """
     with latest_txs as (
         select

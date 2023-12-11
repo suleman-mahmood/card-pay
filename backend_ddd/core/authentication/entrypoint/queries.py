@@ -797,7 +797,9 @@ def get_all_users(uow: AbstractUnitOfWork) -> List[auth_vm.UserIdNameDTO]:
     return [auth_vm.UserIdNameDTO.from_db_dict_row(row) for row in rows]
 
 
-def get_phone_numbers_from_ids(user_ids: List[str], uow: AbstractUnitOfWork) -> List[str]:
+def get_phone_numbers_from_ids(
+    user_ids: List[str], uow: AbstractUnitOfWork
+) -> List[auth_vm.PhoneNumberWithIdDTO]:
     sql = """
         select
             phone_number, id

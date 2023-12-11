@@ -184,9 +184,9 @@ def validate_and_sanitize_json_payload(
                         "message": "Custom exception raised",
                         "endpoint": "api-decorator",
                         "exception_type": "InvalidJsonPayload",
-                        "json_request": req,
-                        "optional_parameters": optional_parameters,
-                        "required_parameters": required_parameters,
+                        # "json_request": req,
+                        # "optional_parameters": optional_parameters,
+                        # "required_parameters": required_parameters,
                     },
                 )
                 raise CustomException("invalid json payload, missing or extra parameters")
@@ -204,12 +204,12 @@ def validate_and_sanitize_json_payload(
                             "message": "Custom exception raised",
                             "endpoint": "api-decorator",
                             "exception_type": "InvalidSchema",
-                            "param_type": param,
-                            "param_value": req[param],
-                            "schema_type": schema.__class__.__name__,
-                            "json_request": req,
-                            "optional_parameters": optional_parameters,
-                            "required_parameters": required_parameters,
+                            # "param_type": param,
+                            # "param_value": req[param],
+                            # "schema_type": schema.__class__.__name__,
+                            # "json_request": req,
+                            # "optional_parameters": optional_parameters,
+                            # "required_parameters": required_parameters,
                         },
                     )
                     raise e
