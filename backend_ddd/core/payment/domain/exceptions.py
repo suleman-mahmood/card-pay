@@ -31,3 +31,6 @@ class AlreadyMarkedToReverse(Exception):
 
 class OfflineQrExpired(Exception):
     """Offline QR Code has expired"""
+
+class RetailProTransactionNotFoundException(Exception):
+    """exception raised for when a retail pro transaction is not found"""

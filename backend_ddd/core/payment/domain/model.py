@@ -201,5 +201,10 @@ class OfflineQrExpiration:
         current_timestamp = int(pk_time.timestamp() * 1000)
         if current_timestamp > time_milliseconds:
             raise ex.OfflineQrExpired("Offline QR Code has expired")
+        
+@dataclass
+class RetailProTransactions:
+    tx_id: str
+    document_id: str
 
 

@@ -376,3 +376,90 @@ class TransactionRepository(TransactionAbstractRepository):
                 transaction.recipient_wallet.id,
             ],
         )
+
+
+class RetailProTransactionAbstractRepository(ABC):
+    """RetailPro Abstract Repository"""
+
+    @abstractmethod
+    def add(self, rp_transaction: mdl.RetailProTransactions):
+        pass
+
+    @abstractmethod
+    def get(self, rp_transaction_id: str) -> mdl.RetailProTransactions:
+        pass
+
+    @abstractmethod
+    def save(self, rp_transaction: mdl.RetailProTransactions):
+        pass
+
+class FakeRetailProTransactionRepository(RetailProTransactionAbstractRepository):
+    """Fake Retail Pro Transaction Repository"""
+
+    def __init__(self):
+        self.rp_transactions: Dict[str, mdl.RetailProTransactions] = {}
+
+    def add(self, rp_transaction: mdl.RetailProTransactions):
+        self.rp_transactions[rp_transaction.tx_id] = rp_transaction
+
+    def get(self, rp_transaction_id: str) -> mdl.RetailProTransactions:
+        return self.rp_transactions[rp_transaction_id]
+
+    def save(self, rp_transaction: mdl.RetailProTransactions):
+        self.rp_transactions[rp_transaction.tx_id] = rp_transaction
+
+class RetailProTransactionRepository(RetailProTransactionAbstractRepository):
+    """Retail Pro Transaction Repository"""
+
+    def __init__(self, connection):
+        self.connection = connection
+        self.cursor = connection.cursor()
+
+    def add(self, rp_transaction: mdl.RetailProTransactions):
+        # updating retail pro transactions
+        sql = """
+            insert into rp_transactions (tx_id, document_id)
+            values (%s, %s)
+        """
+        self.cursor.execute(
+            sql,
+            [
+                rp_transaction.tx_id,
+                rp_transaction.document_id
+            ],
+        )
+
+    def get(self, rp_transaction_id: str) -> mdl.RetailProTransactions:
+        sql = """
+            select tx_id, document_id
+            from rp_transactions
+            where tx_id=%s 
+            for update
+        """
+        self.cursor.execute(sql, [rp_transaction_id])
+        rp_transaction_row = self.cursor.fetchone()
+
+        if rp_transaction_row is None:
+            raise ex.RetailProTransactionNotFoundException(
+                f"no retail pro transaction object found for id {rp_transaction_id}"
+            )
+
+        return mdl.RetailProTransactions(
+            tx_id=rp_transaction_row[0],
+            document_id=rp_transaction_row[1]
+        )
+
+    def save(self, rp_transaction: mdl.RetailProTransactions):
+        sql = """
+            insert into rp_transactions (tx_id, document_id)
+            values (%s, %s)
+            on conflict (tx_id) do update set
+                document_id = excluded.document_id
+        """
+        self.cursor.execute(
+            sql,
+            [
+                rp_transaction.tx_id,
+                rp_transaction.document_id
+            ],
+        )

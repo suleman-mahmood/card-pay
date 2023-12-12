@@ -32,11 +32,13 @@ def exceute_offline_transaction():
             digest=qr_data["digest"],
             uow=uow,
             user_id=qr_data["user_id"],
+            document_id=req["document_id"],
             recipient_wallet_id=pmt_acl.PaymentService().get_lums_id(),
             amount=offline_payload["amount"],
             auth_svc=pmt_acl.AuthenticationService(),
             pmt_svc=pmt_acl.PaymentService(),
         )
+        uow.commit_close_connection()
     except (
         pmt_exc.OfflineQrExpired,
         auth_exc.DecryptionFailed,

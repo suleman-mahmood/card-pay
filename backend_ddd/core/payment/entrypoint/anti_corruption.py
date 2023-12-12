@@ -28,7 +28,7 @@ class AbstractAuthenticationService(ABC):
         pass
 
     @abstractmethod
-    def decode_digest(self, digest: str, user_id: str, uow: AbstractUnitOfWork) -> str:
+    def decode_digest(self, digest: bytes, user_id: str, uow: AbstractUnitOfWork) -> str:
         pass
 
 
@@ -43,7 +43,7 @@ class AuthenticationService(AbstractAuthenticationService):
             == auth_mdl.UserType.CUSTOMER
         )
     
-    def decode_digest(self, digest: str, user_id: str, uow: AbstractUnitOfWork) -> str:
+    def decode_digest(self, digest: bytes, user_id: str, uow: AbstractUnitOfWork) -> str:
         return auth_svc.decrypt_data(digest=digest, uow=uow, user_id=user_id)
         
 
@@ -65,7 +65,7 @@ class FakeAuthenticationService(AbstractAuthenticationService):
     def user_customer(self, wallet_id: str, uow: AbstractUnitOfWork) -> bool:
         return True
     
-    def decode_digest(self, digest: str, user_id: str, uow: AbstractUnitOfWork) -> str:
+    def decode_digest(self, digest: bytes, user_id: str, uow: AbstractUnitOfWork) -> str:
         return ""
 
 

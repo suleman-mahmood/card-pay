@@ -366,19 +366,22 @@ def bulk_reconcile_vendors(
         )
 
 def offline_qr_transaction(
-    digest: str, 
+    digest: bytes, 
     uow: AbstractUnitOfWork, 
     user_id: str,
     recipient_wallet_id: str,
     amount: int,
+    document_id: str,
     auth_svc: acl.AbstractAuthenticationService,
     pmt_svc: acl.AbstractPaymentService
 ):
     decrypted_data = auth_svc.decode_digest(digest=digest, uow=uow, user_id=user_id)
     pmt_svc.verify_offline_timestamp(decrypted_data=decrypted_data)
 
+    tx_id=str(uuid4())
+
     _execute_transaction(
-            tx_id=str(uuid4()),
+            tx_id=tx_id,
             sender_wallet_id=user_id,
             recipient_wallet_id=recipient_wallet_id,
             amount=amount,
@@ -387,6 +390,14 @@ def offline_qr_transaction(
             uow=uow,
             auth_svc=auth_svc,
         )
+    
+    rp_transaction = pmt_mdl.RetailProTransactions(
+        tx_id=tx_id,
+        document_id=document_id
+    )
+    uow.rp_transaction.add(rp_transaction=rp_transaction)
+    
+    
 
 
 

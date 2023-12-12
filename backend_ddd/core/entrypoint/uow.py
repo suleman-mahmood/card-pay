@@ -25,6 +25,7 @@ class AbstractUnitOfWork(ABC):
     users: auth_repo.UserAbstractRepository
     closed_loops: auth_repo.ClosedLoopAbstractRepository
     transactions: pmt_repo.TransactionAbstractRepository
+    rp_transaction: pmt_repo.RetailProTransactionAbstractRepository
     marketing_users: mktg_repo.MarketingUserAbstractRepository
     cashback_slabs: mktg_repo.CashbackSlabAbstractRepository
     weightages: mktg_repo.WeightageAbstractRepository
@@ -62,6 +63,7 @@ class FakeUnitOfWork(AbstractUnitOfWork):
         self.marketing_users = mktg_repo.FakeMarketingUserRepository()
         self.closed_loops = auth_repo.FakeClosedLoopRepository()
         self.transactions = pmt_repo.FakeTransactionRepository()
+        self.rp_transactions = pmt_repo.FakeRetailProTransactionRepository()
         self.cashback_slabs = mktg_repo.FakeCashbackSlabRepository()
         self.weightages = mktg_repo.FakeWeightageRepository()
         self.events = event_repo.FakeEventRepository()
@@ -89,6 +91,7 @@ class UnitOfWork(AbstractUnitOfWork):
         self.dict_cursor = self.connection.cursor(cursor_factory=DictCursor)
 
         self.transactions = pmt_repo.TransactionRepository(self.connection)
+        self.rp_transactions = pmt_repo.RetailProTransactionRepository(self.connection)
         self.closed_loops = auth_repo.ClosedLoopRepository(self.connection)
         self.users = auth_repo.UserRepository(self.connection)
         self.marketing_users = mktg_repo.MarketingUserRepository(self.connection)
