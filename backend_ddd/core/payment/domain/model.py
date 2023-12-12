@@ -194,7 +194,7 @@ class Transaction:
 class OfflineQrExpiration:
     decrypted_object: dict
 
-    def verify_offline_expiration(self):
+    def verify_digest(self):
         datetime_object = datetime.strptime(self.decrypted_object["current_timestamp"], '%m/%d/%y %H:%M:%S')
         time_milliseconds = int(datetime_object.timestamp() * 1000)
         pk_time = datetime.now() + timedelta(hours=5) + timedelta(minutes=5)

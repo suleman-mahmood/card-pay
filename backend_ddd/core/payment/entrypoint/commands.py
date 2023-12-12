@@ -375,19 +375,18 @@ def offline_qr_transaction(
     pmt_svc: acl.AbstractPaymentService
 ):
     decrypted_data = auth_svc.decode_digest(digest=digest, uow=uow, user_id=user_id)
-    ofline_qr_verification = pmt_svc.verify_offline_timestamp(decrypted_data=decrypted_data)
+    pmt_svc.verify_offline_timestamp(decrypted_data=decrypted_data)
 
-    if ofline_qr_verification == True:
-        _execute_transaction(
-                tx_id=str(uuid4()),
-                sender_wallet_id=user_id,
-                recipient_wallet_id=recipient_wallet_id,
-                amount=amount,
-                transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
-                transaction_type=pmt_mdl.TransactionType.PAYMENT_GATEWAY,
-                uow=uow,
-                auth_svc=auth_svc,
-            )
+    _execute_transaction(
+            tx_id=str(uuid4()),
+            sender_wallet_id=user_id,
+            recipient_wallet_id=recipient_wallet_id,
+            amount=amount,
+            transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
+            transaction_type=pmt_mdl.TransactionType.PAYMENT_GATEWAY,
+            uow=uow,
+            auth_svc=auth_svc,
+        )
 
 
 

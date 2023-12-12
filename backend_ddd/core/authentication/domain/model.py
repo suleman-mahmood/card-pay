@@ -244,10 +244,10 @@ class User:
 
 
 @dataclass
-class DecryptData:
+class DataDecrypter:
     private_key: bytes
 
-    def data_decriptor(self, digest: bytes):
+    def decrypt_data(self, digest: bytes):
         """Verify encryption of data"""
         try:
             pv_key = rsa.PrivateKey.load_pkcs1(self.private_key)

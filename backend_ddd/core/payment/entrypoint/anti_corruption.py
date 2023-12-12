@@ -44,7 +44,7 @@ class AuthenticationService(AbstractAuthenticationService):
         )
     
     def decode_digest(self, digest: str, user_id: str, uow: AbstractUnitOfWork) -> str:
-        return auth_svc.verify_encryption_data(digest=digest, uow=uow, user_id=user_id)
+        return auth_svc.decrypt_data(digest=digest, uow=uow, user_id=user_id)
         
 
 
