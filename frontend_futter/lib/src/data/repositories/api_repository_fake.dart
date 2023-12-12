@@ -21,6 +21,7 @@ import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_respo
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_frequent_users_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
@@ -32,6 +33,7 @@ import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
 import 'package:cardpay/src/domain/models/transaction.dart';
+import 'package:cardpay/src/domain/models/user_info.dart';
 import 'package:cardpay/src/domain/models/version.dart';
 import 'package:cardpay/src/domain/repositories/api_repository.dart';
 import 'package:cardpay/src/utils/constants/event_codes.dart';
@@ -445,6 +447,24 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     );
   }
 
+  Future<DataState<GetFrequentUsersResponse>> getFrequentUsers({
+    required String closedLoopId,
+    required String token,
+  }) {
+    GetFrequentUsersResponse getFrequentUsers = GetFrequentUsersResponse(
+      frequentUsers: [
+        UserInfo(fullName: 'Hamza BM', uniqueIdentifier: '26100353'),
+        UserInfo(fullName: 'Shaheer', uniqueIdentifier: '26100240'),
+      ],
+      message: 'User name successfully',
+    );
+
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(getFrequentUsers),
+    );
+  }
+
   Future<DataState<SetFcmTokenResponse>> setFcmToken({
     required SetFcmTokenRequest request,
     required String token,
@@ -485,7 +505,7 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
           Event(
             name: "Cricket 007",
             description:
-                "The best cricket screening ever, The best cricket screening ever The best cricket screening ever The best cricket screening ever The best cricket screening ever",
+                "The best cricket screening evericket screening evericket screening evericket screening evericket screening eve ricket screening evericket screening evericket screening evericket screening evericket screening eve ricket screening evericket screening evericket screening evericket screening evericket screening eve ricket screening evericket screening evericket screening evericket screening eve ricket screening evericket screening evericket screening evericket screening eve ricket screening evericket screening evericket screening eve ricket screening evericket screening evericket screening evericket screening eve ricket screening evericket screening evericket screening ever, The best cricket screening ever The best cricket screening ever The best cricket screening ever The best cricket screening ever",
             imageUrl:
                 "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
             registrationFee: 1500,
@@ -509,30 +529,51 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
         events: [
           Event(
             name: "Cricket 007",
-            description: "The best cricket screening ever",
+            description:
+                "The best cricket screeningscreeningscreeningscreeningscreeningscreeningscreeningscreeningscreeningscreening screeningscreeningscreeningscreeningscreeningscreeningscreeningscreening screeningscreeningscreeningscreeningscreening ever",
             imageUrl:
                 "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
             registrationFee: 1500,
             organizerName: "Student Council",
             venue: "Sports Complex",
           ),
-          Event(name: "FIFA 14", description: "OMG! FIFA screening!", venue: "Khokha Stall", ),
-          Event(name: "FIFA 15", description: "OMG! FIFA screening!", venue: "Khokha Stall", imageUrl:
+          Event(
+            name: "FIFA 14",
+            description: "OMG! FIFA screening!",
+            venue: "Khokha Stall",
+          ),
+          Event(
+            name: "FIFA 15",
+            description: "OMG! FIFA screening!",
+            venue: "Khokha Stall",
+            imageUrl:
                 "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
             registrationFee: 1500,
-            ),
-          Event(name: "FIFA 16", description: "OMG! FIFA screening!", venue: "Khokha Stall", imageUrl:
+          ),
+          Event(
+            name: "FIFA 16",
+            description: "OMG! FIFA screening!",
+            venue: "Khokha Stall",
+            imageUrl:
                 "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
             registrationFee: 1500,
-            ),
-          Event(name: "FIFA 2062314123 version 20000.00123213", description: "OMG! FIFA screening!", venue: "Khokha Stall", imageUrl:
+          ),
+          Event(
+            name: "FIFA 2062314123 version 20000.00123213",
+            description: "OMG! FIFA screening!",
+            venue: "Khokha Stall",
+            imageUrl:
                 "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
             registrationFee: 1500,
-            ),
-          Event(name: "FIFA 18", description: "OMG! FIFA screening!", venue: "Khokha Stall", imageUrl:
+          ),
+          Event(
+            name: "FIFA 18",
+            description: "OMG! FIFA screening!",
+            venue: "Khokha Stall",
+            imageUrl:
                 "https://static.vecteezy.com/system/resources/previews/000/458/333/original/vector-cricket-background.jpg",
             registrationFee: 1500,
-            ),
+          ),
         ],
       )),
     );

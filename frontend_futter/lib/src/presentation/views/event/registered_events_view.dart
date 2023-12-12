@@ -156,19 +156,82 @@ class RegisteredEventsView extends HookWidget {
                     ),
                   ),
                 );
-        case RegisterEventFailed:
+        case RegisteredEventsFailed:
           return const Center(child: CircularProgressIndicator());
-        case RegisterEventLoading:
+        case RegisteredEventsLoading:
           return SkeletonLoader(
-            builder: Container(
+            builder: SizedBox(
               height: ScreenUtil.screenHeight(context) * 0.6,
-              width: ScreenUtil.screenWidth(context),
-              decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(
-                  color: AppColors.blackColor.withOpacity(0.55),
-                ),
+              child: ListView.builder(
+                itemCount: 4,
+                itemBuilder: (_, index) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 100,
+                    padding: EdgeInsets.fromLTRB(4, 6, 4, 8),
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 2,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "CP",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Fri, Dec 31 - 12:00 AM",
+                                style: AppTypography.mainHeading.copyWith(
+                                  fontSize: 14,
+                                  color: AppColors.blueColor,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                "Event Name",
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.mainHeading.copyWith(
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                'Rs. ####',
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           );

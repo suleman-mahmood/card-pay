@@ -18,6 +18,7 @@ import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_respo
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_frequent_users_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_response.dart';
@@ -28,6 +29,7 @@ import 'package:cardpay/src/domain/models/responses/verify_closed_loop_response.
 import 'package:cardpay/src/domain/models/responses/verify_phone_number_response.dart';
 import 'package:cardpay/src/domain/models/responses/version_update_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
+import 'package:cardpay/src/domain/models/user_info.dart';
 
 import 'package:cardpay/src/utils/data_state.dart';
 
@@ -92,6 +94,11 @@ abstract class ApiRepository {
 
   Future<DataState<GetFullNameResponse>> getFullName({
     required String uniqueIdentifier,
+    required String closedLoopId,
+    required String token,
+  });
+
+  Future<DataState<GetFrequentUsersResponse>> getFrequentUsers({
     required String closedLoopId,
     required String token,
   });

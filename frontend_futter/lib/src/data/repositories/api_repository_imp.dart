@@ -19,6 +19,7 @@ import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_respo
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_frequent_users_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
@@ -209,6 +210,17 @@ class ApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     return getStateOf<GetFullNameResponse>(
         request: () => _pythonApiService.getFullName(
               uniqueIdentifier: uniqueIdentifier,
+              closedLoopId: closedLoopId,
+              token: 'Bearer $token',
+            ));
+  }
+
+  Future<DataState<GetFrequentUsersResponse>> getFrequentUsers({
+    required String closedLoopId,
+    required String token,
+  }) {
+    return getStateOf<GetFrequentUsersResponse>(
+        request: () => _pythonApiService.getFrequentUsers(
               closedLoopId: closedLoopId,
               token: 'Bearer $token',
             ));

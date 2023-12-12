@@ -18,6 +18,7 @@ class PaymentStrings {
   static const String totalBalance = 'Total Balance';
   static const String comingSoon = 'Coming Soon';
   static const String send = 'Send';
+  static const String decline = 'Decline';
   static const String details = 'Details';
   static const String updateApp = 'Update your app';
   static const String cancel = 'Cancel';
@@ -49,7 +50,9 @@ class PaymentStrings {
   static const String recentTransactions = 'Recent Transactions';
   static const String depositMoney = 'Deposit Money';
   static const String transferMoney = 'Transfer Money';
-  static const String requestMoney = 'Request Money';
+  static const String enterAmountTitle = 'Enter Amount';
+  static const String requestMoney = 'Request';
+  static const String requestedMoney = 'Requests';
   static const String receipt = 'Receipt';
   static const String seeAll = 'See All';
   static const String history = 'History';
@@ -71,7 +74,9 @@ class PaymentStrings {
   static const String chat = 'chat';
   static const String filterTransactions = 'Filtered Transactions';
   static const String enterAmount =
-      'Enter the recipient roll number you wish to send money to';
+      'Enter the recipient roll number you wish to send money to.';
+  static const String requestingAmount =
+      'Enter roll number of the recipient you wish to request money from.';
   static const String transferRollNumberInfo =
       "Enter Recipient's Roll Number to send money";
   static const String enterPhone = '3333593987';

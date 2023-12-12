@@ -7,6 +7,7 @@ import 'package:cardpay/src/presentation/widgets/layout/basic_view_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+// import 'package:screenshot/screenshot.dart';
 
 @RoutePage()
 class EventAttendanceQrView extends StatelessWidget {
@@ -274,7 +275,17 @@ class EventAttendanceQrView extends StatelessWidget {
               ],
             ),
           ),
-        )
+        ),
+        // a button to download this current screen as a pdf
+        /* Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: PrimaryButton(
+              color: AppColors.lightBlueColor,
+              text: 'Download',
+              onPressed: () {
+              },
+            ),
+          ), */
       ],
     );
   }

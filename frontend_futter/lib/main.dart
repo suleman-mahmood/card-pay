@@ -10,6 +10,7 @@ import 'package:cardpay/src/presentation/cubits/remote/checkpoints_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/closed_loop_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/deposit_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/fcm_token_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/frequent_users_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/live_events_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/login_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/pin_cubit.dart';
@@ -81,6 +82,11 @@ class MainApp extends StatelessWidget {
               ),
               BlocProvider(
                 create: (context) => FullNameCubit(locator<ApiRepository>()),
+              ),
+              BlocProvider(
+                create: (context) => FrequentUsersCubit(
+                  locator<ApiRepository>(),
+                ),
               ),
               BlocProvider(
                 create: (context) => FcmTokenCubit(locator<ApiRepository>()),

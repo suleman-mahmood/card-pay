@@ -18,6 +18,7 @@ import 'package:cardpay/src/domain/models/responses/execute_qr_transaction_respo
 import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_frequent_users_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
@@ -125,6 +126,12 @@ abstract class PythonApiService {
   @GET('/get-name-from-unique-identifier-and-closed-loop')
   Future<HttpResponse<GetFullNameResponse>> getFullName({
     @Query("unique_identifier") required String uniqueIdentifier,
+    @Query("closed_loop_id") required String closedLoopId,
+    @Header("Authorization") required String token,
+  });
+
+  @GET('/get-frequent-users')
+  Future<HttpResponse<GetFrequentUsersResponse>> getFrequentUsers({
     @Query("closed_loop_id") required String closedLoopId,
     @Header("Authorization") required String token,
   });

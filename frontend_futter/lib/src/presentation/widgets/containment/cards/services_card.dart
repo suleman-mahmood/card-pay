@@ -17,6 +17,9 @@ class CustomBox extends StatelessWidget {
   final String disabledMessage;
   final Color cardColor;
   final Color splashColor;
+
+  final VoidCallback? onTap;
+
   const CustomBox({
     Key? key,
     required this.imagePath,
@@ -26,6 +29,7 @@ class CustomBox extends StatelessWidget {
     this.disabledMessage = PaymentStrings.comingSoon,
     this.cardColor = AppColors.teal,
     this.splashColor = AppColors.teal,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -78,6 +82,8 @@ class CustomBox extends StatelessWidget {
         userCubit.initialize();
         context.router.push(route!);
       }
+
+      if (this.onTap != null) this.onTap!();
       // else {
       //   ScaffoldMessenger.of(context).showSnackBar(
       //     SnackBar(content: Text(disabledMessage)),

@@ -121,27 +121,71 @@ class LiveEventsDetailedView extends HookWidget {
                   child: ListView.builder(
                     itemCount: 4,
                     itemBuilder: (_, index) {
-                      return PaddingBoxVertical(
-                        slab: 1,
-                        child: EventCard(
-                          imageUrl: "",
-                          iconColor: AppColors.primaryColor,
-                          textColor: AppColors.blackColor,
-                          text: "Event Name",
-                          subText: croppedDescription(
-                            "Event Description",
-                          ),
-                          eventStartTimestamp: DateTime.now(),
-                          secondLastIcon: Icons.info_outline,
-                          venue: "Venue",
-                          amount: 00,
-                          iconEnd: Icons.qr_code,
-                          onSecondLastIconTap: () => context.router.push(
-                            EventDetailsRoute(
-                              showRegistrationButton: true,
-                              event: state.events[index],
+                      return Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 100,
+                        padding: EdgeInsets.fromLTRB(4, 6, 4, 8),
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 2,
+                              offset: Offset(0, 2),
                             ),
-                          ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 80,
+                              height: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "CP",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Fri, Dec 31 - 12:00 AM",
+                                    style: AppTypography.mainHeading.copyWith(
+                                      fontSize: 14,
+                                      color: AppColors.blueColor,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    "Event Name",
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTypography.mainHeading.copyWith(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    'Rs. ####',
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },

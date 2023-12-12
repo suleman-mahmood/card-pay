@@ -2,6 +2,7 @@ import 'package:cardpay/src/config/firebase/analytics_service.dart';
 import 'package:cardpay/src/locator.dart';
 import 'package:cardpay/src/presentation/cubits/local/local_recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/frequent_users_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
@@ -21,6 +22,8 @@ import 'package:cardpay/src/presentation/widgets/containment/cards/services_card
 import 'package:cardpay/src/utils/constants/payment_strings.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 
+import 'request_amount_view.dart';
+
 @RoutePage()
 class PaymentDashboardView extends HookWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
@@ -38,6 +41,7 @@ class PaymentDashboardView extends HookWidget {
         BlocProvider.of<RecentTransactionsCubit>(context);
     final localRecentTransactionsCubit =
         BlocProvider.of<LocalRecentTransactionsCubit>(context);
+    final frequentUsersCubit = BlocProvider.of<FrequentUsersCubit>(context);
 
     final deviceHeight = MediaQuery.of(context).size.height;
 
@@ -367,10 +371,10 @@ class PaymentDashboardView extends HookWidget {
                   ],
                 ),
                 SizedBox(height: deviceHeight * 0.01),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CustomBox(
+                    const CustomBox(
                       imagePath: 'assets/icon/faqs.svg',
                       text: PaymentStrings.events,
                       route: EventSelectorRoute(),
@@ -379,10 +383,21 @@ class PaymentDashboardView extends HookWidget {
                     ),
                     CustomBox(
                       imagePath: 'assets/icon/faqs.svg',
-                      text: PaymentStrings.faq,
-                      route: FaqsRoute(),
+                      text: PaymentStrings.request,
+                      route: RequestSenderRoute(),
+                      /* RequestAmountRoute(
+                        closedLoopId: "",
+                        recipientUniqueIdentifier: "",
+                        children: [],
+                      ), */
                       cardColor: Color.fromRGBO(1, 204, 192, 1),
                       splashColor: Color.fromRGBO(1, 84, 79, 1),
+                      onTap: () {
+                        frequentUsersCubit.getFrequentUsers(
+                          closedLoopId:
+                              userCubit.data.closedLoops[0].closedLoopId,
+                        );
+                      },
                     ),
                   ],
                 ),

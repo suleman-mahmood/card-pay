@@ -39,6 +39,7 @@ class LiveEventsView extends HookWidget {
                     physics: AlwaysScrollableScrollPhysics(),
                     child: SizedBox(
                       height: ScreenUtil.screenHeight(context) * 0.6,
+                      width: ScreenUtil.screenWidth(context),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -163,10 +164,44 @@ class LiveEventsView extends HookWidget {
                               child: Stack(
                                 fit: StackFit.expand,
                                 children: [
-                                  Image.network(
-                                    state.events[index].imageUrl,
-                                    fit: BoxFit.cover,
-                                  ),
+                                  state.events[index].imageUrl == "" ||
+                                          state.events[index].imageUrl.isEmpty
+                                      ? Container(
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryColor,
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              state.events[index].name
+                                                          .split(" ")
+                                                          .length ==
+                                                      1
+                                                  ? state.events[index].name
+                                                      .substring(0, 2)
+                                                      .toUpperCase()
+                                                  : state.events[index].name
+                                                          .split(" ")[0][0]
+                                                          .toUpperCase() +
+                                                      state.events[index].name
+                                                          .split(" ")[1][0]
+                                                          .toUpperCase(),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.3,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : Image.network(
+                                          state.events[index].imageUrl,
+                                          fit: BoxFit.cover,
+                                        ),
                                   // a blur box
                                   Positioned.fill(
                                     child: Container(
@@ -319,7 +354,237 @@ class LiveEventsView extends HookWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
+                      ),
+                    ),
+                  ],
+                );
+        case LiveEventsLoading:
+          return SkeletonLoader(
+            builder: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: InkWell(
+                    onTap: () {
+                      showSearch(
+                        context: context,
+                        delegate: EventSearchDelegate(state.events),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryColor,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: AppColors.blackColor.withOpacity(0.5),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      margin: EdgeInsets.only(
+                        top: 10,
+                        bottom: 10,
+                      ),
+                      height: 50,
+                      width: ScreenUtil.screenWidth(context) * 0.85,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.search,
+                                color: AppColors.blackColor.withOpacity(0.5),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "Search",
+                                style: TextStyle(
+                                  color: AppColors.blackColor.withOpacity(0.7),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Popular Now",
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      // TODO: add a route for LiveEventsDetailRoute
+                      TextButton(
+                          onPressed: () =>
+                              context.router.push(LiveEventsDetailedRoute()),
+                          child: Text("See All")),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    Container(
+                      height: ScreenUtil.screenHeight(context) * 0.4,
+                      width: ScreenUtil.screenWidth(context) * 0.8,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryColor,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      height: ScreenUtil.screenHeight(context) * 0.3,
+                      width: ScreenUtil.screenWidth(context) * 0.7,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryColor,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+                Divider(
+                  color: AppColors.blackColor.withOpacity(0.2),
+                  thickness: 0.5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Fund Raisers & Donations",
+                    style: TextStyle(
+                      color: AppColors.blackColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+              ],
+            ),
+          );
+        case LiveEventsFailed:
+          return SkeletonLoader(
+            builder: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: InkWell(
+                    onTap: () {
+                      showSearch(
+                        context: context,
+                        delegate: EventSearchDelegate(state.events),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryColor,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: AppColors.blackColor.withOpacity(0.5),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      margin: EdgeInsets.only(
+                        top: 10,
+                        bottom: 10,
+                      ),
+                      height: 50,
+                      width: ScreenUtil.screenWidth(context) * 0.85,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.search,
+                                color: AppColors.blackColor.withOpacity(0.5),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "Search",
+                                style: TextStyle(
+                                  color: AppColors.blackColor.withOpacity(0.7),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Popular Now",
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      // TODO: add a route for LiveEventsDetailRoute
+                      TextButton(
+                          onPressed: () =>
+                              context.router.push(LiveEventsDetailedRoute()),
+                          child: Text("See All")),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    Container(
+                      height: ScreenUtil.screenHeight(context) * 0.4,
+                      width: ScreenUtil.screenWidth(context) * 0.8,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryColor,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      height: ScreenUtil.screenHeight(context) * 0.3,
+                      width: ScreenUtil.screenWidth(context) * 0.7,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryColor,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+                Divider(
+                  color: AppColors.blackColor.withOpacity(0.2),
+                  thickness: 0.5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Fund Raisers & Donations",
+                    style: TextStyle(
+                      color: AppColors.blackColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ],
                 );
@@ -350,80 +615,7 @@ class LiveEventsView extends HookWidget {
                     ],
                   ),
                 ),
-                Row(
-                  children: [
-                    const SizedBox(width: 10),
-                    Container(
-                      height: ScreenUtil.screenHeight(context) * 0.3,
-                      width: ScreenUtil.screenWidth(context) * 0.7,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryColor,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Container(
-                      height: ScreenUtil.screenHeight(context) * 0.3,
-                      width: ScreenUtil.screenWidth(context) * 0.7,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryColor,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        case LiveEventsFailed:
-          return SkeletonLoader(
-            builder: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Popular Now",
-                        style: TextStyle(
-                          color: AppColors.blackColor,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      // TODO: add a route for LiveEventsDetailRoute
-                      TextButton(
-                          onPressed: () =>
-                              context.router.push(LiveEventsDetailedRoute()),
-                          child: Text("See All")),
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    const SizedBox(width: 10),
-                    Container(
-                      height: ScreenUtil.screenHeight(context) * 0.3,
-                      width: ScreenUtil.screenWidth(context) * 0.7,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryColor,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Container(
-                      height: ScreenUtil.screenHeight(context) * 0.3,
-                      width: ScreenUtil.screenWidth(context) * 0.7,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryColor,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                  ],
-                ),
+                SizedBox(height: 10),
               ],
             ),
           );

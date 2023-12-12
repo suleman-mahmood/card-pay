@@ -1,3 +1,4 @@
+import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/transfer.dart';
@@ -35,6 +36,45 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
       final response = await _apiRepository.executeP2PPushTransaction(
         request: ExecuteP2PPushTransactionRequest(
           recipientUniqueIdentifier: recipientUniqueIdentifier,
+          amount: amount,
+          closedLoopId: closedLoopId,
+        ),
+        token: token,
+      );
+
+      if (response is DataSuccess) {
+        emit(TransferSuccess(message: response.data!.message));
+      } else if (response is DataFailed) {
+        if (response.error?.type.name == "unknown") {
+          emit(TransferUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(TransferFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
+      }
+    });
+  }
+
+  Future<void> createP2PPullTransaction(
+    String senderUniqueIdentifier,
+    int amount,
+    String closedLoopId,
+  ) async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(TransferLoading());
+
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.createP2PPullTransaction(
+        request: CreateP2PPullTransactionRequest(
+          senderUniqueIdentifier: senderUniqueIdentifier,
           amount: amount,
           closedLoopId: closedLoopId,
         ),

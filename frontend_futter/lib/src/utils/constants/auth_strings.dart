@@ -70,8 +70,9 @@ class AppStrings {
   static const String organization = 'Organization';
   static const String register = 'Register  organization';
   static const String sign = 'Sign in to your organization to get started';
-  static const String enterRollNumber = '23100011';
+  static const String enterRollNumber = '23-xx-xxxx';
   static const String rollNumber = 'Roll Number';
+  static const String requestRollNumber = 'Enter Roll Number to request money';
   static const String referralRollNumber = 'Referral Roll Number (optional)';
   static const String create = 'Create Account';
   static const String phone = 'Phone Number';

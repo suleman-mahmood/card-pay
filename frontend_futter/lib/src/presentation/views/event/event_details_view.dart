@@ -130,190 +130,247 @@ class EventDetailsView extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.secondaryColor,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                height: ScreenUtil.screenHeight(context) * 0.5,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(15)),
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(event.imageUrl),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 40,
-                left: 20,
-                child: GestureDetector(
-                  onTap: () => context.router.pop(),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.blackColor.withOpacity(0.5),
-                      borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_rounded,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: -ScreenUtil.screenHeight(context) * 0.075,
-                left: 20,
-                right: 20,
-                child: Container(
-                  width: ScreenUtil.screenWidth(context) * 0.7,
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryColor,
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.blackColor.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: AppColors.secondaryColor,
+          body: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      height: ScreenUtil.screenHeight(context) * 0.5,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(15)),
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(event.imageUrl),
+                        ),
                       ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.only(
-                      top: 8, bottom: 8, right: 14.0, left: 16.0),
+                    ),
+                    /* Positioned(
+                      top: 40,
+                      left: 20,
+                      child: GestureDetector(
+                        onTap: () => context.router.pop(),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.blackColor.withOpacity(0.5),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ), */
+                    Positioned(
+                      bottom: -ScreenUtil.screenHeight(context) * 0.075,
+                      left: 20,
+                      right: 20,
+                      child: Container(
+                        width: ScreenUtil.screenWidth(context) * 0.7,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondaryColor,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.blackColor.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.only(
+                            top: 8, bottom: 8, right: 14.0, left: 16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              softWrap: true,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              event.name,
+                              style: AppTypography.headingFont.copyWith(
+                                color: AppColors.blackColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 2,
+                            ),
+                            Text(
+                              DateFormat('MMM dd, yyyy')
+                                  .format(event.eventStartTimestamp),
+                              style: AppTypography.bodyText.copyWith(
+                                color: AppColors.greyColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              '${DateFormat('hh:mm a').format(event.eventStartTimestamp)}, ${event.venue}',
+                              style: AppTypography.bodyText.copyWith(
+                                color: AppColors.greyColor,
+                                fontSize: 12,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              'Rs. ${event.registrationFee}',
+                              style: AppTypography.bodyText.copyWith(
+                                color: AppColors.lightBlueColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  margin: EdgeInsets.only(
+                      top: ScreenUtil.screenHeight(context) * 0.08),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        softWrap: true,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        event.name,
-                        style: AppTypography.headingFont.copyWith(
-                          color: AppColors.blackColor,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                        ),
+                        'Event by',
+                        style: AppTypography.bodyTextBold,
                       ),
-                      const SizedBox(
-                        height: 2,
+                      const HeightBox(slab: 1),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            radius: 21,
+                            backgroundColor: AppColors.purpleColor,
+                            child: Center(
+                              child: Text(
+                                // first and last name innitials, if only one name then first 2 letters
+                                event.organizerName.split(' ').length > 1
+                                    ? '${event.organizerName.split(' ')[0][0]}${event.organizerName.split(' ')[1][0]}'
+                                    : '${event.organizerName.split(' ')[0][0]}${event.organizerName.split(' ')[0][1]}',
+                                style: AppTypography.bodyText.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                event.organizerName,
+                                textAlign: TextAlign.center,
+                                style: AppTypography.bodyText.copyWith(
+                                  color: AppColors.blackColor.withOpacity(0.6),
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                "Posted on ${DateFormat('dd MMM, yyyy').format(event.eventStartTimestamp)}",
+                                textAlign: TextAlign.center,
+                                style: AppTypography.bodyText.copyWith(
+                                  color: AppColors.greyColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const HeightBox(slab: 2),
+                      Text(
+                        "About",
+                        style: AppTypography.bodyTextBold,
                       ),
                       Text(
-                        DateFormat('MMM dd, yyyy')
-                            .format(event.eventStartTimestamp),
-                        style: AppTypography.bodyText.copyWith(
-                          color: AppColors.greyColor,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        '${DateFormat('hh:mm a').format(event.eventStartTimestamp)}, ${event.venue}',
-                        style: AppTypography.bodyText.copyWith(
-                          color: AppColors.greyColor,
-                          fontSize: 12,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Rs. ${event.registrationFee}',
-                        style: AppTypography.bodyText.copyWith(
-                          color: AppColors.lightBlueColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            height: ScreenUtil.screenHeight(context) * 0.4,
-            margin:
-                EdgeInsets.only(top: ScreenUtil.screenHeight(context) * 0.08),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Event By',
-                    style: AppTypography.bodyTextBold,
-                  ),
-                  const HeightBox(slab: 1),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        event.organizerName,
-                        style: AppTypography.bodyText,
-                      ),
-                    ],
-                  ),
-                  const HeightBox(slab: 1),
-                  const HeightBox(slab: 1),
-                  Text(
-                    "About",
-                    style: AppTypography.bodyTextBold,
-                  ),
-                  const HeightBox(slab: 1),
-                  Container(
-                    height: ScreenUtil.screenHeight(context) * 0.15,
-                    child: SingleChildScrollView(
-                      child: Text(
                         event.description,
                         style: AppTypography.bodyText.copyWith(
                           color: AppColors.greyColor,
                           fontSize: 14,
                         ),
                       ),
-                    ),
-                  ),
-                  const HeightBox(slab: 3),
-                  Visibility(
-                    visible: showRegistrationButton,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: PrimaryButton(
-                        color: AppColors.lightBlueColor,
-                        text: 'Register Now!',
-                        onPressed: () {
-                          registerEventCubit.initialize();
-                          _showDialog();
+                      const HeightBox(slab: 3),
+                      BlocListener<RegisterEventCubit, RegisterEventState>(
+                        listener: (_, state) {
+                          switch (state.runtimeType) {
+                            case RegisterEventSuccess:
+                              context.router.push(
+                                ReceiptRoute(
+                                  amount: event.registrationFee,
+                                  recipientName: event.organizerName,
+                                ),
+                              );
+                          }
                         },
+                        child: const SizedBox.shrink(),
                       ),
-                    ),
+                    ],
                   ),
-                  BlocListener<RegisterEventCubit, RegisterEventState>(
-                    listener: (_, state) {
-                      switch (state.runtimeType) {
-                        case RegisterEventSuccess:
-                          context.router.push(
-                            ReceiptRoute(
-                              amount: event.registrationFee,
-                              recipientName: event.organizerName,
-                            ),
-                          );
-                      }
-                    },
-                    child: const SizedBox.shrink(),
-                  ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: Visibility(
+            visible: showRegistrationButton,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: PrimaryButton(
+                color: AppColors.lightBlueColor,
+                text: 'Register Now!',
+                onPressed: () {
+                  registerEventCubit.initialize();
+                  _showDialog();
+                },
               ),
             ),
           ),
-        ],
-      ),
+        ),
+        Positioned(
+          top: 40,
+          left: 20,
+          child: GestureDetector(
+            onTap: () => context.router.pop(),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.blackColor.withOpacity(0.5),
+                borderRadius: const BorderRadius.all(Radius.circular(15)),
+              ),
+              child: const Icon(
+                Icons.arrow_back_rounded,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
