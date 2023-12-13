@@ -8,6 +8,9 @@ from core.payment.entrypoint import anti_corruption as acl
 from core.payment.entrypoint import commands as pmt_cmd
 from core.payment.entrypoint import exceptions as pmt_svc_ex
 from core.payment.entrypoint import queries as pmt_qry
+import json
+from datetime import datetime, timedelta
+import rsa
 
 
 def test_accept_p2p_pull_transaction(seed_verified_auth_user, add_1000_wallet_fake):
@@ -531,3 +534,34 @@ def test_bulk_reconcile_vendors_txn_failed(
             auth_svc=auth_svc,
             pmt_svc=pmt_svc,
         )
+
+def test_offline_qr_transactions(
+    seed_verified_auth_user, seed_verified_auth_vendor, add_1000_wallet_fake  
+):
+    uow = FakeUnitOfWork()
+    auth_svc = acl.FakeAuthenticationService()
+    pmt_svc = acl.FakePaymentService()
+    customer, customer_wallet = seed_verified_auth_user(uow)
+    vendor, vendor_wallet = seed_verified_auth_vendor(uow)
+    add_1000_wallet_fake(uow=uow, wallet_id=customer.wallet_id)
+
+    decrypted_data = json.dumps(
+        {"current_timestamp": str(datetime.now() + timedelta(hours=5) - timedelta(minutes=2))}
+    )
+    public_key = bytes(customer.public_key, encoding="utf-8")
+    public_key = rsa.PublicKey.load_pkcs1(public_key)
+    encryptedMessage = rsa.encrypt(decrypted_data.encode(), public_key)
+
+    pmt_cmd.offline_qr_transaction(
+        digest=encryptedMessage,
+        uow=uow,
+        user_id=customer.id,
+        recipient_wallet_id=vendor_wallet.id,
+        amount=500,
+        document_id=str(uuid4()),
+        auth_svc=auth_svc,
+        pmt_svc=pmt_svc
+    )
+
+    assert uow.transactions.get_wallet(wallet_id=vendor_wallet.id).balance == 500
+    assert uow.transactions.get_wallet(wallet_id=customer_wallet.id).balance == 500

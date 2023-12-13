@@ -58,6 +58,7 @@ class TransactionType(str, Enum):
     EVENT_REGISTRATION_FEE = 11  # payment from a user to an event organizer
     TOP_UP = 12  # Vendor tops up a customer
     REVERSAL = 13  # Reversal of a transaction
+    OFFLINE_QR_PULL = 14 #Payment method for offline QRs
 
 
 @dataclass
@@ -195,11 +196,16 @@ class OfflineQrExpiration:
     decrypted_object: dict
 
     def verify_digest(self):
-        datetime_object = datetime.strptime(self.decrypted_object["current_timestamp"], '%m/%d/%y %H:%M:%S')
-        time_milliseconds = int(datetime_object.timestamp() * 1000)
-        pk_time = datetime.now() + timedelta(hours=5) + timedelta(minutes=5)
-        current_timestamp = int(pk_time.timestamp() * 1000)
-        if current_timestamp > time_milliseconds:
+        datetime_object = datetime.strptime(self.decrypted_object["current_timestamp"], '%Y-%m-%d %H:%M:%S.%f')
+        qr_time_milliseconds = int(datetime_object.timestamp() * 1000)
+        
+        EXPIRATION_WINDOW =  timedelta(minutes=5)
+        pk_time = datetime.now() + timedelta(hours=5) - EXPIRATION_WINDOW
+        expiration_threshold = int(pk_time.timestamp() * 1000)
+        
+        print(qr_time_milliseconds, expiration_threshold)
+        
+        if expiration_threshold > qr_time_milliseconds:
             raise ex.OfflineQrExpired("Offline QR Code has expired")
         
 @dataclass

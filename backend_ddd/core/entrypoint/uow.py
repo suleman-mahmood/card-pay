@@ -25,7 +25,7 @@ class AbstractUnitOfWork(ABC):
     users: auth_repo.UserAbstractRepository
     closed_loops: auth_repo.ClosedLoopAbstractRepository
     transactions: pmt_repo.TransactionAbstractRepository
-    rp_transaction: pmt_repo.RetailProTransactionAbstractRepository
+    rp_transactions: pmt_repo.RetailProTransactionAbstractRepository
     marketing_users: mktg_repo.MarketingUserAbstractRepository
     cashback_slabs: mktg_repo.CashbackSlabAbstractRepository
     weightages: mktg_repo.WeightageAbstractRepository

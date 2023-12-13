@@ -386,7 +386,7 @@ def offline_qr_transaction(
             recipient_wallet_id=recipient_wallet_id,
             amount=amount,
             transaction_mode=pmt_mdl.TransactionMode.APP_TRANSFER,
-            transaction_type=pmt_mdl.TransactionType.PAYMENT_GATEWAY,
+            transaction_type=pmt_mdl.TransactionType.OFFLINE_QR_PULL,
             uow=uow,
             auth_svc=auth_svc,
         )
@@ -395,7 +395,7 @@ def offline_qr_transaction(
         tx_id=tx_id,
         document_id=document_id
     )
-    uow.rp_transaction.add(rp_transaction=rp_transaction)
+    uow.rp_transactions.add(rp_transaction=rp_transaction)
     
     
 
