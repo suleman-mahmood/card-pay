@@ -4,12 +4,17 @@ from typing import Tuple
 
 from core.authentication.domain import model as auth_mdl
 from core.authentication.entrypoint import queries as auth_qry
+from core.authentication.entrypoint import service as auth_svc
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import paypro_service as pp_svc
 from core.payment.entrypoint import queries as pmt_qry
 from core.payment.entrypoint import view_models as pmt_vm
+from core.payment.entrypoint import service as pmt_svc
 
 PAYPRO_USER_ID = "93c74873-294f-4d64-a7cc-2435032e3553"
+LUMS_USER_ID = "8893e7e7-e9ff-52c5-85c1-032421851617"
+
+
 
 
 @dataclass
@@ -20,6 +25,10 @@ class AbstractAuthenticationService(ABC):
 
     @abstractmethod
     def user_customer(self, wallet_id: str, uow: AbstractUnitOfWork) -> bool:
+        pass
+
+    @abstractmethod
+    def decode_digest(self, digest: bytes, user_id: str, uow: AbstractUnitOfWork) -> str:
         pass
 
 
@@ -33,6 +42,10 @@ class AuthenticationService(AbstractAuthenticationService):
             auth_qry.get_user_type_from_user_id(user_id=wallet_id, uow=uow)
             == auth_mdl.UserType.CUSTOMER
         )
+    
+    def decode_digest(self, digest: bytes, user_id: str, uow: AbstractUnitOfWork) -> str:
+        return auth_svc.decrypt_data(digest=digest, uow=uow, user_id=user_id)
+        
 
 
 @dataclass
@@ -51,6 +64,9 @@ class FakeAuthenticationService(AbstractAuthenticationService):
 
     def user_customer(self, wallet_id: str, uow: AbstractUnitOfWork) -> bool:
         return True
+    
+    def decode_digest(self, digest: bytes, user_id: str, uow: AbstractUnitOfWork) -> str:
+        return ""
 
 
 @dataclass
@@ -82,6 +98,17 @@ class AbstractPaymentService(ABC):
         qr_id: str,
         uow: AbstractUnitOfWork,
     ):
+        pass
+
+    @abstractmethod
+    def verify_offline_timestamp(
+        self,
+        decrypted_data: str
+    ):
+        pass
+
+    @abstractmethod
+    def get_lums_id(self) -> str:
         pass
 
 
@@ -120,6 +147,16 @@ class PaymentService(AbstractPaymentService):
             qr_id=qr_id,
             uow=uow,
         )
+    
+    def verify_offline_timestamp(
+        self,
+        decrypted_data: str
+    ):
+        return pmt_svc.validate_encrypted_timestamp(decrypted_data=decrypted_data)
+    
+    def get_lums_id(self) -> str:
+        return LUMS_USER_ID
+
 
 
 @dataclass
@@ -169,6 +206,15 @@ class FakePaymentService(AbstractPaymentService):
     ):
         return self.user_wallet_id_and_type
         # return "wallet_id", mdl.UserType.CUSTOMER
+
+    def verify_offline_timestamp(
+        self,
+        decrypted_data: str
+    ):
+        return True
+    
+    def get_lums_id(self) -> str:
+        return ""
 
 
 @dataclass

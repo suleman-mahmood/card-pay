@@ -1,13 +1,13 @@
 """payments microservices domain model"""
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 
 from core.payment.domain import exceptions as ex
 
 TX_UPPER_LIMIT = 10000
 MIN_DEPOSIT_AMOUNT = 1000
-
+EXPIRATION_WINDOW =  timedelta(minutes=5)
 
 @dataclass
 class Wallet:
@@ -58,6 +58,7 @@ class TransactionType(str, Enum):
     EVENT_REGISTRATION_FEE = 11  # payment from a user to an event organizer
     TOP_UP = 12  # Vendor tops up a customer
     REVERSAL = 13  # Reversal of a transaction
+    OFFLINE_QR_PULL = 14 #Payment method for offline QRs
 
 
 @dataclass
@@ -189,3 +190,24 @@ class Transaction:
     def mark_failed(self):
         self.status = TransactionStatus.FAILED
         self.last_updated = datetime.now()
+
+@dataclass
+class OfflineQrExpiration:
+    decrypted_object: dict
+
+    def verify_digest(self):
+        datetime_object = datetime.strptime(self.decrypted_object["current_timestamp"], '%Y-%m-%d %H:%M:%S.%f')
+        qr_time_milliseconds = int(datetime_object.timestamp() * 1000)
+
+        pk_time = datetime.now() + timedelta(hours=5) - EXPIRATION_WINDOW
+        expiration_threshold = int(pk_time.timestamp() * 1000)
+        
+        if expiration_threshold > qr_time_milliseconds:
+            raise ex.OfflineQrExpired("Offline QR Code has expired")
+        
+@dataclass
+class RetailProTransactions:
+    tx_id: str
+    document_id: str
+
+

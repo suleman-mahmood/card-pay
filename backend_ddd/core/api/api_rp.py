@@ -1,6 +1,12 @@
+from core.entrypoint.uow import UnitOfWork
 from core.api import schemas as sch
 from core.api import utils
 from flask import Blueprint, request
+from core.payment.entrypoint import commands as pmt_cmd
+from core.payment.entrypoint import anti_corruption as pmt_acl
+from core.payment.domain import exceptions as pmt_exc
+from core.authentication.domain import exceptions as auth_exc
+import json
 
 rp_app = Blueprint("rp_app", __name__, url_prefix="/api/v1/rp")
 
@@ -12,18 +18,41 @@ rp_app = Blueprint("rp_app", __name__, url_prefix="/api/v1/rp")
     required_parameters={
         "qr_data": sch.StringSchema,
         "amount": sch.AmountSchema,
-        "tx_id": sch.StringSchema,
+        "document_id": sch.StringSchema,
     }
 )
 def exceute_offline_transaction():
     req = request.get_json(force=True)
+    qr_data = json.loads(req["qr_data"])
+    uow = UnitOfWork()
 
-    if req["amount"] < 500:
-        raise utils.CustomException("Amount less than 500")
+    try:
+        pmt_cmd.offline_qr_transaction(
+            digest=qr_data["digest"],
+            uow=uow,
+            user_id=qr_data["user_id"],
+            document_id=req["document_id"],
+            amount=req["amount"],
+            auth_svc=pmt_acl.AuthenticationService(),
+            pmt_svc=pmt_acl.PaymentService(),
+        )
+        uow.commit_close_connection()
+    except (
+        pmt_exc.OfflineQrExpired,
+        auth_exc.DecryptionFailed,
+    ) as e:
+        uow.close_connection()
+        raise utils.CustomException(str(e))
+
+    except (
+        Exception,
+    ) as e:
+        uow.close_connection()
+        raise e
 
     return utils.Response(
-        message="Transaction made successfully",
-        status_code=201,
+        message="Offline Qr Transaction Executed Successfully",
+        status_code=200,
     ).__dict__
 
 

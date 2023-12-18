@@ -9,6 +9,7 @@ from core.authentication.entrypoint import exceptions as svc_ex
 from core.comms.entrypoint import commands as comms_cmd
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.payment.entrypoint import commands as pmt_cmd
+import rsa
 
 LUMS_CLOSED_LOOP_ID = "2456ce60-7b0a-4369-a392-2400653dbdaf"
 
@@ -67,6 +68,9 @@ def create_user(
     if not user_already_exists:
         user_id = utils.firebaseUidToUUID(firebase_uid)
         pmt_cmd.create_wallet(user_id=user_id, uow=uow)
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode("utf-8")
+        private_key_str = private_key.save_pkcs1().decode("utf-8")
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value=personal_email),
@@ -76,6 +80,8 @@ def create_user(
             full_name=full_name,
             wallet_id=user_id,
             location=location_object,
+            private_key=private_key_str,
+            public_key=public_key_str
         )
         uow.users.add(user)
 
@@ -101,17 +107,8 @@ def create_user(
                 new_full_name=full_name,
             )
 
-            # Update user details
-            user = auth_mdl.User(
-                id=user_id,
-                personal_email=auth_mdl.PersonalEmail(value=personal_email),
-                phone_number=phone_number,
-                user_type=auth_mdl.UserType.__members__[user_type],
-                pin="0000",
-                full_name=full_name,
-                wallet_id=user_id,
-                location=location_object,
-            )
+            user = uow.users.get(user_id=user_id)
+            user.update_user(full_name=full_name, personal_email=auth_mdl.PersonalEmail(value=personal_email))
             uow.users.save(user)
 
             if user.user_type is auth_mdl.UserType.CUSTOMER:
@@ -371,3 +368,4 @@ def reset_password(raw_phone_number: str,  new_password: str, fb_svc: acl.Abstra
         new_password=new_password,
     )
     # These two fb calls can raise ValueError, UserNotFoundError, FirebaseError
+

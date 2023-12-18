@@ -2,8 +2,32 @@ import pytest
 from uuid import uuid4
 from datetime import datetime
 from core.payment.domain import model as mdl
-from core.entrypoint.uow import UnitOfWork, FakeUnitOfWork
+from core.entrypoint.uow import UnitOfWork, FakeUnitOfWork, AbstractUnitOfWork
 
+def test_rp_transaction_repository(seed_wallet, seed_txn):
+    for uow in [UnitOfWork(), FakeUnitOfWork()]:
+        uow:AbstractUnitOfWork
+
+        recipient_wallet = seed_wallet()
+        sender_wallet = seed_wallet()
+
+        uow.transactions.add_wallet(wallet=recipient_wallet)
+        uow.transactions.add_wallet(wallet=sender_wallet)
+
+        tx = seed_txn(recipient_wallet=recipient_wallet, sender_wallet=sender_wallet)
+        uow.transactions.add(transaction=tx)
+
+        rp_txn = mdl.RetailProTransactions(tx_id=tx.id, document_id=str(uuid4()))
+        uow.rp_transactions.add(rp_txn)
+        fetched_rp_txn = uow.rp_transactions.get(rp_txn.tx_id)
+
+        assert fetched_rp_txn == rp_txn
+
+        rp_txn.document_id = "142556346356"
+        uow.rp_transactions.save(rp_txn)
+        fetched_rp_txn = uow.rp_transactions.get(rp_txn.tx_id)  
+
+        assert fetched_rp_txn == rp_txn
 
 def test_transaction_repository(seed_wallet, seed_txn):
     for uow in [UnitOfWork(), FakeUnitOfWork()]:

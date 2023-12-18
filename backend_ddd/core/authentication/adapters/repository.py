@@ -162,8 +162,8 @@ class UserRepository(UserAbstractRepository):
 
     def add(self, user: mdl.User):
         sql = """
-            insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at) 
-            values (%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s, %(created_at)s)
+            insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at, public_key, private_key) 
+            values (%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s, %(created_at)s, %(public_key)s,  %(private_key)s)
         """
 
         self.cursor.execute(
@@ -182,6 +182,8 @@ class UserRepository(UserAbstractRepository):
                 "otp_generated_at": user.otp_generated_at,
                 "location": user.location,
                 "created_at": user.created_at,
+                "public_key": user.public_key,
+                "private_key": user.private_key
             },
         )
 
@@ -216,7 +218,7 @@ class UserRepository(UserAbstractRepository):
 
     def get(self, user_id: str) -> mdl.User:
         sql = """
-        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at 
+        select id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at, public_key, private_key 
         from users 
         where id = %s
         """
@@ -245,6 +247,8 @@ class UserRepository(UserAbstractRepository):
                 longitude=float(row["location"][1:-1].split(",")[1]),
             ),
             created_at=row["created_at"],
+            public_key=row["public_key"],
+            private_key=row["private_key"]
         )
 
         sql = """
@@ -273,8 +277,8 @@ class UserRepository(UserAbstractRepository):
 
     def save(self, user: mdl.User):
         sql = """
-        insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at)
-        values(%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s, %(created_at)s)
+        insert into users (id, personal_email, phone_number, user_type, pin, full_name, wallet_id, is_active, is_phone_number_verified, otp, otp_generated_at, location, created_at, public_key, private_key)
+        values(%(id)s, %(personal_email)s, %(phone_number)s, %(user_type)s, %(pin)s, %(full_name)s, %(wallet_id)s, %(is_active)s, %(is_phone_number_verified)s, %(otp)s, %(otp_generated_at)s, %(location)s, %(created_at)s, %(public_key)s, %(private_key)s)
         on conflict(id) do update set
             id = excluded.id,
             personal_email = excluded.personal_email,
@@ -287,7 +291,9 @@ class UserRepository(UserAbstractRepository):
             is_phone_number_verified = excluded.is_phone_number_verified,
             otp = excluded.otp,
             otp_generated_at = excluded.otp_generated_at,
-            location = excluded.location
+            location = excluded.location,
+            public_key = excluded.public_key,
+            private_key = excluded.private_key
         """
 
         self.cursor.execute(
@@ -306,6 +312,8 @@ class UserRepository(UserAbstractRepository):
                 "otp_generated_at": user.otp_generated_at,
                 "location": user.location,
                 "created_at": user.created_at,
+                "public_key": user.public_key,
+                "private_key": user.private_key
             },
         )
 

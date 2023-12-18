@@ -15,7 +15,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Dict, Optional, Tuple
 from uuid import uuid4
-
+import rsa
 from core.authentication.domain import exceptions as ex
 from core.authentication.domain.utils import _generate_4_digit_otp
 
@@ -154,6 +154,8 @@ class User:
     full_name: str
     wallet_id: str
     location: Location
+    public_key: str
+    private_key: str
 
     is_active: bool = True
     is_phone_number_verified: bool = False
@@ -234,3 +236,24 @@ class User:
         closed_loop_user.verify_unique_identifier(otp)
 
         self.closed_loops[closed_loop_id] = closed_loop_user
+
+    def update_user(self, full_name: str, personal_email: PersonalEmail) -> None:
+        """Update already existing user"""
+        self.full_name = full_name
+        self.personal_email = personal_email
+
+
+@dataclass
+class DataDecrypter:
+    private_key: bytes
+
+    def decrypt_data(self, digest: bytes) -> str:
+        """Verify encryption of data"""
+        try:
+            pv_key = rsa.PrivateKey.load_pkcs1(self.private_key)
+            plaintext = rsa.decrypt(digest, pv_key)
+            return plaintext.decode ("utf-8")
+
+        except rsa.DecryptionError:
+            raise ex.DecryptionFailed("Data could not be decrypted")
+

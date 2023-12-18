@@ -6,6 +6,7 @@ from core.authentication.domain import model as auth_mdl
 from core.entrypoint.uow import AbstractUnitOfWork
 from core.marketing.domain import model as mdl
 from core.payment.entrypoint import commands as payment_commands
+import rsa
 
 
 @pytest.fixture
@@ -20,7 +21,9 @@ def seed_user():
 def seed_starred_wallet():
     def _seed_starred_wallet(uow: AbstractUnitOfWork):
         user_id = str(uuid4())
-
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode("utf-8")
+        private_key_str = private_key.save_pkcs1().decode("utf-8")
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
@@ -31,6 +34,8 @@ def seed_starred_wallet():
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
             is_phone_number_verified=True,
+            public_key=public_key_str,
+            private_key=private_key_str
         )
 
         payment_commands.create_wallet(user_id=user_id, uow=uow)

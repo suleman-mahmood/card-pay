@@ -15,6 +15,7 @@ from core.entrypoint.uow import AbstractUnitOfWork, FakeUnitOfWork, UnitOfWork
 from core.event.domain import model as event_mdl
 from core.payment.domain import model as pmt_mdl
 from core.payment.entrypoint import commands as pmt_cmd
+import rsa
 
 
 @pytest.fixture(autouse=True)
@@ -158,7 +159,9 @@ def seed_api_admin():
 def seed_user():
     def _seed_user() -> auth_mdl.User:
         uid = str(uuid4())
-
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode("utf-8")
+        private_key_str = private_key.save_pkcs1().decode("utf-8")
         return auth_mdl.User(
             id=uid,
             personal_email=auth_mdl.PersonalEmail(value="sulemanmahmood99@gmail.com"),
@@ -168,10 +171,11 @@ def seed_user():
             full_name="Suleman Mahmood",
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=uid,
+            public_key=public_key_str,
+            private_key=private_key_str
         )
 
     return _seed_user
-
 
 @pytest.fixture
 def seed_closed_loop():
@@ -209,6 +213,9 @@ def seed_auth_user():
         uow: AbstractUnitOfWork,
     ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user_id = str(uuid4())
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode('utf-8')
+        private_key_str = private_key.save_pkcs1().decode('utf-8')
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
@@ -218,6 +225,8 @@ def seed_auth_user():
             full_name="Malik Muhammad Moaz",
             location=auth_mdl.Location(latitude=13.2311, longitude=98.4888),
             wallet_id=user_id,
+            public_key=public_key_str,
+            private_key=private_key_str
         )
         wallet: pmt_mdl.Wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
@@ -268,6 +277,9 @@ def seed_auth_vendor():
         uow: AbstractUnitOfWork,
     ) -> Tuple[auth_mdl.User, pmt_mdl.Wallet]:
         user_id = str(uuid4())
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode('utf-8')
+        private_key_str = private_key.save_pkcs1().decode('utf-8')
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value="zainalikhokhar40@gmail.com"),
@@ -277,6 +289,8 @@ def seed_auth_vendor():
             full_name="Zain Ali Khokhar",
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
+            public_key=public_key_str,
+            private_key=private_key_str
         )
         wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
@@ -295,6 +309,9 @@ def seed_auth_event_organizer():
         uow: AbstractUnitOfWork,
     ) -> auth_mdl.User:
         user_id = str(uuid4())
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode('utf-8')
+        private_key_str = private_key.save_pkcs1().decode('utf-8')
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@party.com"),
@@ -304,6 +321,8 @@ def seed_auth_event_organizer():
             full_name="Malik M. Moaz",
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
+            public_key=public_key_str,
+            private_key=private_key_str
         )
         wallet = pmt_mdl.Wallet(id=user_id, qr_id=str(uuid4()), balance=0)
         uow.transactions.add_wallet(
@@ -352,6 +371,9 @@ def seed_verified_auth_vendor(seed_auth_vendor):
 def seed_auth_cardpay():
     def _seed_auth_cardpay(uow: AbstractUnitOfWork) -> auth_mdl.User:
         user_id = str(uuid4())
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode('utf-8')
+        private_key_str = private_key.save_pkcs1().decode('utf-8')
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value="cpay@gmail.com"),
@@ -361,6 +383,8 @@ def seed_auth_cardpay():
             full_name="Card Pay",
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
+            public_key=public_key_str,
+            private_key=private_key_str
         )
 
         uow.transactions.add_wallet(
@@ -391,7 +415,9 @@ def seed_verified_auth_cardpay_fake(seed_auth_cardpay):
 def seed_starred_wallet(add_1000_wallet):
     def _seed_starred_wallet(uow: AbstractUnitOfWork):
         user_id = str(uuid4())
-
+        (public_key, private_key) = rsa.newkeys(512)
+        public_key_str = public_key.save_pkcs1().decode('utf-8')
+        private_key_str = private_key.save_pkcs1().decode('utf-8')
         user = auth_mdl.User(
             id=user_id,
             personal_email=auth_mdl.PersonalEmail(value="mlkmoaz@gmail.com"),
@@ -402,6 +428,8 @@ def seed_starred_wallet(add_1000_wallet):
             location=auth_mdl.Location(latitude=0, longitude=0),
             wallet_id=user_id,
             is_phone_number_verified=True,
+            public_key=public_key_str,
+            private_key=private_key_str
         )
 
         pmt_cmd.create_wallet(user_id=user_id, uow=uow)
