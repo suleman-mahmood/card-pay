@@ -33,7 +33,6 @@ def exceute_offline_transaction():
             uow=uow,
             user_id=qr_data["user_id"],
             document_id=req["document_id"],
-            recipient_wallet_id=pmt_acl.PaymentService().get_lums_id(),
             amount=offline_payload["amount"],
             auth_svc=pmt_acl.AuthenticationService(),
             pmt_svc=pmt_acl.PaymentService(),

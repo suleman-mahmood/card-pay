@@ -369,7 +369,6 @@ def offline_qr_transaction(
     digest: bytes, 
     uow: AbstractUnitOfWork, 
     user_id: str,
-    recipient_wallet_id: str,
     amount: int,
     document_id: str,
     auth_svc: acl.AbstractAuthenticationService,
@@ -379,6 +378,8 @@ def offline_qr_transaction(
     pmt_svc.verify_offline_timestamp(decrypted_data=decrypted_data)
 
     tx_id=str(uuid4())
+
+    recipient_wallet_id = pmt_svc.get_lums_id()
 
     _execute_transaction(
             tx_id=tx_id,

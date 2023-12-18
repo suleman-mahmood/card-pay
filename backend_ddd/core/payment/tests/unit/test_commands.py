@@ -556,7 +556,6 @@ def test_offline_qr_transactions(
         digest=encryptedMessage,
         uow=uow,
         user_id=customer.id,
-        recipient_wallet_id=vendor_wallet.id,
         amount=500,
         document_id=str(uuid4()),
         auth_svc=auth_svc,
