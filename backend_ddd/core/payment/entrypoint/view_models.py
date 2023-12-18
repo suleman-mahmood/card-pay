@@ -372,3 +372,20 @@ class AmountWithIdDTO:
             id=row["id"],
             amount=row["amount"],
         )
+
+
+@dataclass(frozen=True)
+class P2PPullRequestsDTO:
+    tx_id: str
+    full_name: str
+    amount: int
+    created_at: datetime
+
+    @classmethod
+    def from_db_dict_row(cls, row: DictRow) -> "P2PPullRequestsDTO":
+        return P2PPullRequestsDTO(
+            tx_id=row["tx_id"],
+            full_name=row["full_name"],
+            amount=row["amount"],
+            created_at=row["created_at"],
+        )

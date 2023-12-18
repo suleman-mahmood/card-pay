@@ -1,4 +1,6 @@
+import 'package:cardpay/src/domain/models/requests/accept_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
+import 'package:cardpay/src/domain/models/requests/decline_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/transfer.dart';
@@ -83,6 +85,68 @@ class TransferCubit extends BaseCubit<TransferState, Transfer> {
 
       if (response is DataSuccess) {
         emit(TransferSuccess(message: response.data!.message));
+      } else if (response is DataFailed) {
+        if (response.error?.type.name == "unknown") {
+          emit(TransferUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(TransferFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
+      }
+    });
+  }
+
+  Future<void> acceptP2PPullTransaction(String transactionId) async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(TransferLoading());
+
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.acceptP2PPullTransaction(
+        request: AcceptP2PPullTransactionRequest(transactionId: transactionId),
+        token: token,
+      );
+
+      if (response is DataSuccess) {
+        emit(TransferSuccess(message: response.data!.message));
+      } else if (response is DataFailed) {
+        if (response.error?.type.name == "unknown") {
+          emit(TransferUnknownFailure(
+            errorMessage: "Unknown error, check internet connections",
+          ));
+        } else {
+          emit(TransferFailed(
+            error: response.error,
+            errorMessage: response.error?.response?.data["message"],
+          ));
+        }
+      }
+    });
+  }
+
+  Future<void> declineP2PPullTransaction(String transactionId) async {
+    if (isBusy) return;
+
+    await run(() async {
+      emit(TransferLoading());
+
+      final token =
+          await firebase_auth.FirebaseAuth.instance.currentUser?.getIdToken() ??
+              '';
+      final response = await _apiRepository.declineP2PPullTransaction(
+        request: DeclineP2PPullTransactionRequest(transactionId: transactionId),
+        token: token,
+      );
+
+      if (response is DataSuccess) {
+        emit(TransferPullDeclined(message: response.data!.message));
       } else if (response is DataFailed) {
         if (response.error?.type.name == "unknown") {
           emit(TransferUnknownFailure(

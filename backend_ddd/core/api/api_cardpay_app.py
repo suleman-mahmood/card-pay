@@ -847,7 +847,10 @@ def accept_p2p_pull_transaction(uid):
     uow = UnitOfWork()
 
     try:
-        pmt_cmd.accept_p2p_pull_transaction(transaction_id=req["transaction_id"], uow=uow)
+        pmt_cmd.accept_p2p_pull_transaction(
+            transaction_id=req["transaction_id"],
+            uow=uow,
+        )
         uow.commit_close_connection()
 
     except pmt_svc_ex.TransactionFailedException as e:
@@ -951,6 +954,31 @@ def decline_p2p_pull_transaction(uid):
     return utils.Response(
         message="p2p pull transaction declined successfully",
         status_code=200,
+    ).__dict__
+
+
+@cardpay_app.route("/get-p2p-pull-requests", methods=["GET"])
+@utils.authenticate_token
+@utils.authenticate_user_type(allowed_user_types=[UserType.CUSTOMER])
+@utils.user_verified
+def get_p2p_pull_requests(uid):
+    uow = UnitOfWork()
+
+    try:
+        pull_requests = pmt_qry.get_p2p_pull_requests(
+            sender_id=uid,
+            uow=uow,
+        )
+        uow.close_connection()
+
+    except Exception as e:
+        uow.close_connection()
+        raise e
+
+    return utils.Response(
+        message="User p2p pull requests returned successfully",
+        status_code=200,
+        data=pull_requests,
     ).__dict__
 
 

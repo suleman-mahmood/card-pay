@@ -1,7 +1,9 @@
+import 'package:cardpay/src/domain/models/requests/accept_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_customer_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
+import 'package:cardpay/src/domain/models/requests/decline_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
@@ -10,6 +12,7 @@ import 'package:cardpay/src/domain/models/requests/set_fcm_token_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/responses/change_pin_response.dart';
+import 'package:cardpay/src/domain/models/responses/common_response.dart';
 import 'package:cardpay/src/domain/models/responses/create_customer_response.dart';
 import 'package:cardpay/src/domain/models/responses/create_deposit_response.dart';
 import 'package:cardpay/src/domain/models/responses/create_p2p_pull_transaction_response.dart';
@@ -19,6 +22,7 @@ import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_respons
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_frequent_users_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_p2p_pull_requests_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
@@ -108,13 +112,6 @@ abstract class PythonApiService {
     @Header("Authorization") String? token,
   });
 
-  @POST('/create-p2p-pull-transaction')
-  Future<HttpResponse<CreateP2PPullTransactionResponse>>
-      createP2PPullTransaction({
-    @Body() CreateP2PPullTransactionRequest? createP2PPullTransactionRequest,
-    @Header("Authorization") String? token,
-  });
-
   @GET('/get-user-checkpoints')
   Future<HttpResponse<GetCheckpointsResponse>> getCheckpoints({
     @Header("Authorization") String? token,
@@ -130,16 +127,43 @@ abstract class PythonApiService {
     @Header("Authorization") required String token,
   });
 
+  @POST('/set-fcm-token')
+  Future<HttpResponse<SetFcmTokenResponse>> setFcmToken({
+    @Body() SetFcmTokenRequest? request,
+    @Header("Authorization") String? token,
+  });
+
+  // Payments
+  @POST('/create-p2p-pull-transaction')
+  Future<HttpResponse<CreateP2PPullTransactionResponse>>
+      createP2PPullTransaction({
+    @Body() CreateP2PPullTransactionRequest? createP2PPullTransactionRequest,
+    @Header("Authorization") String? token,
+  });
+
+  @POST('/accept-p2p-pull-transaction')
+  Future<HttpResponse<CommonResponse>> acceptP2PPullTransaction({
+    @Body()
+    required AcceptP2PPullTransactionRequest acceptP2PPullTransactionRequest,
+    @Header("Authorization") required String token,
+  });
+
+  @POST('/decline-p2p-pull-transaction')
+  Future<HttpResponse<CommonResponse>> declineP2PPullTransaction({
+    @Body()
+    required DeclineP2PPullTransactionRequest declineP2PPullTransactionRequest,
+    @Header("Authorization") required String token,
+  });
+
   @GET('/get-frequent-users')
   Future<HttpResponse<GetFrequentUsersResponse>> getFrequentUsers({
     @Query("closed_loop_id") required String closedLoopId,
     @Header("Authorization") required String token,
   });
 
-  @POST('/set-fcm-token')
-  Future<HttpResponse<SetFcmTokenResponse>> setFcmToken({
-    @Body() SetFcmTokenRequest? request,
-    @Header("Authorization") String? token,
+  @GET('/get-p2p-pull-requests')
+  Future<HttpResponse<GetP2PPullRequestsResponse>> getP2PPullRequests({
+    @Header("Authorization") required String token,
   });
 
   // Events

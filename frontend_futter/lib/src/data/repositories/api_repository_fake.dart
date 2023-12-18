@@ -1,10 +1,13 @@
 import 'package:cardpay/src/domain/models/checkpoints.dart';
 import 'package:cardpay/src/domain/models/closed_loop.dart';
 import 'package:cardpay/src/domain/models/event.dart';
+import 'package:cardpay/src/domain/models/p2p_request_info.dart';
+import 'package:cardpay/src/domain/models/requests/accept_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/change_pin_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_customer_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_deposit_request.dart';
 import 'package:cardpay/src/domain/models/requests/create_p2p_pull_transaction_request.dart';
+import 'package:cardpay/src/domain/models/requests/decline_p2p_pull_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_p2p_push_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/execute_qr_transaction_request.dart';
 import 'package:cardpay/src/domain/models/requests/register_closed_loop_request.dart';
@@ -13,6 +16,7 @@ import 'package:cardpay/src/domain/models/requests/set_fcm_token_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_closed_loop_request.dart';
 import 'package:cardpay/src/domain/models/requests/verify_phone_number_request.dart';
 import 'package:cardpay/src/domain/models/responses/change_pin_response.dart';
+import 'package:cardpay/src/domain/models/responses/common_response.dart';
 import 'package:cardpay/src/domain/models/responses/create_customer_response.dart';
 import 'package:cardpay/src/domain/models/responses/create_deposit_response.dart';
 import 'package:cardpay/src/domain/models/responses/create_p2p_pull_transaction_response.dart';
@@ -22,6 +26,7 @@ import 'package:cardpay/src/domain/models/responses/get_all_closed_loops_respons
 import 'package:cardpay/src/domain/models/responses/get_checkpoint_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_events_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_frequent_users_response.dart';
+import 'package:cardpay/src/domain/models/responses/get_p2p_pull_requests_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_balance_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_full_name_response.dart';
 import 'package:cardpay/src/domain/models/responses/get_user_recent_transactions_response.dart';
@@ -370,36 +375,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     );
   }
 
-  Future<DataState<CreateP2PPullTransactionResponse>> createP2PPullTransaction({
-    required CreateP2PPullTransactionRequest request,
-    required String token,
-  }) {
-    CreateP2PPullTransactionResponse CreateP2PPullTransactionRequest =
-        CreateP2PPullTransactionResponse(
-      message: 'Transection is successfully',
-    );
-
-    // return Future.delayed(
-    //   const Duration(seconds: 1),
-    //   () => DataFailed(
-    //     DioError(
-    //       requestOptions: RequestOptions(),
-    //       response: Response(
-    //         requestOptions: RequestOptions(),
-    //         data: {"message": "Some error"},
-    //       ),
-    //       type: DioErrorType.badResponse,
-    //       error: null,
-    //     ),
-    //   ),
-    // );
-
-    return Future.delayed(
-      const Duration(seconds: 1),
-      () => DataSuccess(CreateP2PPullTransactionRequest),
-    );
-  }
-
   Future<DataState<GetCheckpointsResponse>> getCheckpoints(String user_id) {
     return Future.delayed(
       const Duration(seconds: 1),
@@ -447,24 +422,6 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     );
   }
 
-  Future<DataState<GetFrequentUsersResponse>> getFrequentUsers({
-    required String closedLoopId,
-    required String token,
-  }) {
-    GetFrequentUsersResponse getFrequentUsers = GetFrequentUsersResponse(
-      frequentUsers: [
-        UserInfo(fullName: 'Hamza BM', uniqueIdentifier: '26100353'),
-        UserInfo(fullName: 'Shaheer', uniqueIdentifier: '26100240'),
-      ],
-      message: 'User name successfully',
-    );
-
-    return Future.delayed(
-      const Duration(seconds: 1),
-      () => DataSuccess(getFrequentUsers),
-    );
-  }
-
   Future<DataState<SetFcmTokenResponse>> setFcmToken({
     required SetFcmTokenRequest request,
     required String token,
@@ -489,6 +446,131 @@ class FakeApiRepositoryImpl extends BaseApiRepository implements ApiRepository {
     // );
 
     return Future.delayed(const Duration(seconds: 1), () => DataSuccess(res));
+  }
+
+  // Payments
+  Future<DataState<CreateP2PPullTransactionResponse>> createP2PPullTransaction({
+    required CreateP2PPullTransactionRequest request,
+    required String token,
+  }) {
+    CreateP2PPullTransactionResponse CreateP2PPullTransactionRequest =
+        CreateP2PPullTransactionResponse(
+      message: 'Transection is successfully',
+    );
+
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(CreateP2PPullTransactionRequest),
+    );
+  }
+
+  Future<DataState<CommonResponse>> acceptP2PPullTransaction({
+    required AcceptP2PPullTransactionRequest request,
+    required String token,
+  }) {
+    CommonResponse commonResponse = CommonResponse(
+      message: 'Transection is successfully',
+    );
+
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(commonResponse),
+    );
+  }
+
+  Future<DataState<CommonResponse>> declineP2PPullTransaction({
+    required DeclineP2PPullTransactionRequest request,
+    required String token,
+  }) {
+    CommonResponse commonResponse = CommonResponse(
+      message: 'Transection is successfully',
+    );
+
+    // return Future.delayed(
+    //   const Duration(seconds: 1),
+    //   () => DataFailed(
+    //     DioError(
+    //       requestOptions: RequestOptions(),
+    //       response: Response(
+    //         requestOptions: RequestOptions(),
+    //         data: {"message": "Some error"},
+    //       ),
+    //       type: DioErrorType.badResponse,
+    //       error: null,
+    //     ),
+    //   ),
+    // );
+
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(commonResponse),
+    );
+  }
+
+  Future<DataState<GetFrequentUsersResponse>> getFrequentUsers({
+    required String closedLoopId,
+    required String token,
+  }) {
+    GetFrequentUsersResponse getFrequentUsers = GetFrequentUsersResponse(
+      // frequentUsers: [],
+      frequentUsers: [
+        UserInfo(fullName: 'Hamza BM', uniqueIdentifier: '26100353'),
+        UserInfo(fullName: 'Shaheer', uniqueIdentifier: '26100240'),
+      ],
+      message: 'User name successfully',
+    );
+
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(getFrequentUsers),
+    );
+  }
+
+  Future<DataState<GetP2PPullRequestsResponse>> getP2PPullRequests({
+    required String token,
+  }) {
+    GetP2PPullRequestsResponse res = GetP2PPullRequestsResponse(
+      p2pRequestInfo: [
+        P2PRequestInfo(fullName: 'Suleman', amount: 420),
+        P2PRequestInfo(fullName: 'Khuzimi', amount: 169),
+      ],
+      message: 'User name successfully',
+    );
+
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => DataSuccess(res),
+    );
   }
 
   // Events

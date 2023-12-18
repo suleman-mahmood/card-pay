@@ -122,6 +122,7 @@ def execute_transaction_unique_identifier(
 
 
 def accept_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
+
     tx = uow.transactions.get(transaction_id=transaction_id)
     try:
         tx.accept_p2p_pull_transaction()
@@ -133,12 +134,16 @@ def accept_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
 
 
 def accept_payment_gateway_transaction(transaction_id: str, uow: AbstractUnitOfWork):
+    """Accept p2p pull request"""
+
     tx = uow.transactions.get(transaction_id=transaction_id)
     tx.execute_transaction()
     uow.transactions.save(tx)
 
 
 def decline_p2p_pull_transaction(transaction_id: str, uow: AbstractUnitOfWork):
+    """Decline p2p pull request"""
+    
     tx = uow.transactions.get(transaction_id=transaction_id)
     tx.decline_p2p_pull_transaction()
     uow.transactions.save(tx)

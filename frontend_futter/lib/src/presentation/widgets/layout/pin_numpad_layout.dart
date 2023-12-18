@@ -5,6 +5,7 @@ import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/selections/radio_input_button.dart';
 import 'package:cardpay/src/presentation/widgets/number_pad/numpad.dart';
 
+// It's not a page layout, it's a widget most probably
 class PinEntry extends HookWidget {
   final TextEditingController controller;
   final int pinLength;

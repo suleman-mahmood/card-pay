@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/router/app_router.dart';
 import 'package:cardpay/src/config/screen_utills/screen_util.dart';
@@ -6,7 +5,6 @@ import 'package:cardpay/src/config/themes/colors.dart';
 import 'package:cardpay/src/presentation/cubits/remote/live_events_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
-import 'package:cardpay/src/presentation/widgets/boxes/verticle_padding.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -24,6 +22,7 @@ class LiveEventsView extends HookWidget {
   Widget build(BuildContext context) {
     final userCubit = BlocProvider.of<UserCubit>(context);
     final liveEventsCubit = BlocProvider.of<LiveEventsCubit>(context);
+
     return BlocBuilder<LiveEventsCubit, LiveEventsState>(builder: (_, state) {
       switch (state.runtimeType) {
         case LiveEventsSuccess:
@@ -354,7 +353,7 @@ class LiveEventsView extends HookWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 );
@@ -586,8 +585,11 @@ class LiveEventsView extends HookWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
-                  ],
-                );
+                  ),
+                ),
+              ],
+            ),
+          );
         case LiveEventsLoading:
           return SkeletonLoader(
             builder: Column(

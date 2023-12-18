@@ -26,6 +26,10 @@ class TransferSuccess extends TransferState {
   TransferSuccess({super.message});
 }
 
+class TransferPullDeclined extends TransferState {
+  TransferPullDeclined({super.message});
+}
+
 class TransferFailed extends TransferState {
   TransferFailed({super.error, super.errorMessage});
 }

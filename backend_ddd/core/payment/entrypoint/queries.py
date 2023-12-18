@@ -1201,3 +1201,27 @@ def get_latest_reconciliation_amounts(
     rows = uow.dict_cursor.fetchall()
 
     return [pmt_vm.AmountWithIdDTO.from_db_dict_row(row) for row in rows]
+
+
+def get_p2p_pull_requests(
+    sender_id: str, uow: AbstractUnitOfWork
+) -> List[pmt_vm.P2PPullRequestsDTO]:
+    sql = """
+        select
+            tx.id as tx_id,
+            u.full_name,
+            tx.amount,
+            tx.created_at
+        from
+            transactions tx
+            join users u on u.id = tx.sender_wallet_id
+        where
+            transaction_type = 'P2P_PULL'::transaction_type_enum
+            and status = 'PENDING'
+            and sender_wallet_id = %(sender_wallet_id)s
+    """
+
+    uow.dict_cursor.execute(sql, {"sender_wallet_id": sender_id})
+    rows = uow.dict_cursor.fetchall()
+
+    return [pmt_vm.P2PPullRequestsDTO.from_db_dict_row(row) for row in rows]

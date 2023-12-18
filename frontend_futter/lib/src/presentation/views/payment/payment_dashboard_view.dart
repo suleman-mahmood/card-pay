@@ -1,6 +1,7 @@
 import 'package:cardpay/src/config/firebase/analytics_service.dart';
 import 'package:cardpay/src/locator.dart';
 import 'package:cardpay/src/presentation/cubits/local/local_recent_transactions_cubit.dart';
+import 'package:cardpay/src/presentation/cubits/remote/all_requests_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/balance_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/frequent_users_cubit.dart';
 import 'package:cardpay/src/presentation/cubits/remote/recent_transactions_cubit.dart';
@@ -8,7 +9,6 @@ import 'package:cardpay/src/presentation/cubits/remote/user_cubit.dart';
 import 'package:cardpay/src/presentation/widgets/boxes/height_box.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/circle_list_item_loading.dart';
 import 'package:cardpay/src/presentation/widgets/loadings/shimmer_loading.dart';
-import 'package:cardpay/src/utils/pretty_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -42,6 +42,7 @@ class PaymentDashboardView extends HookWidget {
     final localRecentTransactionsCubit =
         BlocProvider.of<LocalRecentTransactionsCubit>(context);
     final frequentUsersCubit = BlocProvider.of<FrequentUsersCubit>(context);
+    final allRequestsCubit = BlocProvider.of<AllRequestsCubit>(context);
 
     final deviceHeight = MediaQuery.of(context).size.height;
 
@@ -348,7 +349,17 @@ class PaymentDashboardView extends HookWidget {
             // Transactions wala section
             buildTransactions(),
 
-            // Reason? Wrapping it with Column prevents any unnecessary distance between the two rows, due to the parent column with space between property
+            // TODO: Do the figma design magic
+            MaterialButton(
+              child: Text("View all requests mate"),
+              onPressed: () {
+                allRequestsCubit.getP2PPullRequests();
+                context.router.push(const AllRequestsRoute());
+              },
+            ),
+
+            // Reason? Wrapping it with Column prevents any unnecessary distance between the two rows,
+            // due to the parent column with space between property
             Column(
               children: [
                 const Row(
@@ -385,11 +396,6 @@ class PaymentDashboardView extends HookWidget {
                       imagePath: 'assets/icon/faqs.svg',
                       text: PaymentStrings.request,
                       route: RequestSenderRoute(),
-                      /* RequestAmountRoute(
-                        closedLoopId: "",
-                        recipientUniqueIdentifier: "",
-                        children: [],
-                      ), */
                       cardColor: Color.fromRGBO(1, 204, 192, 1),
                       splashColor: Color.fromRGBO(1, 84, 79, 1),
                       onTap: () {

@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cardpay/src/config/router/auth_guard.dart';
 import 'package:cardpay/src/config/router/splash_guard.dart';
 import 'package:cardpay/src/domain/models/event.dart';
+import 'package:cardpay/src/domain/models/p2p_request_info.dart';
 import 'package:cardpay/src/presentation/views/event/event_attendance_qr_view.dart';
 import 'package:cardpay/src/presentation/views/event/event_details_view.dart';
 import 'package:cardpay/src/presentation/views/event/event_selector_view.dart';
@@ -13,10 +14,12 @@ import 'package:cardpay/src/presentation/views/dashboard_layout_view.dart';
 import 'package:cardpay/src/presentation/views/intro/intro_view.dart';
 import 'package:cardpay/src/presentation/views/intro/splash_view.dart';
 import 'package:cardpay/src/presentation/views/intro/splash_view_animated.dart';
+import 'package:cardpay/src/presentation/views/payment/all_requests_view.dart';
 import 'package:cardpay/src/presentation/views/payment/deposit_amount_view.dart';
 import 'package:cardpay/src/presentation/views/payment/qr_amount_view.dart';
 import 'package:cardpay/src/presentation/views/payment/qr_view.dart';
 import 'package:cardpay/src/presentation/views/payment/request_amount_view.dart';
+import 'package:cardpay/src/presentation/views/payment/request_confirmation_view.dart';
 import 'package:cardpay/src/presentation/views/payment/request_sender_view.dart';
 import 'package:cardpay/src/presentation/views/payment/transfer_amount_view.dart';
 import 'package:cardpay/src/presentation/views/payment/transfer_recipient_view.dart';
@@ -125,6 +128,14 @@ class AppRouter extends _$AppRouter {
         ),
         CustomRoute(
           page: EditProfileRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: AllRequestsRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: RequestConfirmationRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         // Event views

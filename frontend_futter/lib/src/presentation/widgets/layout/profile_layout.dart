@@ -2,6 +2,7 @@ import 'package:cardpay/src/presentation/widgets/boxes/all_padding.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+// Deprecate this
 class ProfileLayout extends HookWidget {
   final Widget child;
 
