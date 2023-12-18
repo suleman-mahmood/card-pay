@@ -23,8 +23,7 @@ rp_app = Blueprint("rp_app", __name__, url_prefix="/api/v1/rp")
 )
 def exceute_offline_transaction():
     req = request.get_json(force=True)
-    offline_payload = json.loads(req)
-    qr_data = json.loads(offline_payload["qr_data"])
+    qr_data = json.loads(req["qr_data"])
     uow = UnitOfWork()
 
     try:
@@ -33,7 +32,7 @@ def exceute_offline_transaction():
             uow=uow,
             user_id=qr_data["user_id"],
             document_id=req["document_id"],
-            amount=offline_payload["amount"],
+            amount=req["amount"],
             auth_svc=pmt_acl.AuthenticationService(),
             pmt_svc=pmt_acl.PaymentService(),
         )

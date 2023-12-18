@@ -7,5 +7,4 @@ def decrypt_data(
     user = uow.users.get(user_id=user_id)
     pk = bytes(user.private_key, encoding="utf-8")
     dd = mdl.DataDecrypter(private_key=pk)
-    decrypted_data = dd.decrypt_data(digest=digest)
-    return decrypted_data
+    return dd.decrypt_data(digest=digest)
