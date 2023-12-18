@@ -12,7 +12,7 @@ from core.payment.entrypoint import view_models as pmt_vm
 from core.payment.entrypoint import service as pmt_svc
 
 PAYPRO_USER_ID = "93c74873-294f-4d64-a7cc-2435032e3553"
-LUMS_USER_ID = "93c74873-294f-4d64-a7cc-2435032e3553"
+LUMS_USER_ID = "8893e7e7-e9ff-52c5-85c1-032421851617"
 
 
 
