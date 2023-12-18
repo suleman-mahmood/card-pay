@@ -7,7 +7,7 @@ from core.payment.domain import exceptions as ex
 
 TX_UPPER_LIMIT = 10000
 MIN_DEPOSIT_AMOUNT = 1000
-
+EXPIRATION_WINDOW =  timedelta(minutes=5)
 
 @dataclass
 class Wallet:
@@ -198,8 +198,7 @@ class OfflineQrExpiration:
     def verify_digest(self):
         datetime_object = datetime.strptime(self.decrypted_object["current_timestamp"], '%Y-%m-%d %H:%M:%S.%f')
         qr_time_milliseconds = int(datetime_object.timestamp() * 1000)
-        
-        EXPIRATION_WINDOW =  timedelta(minutes=5)
+
         pk_time = datetime.now() + timedelta(hours=5) - EXPIRATION_WINDOW
         expiration_threshold = int(pk_time.timestamp() * 1000)
         
