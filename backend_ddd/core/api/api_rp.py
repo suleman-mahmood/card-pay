@@ -10,6 +10,26 @@ import json
 
 rp_app = Blueprint("rp_app", __name__, url_prefix="/api/v1/rp")
 
+@rp_app.route("/sandbox/execute-offline-qr-transaction", methods=["POST"])
+@utils.handle_missing_payload
+@utils.authenticate_rp_secret
+@utils.validate_and_sanitize_json_payload(
+    required_parameters={
+        "qr_data": sch.StringSchema,
+        "amount": sch.AmountSchema,
+        "document_id": sch.StringSchema,
+    }
+)
+def exceute_offline_transaction_stub():
+    req = request.get_json(force=True)
+    if req["amount"] < 500:
+        raise utils.CustomException("Amount less than 500")
+    return utils.Response(
+        message="Offline Qr Transaction Executed Successfully",
+        status_code=200,
+    ).__dict__
+
+
 
 @rp_app.route("/execute-offline-qr-transaction", methods=["POST"])
 @utils.handle_missing_payload
@@ -56,7 +76,7 @@ def exceute_offline_transaction():
     ).__dict__
 
 
-@rp_app.route("/reverse-transaction", methods=["POST"])
+@rp_app.route("/sandbox/reverse-transaction", methods=["POST"])
 @utils.handle_missing_payload
 @utils.authenticate_rp_secret
 @utils.validate_and_sanitize_json_payload(required_parameters={"tx_id": sch.StringSchema})
