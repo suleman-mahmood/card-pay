@@ -103,6 +103,7 @@ class Transaction:
         if (
             self.transaction_type != TransactionType.RECONCILIATION
             and self.transaction_type != TransactionType.PAYMENT_GATEWAY
+            and self.transaction_type != TransactionType.EVENT_REGISTRATION_FEE
             and self.amount >= TX_UPPER_LIMIT
         ):
             self.status = TransactionStatus.FAILED
